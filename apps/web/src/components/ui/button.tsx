@@ -13,7 +13,7 @@ const buttonVariants = cva(
         primary:
           "bg-[var(--button-primary-background-default)] text-[var(--button-text-inverse)] hover:bg-[var(--button-primary-background-hover)] active:bg-[var(--button-primary-background-active)] disabled:bg-[var(--button-primary-background-disabled)] disabled:text-[var(--button-primary-text-disabled)]",
         secondary:
-          "border-[var(--button-border-default)] bg-[var(--button-secondary-background-default)] text-[var(--button-text-default)] hover:bg-[var(--button-secondary-background-hover)] active:bg-[var(--button-secondary-background-active)] disabled:text-[var(--button-text-disabled)]",
+          "border-[var(--button-border-default)] bg-[var(--button-secondary-background-default)] text-[var(--button-text-secondary)] hover:bg-[var(--button-secondary-background-hover)] active:bg-[var(--button-secondary-background-active)] disabled:border-[var(--button-primary-background-disabled)] disabled:text-[var(--button-text-disabled)]",
         ghost:
           "bg-transparent text-[var(--button-text-default)] hover:bg-[var(--button-ghost-background-hover)] active:bg-[var(--button-ghost-background-active)] disabled:text-[var(--button-text-disabled)]",
         danger:

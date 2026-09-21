@@ -29,11 +29,11 @@ function Toaster() {
       toastOptions={{
         classNames: {
           content: "gap-1",
-          description: "text-ui !text-capta-text-secondary",
-          icon: "mt-0.5 self-start !text-capta-text-primary",
-          title: "text-ui-semibold !text-capta-text-primary",
+          description: "text-ui !text-content-secondary",
+          icon: "mt-0.5 self-start !text-foreground",
+          title: "text-ui-semibold !text-foreground",
           toast:
-            "!border-capta-border-default !bg-capta-surface-card !text-capta-text-primary shadow-[var(--card-base-shadow)]",
+            "!border-border !bg-card !text-foreground shadow-[var(--shadow-elevated)]",
         },
       }}
     />

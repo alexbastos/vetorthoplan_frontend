@@ -60,7 +60,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
           >
             {label}
             {required ? (
-              <span data-slot="input-field-required" className="text-[var(--color-feedback-error)]" aria-hidden="true">
+              <span data-slot="input-field-required" className="text-destructive" aria-hidden="true">
                 *
               </span>
             ) : null}
@@ -84,7 +84,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             className={cn(
               "text-[length:var(--input-field-helper-size)] leading-[var(--input-field-helper-line-height)]",
               hasError
-                ? "text-[var(--color-feedback-error)]"
+                ? "text-destructive"
                 : disabled
                   ? "text-[var(--input-field-helper-color-disabled)]"
                   : "text-[var(--input-field-helper-color)]"

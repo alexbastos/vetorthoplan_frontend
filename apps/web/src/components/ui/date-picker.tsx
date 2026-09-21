@@ -32,8 +32,8 @@ function DatePicker({ disabled = false, id, onValueChange, placeholder, value }:
         <button
           aria-label={t("selectDate")}
           className={cn(
-            "flex min-w-0 flex-1 items-center justify-between gap-3 bg-transparent text-left font-sans text-[length:var(--type-ui-size)] leading-[var(--type-ui-line-height)] outline-none focus-visible:ring-2 focus-visible:ring-capta-brand-primary",
-            selectedDate ? "font-semibold text-capta-text-primary" : "font-normal text-capta-text-muted",
+            "flex min-w-0 flex-1 items-center justify-between gap-3 bg-transparent text-left font-sans text-[length:var(--type-ui-size)] leading-[var(--type-ui-line-height)] outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            selectedDate ? "font-medium text-foreground" : "font-normal text-muted-foreground",
           )}
           disabled={disabled}
           id={id}
@@ -45,7 +45,7 @@ function DatePicker({ disabled = false, id, onValueChange, placeholder, value }:
       <Popover.Portal>
         <Popover.Content
           align="start"
-          className="z-50 rounded-[var(--radius-token-lg)] border border-capta-border-default bg-capta-surface-card shadow-lg outline-none"
+          className="z-50 rounded-[var(--radius-token-lg)] border border-border bg-card shadow-[var(--shadow-elevated)] outline-none"
           sideOffset={8}
         >
           <Calendar

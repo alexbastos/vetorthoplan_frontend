@@ -87,7 +87,7 @@ export function TriangleLoader({
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("text-capta-text-primary overflow-visible", className)}
+      className={cn("overflow-visible text-foreground", className)}
       aria-label="Carregando..."
       role="status"
     >

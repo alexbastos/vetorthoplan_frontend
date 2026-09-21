@@ -176,12 +176,12 @@ function SlideMenu({
           {level.parent ? (
             <button
               aria-label={`${backLabel} ${level.previousLabel ?? rootLabel}`}
-              className="motion-interactive mb-1 flex h-9 w-full cursor-pointer items-center gap-2 rounded-[var(--radius-token-md)] px-2 text-left text-ui-semibold text-capta-text-primary outline-none hover:bg-capta-surface-subtle focus-visible:ring-2 focus-visible:ring-capta-border-focus"
+              className="motion-interactive mb-1 flex h-9 w-full cursor-pointer items-center gap-2 rounded-[var(--radius-token-md)] px-2 text-left text-ui-semibold text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
               data-slide-menu-control
               onClick={() => returnToPreviousLevel()}
               type="button"
             >
-              <span className="flex size-5 items-center justify-center rounded-[var(--radius-token-sm)] text-capta-text-secondary">
+              <span className="flex size-5 items-center justify-center rounded-[var(--radius-token-sm)] text-content-secondary">
                 <ChevronLeft aria-hidden="true" className="size-4" />
               </span>
               {level.parent.icon ? <span className="flex size-5 items-center justify-center">{level.parent.icon}</span> : null}
@@ -195,8 +195,8 @@ function SlideMenu({
               const itemClassNames = cn(
                 "group/slide-menu-item motion-interactive flex min-h-10 w-full items-center gap-3 rounded-[var(--radius-token-md)] px-3 text-left text-ui font-medium outline-none transition-colors duration-75",
                 item.variant === "destructive"
-                  ? "text-capta-feedback-error hover:bg-red-50 focus-visible:bg-red-50"
-                  : "text-capta-text-primary hover:bg-capta-surface-subtle focus-visible:bg-capta-surface-subtle",
+                  ? "text-destructive hover:bg-destructive/10 focus-visible:bg-destructive/10"
+                  : "text-foreground hover:bg-muted focus-visible:bg-muted",
                 item.disabled && "cursor-not-allowed opacity-45",
                 !item.disabled && "cursor-pointer",
                 itemClassName,
@@ -205,15 +205,15 @@ function SlideMenu({
 
               const content = (
                 <>
-                  {item.icon ? <span className="flex size-5 shrink-0 items-center justify-center text-capta-text-secondary transition-colors duration-75 group-hover/slide-menu-item:text-capta-text-primary">{item.icon}</span> : <span className="size-5" />}
+                  {item.icon ? <span className="flex size-5 shrink-0 items-center justify-center text-content-secondary transition-colors duration-75 group-hover/slide-menu-item:text-foreground">{item.icon}</span> : <span className="size-5" />}
                   <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  {hasChildren ? <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-capta-text-secondary transition-colors duration-75 group-hover/slide-menu-item:text-capta-text-primary" /> : null}
+                  {hasChildren ? <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-content-secondary transition-colors duration-75 group-hover/slide-menu-item:text-foreground" /> : null}
                 </>
               )
 
               if (item.href && !hasChildren) {
                 return (
-                  <li className={item.separatorBefore ? "mt-3 border-t border-capta-border-default pt-3" : undefined} key={item.id} role="none">
+                  <li className={item.separatorBefore ? "mt-3 border-t border-border pt-3" : undefined} key={item.id} role="none">
                     <a
                       aria-disabled={item.disabled || undefined}
                       className={itemClassNames}
@@ -232,7 +232,7 @@ function SlideMenu({
               }
 
               return (
-                <li className={item.separatorBefore ? "mt-3 border-t border-capta-border-default pt-3" : undefined} key={item.id} role="none">
+                <li className={item.separatorBefore ? "mt-3 border-t border-border pt-3" : undefined} key={item.id} role="none">
                   <button
                     aria-haspopup={hasChildren ? "menu" : undefined}
                     className={itemClassNames}
