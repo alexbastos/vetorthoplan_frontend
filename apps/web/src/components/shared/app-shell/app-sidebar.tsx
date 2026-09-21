@@ -24,7 +24,7 @@ function AppSidebar({ mode = "desktop", onDismiss, onNavigate, onStateChange, st
     <aside
       aria-label={t("main")}
       className={cn(
-        "h-dvh shrink-0 flex-col bg-capta-surface-sidebar",
+        "h-dvh shrink-0 flex-col bg-sidebar",
         "motion-panel",
         isMobile
           ? "flex w-[var(--layout-sidebar-width-expanded)] shadow-[var(--shadow-stage)]"
@@ -39,9 +39,9 @@ function AppSidebar({ mode = "desktop", onDismiss, onNavigate, onStateChange, st
         <button
           aria-label={isMobile ? t("close") : isCollapsed ? t("expand") : t("collapse")}
           className={cn(
-            "motion-interactive flex size-8 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-capta-text-secondary outline-none",
-            "hover:bg-capta-surface-subtle hover:text-capta-text-primary",
-            "focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-capta-surface-raised",
+            "motion-interactive flex size-8 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none",
+            "hover:bg-muted hover:text-foreground",
+            "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised",
             "disabled:pointer-events-none disabled:opacity-50",
             isCollapsed && "mx-auto",
           )}
@@ -64,7 +64,7 @@ function AppSidebar({ mode = "desktop", onDismiss, onNavigate, onStateChange, st
         <NavigationItem item={homeNavigationItem} onNavigate={onNavigate} state={state} />
         {primaryNavigationItems.length > 0 ? (
           <>
-            <div aria-hidden="true" className="mx-3 my-3 h-px bg-capta-surface-default" />
+            <div aria-hidden="true" className="mx-3 my-3 h-px bg-background" />
             <div className="space-y-1">
               {primaryNavigationItems.map((item) => (
                 <NavigationItem key={item.href} item={item} onNavigate={onNavigate} state={state} />
@@ -104,9 +104,9 @@ function NavigationItem({ item, onNavigate, state }: NavigationItemProps) {
       aria-current={isActive ? "page" : undefined}
       aria-label={isCollapsed ? label : undefined}
       className={cn(
-        "motion-interactive group flex h-[2.625rem] items-center rounded-[0.6875rem] text-capta-text-primary outline-none",
-        "hover:bg-capta-surface-hover focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-capta-surface-raised",
-        isActive && "bg-capta-surface-default",
+        "motion-interactive group flex h-[2.625rem] items-center rounded-[0.6875rem] text-foreground outline-none",
+        "hover:bg-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised",
+        isActive && "bg-background",
         isCollapsed ? "justify-center" : "gap-3 px-3",
       )}
       href={item.href}

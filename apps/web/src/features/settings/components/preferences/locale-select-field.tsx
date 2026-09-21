@@ -22,8 +22,8 @@ function LocaleSelectField({ error, locale, onValueChange }: LocaleSelectFieldPr
       <div className="flex min-w-0 items-center gap-3">
         <LocaleFlagIcon locale={locale} />
         <div className="min-w-0">
-          <label className="text-caption font-semibold text-capta-text-primary" htmlFor={inputId}>{t("language")}</label>
-          <p className="mt-1 text-caption text-capta-text-secondary">{t("languageHint")}</p>
+          <label className="text-caption font-semibold text-foreground" htmlFor={inputId}>{t("language")}</label>
+          <p className="mt-1 text-caption text-content-secondary">{t("languageHint")}</p>
         </div>
       </div>
       <div className="mt-3">

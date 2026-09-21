@@ -14,14 +14,14 @@ function ArchitecturalStackModule({ content }: ArchitecturalStackModuleProps) {
           className="grid gap-y-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.75fr)] lg:items-baseline lg:gap-x-16"
           data-architectural-stack-intro
         >
-          <p className="text-overline text-capta-text-muted lg:col-span-2">{content.intro.eyebrow}</p>
+          <p className="text-overline text-muted-foreground lg:col-span-2">{content.intro.eyebrow}</p>
           <h2
             id="architectural-stack-title"
-            className="max-w-[36rem] font-heading text-heading-3 font-medium tracking-[-0.02em] text-pretty text-capta-text-primary"
+            className="max-w-[36rem] font-heading text-heading-3 font-medium tracking-[-0.02em] text-pretty text-foreground"
           >
             {content.intro.title}
           </h2>
-          <p className="max-w-[36rem] text-body text-pretty text-capta-text-secondary">
+          <p className="max-w-[36rem] text-body text-pretty text-content-secondary">
             {content.intro.description}
           </p>
         </header>

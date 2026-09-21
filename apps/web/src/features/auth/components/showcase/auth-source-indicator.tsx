@@ -33,7 +33,7 @@ function AuthSourceIndicator() {
 
   return (
     <div ref={indicatorRef} aria-hidden="true" className="absolute top-40 left-10 z-10 h-12 w-56" data-auth-source>
-      <div ref={tileRef} className="absolute inset-y-0 left-0 grid size-12 place-items-center rounded-[var(--radius-token-md)] border border-capta-border-default bg-capta-surface-card shadow-[var(--card-base-shadow)]">
+      <div ref={tileRef} className="absolute inset-y-0 left-0 grid size-12 place-items-center rounded-[var(--radius-token-md)] border border-border bg-card shadow-[var(--card-base-shadow)]">
         {sources.map(({ icon: Icon, labelKey }, index) => (
           <div
             key={labelKey}
@@ -44,7 +44,7 @@ function AuthSourceIndicator() {
             }}
             className={index === 0 ? "absolute inset-0 grid place-items-center" : "absolute inset-0 grid place-items-center opacity-0"}
           >
-            <Icon className="size-5 text-capta-brand-primary" strokeWidth={1.5} />
+            <Icon className="size-5 text-link" strokeWidth={1.5} />
           </div>
         ))}
       </div>
@@ -59,17 +59,17 @@ function AuthSourceIndicator() {
           }}
           className={index === 0 ? "absolute inset-y-0 left-16 flex items-center gap-3" : "absolute inset-y-0 left-16 flex items-center gap-3 opacity-0"}
         >
-          <div className="w-10 overflow-hidden bg-capta-border-default">
+          <div className="w-10 overflow-hidden bg-border">
             <span
               ref={(element) => {
                 if (element) {
                   progressRefs.current[index] = element
                 }
               }}
-              className="block h-0.5 origin-left bg-capta-brand-primary"
+              className="block h-0.5 origin-left bg-primary"
             />
           </div>
-          <span className="text-overline text-capta-text-secondary">{labelKey === "transferegov" ? "Transferegov" : t(labelKey)}</span>
+          <span className="text-overline text-content-secondary">{labelKey === "transferegov" ? "Transferegov" : t(labelKey)}</span>
         </div>
       ))}
     </div>

@@ -29,7 +29,7 @@ export function AuthNavLink({ children, className, href }: AuthNavLinkProps) {
   return (
     <a
       className={cn(
-        "motion-interactive rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 aria-disabled:pointer-events-none aria-disabled:cursor-wait",
+        "motion-interactive rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-disabled:pointer-events-none aria-disabled:cursor-wait",
         className,
       )}
       aria-disabled={isTransitioning}

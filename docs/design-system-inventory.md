@@ -31,8 +31,9 @@ As extensoes necessarias ao shell usam nomes de funcao, nao de cor ou produto:
 `workspace`, `stage`, `raised`, `inverse`, `hover`, `selected`,
 `content-secondary`, `content-disabled`, `success`, `warning` e `info`.
 
-Os aliases `capta-*` permanecem temporariamente apenas para consumidores ainda
-nao migrados. Eles nao devem ser usados em codigo novo.
+O namespace visual legado `capta-*` foi removido. Componentes e features usam
+somente tokens semanticos; identificadores internos de SVG e o componente de
+logo antigo permanecem ate a etapa dedicada a assets de marca.
 
 ## Componentes reutilizaveis
 

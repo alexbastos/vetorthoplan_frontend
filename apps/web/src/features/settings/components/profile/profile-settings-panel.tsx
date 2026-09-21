@@ -77,8 +77,8 @@ function ProfileSettingsPanel({ isActive, profileSettings }: ProfileSettingsPane
     return (
       <div className="flex min-h-48 flex-col items-start justify-center gap-4 px-6 py-10 sm:px-8" role="alert">
         <div className="space-y-1">
-          <h3 className="text-ui-semibold text-capta-text-primary">{t("profile.loadError")}</h3>
-          <p className="text-ui text-capta-text-secondary">{loadError}</p>
+          <h3 className="text-ui-semibold text-foreground">{t("profile.loadError")}</h3>
+          <p className="text-ui text-content-secondary">{loadError}</p>
         </div>
         <Button onClick={() => retry()} size="sm" type="button" variant="secondary">
           <RefreshCw aria-hidden="true" />
@@ -91,7 +91,7 @@ function ProfileSettingsPanel({ isActive, profileSettings }: ProfileSettingsPane
   return (
     <form ref={formRef} className="space-y-8 px-6 pt-4 pb-8 sm:px-8" noValidate onSubmit={onSubmit}>
       <section aria-labelledby="profile-personal-information" className="space-y-4" data-settings-profile-group>
-        <h3 className="text-ui-semibold text-capta-text-primary" id="profile-personal-information">
+        <h3 className="text-ui-semibold text-foreground" id="profile-personal-information">
           {t("profile.personalInformation")}
         </h3>
 
@@ -133,8 +133,8 @@ function ProfileSettingsPanel({ isActive, profileSettings }: ProfileSettingsPane
 
       <section aria-labelledby="profile-location" className="space-y-4" data-settings-profile-group>
         <div>
-          <h3 className="text-ui-semibold text-capta-text-primary" id="profile-location">{t("profile.location")}</h3>
-          <p className="mt-1 text-ui text-capta-text-secondary">{t("profile.locationDescription")}</p>
+          <h3 className="text-ui-semibold text-foreground" id="profile-location">{t("profile.location")}</h3>
+          <p className="mt-1 text-ui text-content-secondary">{t("profile.locationDescription")}</p>
         </div>
 
         <ProfileFormRow
@@ -186,13 +186,13 @@ function ProfilePanelSkeleton() {
   const t = useTranslations("settings.profile")
   return (
     <div aria-busy="true" aria-label={t("loading")} className="space-y-6 px-6 py-8 sm:px-8">
-      <div className="h-5 w-40 animate-pulse rounded bg-capta-surface-subtle" />
-      <div className="h-24 animate-pulse rounded-[var(--radius-token-lg)] bg-capta-surface-subtle" />
+      <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+      <div className="h-24 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="h-16 animate-pulse rounded-[var(--radius-token-lg)] bg-capta-surface-subtle" />
-        <div className="h-16 animate-pulse rounded-[var(--radius-token-lg)] bg-capta-surface-subtle" />
+        <div className="h-16 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
+        <div className="h-16 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
       </div>
-      <div className="h-28 animate-pulse rounded-[var(--radius-token-lg)] bg-capta-surface-subtle" />
+      <div className="h-28 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
     </div>
   )
 }

@@ -33,8 +33,8 @@ function FaqAccordion({ questions }: FaqAccordionProps) {
           <div className="py-3 sm:py-4" data-landing-faq-question={id} key={id}>
             <div className="flex items-start gap-3">
               <div className="flex min-w-0 flex-1 items-start gap-3 py-2.5">
-                <Icon aria-hidden="true" className="mt-1 size-4 shrink-0 text-capta-text-secondary" strokeWidth={1.5} />
-                <h3 id={questionId} className="min-w-0 text-body leading-6 font-bold text-pretty text-capta-text-primary">
+                <Icon aria-hidden="true" className="mt-1 size-4 shrink-0 text-content-secondary" strokeWidth={1.5} />
+                <h3 id={questionId} className="min-w-0 text-body leading-6 font-bold text-pretty text-foreground">
                   {questions[id].question}
                 </h3>
               </div>
@@ -43,7 +43,7 @@ function FaqAccordion({ questions }: FaqAccordionProps) {
                 aria-labelledby={questionId}
                 aria-expanded={isOpen}
                 aria-controls={answerId}
-                className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-sm text-capta-text-secondary outline-none hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2"
+                className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-sm text-content-secondary outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 onClick={() => setOpenQuestionId((current) => current === id ? null : id)}
               >
                 <ChevronDown
@@ -53,7 +53,7 @@ function FaqAccordion({ questions }: FaqAccordionProps) {
               </button>
             </div>
             <div id={answerId} role="region" aria-labelledby={questionId} hidden={!isOpen}>
-              <p className="mt-2 pr-14 pl-7 text-body leading-relaxed text-pretty text-capta-text-secondary">
+              <p className="mt-2 pr-14 pl-7 text-body leading-relaxed text-pretty text-content-secondary">
                 {questions[id].answer}
               </p>
             </div>

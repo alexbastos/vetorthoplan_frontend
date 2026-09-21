@@ -7,10 +7,10 @@ function HomeShortcutGrid() {
   const t = useTranslations("home.shortcuts")
   return (
     <section data-home-shortcuts aria-labelledby="home-shortcuts-title">
-      <h2 data-home-shortcuts-title id="home-shortcuts-title" className="text-[20px] font-bold tracking-[-0.02em] text-capta-text-primary sm:text-[22px]">
+      <h2 data-home-shortcuts-title id="home-shortcuts-title" className="text-[20px] font-bold tracking-[-0.02em] text-foreground sm:text-[22px]">
         {t("title")}
       </h2>
-      <div data-home-shortcuts-divider aria-hidden="true" className="mt-3.5 mb-5 h-px bg-capta-border-default" />
+      <div data-home-shortcuts-divider aria-hidden="true" className="mt-3.5 mb-5 h-px bg-border" />
       <ul className="grid gap-[18px] md:grid-cols-3">
         {homeShortcuts.map((shortcut) => (
           <li key={shortcut.href}>

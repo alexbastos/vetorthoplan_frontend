@@ -12,7 +12,7 @@ function AppStage({ children, className }: AppStageProps) {
   return (
     <main
       className={cn(
-        "mt-[var(--layout-stage-gap-top)] min-h-0 flex-1 rounded-tl-[var(--layout-stage-radius-top-left)] bg-capta-surface-stage shadow-[var(--shadow-stage)]",
+        "mt-[var(--layout-stage-gap-top)] min-h-0 flex-1 rounded-tl-[var(--layout-stage-radius-top-left)] bg-stage shadow-[var(--shadow-stage)]",
         className,
       )}
     >

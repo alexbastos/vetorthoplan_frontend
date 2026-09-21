@@ -49,7 +49,7 @@ async function LegalDocumentShell({ children, document, language, lastUpdated, t
         {title ? (
           <header className="mb-10">
             <h1 className="text-heading-3 font-medium text-balance" id="legal-document-title">{title}</h1>
-            {lastUpdated ? <p className="mt-3 text-body text-capta-text-secondary">{lastUpdated}</p> : null}
+            {lastUpdated ? <p className="mt-3 text-body text-content-secondary">{lastUpdated}</p> : null}
           </header>
         ) : (
           <h1 className="sr-only" id="legal-document-title">{t(`documents.${document}`)}</h1>

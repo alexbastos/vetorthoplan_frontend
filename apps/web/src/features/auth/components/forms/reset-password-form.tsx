@@ -24,8 +24,8 @@ function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   return (
     <section ref={formRef} className="mx-auto w-full max-w-sm space-y-4">
       <header className="space-y-2" data-reset-password-step>
-        <h1 className="text-heading-4 text-capta-text-primary">{t("resetPassword.title")}</h1>
-        <p className="text-ui text-capta-text-secondary">
+        <h1 className="text-heading-4 text-foreground">{t("resetPassword.title")}</h1>
+        <p className="text-ui text-content-secondary">
           {t("resetPassword.description")}
         </p>
       </header>
@@ -58,9 +58,9 @@ function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         </div>
       </form>
 
-      <p className="text-center text-ui text-capta-text-secondary" data-reset-password-step>
+      <p className="text-center text-ui text-content-secondary" data-reset-password-step>
         {t("shared.rememberedPassword")}{" "}
-        <AuthNavLink className="font-semibold text-capta-text-primary" href="/login">
+        <AuthNavLink className="font-semibold text-foreground" href="/login">
           {t("shared.signIn")}
         </AuthNavLink>
       </p>

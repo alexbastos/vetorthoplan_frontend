@@ -27,7 +27,7 @@ function ProfileAvatar({ name, onLoadError, src }: ProfileAvatarProps) {
     return (
       <img
         alt={t("avatarAlt")}
-        className="size-16 rounded-full border border-capta-border-default object-cover"
+        className="size-16 rounded-full border border-border object-cover"
         onLoad={() => {
           refreshAttemptedRef.current = false
         }}
@@ -44,7 +44,7 @@ function ProfileAvatar({ name, onLoadError, src }: ProfileAvatarProps) {
     )
   }
 
-  return <span aria-label={t("avatarUnavailable")} className="flex size-16 items-center justify-center rounded-full bg-[var(--profile-avatar-surface)] text-ui-semibold text-capta-text-inverse">{initials || "U"}</span>
+  return <span aria-label={t("avatarUnavailable")} className="flex size-16 items-center justify-center rounded-full bg-[var(--profile-avatar-surface)] text-ui-semibold text-brand-secondary-foreground">{initials || "U"}</span>
 }
 
 export { ProfileAvatar }

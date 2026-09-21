@@ -99,9 +99,9 @@ function TwoFactorAuthenticationSetupPanel({
   }, { scope: panelRef })
 
   return (
-    <div aria-live="polite" className="border border-capta-border-default bg-capta-surface-subtle p-4" ref={panelRef}>
+    <div aria-live="polite" className="border border-border bg-muted p-4" ref={panelRef}>
       <div className="flex items-start gap-4">
-        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-capta-border-default bg-capta-surface-card text-capta-text-secondary">
+        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-card text-content-secondary">
           {qrCodeUrl ? (
             // The short-lived data URL is kept in memory only and never persisted.
             // eslint-disable-next-line @next/next/no-img-element
@@ -113,22 +113,22 @@ function TwoFactorAuthenticationSetupPanel({
           )}
         </div>
         <div>
-          <h4 className="text-caption font-semibold text-capta-text-primary">{t("setupTitle")}</h4>
-          <p className="mt-1 text-caption text-capta-text-secondary">{t("setupDescription")}</p>
-          <p className="mt-2 text-caption text-capta-text-muted">{qrCodeUrl ? t("setupReady") : t("setupPending")}</p>
+          <h4 className="text-caption font-semibold text-foreground">{t("setupTitle")}</h4>
+          <p className="mt-1 text-caption text-content-secondary">{t("setupDescription")}</p>
+          <p className="mt-2 text-caption text-muted-foreground">{qrCodeUrl ? t("setupReady") : t("setupPending")}</p>
         </div>
       </div>
 
-          <div className="mt-4 border-t border-capta-border-default pt-4">
+          <div className="mt-4 border-t border-border pt-4">
             <fieldset disabled={!qrCodeUrl || isVerifying}>
-              <legend className="text-caption font-semibold text-capta-text-primary">{t("verificationCode")}</legend>
+              <legend className="text-caption font-semibold text-foreground">{t("verificationCode")}</legend>
               <div className="mt-2 flex gap-2" role="group">
                 {digits.map((digit, index) => (
                   <input
                     aria-label={t("verificationCodeDigit", { digit: index + 1 })}
                     autoComplete={index === 0 ? "one-time-code" : "off"}
                     autoFocus={index === 0}
-                    className="size-8 rounded-[var(--radius-token-sm)] border border-capta-border-default bg-capta-surface-card text-center font-mono text-caption text-capta-text-primary outline-none disabled:cursor-not-allowed disabled:bg-capta-surface-subtle"
+                    className="size-8 rounded-[var(--radius-token-sm)] border border-border bg-card text-center font-mono text-caption text-foreground outline-none disabled:cursor-not-allowed disabled:bg-muted"
                     inputMode="numeric"
                     key={index}
                     maxLength={1}
@@ -149,14 +149,14 @@ function TwoFactorAuthenticationSetupPanel({
                 ))}
               </div>
             </fieldset>
-            {verificationError ? <p className="mt-2 text-caption text-capta-feedback-danger" role="alert">{verificationError}</p> : null}
+            {verificationError ? <p className="mt-2 text-caption text-destructive" role="alert">{verificationError}</p> : null}
             {verificationError && canRefresh ? (
               <Button className="mt-3 gap-2" disabled={isLoading || isVerifying} onClick={() => void onRefresh()} size="sm" type="button" variant="secondary">
                 <RefreshCw aria-hidden="true" className="size-3.5" strokeWidth={1.75} />
                 {t("refreshQrCode")}
               </Button>
             ) : null}
-            {isVerifying ? <p className="mt-2 text-caption text-capta-text-muted" role="status">{t("verifyingCode")}</p> : null}
+            {isVerifying ? <p className="mt-2 text-caption text-muted-foreground" role="status">{t("verifyingCode")}</p> : null}
           </div>
     </div>
   )

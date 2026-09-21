@@ -104,11 +104,11 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
           <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-[var(--card-composite-surface)] shadow-[var(--card-composite-shadow-footer)] outline-none motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95">
             <header className="flex min-h-[var(--card-header-min-height)] items-center justify-between gap-4 bg-[var(--color-surface-raised)] px-[var(--card-composite-padding-inline)] py-[var(--card-header-padding-block)]">
               <div>
-                <AlertDialog.Title className="font-semibold text-ui text-capta-text-primary">{t("title")}</AlertDialog.Title>
-                <AlertDialog.Description className="mt-1 text-ui text-capta-text-secondary">{t("description")}</AlertDialog.Description>
+                <AlertDialog.Title className="font-semibold text-ui text-foreground">{t("title")}</AlertDialog.Title>
+                <AlertDialog.Description className="mt-1 text-ui text-content-secondary">{t("description")}</AlertDialog.Description>
               </div>
               <AlertDialog.Cancel asChild>
-                <button aria-label={t("continueEditing")} className="motion-interactive -mr-2 flex size-9 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-capta-text-secondary outline-none hover:bg-capta-surface-subtle hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus" onClick={cancelNavigation} type="button">
+                <button aria-label={t("continueEditing")} className="motion-interactive -mr-2 flex size-9 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring" onClick={cancelNavigation} type="button">
                   <X aria-hidden="true" className="size-4" />
                 </button>
               </AlertDialog.Cancel>
@@ -117,11 +117,11 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
             <div className="relative z-10 -my-px overflow-hidden rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-[var(--color-surface-card)]">
               <div className="px-5 py-6 sm:px-6">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-caption font-medium tracking-[0.08em] text-capta-text-muted uppercase">{t("preview")}</p>
+                  <p className="text-caption font-medium tracking-[0.08em] text-muted-foreground uppercase">{t("preview")}</p>
                   {hiddenChangesCount > 0 ? (
                     <button
                       aria-expanded={isChangesExpanded}
-                      className="motion-interactive cursor-pointer rounded-[var(--radius-token-sm)] px-1.5 py-1 text-caption font-medium text-capta-text-secondary outline-none hover:bg-capta-surface-subtle hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus"
+                      className="motion-interactive cursor-pointer rounded-[var(--radius-token-sm)] px-1.5 py-1 text-caption font-medium text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                       onClick={() => setIsChangesExpanded((expanded) => !expanded)}
                       type="button"
                     >
@@ -131,20 +131,20 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
                     </button>
                   ) : null}
                 </div>
-                <p className="mt-1 text-ui text-capta-text-secondary">{t("restoreDescription")}</p>
+                <p className="mt-1 text-ui text-content-secondary">{t("restoreDescription")}</p>
 
                 <dl className="relative mt-4 space-y-4 before:absolute before:top-4 before:bottom-4 before:left-4 before:w-px before:bg-[var(--card-composite-border)]">
                   {visibleChanges.map((change) => (
                     <div className="relative flex items-center gap-3" key={change.label}>
-                      <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border border-capta-border-default bg-capta-surface-card text-capta-text-secondary">
+                      <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-content-secondary">
                         <UnsavedChangeIcon field={change.field} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <dt className="text-caption text-capta-text-muted">{change.label}</dt>
+                        <dt className="text-caption text-muted-foreground">{change.label}</dt>
                         <dd className="mt-1.5 flex flex-wrap items-center gap-2 text-ui" title={t("changeTitle", { previousValue: change.previousValue, value: change.value })}>
-                          <span className="text-capta-text-muted">{change.previousValue || tStatus("noInformation")}</span>
-                          <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-capta-text-muted" />
-                          <span className="font-semibold text-capta-text-primary">{change.value || tStatus("noInformation")}</span>
+                          <span className="text-muted-foreground">{change.previousValue || tStatus("noInformation")}</span>
+                          <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                          <span className="font-semibold text-foreground">{change.value || tStatus("noInformation")}</span>
                         </dd>
                       </div>
                     </div>

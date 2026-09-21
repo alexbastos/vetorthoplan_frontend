@@ -44,7 +44,7 @@ function LandingLocaleSwitcher() {
           <button
             aria-busy={isPending}
             aria-label={t("triggerLabel", { language: t(`locales.${locale}`) })}
-            className="motion-interactive flex size-8 cursor-pointer items-center justify-center rounded-full border border-capta-border-default outline-none transition-colors hover:bg-capta-text-primary/5 focus-visible:border-capta-brand-primary disabled:cursor-wait disabled:opacity-60"
+            className="motion-interactive flex size-8 cursor-pointer items-center justify-center rounded-full border border-border outline-none transition-colors hover:bg-foreground/5 focus-visible:border-ring disabled:cursor-wait disabled:opacity-60"
             disabled={isPending}
             title={t("chooseLanguage")}
             type="button"

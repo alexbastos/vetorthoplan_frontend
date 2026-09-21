@@ -58,17 +58,17 @@ function MfaChallengeForm({
   return (
     <div className="space-y-5">
       <div className="space-y-2 text-center">
-        <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-capta-surface-subtle text-capta-text-primary">
+        <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-muted text-foreground">
           <ShieldCheck aria-hidden="true" className="size-5" />
         </div>
-        <h1 className="text-heading-4 text-capta-text-primary outline-none" ref={titleRef} tabIndex={-1}>
+        <h1 className="text-heading-4 text-foreground outline-none" ref={titleRef} tabIndex={-1}>
           {t("title")}
         </h1>
-        <p className="text-ui text-capta-text-secondary">{t("description")}</p>
+        <p className="text-ui text-content-secondary">{t("description")}</p>
       </div>
 
       <fieldset className="space-y-2">
-        <legend className="text-caption font-semibold text-capta-text-primary">{t("methodLegend")}</legend>
+        <legend className="text-caption font-semibold text-foreground">{t("methodLegend")}</legend>
         <div className="grid gap-2">
           {availableMethods.map((availableMethod) => {
             const Icon = METHOD_ICONS[availableMethod]
@@ -84,11 +84,11 @@ function MfaChallengeForm({
                   type="radio"
                   value={availableMethod}
                 />
-                <span className="flex items-start gap-3 rounded-[var(--radius-token-md)] border border-capta-border-default bg-capta-surface-card p-3 transition-colors peer-checked:border-capta-border-focus peer-checked:bg-capta-surface-subtle peer-focus-visible:ring-2 peer-focus-visible:ring-capta-border-focus">
-                  <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-capta-text-secondary" />
+                <span className="flex items-start gap-3 rounded-[var(--radius-token-md)] border border-border bg-card p-3 transition-colors peer-checked:border-ring peer-checked:bg-muted peer-focus-visible:ring-2 peer-focus-visible:ring-ring">
+                  <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-content-secondary" />
                   <span>
-                    <span className="block text-ui font-semibold text-capta-text-primary">{t(`methods.${availableMethod}.label`)}</span>
-                    <span className="mt-0.5 block text-caption text-capta-text-secondary">{t(`methods.${availableMethod}.description`)}</span>
+                    <span className="block text-ui font-semibold text-foreground">{t(`methods.${availableMethod}.label`)}</span>
+                    <span className="mt-0.5 block text-caption text-content-secondary">{t(`methods.${availableMethod}.description`)}</span>
                   </span>
                 </span>
               </label>
@@ -98,8 +98,8 @@ function MfaChallengeForm({
       </fieldset>
 
       {method === "EMAIL" ? (
-        <div className="rounded-[var(--radius-token-md)] border border-capta-border-default bg-capta-surface-subtle p-3">
-          <p className="text-caption text-capta-text-secondary">{t("emailHelp")}</p>
+        <div className="rounded-[var(--radius-token-md)] border border-border bg-muted p-3">
+          <p className="text-caption text-content-secondary">{t("emailHelp")}</p>
           <Button
             className="mt-3 w-full"
             disabled={emailCooldownSeconds > 0}

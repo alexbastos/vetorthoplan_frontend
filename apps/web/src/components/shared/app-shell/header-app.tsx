@@ -11,11 +11,11 @@ import type { HeaderAppProps } from "./types"
 function HeaderApp({ actions, context, navigation, notifications, profile }: HeaderAppProps) {
   const t = useTranslations("common.header")
   return (
-    <header className="flex h-[var(--layout-header-height)] items-center justify-between gap-3 bg-capta-surface-sidebar px-4 sm:gap-6 sm:px-6">
+    <header className="flex h-[var(--layout-header-height)] items-center justify-between gap-3 bg-sidebar px-4 sm:gap-6 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
         {navigation ? <span className="shrink-0 lg:hidden">{navigation}</span> : null}
-        <p className="min-w-0 truncate font-mono text-[0.8125rem] font-medium tracking-[0.06em] text-capta-text-primary">
-          <span aria-hidden="true" className="mr-2 text-capta-text-muted">/</span>
+        <p className="min-w-0 truncate font-mono text-[0.8125rem] font-medium tracking-[0.06em] text-foreground">
+          <span aria-hidden="true" className="mr-2 text-muted-foreground">/</span>
           {context.toUpperCase()}
         </p>
       </div>
@@ -35,11 +35,11 @@ function HeaderApp({ actions, context, navigation, notifications, profile }: Hea
 function GlobalSearch() {
   const t = useTranslations("common.header")
   return (
-    <label className="hidden h-9 w-60 items-center gap-2 rounded-full bg-capta-surface-subtle px-3.5 md:flex">
-      <Search aria-hidden="true" className="size-3 shrink-0 text-capta-text-muted" />
+    <label className="hidden h-9 w-60 items-center gap-2 rounded-full bg-muted px-3.5 md:flex">
+      <Search aria-hidden="true" className="size-3 shrink-0 text-muted-foreground" />
       <span className="sr-only">{t("globalSearch")}</span>
       <input
-        className="min-w-0 flex-1 bg-transparent text-ui text-capta-text-primary outline-none placeholder:text-capta-text-muted"
+        className="min-w-0 flex-1 bg-transparent text-ui text-foreground outline-none placeholder:text-muted-foreground"
         placeholder={t("searchPlaceholder")}
         type="search"
       />
@@ -50,7 +50,7 @@ function GlobalSearch() {
 function HeaderNotificationIndicator() {
   const t = useTranslations("common.header")
   return (
-    <span aria-label={t("notifications")} className="flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-capta-text-secondary">
+    <span aria-label={t("notifications")} className="flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary">
       <BellDot aria-hidden="true" className="size-[1.125rem]" />
     </span>
   )
@@ -69,15 +69,15 @@ const HeaderProfileIndicator = forwardRef<HTMLButtonElement, HeaderProfileIndica
   return (
     <button
       aria-label={t("openProfileMenu")}
-      className={cn("motion-interactive flex h-[2.375rem] cursor-pointer items-center gap-1.5 rounded-full py-0.5 pr-1 pl-0.5 outline-none hover:bg-capta-surface-subtle focus-visible:bg-capta-surface-subtle", className)}
+      className={cn("motion-interactive flex h-[2.375rem] cursor-pointer items-center gap-1.5 rounded-full py-0.5 pr-1 pl-0.5 outline-none hover:bg-muted focus-visible:bg-muted", className)}
       ref={ref}
       type="button"
       {...props}
     >
-      <span className="flex size-[2.125rem] items-center justify-center rounded-full bg-capta-brand-secondary text-ui font-bold text-capta-text-inverse">
+      <span className="flex size-[2.125rem] items-center justify-center rounded-full bg-brand-secondary text-ui font-medium text-brand-secondary-foreground">
         {initials.slice(0, 2).toUpperCase()}
       </span>
-      <ChevronDown aria-hidden="true" className="size-3.5 text-capta-text-secondary" />
+      <ChevronDown aria-hidden="true" className="size-3.5 text-content-secondary" />
     </button>
   )
 })

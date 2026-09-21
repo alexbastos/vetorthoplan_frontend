@@ -190,12 +190,12 @@ function PasswordSettingsPanel({ isActive }: PasswordSettingsPanelProps) {
   }
 
   return (
-    <form ref={formRef} className="space-y-6 border-t border-capta-border-default px-6 py-6 sm:px-8" noValidate onSubmit={handleSubmit}>
+    <form ref={formRef} className="space-y-6 border-t border-border px-6 py-6 sm:px-8" noValidate onSubmit={handleSubmit}>
       <section aria-labelledby="security-password-title" className="space-y-4" data-settings-password-group>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-ui-semibold text-capta-text-primary" id="security-password-title">{t("title")}</h3>
-            <p className="mt-1 max-w-xl text-ui text-capta-text-secondary">{t("description")}</p>
+            <h3 className="text-ui-semibold text-foreground" id="security-password-title">{t("title")}</h3>
+            <p className="mt-1 max-w-xl text-ui text-content-secondary">{t("description")}</p>
           </div>
           {!isEditing ? (
             <Button className="!h-7 px-2 text-caption font-semibold" onClick={beginEditing} size="sm" type="button" variant="secondary">

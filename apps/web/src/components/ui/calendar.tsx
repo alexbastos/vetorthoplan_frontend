@@ -27,11 +27,11 @@ function Calendar({
         month: cn("flex w-full flex-col gap-3", defaultClassNames.month),
         nav: cn("absolute inset-x-0 top-0 flex w-full items-center justify-between", defaultClassNames.nav),
         button_previous: cn(
-          "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40",
+          "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40",
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40",
+          "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40",
           defaultClassNames.button_next,
         ),
         month_caption: cn("flex h-8 w-full items-center justify-center px-16", defaultClassNames.month_caption),
@@ -45,10 +45,10 @@ function Calendar({
         week: cn(defaultClassNames.week),
         day: cn("size-9 p-0 text-center", defaultClassNames.day),
         day_button: cn(
-          "flex size-9 cursor-pointer items-center justify-center rounded-md text-ui text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          "flex size-9 cursor-pointer items-center justify-center rounded-md text-ui text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           defaultClassNames.day_button,
         ),
-        today: cn("[&>button]:border [&>button]:border-primary", defaultClassNames.today),
+        today: cn("[&>button]:border [&>button]:border-ring", defaultClassNames.today),
         selected: cn("[&>button]:bg-primary [&>button]:font-medium [&>button]:text-primary-foreground hover:[&>button]:bg-primary-hover", defaultClassNames.selected),
         outside: cn("text-muted-foreground opacity-50", defaultClassNames.outside),
         disabled: cn("text-muted-foreground opacity-40", defaultClassNames.disabled),
@@ -75,7 +75,7 @@ function Calendar({
           >
             <button
               aria-label={t("previousMonth")}
-              className="pointer-events-auto inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40"
+              className="pointer-events-auto inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
               disabled={!previousMonth}
               onClick={onPreviousClick}
               type="button"
@@ -84,7 +84,7 @@ function Calendar({
             </button>
             <button
               aria-label={t("nextMonth")}
-              className="pointer-events-auto inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40"
+              className="pointer-events-auto inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-content-secondary hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
               disabled={!nextMonth}
               onClick={onNextClick}
               type="button"
@@ -144,7 +144,7 @@ function CalendarDropdown({
     >
       <Select.Trigger
         aria-label={ariaLabel}
-        className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1 text-ui-semibold text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40"
+        className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1 text-ui-semibold text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
       >
         <Select.Value>{selectedOption?.label}</Select.Value>
         <Select.Icon>

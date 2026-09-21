@@ -9,22 +9,22 @@ import { useEditalScannerAnimation } from "../../hooks/animations/use-edital-sca
 const VARIATIONS = [
   {
     adherenceKey: "highMatch" as const,
-    dotClass: "bg-capta-feedback-success",
+    dotClass: "bg-success",
     statusKey: "openApplications" as const,
   },
   {
     adherenceKey: "mediumMatch" as const,
-    dotClass: "bg-capta-feedback-warning",
+    dotClass: "bg-warning",
     statusKey: "eligibilityReview" as const,
   },
   {
     adherenceKey: "highMatch" as const,
-    dotClass: "bg-capta-feedback-success",
+    dotClass: "bg-success",
     statusKey: "fundingAvailable" as const,
   },
   {
     adherenceKey: "mediumMatch" as const,
-    dotClass: "bg-capta-feedback-warning",
+    dotClass: "bg-warning",
     statusKey: "applicationsSoon" as const,
   },
 ]
@@ -80,24 +80,24 @@ export function EditalScannerAnimation() {
           {/* FACE TRASEIRA (Verso cinza claro limpo) */}
           <div
             ref={backFaceRef}
-            className="absolute inset-0 rounded-[2px] border-2 border-capta-border-default bg-capta-surface-subtle shadow-sm"
+            className="absolute inset-0 rounded-[2px] border-2 border-border bg-muted shadow-sm"
             style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
           />
 
           {/* FACE FRONTAL */}
           <div
             ref={frontFaceRef}
-            className="absolute inset-0 overflow-hidden rounded-[2px] border-2 border-capta-border-default bg-capta-surface-card shadow-sm"
+            className="absolute inset-0 overflow-hidden rounded-[2px] border-2 border-border bg-card shadow-sm"
             style={{ backfaceVisibility: "hidden" }}
           >
             {/* CAMADA 1: Dados Digitais Criptografados */}
             <div
               ref={digitalLayerRef}
-              className="absolute inset-0 flex flex-col justify-between p-2 font-mono text-[5px] leading-tight text-capta-text-muted/80 select-none opacity-0"
+              className="absolute inset-0 flex flex-col justify-between p-2 font-mono text-[5px] leading-tight text-muted-foreground/80 select-none opacity-0"
             >
               <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-capta-text-disabled" />
-                <div className="h-1.5 w-6 rounded bg-capta-surface-subtle-hover" />
+                <div className="size-2 rounded-full bg-content-disabled" />
+                <div className="h-1.5 w-6 rounded bg-hover" />
               </div>
               <div className="space-y-0.5 tracking-wider opacity-75">
                 <p>1 0 1 1 0 1 0</p>
@@ -108,36 +108,36 @@ export function EditalScannerAnimation() {
                 <p>% # # # 8 1 0</p>
               </div>
               <div className="flex justify-end">
-                <div className="h-2.5 w-3.5 rounded-[1px] border border-capta-text-disabled bg-capta-surface-subtle" />
+                <div className="h-2.5 w-3.5 rounded-[1px] border border-content-disabled bg-muted" />
               </div>
             </div>
 
             {/* CAMADA 2: Documento Final Completo */}
             <div
               ref={finalDocumentRef}
-              className="absolute inset-0 flex flex-col justify-between bg-capta-surface-card p-2 text-[6px] select-none"
+              className="absolute inset-0 flex flex-col justify-between bg-card p-2 text-[6px] select-none"
             >
               {/* Cabeçalho com Avatar + Título */}
               <div className="flex items-center gap-1.5">
-                <div className="size-2.5 shrink-0 rounded-full bg-capta-text-disabled" />
-                <div className="h-1.5 w-7 rounded-full bg-capta-text-disabled" />
+                <div className="size-2.5 shrink-0 rounded-full bg-content-disabled" />
+                <div className="h-1.5 w-7 rounded-full bg-content-disabled" />
               </div>
 
               {/* Linhas de Conteúdo */}
               <div className="space-y-1 py-0.5">
-                <div className="h-1.5 w-full rounded-full bg-capta-text-disabled" />
-                <div className="h-1.5 w-11/12 rounded-full bg-capta-surface-subtle-hover" />
-                <div className="h-1.5 w-4/5 rounded-full bg-capta-surface-subtle-hover" />
+                <div className="h-1.5 w-full rounded-full bg-content-disabled" />
+                <div className="h-1.5 w-11/12 rounded-full bg-hover" />
+                <div className="h-1.5 w-4/5 rounded-full bg-hover" />
               </div>
 
               {/* Pill de Destaque Alinhada à Direita */}
               <div className="flex justify-end pr-0.5">
-                <div className="h-3 w-8 rounded-[2px] bg-capta-text-disabled" />
+                <div className="h-3 w-8 rounded-[2px] bg-content-disabled" />
               </div>
 
               {/* Rodapé: Assinatura Orgânica + Carimbo */}
               <div className="flex items-end justify-between pt-0.5">
-                <svg className="h-3 w-7 text-capta-text-muted" viewBox="0 0 28 10" fill="none">
+                <svg className="h-3 w-7 text-muted-foreground" viewBox="0 0 28 10" fill="none">
                   <path
                     d="M2 6C7 2, 12 9, 17 4C21 1, 23 7, 26 5"
                     stroke="currentColor"
@@ -146,12 +146,12 @@ export function EditalScannerAnimation() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <div className="flex size-3.5 shrink-0 items-center justify-center rounded-[2px] border border-capta-text-disabled bg-capta-surface-subtle">
+                <div className="flex size-3.5 shrink-0 items-center justify-center rounded-[2px] border border-content-disabled bg-muted">
                   <div className="grid grid-cols-2 gap-0.5 p-0.5">
-                    <div className="size-1 rounded-[0.5px] bg-capta-text-disabled" />
-                    <div className="size-1 rounded-[0.5px] bg-capta-text-disabled" />
-                    <div className="size-1 rounded-[0.5px] bg-capta-text-disabled" />
-                    <div className="size-1 rounded-[0.5px] bg-capta-text-disabled" />
+                    <div className="size-1 rounded-[0.5px] bg-content-disabled" />
+                    <div className="size-1 rounded-[0.5px] bg-content-disabled" />
+                    <div className="size-1 rounded-[0.5px] bg-content-disabled" />
+                    <div className="size-1 rounded-[0.5px] bg-content-disabled" />
                   </div>
                 </div>
               </div>
@@ -160,7 +160,7 @@ export function EditalScannerAnimation() {
             {/* CAMADA 3: Linha do scanner na cor primária da marca */}
             <div
               ref={scannerRef}
-              className="pointer-events-none absolute -left-0.5 z-30 h-[2px] w-[64px] -translate-y-1/2 rounded-full bg-capta-brand-primary shadow-[0_0_6px_var(--color-brand-primary)] opacity-0"
+              className="pointer-events-none absolute -left-0.5 z-30 h-[2px] w-[64px] -translate-y-1/2 rounded-full bg-primary shadow-[0_0_6px_var(--color-brand-primary)] opacity-0"
             />
           </div>
         </div>
@@ -170,7 +170,7 @@ export function EditalScannerAnimation() {
       <div className="flex h-12 min-w-[150px] flex-col justify-center space-y-1">
         <p
           ref={statusTitleRef}
-          className="flex items-center gap-2 text-ui-semibold text-capta-text-primary whitespace-nowrap opacity-0"
+          className="flex items-center gap-2 text-ui-semibold text-foreground whitespace-nowrap opacity-0"
         >
           <span
             aria-hidden="true"
@@ -180,7 +180,7 @@ export function EditalScannerAnimation() {
         </p>
         <p
           ref={statusDescRef}
-          className="text-ui text-capta-text-secondary whitespace-nowrap opacity-0"
+          className="text-ui text-content-secondary whitespace-nowrap opacity-0"
         >
           {t(currentVariation.statusKey)}
         </p>

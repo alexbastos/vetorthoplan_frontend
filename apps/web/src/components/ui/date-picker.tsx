@@ -32,7 +32,7 @@ function DatePicker({ disabled = false, id, onValueChange, placeholder, value }:
         <button
           aria-label={t("selectDate")}
           className={cn(
-            "flex min-w-0 flex-1 items-center justify-between gap-3 bg-transparent text-left font-sans text-[length:var(--type-ui-size)] leading-[var(--type-ui-line-height)] outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "flex min-w-0 flex-1 items-center justify-between gap-3 bg-transparent text-left font-sans text-[length:var(--type-ui-size)] leading-[var(--type-ui-line-height)] outline-none focus-visible:ring-2 focus-visible:ring-ring",
             selectedDate ? "font-medium text-foreground" : "font-normal text-muted-foreground",
           )}
           disabled={disabled}

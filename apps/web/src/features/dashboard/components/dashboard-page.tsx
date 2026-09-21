@@ -14,9 +14,9 @@ function DashboardPage() {
       <DashboardHeaderActions />
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-8 sm:px-8 sm:py-10">
         <header className="max-w-2xl space-y-2">
-          <p className="text-overline text-capta-text-secondary">{t("eyebrow")}</p>
-          <h1 className="text-heading-3 text-capta-text-primary">{t("title")}</h1>
-          <p className="text-ui text-capta-text-secondary">
+          <p className="text-overline text-content-secondary">{t("eyebrow")}</p>
+          <h1 className="text-heading-3 text-foreground">{t("title")}</h1>
+          <p className="text-ui text-content-secondary">
             {t("description")}
           </p>
         </header>

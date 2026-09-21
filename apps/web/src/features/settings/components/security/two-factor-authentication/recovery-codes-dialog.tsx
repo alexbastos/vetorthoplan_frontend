@@ -22,10 +22,10 @@ function RecoveryCodesDialog({ onAcknowledge, recoveryCodes }: RecoveryCodesDial
           onEscapeKeyDown={(event) => event.preventDefault()}
         >
           <div className="px-[var(--card-composite-padding-inline)] py-6">
-            <AlertDialog.Title className="text-ui font-semibold text-capta-text-primary">{t("recoveryCodesTitle")}</AlertDialog.Title>
-            <AlertDialog.Description className="mt-2 text-ui text-capta-text-secondary">{t("recoveryCodesDescription")}</AlertDialog.Description>
+            <AlertDialog.Title className="text-ui font-semibold text-foreground">{t("recoveryCodesTitle")}</AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-ui text-content-secondary">{t("recoveryCodesDescription")}</AlertDialog.Description>
             <ul aria-label={t("recoveryCodesTitle")} className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {recoveryCodes?.map((recoveryCode) => <li className="rounded-[var(--radius-token-sm)] border border-capta-border-default bg-capta-surface-card px-3 py-2 font-mono text-caption text-capta-text-primary" key={recoveryCode}>{recoveryCode}</li>)}
+              {recoveryCodes?.map((recoveryCode) => <li className="rounded-[var(--radius-token-sm)] border border-border bg-card px-3 py-2 font-mono text-caption text-foreground" key={recoveryCode}>{recoveryCode}</li>)}
             </ul>
           </div>
           <footer className="flex min-h-[var(--card-footer-min-height)] justify-end bg-[var(--color-surface-raised)] px-[var(--card-composite-padding-inline)] py-[var(--card-footer-padding-block)]">

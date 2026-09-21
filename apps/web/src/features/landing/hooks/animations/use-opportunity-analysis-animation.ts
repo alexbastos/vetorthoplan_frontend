@@ -61,7 +61,7 @@ function useOpportunityAnalysisAnimation(scope: RefObject<HTMLDivElement | null>
               ?.to(pending, { autoAlpha: 0, duration: 0.15 })
               .to(running, { autoAlpha: 1, duration: 0.2 }, "<")
               .to(orbit, { autoAlpha: 1, duration: 0.2 }, "<")
-              .to(card, { borderColor: "var(--color-brand-accent)", duration: 0.2 }, "<")
+              .to(card, { borderColor: "var(--brand-accent)", duration: 0.2 }, "<")
               .to(reasoningHeader, { autoAlpha: 1, duration: 0.25 }, "<0.05")
               .to([reasoningRunningLabel, reasoningRunningContent], { autoAlpha: 1, duration: 0.25 }, "<")
               .call(() => {

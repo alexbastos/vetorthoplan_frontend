@@ -75,10 +75,10 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
       {hasPendingEmail ? (
         <>
           <header className="space-y-2" data-email-verification-step>
-            <h1 id="email-verification-sent-title" className="text-heading-4 text-capta-text-primary">
+            <h1 id="email-verification-sent-title" className="text-heading-4 text-foreground">
               {t("title")}
             </h1>
-            <p className="text-ui text-capta-text-secondary">
+            <p className="text-ui text-content-secondary">
               {t("description")}
             </p>
           </header>
@@ -93,13 +93,13 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
             />
           </div>
 
-          <p className="text-center text-ui text-capta-text-secondary" data-email-verification-step>
+          <p className="text-center text-ui text-content-secondary" data-email-verification-step>
             {t("notReceived")}{" "}
             <button
               type="button"
               onClick={handleResendEmail}
               disabled={isResending}
-              className="cursor-pointer font-semibold text-capta-text-primary motion-interactive hover:underline focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer font-semibold text-foreground motion-interactive hover:underline focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isResending ? t("resending") : t("resend")}
             </button>
@@ -108,10 +108,10 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
       ) : (
         <>
           <header className="space-y-2" data-email-verification-step>
-            <h1 id="email-verification-sent-title" className="text-heading-4 text-capta-text-primary">
+            <h1 id="email-verification-sent-title" className="text-heading-4 text-foreground">
               {t("missingTitle")}
             </h1>
-            <p className="text-ui text-capta-text-secondary">
+            <p className="text-ui text-content-secondary">
               {t("missingDescription")}
             </p>
           </header>
@@ -127,9 +127,9 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
             </Button>
           </div>
 
-          <p className="text-center text-ui text-capta-text-secondary" data-email-verification-step>
+          <p className="text-center text-ui text-content-secondary" data-email-verification-step>
             {tShared("alreadyRegistered")}{" "}
-            <AuthNavLink className="font-semibold text-capta-text-primary" href="/register">
+            <AuthNavLink className="font-semibold text-foreground" href="/register">
               {tShared("createAccount")}
             </AuthNavLink>
           </p>

@@ -9,7 +9,7 @@ type LegalPageLayoutProps = {
 
 function LegalPageLayout({ children }: LegalPageLayoutProps) {
   return (
-    <div className="flex min-h-svh flex-1 flex-col bg-capta-surface-card text-capta-text-primary" data-legal-layout>
+    <div className="flex min-h-svh flex-1 flex-col bg-card text-foreground" data-legal-layout>
       <LegalHeader />
       <main className={`${styles.frame} relative flex-1`}>
         {children}

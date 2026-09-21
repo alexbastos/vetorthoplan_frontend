@@ -56,7 +56,7 @@ function AppShell({ children, userName }: AppShellProps) {
     <AppUserProvider name={userName}>
       <AppThemeProvider>
         <UnsavedChangesGuard>
-          <div className="flex h-dvh overflow-hidden bg-capta-surface-default">
+          <div className="flex h-dvh overflow-hidden bg-background">
             <AppSidebar onStateChange={setSidebarState} state={sidebarState} />
 
             {mobileNavigationOpen ? (
@@ -73,7 +73,7 @@ function AppShell({ children, userName }: AppShellProps) {
               </div>
             ) : null}
 
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-capta-surface-workspace">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-workspace">
               <HeaderApp
                 context={context}
                 navigation={
@@ -81,7 +81,7 @@ function AppShell({ children, userName }: AppShellProps) {
                     aria-controls="app-mobile-navigation"
                     aria-expanded={mobileNavigationOpen}
                     aria-label={t("open")}
-                    className="motion-interactive flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-capta-text-secondary outline-none hover:bg-capta-surface-subtle hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-capta-surface-raised"
+                    className="motion-interactive flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised"
                     onClick={() => setMobileNavigationOpen(true)}
                     type="button"
                   >

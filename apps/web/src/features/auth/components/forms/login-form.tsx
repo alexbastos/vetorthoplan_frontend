@@ -46,8 +46,8 @@ function LoginFormContent() {
   return (
     <div ref={formRef} className="space-y-4">
       <div className="space-y-2 text-center" data-login-step>
-        <h1 className="text-heading-4 text-capta-text-primary">{t("login.title")}</h1>
-        <p className="text-ui text-capta-text-secondary">{t("login.description")}</p>
+        <h1 className="text-heading-4 text-foreground">{t("login.title")}</h1>
+        <p className="text-ui text-content-secondary">{t("login.description")}</p>
       </div>
 
       <div data-login-step>
@@ -55,9 +55,9 @@ function LoginFormContent() {
       </div>
 
       <div aria-label={t("shared.emailDividerLabel")} className="flex items-center gap-3" data-login-step role="separator">
-        <div className="h-px flex-1 bg-capta-border-default" />
-        <span className="text-ui text-capta-text-secondary">{t("shared.emailDivider")}</span>
-        <div className="h-px flex-1 bg-capta-border-default" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-ui text-content-secondary">{t("shared.emailDivider")}</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <form className="space-y-4" noValidate onSubmit={onSubmit}>
@@ -82,8 +82,8 @@ function LoginFormContent() {
           />
         </div>
 
-        <p className="text-right text-ui text-capta-text-secondary" data-login-step>
-          <AuthNavLink className="font-semibold text-capta-text-primary" href="/forgot-password">
+        <p className="text-right text-ui text-content-secondary" data-login-step>
+          <AuthNavLink className="font-semibold text-foreground" href="/forgot-password">
             {t("login.forgotPassword")}
           </AuthNavLink>
         </p>
@@ -95,10 +95,10 @@ function LoginFormContent() {
         </div>
       </form>
 
-      <p className="text-center text-ui text-capta-text-secondary" data-login-step>
+      <p className="text-center text-ui text-content-secondary" data-login-step>
         {t("login.noAccount")}{" "}
         <AuthNavLink
-          className="font-semibold text-capta-text-primary"
+          className="font-semibold text-foreground"
           href="/register"
         >
           {t("shared.createAccount")}

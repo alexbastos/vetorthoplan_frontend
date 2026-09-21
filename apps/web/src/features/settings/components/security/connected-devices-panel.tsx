@@ -64,10 +64,10 @@ function ConnectedDevicesPanel({ isActive }: ConnectedDevicesPanelProps) {
   }, [completeSessionRevocation])
 
   return (
-    <section aria-labelledby="connected-devices-title" className="border-t border-capta-border-default px-6 pt-6 pb-8 sm:px-8" data-settings-connected-devices-group>
+    <section aria-labelledby="connected-devices-title" className="border-t border-border px-6 pt-6 pb-8 sm:px-8" data-settings-connected-devices-group>
       <div>
-        <h3 className="text-ui-semibold text-capta-text-primary outline-none" id="connected-devices-title" ref={titleRef} tabIndex={-1}>{t("title")}</h3>
-        <p className="mt-1 max-w-xl text-ui text-capta-text-secondary">{t("description")}</p>
+        <h3 className="text-ui-semibold text-foreground outline-none" id="connected-devices-title" ref={titleRef} tabIndex={-1}>{t("title")}</h3>
+        <p className="mt-1 max-w-xl text-ui text-content-secondary">{t("description")}</p>
       </div>
 
       {isLoading ? <ConnectedDevicesSkeleton label={t("loading")} /> : null}
@@ -76,31 +76,31 @@ function ConnectedDevicesPanel({ isActive }: ConnectedDevicesPanelProps) {
         <div className="mt-5 flex items-start gap-3 rounded-[var(--radius-token-md)] border border-[var(--color-feedback-error)]/30 bg-[var(--color-feedback-error)]/5 p-4" role="alert">
           <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[var(--color-feedback-error)]" />
           <div className="min-w-0 flex-1">
-            <p className="text-ui font-semibold text-capta-text-primary">{t("loadError")}</p>
-            <p className="mt-1 text-caption text-capta-text-secondary">{loadError}</p>
+            <p className="text-ui font-semibold text-foreground">{t("loadError")}</p>
+            <p className="mt-1 text-caption text-content-secondary">{loadError}</p>
           </div>
           <Button onClick={() => void retry()} size="sm" type="button" variant="secondary">{tActions("retry")}</Button>
         </div>
       ) : null}
 
       {!isLoading && !loadError && activeSessions.length === 0 ? (
-        <div className="mt-5 flex items-center gap-3 rounded-[var(--radius-token-md)] border border-capta-border-default bg-capta-surface-subtle p-4">
-          <MonitorSmartphone aria-hidden="true" className="size-4 shrink-0 text-capta-text-secondary" />
-          <p className="text-ui text-capta-text-secondary">{t("empty")}</p>
+        <div className="mt-5 flex items-center gap-3 rounded-[var(--radius-token-md)] border border-border bg-muted p-4">
+          <MonitorSmartphone aria-hidden="true" className="size-4 shrink-0 text-content-secondary" />
+          <p className="text-ui text-content-secondary">{t("empty")}</p>
         </div>
       ) : null}
 
       {!isLoading && !loadError && activeSessions.length > 0 ? (
         <>
           <div className="mt-5 flex items-center justify-between gap-4">
-            <p className="text-caption text-capta-text-secondary">{t("sessionsFound", { shown: visibleSessions.length, total: orderedSessions.length })}</p>
+            <p className="text-caption text-content-secondary">{t("sessionsFound", { shown: visibleSessions.length, total: orderedSessions.length })}</p>
             {hasHiddenSessions ? (
-              <Button aria-controls="connected-devices-list" aria-expanded={isExpanded} className="!h-7 border border-capta-border-default bg-capta-surface-card px-2 text-caption font-semibold hover:bg-capta-surface-subtle" onClick={() => setIsExpanded((expanded) => !expanded)} size="sm" type="button" variant="ghost">
+              <Button aria-controls="connected-devices-list" aria-expanded={isExpanded} className="!h-7 border border-border bg-card px-2 text-caption font-semibold hover:bg-muted" onClick={() => setIsExpanded((expanded) => !expanded)} size="sm" type="button" variant="ghost">
                 {isExpanded ? t("showLess") : t("viewAll")}
               </Button>
             ) : null}
           </div>
-          <ul aria-label={t("title")} className="mt-3 divide-y divide-capta-border-default" id="connected-devices-list">
+          <ul aria-label={t("title")} className="mt-3 divide-y divide-border" id="connected-devices-list">
             {visibleSessions.map((session) => <ConnectedDeviceRow isDisabled={isRevoking || Boolean(exitingSessionId)} isExiting={exitingSessionId === session.id} isRevoking={isRevoking && revokingSessionId === session.id} key={session.id} onExitComplete={handleExitComplete} onRevoke={requestSessionRevocation} session={session} />)}
           </ul>
         </>
@@ -121,8 +121,8 @@ function ConnectedDevicesSkeleton({ label }: { label: string }) {
     <div aria-busy="true" aria-label={label} className="mt-5 space-y-4">
       {Array.from({ length: 3 }, (_, index) => (
         <div className="flex items-center gap-3" key={index}>
-          <span className="size-8 animate-pulse rounded-[var(--radius-token-md)] bg-capta-surface-subtle" />
-          <span className="h-4 w-40 animate-pulse rounded-full bg-capta-surface-subtle" />
+          <span className="size-8 animate-pulse rounded-[var(--radius-token-md)] bg-muted" />
+          <span className="h-4 w-40 animate-pulse rounded-full bg-muted" />
         </div>
       ))}
     </div>

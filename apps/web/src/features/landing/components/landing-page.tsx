@@ -11,13 +11,13 @@ import { PublicNoticesSection } from "./public-notices/public-notices-section"
 
 function LandingPage() {
   return (
-    <div className="relative flex min-h-svh flex-1 flex-col overflow-x-clip bg-capta-surface-card">
+    <div className="relative flex min-h-svh flex-1 flex-col overflow-x-clip bg-card">
       <LandingEntrance>
         <LandingHeader />
         <main className="mx-auto flex min-h-svh w-full max-w-[var(--layout-landing-max-width)] flex-1 flex-col">
           <HeroSection />
           <ProductIntelligenceIntroSection />
-          <div className="bg-capta-surface-workspace">
+          <div className="bg-workspace">
             <ProductIntelligenceSection />
           </div>
           <PublicNoticesSection />

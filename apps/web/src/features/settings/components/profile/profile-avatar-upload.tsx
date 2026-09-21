@@ -82,7 +82,7 @@ export function ProfileAvatarUpload({ isDeleting, isUploading, name, onAvatarLoa
       </div>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <label className="motion-interactive inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-capta-border bg-transparent px-3 text-ui font-medium text-capta-text-primary hover:bg-capta-surface-muted focus-within:bg-capta-surface-subtle focus-within:outline-none has-disabled:pointer-events-none has-disabled:opacity-50">
+          <label className="motion-interactive inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-3 text-ui font-medium text-foreground hover:bg-muted-strong focus-within:bg-muted focus-within:outline-none has-disabled:pointer-events-none has-disabled:opacity-50">
             <input
               accept={AVATAR_ACCEPT_ATTRIBUTE}
               aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ""}`}
@@ -95,8 +95,8 @@ export function ProfileAvatarUpload({ isDeleting, isUploading, name, onAvatarLoa
             {isUploading ? t("savingPhoto") : t("changePhoto")}
           </label>
         </div>
-        <p className="mt-2 text-caption text-capta-text-secondary" id={descriptionId}>{t("avatarHint")}</p>
-        {previewUrl ? <p className="mt-2 text-caption text-capta-text-secondary" role="status">{t("avatarPreview")}</p> : null}
+        <p className="mt-2 text-caption text-content-secondary" id={descriptionId}>{t("avatarHint")}</p>
+        {previewUrl ? <p className="mt-2 text-caption text-content-secondary" role="status">{t("avatarPreview")}</p> : null}
         {error ? <p className="mt-2 text-caption text-[var(--color-feedback-error)]" id={errorId} role="alert">{error}</p> : null}
       </div>
     </div>

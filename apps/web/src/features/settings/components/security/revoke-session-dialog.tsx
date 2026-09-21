@@ -39,10 +39,10 @@ function RevokeSessionDialog({ isRevoking, onCancel, onConfirm, session }: Revok
           }}
         >
           <div className="px-[var(--card-composite-padding-inline)] py-6">
-            <AlertDialog.Title className="text-ui font-semibold text-capta-text-primary">
+            <AlertDialog.Title className="text-ui font-semibold text-foreground">
               {t("confirmRevokeTitle")}
             </AlertDialog.Title>
-            <AlertDialog.Description className="mt-2 text-ui text-capta-text-secondary">
+            <AlertDialog.Description className="mt-2 text-ui text-content-secondary">
               {t("confirmRevokeDescription", { device: deviceName })}
             </AlertDialog.Description>
           </div>

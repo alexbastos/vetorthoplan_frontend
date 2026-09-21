@@ -26,20 +26,20 @@ async function ProductIntelligenceIntroSection() {
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="flex size-5 items-center justify-center rounded-sm bg-capta-product-intelligence text-capta-text-inverse"
+              className="flex size-5 items-center justify-center rounded-sm bg-intelligence text-brand-secondary-foreground"
             >
               <Radar className="size-3" strokeWidth={2.25} />
             </span>
-            <p className="text-meta font-medium text-capta-text-secondary">{t("eyebrow")}</p>
+            <p className="text-meta font-medium text-content-secondary">{t("eyebrow")}</p>
           </div>
 
           <h2
             id="product-intelligence-intro-title"
-            className="mt-4 max-w-[36rem] font-heading text-[clamp(2rem,4vw,var(--type-heading-3-size))] leading-none font-medium tracking-[-0.02em] text-pretty text-capta-text-primary"
+            className="mt-4 max-w-[36rem] font-heading text-[clamp(2rem,4vw,var(--type-heading-3-size))] leading-none font-medium tracking-[-0.02em] text-pretty text-foreground"
           >
             {t("title")}
           </h2>
-          <p className="mt-4 max-w-[38rem] text-body text-pretty text-capta-text-secondary">
+          <p className="mt-4 max-w-[38rem] text-body text-pretty text-content-secondary">
             {t("description")}
           </p>
 

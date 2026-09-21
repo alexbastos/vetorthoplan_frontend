@@ -47,7 +47,7 @@ function PublicNoticesShowcase({ features, tabsLabel, visualContent }: PublicNot
       value={activeFeatureId}
       onValueChange={handleValueChange}
       id="editais-showcase"
-      className="relative z-10 border-x border-t border-[var(--landing-grid-border)] bg-capta-surface-workspace"
+      className="relative z-10 border-x border-t border-[var(--landing-grid-border)] bg-workspace"
     >
       <div className="relative z-10 h-[24rem] overflow-hidden sm:h-[30rem]">
         <Tabs.Content
@@ -115,23 +115,23 @@ function PublicNoticesShowcase({ features, tabsLabel, visualContent }: PublicNot
               onFocus={stopAutoPlay}
               onPointerDown={stopAutoPlay}
               className={cn(
-                "group relative flex min-w-0 cursor-pointer flex-col rounded-sm pr-2 pl-6 text-left text-capta-text-primary outline-none",
+                "group relative flex min-w-0 cursor-pointer flex-col rounded-sm pr-2 pl-6 text-left text-foreground outline-none",
                 "opacity-50 transition-opacity duration-500 hover:opacity-70 data-[state=active]:opacity-100",
-                "focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-4 focus-visible:ring-offset-capta-surface-workspace",
+                "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-workspace",
               )}
             >
-              <span aria-hidden="true" className="absolute top-0 -left-px h-full w-px overflow-hidden bg-capta-border-default">
+              <span aria-hidden="true" className="absolute top-0 -left-px h-full w-px overflow-hidden bg-border">
                 <span
                   data-public-notices-tab-progress={feature.id}
-                  className="block size-full bg-capta-brand-primary opacity-0"
+                  className="block size-full bg-primary opacity-0"
                 />
               </span>
               <Icon aria-hidden="true" className="size-4" strokeWidth={1.8} />
               <span className="mt-3 block text-ui font-semibold">{feature.title}</span>
-              <span className="mt-3.5 block max-w-[15rem] text-ui text-capta-text-secondary">
+              <span className="mt-3.5 block max-w-[15rem] text-ui text-content-secondary">
                 {feature.description}
               </span>
-              <span className="mt-4 inline-flex items-center gap-1.5 text-ui font-semibold text-capta-text-secondary transition-colors duration-500 group-data-[state=active]:text-capta-brand-primary">
+              <span className="mt-4 inline-flex items-center gap-1.5 text-ui font-semibold text-content-secondary transition-colors duration-500 group-data-[state=active]:text-link">
                 {feature.action}
                 <ArrowRight aria-hidden="true" className="size-3.5 transition-transform group-hover:translate-x-1" />
               </span>

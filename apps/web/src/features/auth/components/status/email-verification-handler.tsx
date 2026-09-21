@@ -56,10 +56,10 @@ function EmailVerificationHandler({ token }: EmailVerificationHandlerProps) {
         <TriangleLoader size={48} />
       </div>
       <header className="space-y-2" data-email-verification-handler-step>
-        <h1 id="email-verification-handler-title" className="text-heading-4 text-capta-text-primary">
+        <h1 id="email-verification-handler-title" className="text-heading-4 text-foreground">
           {title}
         </h1>
-        <p className="text-ui text-capta-text-secondary">{description}</p>
+        <p className="text-ui text-content-secondary">{description}</p>
       </header>
     </section>
   )
@@ -71,10 +71,10 @@ function InvalidVerificationLink({ sectionRef }: { sectionRef: RefObject<HTMLEle
   return (
     <section ref={sectionRef} aria-labelledby="invalid-verification-link-title" className="mx-auto w-full max-w-sm space-y-4">
       <header className="space-y-2" data-email-verification-handler-step>
-        <h1 id="invalid-verification-link-title" className="text-heading-4 text-capta-text-primary">
+        <h1 id="invalid-verification-link-title" className="text-heading-4 text-foreground">
           {t("invalidTitle")}
         </h1>
-        <p className="text-ui text-capta-text-secondary">
+        <p className="text-ui text-content-secondary">
           {t("invalidDescription")}
         </p>
       </header>
@@ -85,9 +85,9 @@ function InvalidVerificationLink({ sectionRef }: { sectionRef: RefObject<HTMLEle
         </AuthNavLink>
       </div>
 
-      <p className="text-center text-ui text-capta-text-secondary" data-email-verification-handler-step>
+      <p className="text-center text-ui text-content-secondary" data-email-verification-handler-step>
         {tShared("alreadyRegistered")}{" "}
-        <AuthNavLink className="font-semibold text-capta-text-primary" href="/login">
+        <AuthNavLink className="font-semibold text-foreground" href="/login">
           {tShared("signIn")}
         </AuthNavLink>
       </p>
@@ -107,10 +107,10 @@ function UnavailableVerification({
   return (
     <section ref={sectionRef} aria-labelledby="unavailable-verification-title" className="mx-auto w-full max-w-sm space-y-4">
       <header className="space-y-2" data-email-verification-handler-step>
-        <h1 id="unavailable-verification-title" className="text-heading-4 text-capta-text-primary">
+        <h1 id="unavailable-verification-title" className="text-heading-4 text-foreground">
           {t("unavailableTitle")}
         </h1>
-        <p className="text-ui text-capta-text-secondary">
+        <p className="text-ui text-content-secondary">
           {t("unavailableDescription")}
         </p>
       </header>
@@ -121,8 +121,8 @@ function UnavailableVerification({
         </Button>
       </div>
 
-      <p className="text-center text-ui text-capta-text-secondary" data-email-verification-handler-step>
-        <AuthNavLink className="font-semibold text-capta-text-primary" href="/login">
+      <p className="text-center text-ui text-content-secondary" data-email-verification-handler-step>
+        <AuthNavLink className="font-semibold text-foreground" href="/login">
           {t("backToLogin")}
         </AuthNavLink>
       </p>

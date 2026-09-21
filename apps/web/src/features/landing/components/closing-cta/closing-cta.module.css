@@ -5,7 +5,7 @@
   --closing-cta-muted: color-mix(in srgb, var(--closing-cta-foreground) 75%, transparent);
   --closing-cta-visual-primary: var(--color-neutral-0);
   --closing-cta-visual-secondary: var(--color-steel-200);
-  --closing-cta-visual-accent: var(--color-brand-accent);
+  --closing-cta-visual-accent: var(--brand-accent);
 
   /* Invert existing button tokens locally, without changing shared variants. */
   --button-primary-background-default: var(--color-neutral-0);

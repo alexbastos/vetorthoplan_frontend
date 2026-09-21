@@ -23,7 +23,7 @@ function AuthBackLink({ className }: AuthBackLinkProps) {
   return (
     <button
       className={cn(
-        "motion-interactive absolute z-30 inline-flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-ui-semibold text-capta-text-primary outline-none transition-colors duration-200 hover:bg-capta-surface-card focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-wait",
+        "motion-interactive absolute z-30 inline-flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-ui-semibold text-foreground outline-none transition-colors duration-200 hover:bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-wait",
         className ?? "top-6 left-6",
       )}
       data-auth-back

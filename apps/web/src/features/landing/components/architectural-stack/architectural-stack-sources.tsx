@@ -17,7 +17,7 @@ type ArchitecturalStackSourcesProps = {
 function ArchitecturalStackSources({ content }: ArchitecturalStackSourcesProps) {
   return (
     <div data-architectural-stack-sources>
-      <p className="text-[clamp(0.75rem,1.7cqw,0.875rem)] font-medium text-capta-text-secondary">
+      <p className="text-[clamp(0.75rem,1.7cqw,0.875rem)] font-medium text-content-secondary">
         {content.sourceGroupLabel}
       </p>
 
@@ -32,7 +32,7 @@ function ArchitecturalStackSources({ content }: ArchitecturalStackSourcesProps) 
               <ArchitecturalStackBracketFrame
                 className={cn(
                   "flex h-full min-h-16 items-center justify-center px-2 py-5 text-center",
-                  isInitial && "border-solid border-capta-brand-secondary bg-capta-surface-card",
+                  isInitial && "border-solid border-brand-secondary bg-card",
                 )}
                 data-architectural-stack-source={id}
                 data-source-status={status}
@@ -40,8 +40,8 @@ function ArchitecturalStackSources({ content }: ArchitecturalStackSourcesProps) 
                 <StatusIcon
                   aria-hidden="true"
                   className={cn(
-                    "absolute top-1.5 right-1.5 size-2.5 text-capta-text-muted",
-                    isInitial && "text-capta-brand-secondary",
+                    "absolute top-1.5 right-1.5 size-2.5 text-muted-foreground",
+                    isInitial && "text-brand-secondary",
                   )}
                   strokeWidth={2}
                 />
@@ -55,7 +55,7 @@ function ArchitecturalStackSources({ content }: ArchitecturalStackSourcesProps) 
                     unoptimized
                   />
                 ) : (
-                  <span className="min-w-0 text-[clamp(0.6875rem,1.5cqw,0.8125rem)] leading-snug font-semibold wrap-anywhere text-capta-text-primary">
+                  <span className="min-w-0 text-[clamp(0.6875rem,1.5cqw,0.8125rem)] leading-snug font-semibold wrap-anywhere text-foreground">
                     {content.sourceLabels[id]}
                   </span>
                 )}

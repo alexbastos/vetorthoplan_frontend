@@ -19,8 +19,8 @@ function PasswordSettingsField({ autoComplete, error, hidePasswordLabel, label, 
   const visibilityLabel = isPasswordVisible ? hidePasswordLabel : showPasswordLabel
 
   return (
-    <div className="border-b border-capta-border-default py-4">
-      <label className="text-caption font-semibold text-capta-text-muted" htmlFor={inputId}>
+    <div className="border-b border-border py-4">
+      <label className="text-caption font-semibold text-muted-foreground" htmlFor={inputId}>
         {label}<span aria-hidden="true" className="ml-1 text-[var(--color-feedback-error)]">*</span>
       </label>
       <div className="mt-1.5 flex items-center gap-3">
@@ -29,7 +29,7 @@ function PasswordSettingsField({ autoComplete, error, hidePasswordLabel, label, 
           aria-describedby={error ? errorId : undefined}
           aria-invalid={Boolean(error)}
           autoComplete={autoComplete}
-          className="min-w-0 flex-1 bg-transparent text-ui font-semibold text-capta-text-primary outline-none placeholder:font-normal placeholder:text-capta-text-muted focus-visible:outline-none"
+          className="min-w-0 flex-1 bg-transparent text-ui font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:outline-none"
           id={inputId}
           placeholder={placeholder}
           required
@@ -38,7 +38,7 @@ function PasswordSettingsField({ autoComplete, error, hidePasswordLabel, label, 
         <button
           aria-label={visibilityLabel}
           aria-pressed={isPasswordVisible}
-          className="shrink-0 cursor-pointer rounded-sm p-1 text-capta-text-muted transition-colors hover:text-capta-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-capta-brand-primary"
+          className="shrink-0 cursor-pointer rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => setIsPasswordVisible((isVisible) => !isVisible)}
           type="button"
         >

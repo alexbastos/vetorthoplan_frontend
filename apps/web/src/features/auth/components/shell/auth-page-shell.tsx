@@ -61,7 +61,7 @@ function AuthPageShellStage({ children, className, footer }: AuthPageShellProps)
   useRegistrationConfirmationAnimation({ state: registrationConfirmationState })
 
   return (
-    <div className="relative min-h-dvh bg-capta-surface-default p-0 lg:grid lg:place-items-center lg:px-6 lg:py-12">
+    <div className="relative min-h-dvh bg-background p-0 lg:grid lg:place-items-center lg:px-6 lg:py-12">
         <AuthBackLink
           className={cn(
             "top-6 left-6",
@@ -70,9 +70,9 @@ function AuthPageShellStage({ children, className, footer }: AuthPageShellProps)
           )}
         />
 
-        <div className="min-h-dvh w-full lg:h-[calc(100dvh-6rem)] lg:min-h-0 lg:max-w-7xl lg:rounded-[calc(var(--radius-token-xl)+var(--space-2))] lg:border lg:border-capta-border-default lg:bg-capta-surface-raised lg:p-2">
+        <div className="min-h-dvh w-full lg:h-[calc(100dvh-6rem)] lg:min-h-0 lg:max-w-7xl lg:rounded-[calc(var(--radius-token-xl)+var(--space-2))] lg:border lg:border-border lg:bg-raised lg:p-2">
           <div
-            className="relative min-h-dvh bg-capta-surface-card lg:h-full lg:min-h-0 lg:overflow-hidden lg:rounded-[var(--radius-token-xl)] lg:border lg:border-capta-border-default lg:shadow-[var(--shadow-stage)]"
+            className="relative min-h-dvh bg-card lg:h-full lg:min-h-0 lg:overflow-hidden lg:rounded-[var(--radius-token-xl)] lg:border lg:border-border lg:shadow-[var(--shadow-stage)]"
             data-auth-stage
             data-auth-stage-variant={isSplitVisible ? "split" : "full"}
           >
@@ -120,7 +120,7 @@ function AuthPageShellStage({ children, className, footer }: AuthPageShellProps)
               <aside
                 aria-hidden={!isSplitVisible}
                 className={cn(
-                  "relative hidden overflow-hidden bg-capta-surface-card lg:block",
+                  "relative hidden overflow-hidden bg-card lg:block",
                   isSplitVisible ? "lg:relative lg:opacity-100" : "lg:absolute lg:inset-y-0 lg:left-0 lg:pointer-events-none lg:opacity-0",
                 )}
                 data-auth-panel
@@ -134,25 +134,25 @@ function AuthPageShellStage({ children, className, footer }: AuthPageShellProps)
                   sizes="50vw"
                   src="/images/auth/img_background_auth.avif"
                 />
-                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-96 bg-gradient-to-t from-capta-surface-card to-transparent" />
+                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-96 bg-gradient-to-t from-card to-transparent" />
                 <AuthSourceIndicator />
                 <div className="absolute top-[calc(50%-var(--space-8))] right-8 z-10 max-w-xs -translate-y-1/2">
                   <Card aria-hidden="true" className="auth-showcase-fade border-transparent border-r-0 p-6" data-auth-showcase variant="base">
                     <div className="space-y-2">
-                      <p className="text-overline text-capta-text-secondary">{t("opportunity")}</p>
-                      <p className="text-ui text-capta-text-secondary">{t("opportunityDescription")}</p>
+                      <p className="text-overline text-content-secondary">{t("opportunity")}</p>
+                      <p className="text-ui text-content-secondary">{t("opportunityDescription")}</p>
                     </div>
 
                     <EditalScannerAnimation />
 
-                    <p className="flex items-center gap-2 text-ui-semibold text-capta-brand-primary">
+                    <p className="flex items-center gap-2 text-ui-semibold text-link">
                       {t("viewOpportunity")}
                       <ArrowRight aria-hidden="true" className="size-4" />
                     </p>
                   </Card>
                 </div>
-                <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-32 bg-gradient-to-r from-transparent to-capta-surface-card" />
-                <p className="absolute bottom-8 left-8 z-10 text-heading-3 text-capta-text-primary" data-auth-tagline>
+                <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-32 bg-gradient-to-r from-transparent to-card" />
+                <p className="absolute bottom-8 left-8 z-10 text-heading-3 text-foreground" data-auth-tagline>
                   <span className="block">{t("headlineLine1")}</span>
                   <span className="block">{t("headlineLine2")}</span>
                 </p>
@@ -179,16 +179,16 @@ function AuthPageShellStage({ children, className, footer }: AuthPageShellProps)
                 {!isCenteredStage && (
                   <footer className="px-4 py-4 text-center sm:px-6 sm:py-6">
                     {footer}
-                    <nav aria-label={t("legalLinks")} className="flex items-center justify-center gap-2 text-caption text-capta-text-secondary" data-login-step>
+                    <nav aria-label={t("legalLinks")} className="flex items-center justify-center gap-2 text-caption text-content-secondary" data-login-step>
                       <Link
-                        className="motion-interactive rounded-sm outline-none hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2"
+                        className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         href="/termos-de-uso"
                       >
                         {t("terms")}
                       </Link>
                       <span aria-hidden="true">/</span>
                       <Link
-                        className="motion-interactive rounded-sm outline-none hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2"
+                        className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         href="/politica-de-privacidade"
                       >
                         {t("privacy")}

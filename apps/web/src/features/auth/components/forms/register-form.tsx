@@ -40,8 +40,8 @@ function RegisterFormContent() {
   return (
     <div ref={formRef} className="space-y-4">
       <div className="space-y-2 text-center" data-register-step>
-        <h1 className="text-heading-4 text-capta-text-primary">{t("register.title")}</h1>
-        <p className="text-ui text-capta-text-secondary">{t("register.description")}</p>
+        <h1 className="text-heading-4 text-foreground">{t("register.title")}</h1>
+        <p className="text-ui text-content-secondary">{t("register.description")}</p>
       </div>
 
       <div data-register-step>
@@ -49,9 +49,9 @@ function RegisterFormContent() {
       </div>
 
       <div aria-label={t("shared.emailDividerLabel")} className="flex items-center gap-3" data-register-step role="separator">
-        <div className="h-px flex-1 bg-capta-border-default" />
-        <span className="text-ui text-capta-text-secondary">{t("shared.emailDivider")}</span>
-        <div className="h-px flex-1 bg-capta-border-default" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-ui text-content-secondary">{t("shared.emailDivider")}</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <form className="space-y-4" noValidate onSubmit={onSubmit}>
@@ -96,10 +96,10 @@ function RegisterFormContent() {
         </div>
       </form>
 
-      <p className="text-center text-ui text-capta-text-secondary" data-register-step>
+      <p className="text-center text-ui text-content-secondary" data-register-step>
         {t("shared.alreadyRegistered")}{" "}
         <AuthNavLink
-          className="font-semibold text-capta-text-primary"
+          className="font-semibold text-foreground"
           href="/login"
         >
           {t("shared.signIn")}

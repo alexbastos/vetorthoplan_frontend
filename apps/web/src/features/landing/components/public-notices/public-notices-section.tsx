@@ -136,16 +136,16 @@ async function PublicNoticesSection() {
       <div className="relative z-10 px-4 py-16 lg:px-16 lg:py-20">
         <div className="max-w-[39rem]">
           <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="flex size-5 items-center justify-center rounded-sm bg-capta-product-notices text-capta-text-inverse">
+            <span aria-hidden="true" className="flex size-5 items-center justify-center rounded-sm bg-notices text-content-inverse">
               <Files className="size-3" strokeWidth={2.25} />
             </span>
-            <p className="text-meta font-medium text-capta-text-secondary">{t("intro.eyebrow")}</p>
+            <p className="text-meta font-medium text-content-secondary">{t("intro.eyebrow")}</p>
           </div>
 
-          <h2 id="public-notices-title" className="mt-4 font-heading text-heading-3 font-medium tracking-[-0.02em] text-pretty text-capta-text-primary">
+          <h2 id="public-notices-title" className="mt-4 font-heading text-heading-3 font-medium tracking-[-0.02em] text-pretty text-foreground">
             {t("intro.title")}
           </h2>
-          <p className="mt-4 max-w-[37rem] text-body text-pretty text-capta-text-secondary">{t("intro.description")}</p>
+          <p className="mt-4 max-w-[37rem] text-body text-pretty text-content-secondary">{t("intro.description")}</p>
 
           <Button asChild className="mt-7" size="sm" variant="secondary">
             <Link href="#editais-showcase">{t("intro.action")}</Link>

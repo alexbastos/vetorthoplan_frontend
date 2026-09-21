@@ -17,7 +17,7 @@ const buttonVariants = cva(
         ghost:
           "bg-transparent text-[var(--button-text-default)] hover:bg-[var(--button-ghost-background-hover)] active:bg-[var(--button-ghost-background-active)] disabled:text-[var(--button-text-disabled)]",
         danger:
-          "bg-[var(--button-danger-background-default)] text-[var(--button-text-inverse)] hover:bg-[var(--button-danger-background-hover)] active:bg-[var(--button-danger-background-active)] disabled:bg-[var(--button-danger-background-disabled)] disabled:text-[var(--button-danger-text-disabled)]",
+          "bg-[var(--button-danger-background-default)] text-[var(--button-danger-text-default)] hover:bg-[var(--button-danger-background-hover)] active:bg-[var(--button-danger-background-active)] disabled:bg-[var(--button-danger-background-disabled)] disabled:text-[var(--button-danger-text-disabled)]",
       },
       size: {
         sm: "h-[var(--button-height-sm)] gap-[var(--button-gap-sm)] px-[var(--button-padding-inline-sm)] [&_svg:not([class*='size-'])]:size-3.5",

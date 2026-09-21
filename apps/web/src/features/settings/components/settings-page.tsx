@@ -49,8 +49,8 @@ function SettingsPage() {
   return (
     <SettingsPageMotion>
       <header data-settings-page-header className="max-w-2xl space-y-1">
-        <h1 className="font-heading text-[1.375rem] leading-[1.3] font-semibold tracking-[-0.02em] text-capta-text-primary">{t("title")}</h1>
-        <p className="text-ui text-capta-text-secondary">{t("description")}</p>
+        <h1 className="font-heading text-[1.375rem] leading-[1.3] font-semibold tracking-[-0.02em] text-foreground">{t("title")}</h1>
+        <p className="text-ui text-content-secondary">{t("description")}</p>
       </header>
 
       <div className="mt-8 flex min-h-0 flex-col gap-6 md:mt-10 md:flex-row md:gap-8">
@@ -60,8 +60,8 @@ function SettingsPage() {
           {settingsSections.map((section) => (
             <section aria-labelledby={`${tabListId}-${section.id}-tab`} hidden={section.id !== activeSection} id={`${tabListId}-${section.id}-panel`} key={section.id} role="tabpanel">
               <div className="px-6 py-6 sm:px-8">
-                <h2 className="font-heading text-[1.125rem] leading-[1.3] font-semibold tracking-[-0.02em] text-capta-text-primary">{t(`sections.${section.id}.label`)}</h2>
-                <p className="mt-1 max-w-xl text-ui text-capta-text-secondary">{t(`sections.${section.id}.description`)}</p>
+                <h2 className="font-heading text-[1.125rem] leading-[1.3] font-semibold tracking-[-0.02em] text-foreground">{t(`sections.${section.id}.label`)}</h2>
+                <p className="mt-1 max-w-xl text-ui text-content-secondary">{t(`sections.${section.id}.description`)}</p>
               </div>
 
               {section.id === "profile" ? <ProfileSettingsPanel isActive={section.id === activeSection} profileSettings={profileSettings} /> : null}
@@ -101,7 +101,7 @@ function SettingsNavigation({ activeSection, onKeyDown, onSelect, tabListId, tab
             <button
               aria-controls={`${tabListId}-${section.id}-panel`}
               aria-selected={isActive}
-              className={cn("motion-interactive flex h-10 cursor-pointer items-center gap-3 rounded-[var(--radius-token-lg)] px-3 text-left text-[0.8125rem] leading-[var(--type-ui-line-height)] font-normal text-capta-text-secondary outline-none", "hover:bg-capta-surface-subtle hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-capta-surface-card", "md:w-full", isActive && "bg-capta-surface-default text-capta-text-primary")}
+              className={cn("motion-interactive flex h-10 cursor-pointer items-center gap-3 rounded-[var(--radius-token-lg)] px-3 text-left text-[0.8125rem] leading-[var(--type-ui-line-height)] font-normal text-content-secondary outline-none", "hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card", "md:w-full", isActive && "bg-background text-foreground")}
               id={`${tabListId}-${section.id}-tab`}
               key={section.id}
               onClick={() => onSelect(section.id)}

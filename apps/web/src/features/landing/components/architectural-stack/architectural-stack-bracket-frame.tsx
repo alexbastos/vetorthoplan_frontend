@@ -22,7 +22,7 @@ function ArchitecturalStackBracketFrame({
 }: ArchitecturalStackBracketFrameProps) {
   return (
     <div
-      className={cn("relative border border-dashed border-capta-border-default text-capta-text-primary", className)}
+      className={cn("relative border border-dashed border-border text-foreground", className)}
       {...props}
     >
       <ArchitecturalStackCornerBrackets />

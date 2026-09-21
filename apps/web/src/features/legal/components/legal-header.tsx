@@ -13,7 +13,7 @@ async function LegalHeader() {
   return (
     <header className={styles.header} data-legal-header>
       <a
-        className="sr-only z-50 rounded-sm bg-capta-surface-card px-4 py-3 text-body text-capta-text-primary focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
+        className="sr-only z-50 rounded-sm bg-card px-4 py-3 text-body text-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
         href="#legal-document"
       >
         {t("skipToContent")}

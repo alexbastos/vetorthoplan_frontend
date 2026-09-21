@@ -24,7 +24,7 @@ function DiagramLayer({ content, id }: {
       <h3 className="font-heading text-[clamp(1rem,2.8cqw,1.5rem)] leading-[1.1] font-medium tracking-[-0.025em] text-pretty">
         {content.title}
       </h3>
-      <p className="mt-2 text-[clamp(0.75rem,1.7cqw,0.875rem)] leading-relaxed text-pretty text-capta-text-secondary">
+      <p className="mt-2 text-[clamp(0.75rem,1.7cqw,0.875rem)] leading-relaxed text-pretty text-content-secondary">
         {content.description}
       </p>
     </ArchitecturalStackBracketFrame>

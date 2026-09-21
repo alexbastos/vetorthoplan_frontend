@@ -29,7 +29,7 @@ async function LandingHeader() {
           {landingNavigation.map((item) => (
             <li key={item.href}>
               <Link
-                className="motion-interactive inline-flex h-8 items-center rounded-sm px-3 text-sm font-medium text-capta-text-primary/80 outline-none transition-colors hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-[var(--button-focus-color)] focus-visible:ring-offset-2"
+                className="motion-interactive inline-flex h-8 items-center rounded-sm px-3 text-sm font-medium text-foreground/80 outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-[var(--button-focus-color)] focus-visible:ring-offset-2"
                 href={item.href}
               >
                 {t(`navigation.${item.labelKey}`)}

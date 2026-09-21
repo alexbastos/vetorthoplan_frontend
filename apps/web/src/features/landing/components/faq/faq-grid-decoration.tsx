@@ -63,7 +63,7 @@ function FaqGridDecoration() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden text-capta-text-muted/75 lg:block"
+      className="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden text-muted-foreground/75 lg:block"
       data-landing-faq-decoration
     >
       <FaqGridVolume

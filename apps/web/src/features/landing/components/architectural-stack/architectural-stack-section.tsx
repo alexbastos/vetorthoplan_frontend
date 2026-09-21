@@ -53,7 +53,7 @@ async function ArchitecturalStackSection() {
     <section
       id="como-funciona"
       aria-labelledby="architectural-stack-title"
-      className="relative left-1/2 isolate w-screen -translate-x-1/2 border-y border-capta-border-default bg-capta-surface-card"
+      className="relative left-1/2 isolate w-screen -translate-x-1/2 border-y border-border bg-card"
       data-architectural-stack
     >
       <ArchitecturalStackModule content={content} />

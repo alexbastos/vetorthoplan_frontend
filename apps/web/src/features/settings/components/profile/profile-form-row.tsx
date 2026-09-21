@@ -26,15 +26,15 @@ function ProfileFormRow({ autoComplete, description, editable = true, error, for
   const inputId = `profile-${registration.name}`
 
   return (
-    <div className={showDivider ? "border-b border-capta-border-default py-4" : "py-4"}>
-      <label className="text-caption font-semibold text-capta-text-muted" htmlFor={inputId}>
+    <div className={showDivider ? "border-b border-border py-4" : "py-4"}>
+      <label className="text-caption font-semibold text-muted-foreground" htmlFor={inputId}>
         {label}{required ? <span aria-hidden="true" className="ml-1 text-[var(--color-feedback-error)]">*</span> : null}
       </label>
       <div className="mt-1.5 flex items-center gap-3">
         <input
           {...registration}
           autoComplete={autoComplete}
-          className="min-w-0 flex-1 bg-transparent text-ui font-semibold text-capta-text-primary outline-none placeholder:font-normal placeholder:text-capta-text-muted focus-visible:outline-none"
+          className="min-w-0 flex-1 bg-transparent text-ui font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:outline-none"
           id={inputId}
           inputMode={inputMode}
           onChange={(event) => {
@@ -53,7 +53,7 @@ function ProfileFormRow({ autoComplete, description, editable = true, error, for
         {editable ? <EditFieldButton inputId={inputId} label={label} /> : null}
       </div>
       {error ? <p className="mt-1 text-caption text-[var(--color-feedback-error)]" role="alert">{error}</p> : null}
-      {!error && description ? <p aria-live="polite" className="mt-1 text-caption text-capta-text-secondary">{description}</p> : null}
+      {!error && description ? <p aria-live="polite" className="mt-1 text-caption text-content-secondary">{description}</p> : null}
     </div>
   )
 }
@@ -76,8 +76,8 @@ function ProfileDateRow({ error, label, onValueChange, value }: ProfileDateRowPr
   const inputId = "profile-birth-date"
 
   return (
-    <div className="border-b border-capta-border-default py-4">
-      <label className="text-caption font-semibold text-capta-text-muted" htmlFor={inputId}>{label}</label>
+    <div className="border-b border-border py-4">
+      <label className="text-caption font-semibold text-muted-foreground" htmlFor={inputId}>{label}</label>
       <div className="mt-1.5 flex items-center gap-3">
         <DatePicker id={inputId} onValueChange={onValueChange} value={value} />
         <EditFieldButton inputId={inputId} label={label} />
@@ -119,13 +119,13 @@ function ProfileTextAreaRow({ error, onValueChange, showDivider = true, value }:
   }
 
   return (
-    <div className={showDivider ? "border-b border-capta-border-default py-4" : "py-4"}>
-      <label className="text-caption font-semibold text-capta-text-muted" htmlFor={inputId}>{t("bio")}</label>
+    <div className={showDivider ? "border-b border-border py-4" : "py-4"}>
+      <label className="text-caption font-semibold text-muted-foreground" htmlFor={inputId}>{t("bio")}</label>
       {isEditing ? (
         <div className="mt-1.5">
           <textarea
             aria-invalid={Boolean(error)}
-            className="min-h-20 w-full resize-y rounded-[var(--input-radius)] border border-capta-border-default bg-transparent px-3 py-2 text-ui text-capta-text-primary outline-none placeholder:text-capta-text-muted transition-colors focus-visible:border-capta-border-default"
+            className="min-h-20 w-full resize-y rounded-[var(--input-radius)] border border-border bg-transparent px-3 py-2 text-ui text-foreground outline-none placeholder:text-muted-foreground transition-colors focus-visible:border-border"
             id={inputId}
             maxLength={500}
             onChange={(event) => setDraft(event.target.value)}
@@ -141,14 +141,14 @@ function ProfileTextAreaRow({ error, onValueChange, showDivider = true, value }:
         </div>
       ) : (
         <div className="mt-1.5 flex items-start gap-3">
-          <p className={`min-w-0 flex-1 text-ui ${value ? "font-semibold text-capta-text-primary" : "font-normal text-capta-text-muted"}`}>
+          <p className={`min-w-0 flex-1 text-ui ${value ? "font-semibold text-foreground" : "font-normal text-muted-foreground"}`}>
             {value || t("bioPlaceholder")}
           </p>
           <button
             aria-controls={inputId}
             aria-expanded={false}
             aria-label={tAccessibility("editField", { field: t("bio") })}
-            className="shrink-0 cursor-pointer rounded-sm p-1 text-capta-text-muted transition-colors hover:text-capta-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-capta-brand-primary"
+            className="shrink-0 cursor-pointer rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={() => setIsEditing(true)}
             type="button"
           >
@@ -171,7 +171,7 @@ function EditFieldButton({ inputId, label }: EditFieldButtonProps) {
   return (
     <button
       aria-label={t("editField", { field: label })}
-      className="shrink-0 cursor-pointer rounded-sm p-1 text-capta-text-muted transition-colors hover:text-capta-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-capta-brand-primary"
+      className="shrink-0 cursor-pointer rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
         const field = document.getElementById(inputId)
 

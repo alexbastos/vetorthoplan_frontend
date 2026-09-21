@@ -85,7 +85,7 @@ function AppProfileMenu({ initials }: { initials: string }) {
       <DropdownMenuContent
         align="end"
         aria-label={t("accountMenu.label")}
-        className="w-[19.5rem] min-w-[19.5rem] overflow-hidden rounded-[1.125rem] border border-capta-border-default bg-capta-surface-card p-0 shadow-[0_1.25rem_2.5rem_rgb(23_23_23_/_12%)]"
+        className="w-[19.5rem] min-w-[19.5rem] overflow-hidden rounded-[1.125rem] border border-border bg-card p-0 shadow-[0_1.25rem_2.5rem_rgb(23_23_23_/_12%)]"
         sideOffset={10}
       >
         {path.length === 0 ? (
@@ -106,17 +106,17 @@ type ProfileMenuHeaderProps = {
 function ProfileMenuHeader({ initials, name, onSettingsClick }: ProfileMenuHeaderProps) {
   const t = useTranslations("common.accountMenu")
   return (
-    <header className="flex items-center gap-4 border-b border-capta-border-default px-5 py-4">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-capta-brand-secondary text-ui font-bold text-capta-text-inverse">
+    <header className="flex items-center gap-4 border-b border-border px-5 py-4">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-secondary text-ui font-medium text-brand-secondary-foreground">
         {initials.slice(0, 2).toUpperCase()}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-ui-semibold text-capta-text-primary">{name}</p>
-        <p className="mt-1 text-ui text-capta-text-secondary">{t("manage")}</p>
+        <p className="truncate text-ui-semibold text-foreground">{name}</p>
+        <p className="mt-1 text-ui text-content-secondary">{t("manage")}</p>
       </div>
       <button
         aria-label={t("openSettings")}
-        className="motion-interactive flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-capta-text-secondary outline-none hover:bg-capta-surface-subtle hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus"
+        className="motion-interactive flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
         onClick={onSettingsClick}
         type="button"
       >

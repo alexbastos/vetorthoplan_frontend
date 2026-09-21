@@ -24,10 +24,10 @@ function TimeZoneSelectField({ error, onValueChange, value }: TimeZoneSelectFiel
   return (
     <div>
       <div className="flex min-w-0 items-center gap-3">
-        <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full border border-capta-border-default bg-capta-surface-subtle text-capta-text-secondary"><MapPin className="size-3.5" strokeWidth={1.75} /></span>
+        <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-content-secondary"><MapPin className="size-3.5" strokeWidth={1.75} /></span>
         <div className="min-w-0">
-          <label className="text-caption font-semibold text-capta-text-primary" htmlFor={inputId}>{t("timezone")}</label>
-          <p className="mt-1 text-caption text-capta-text-secondary">{t("timezoneHint")}</p>
+          <label className="text-caption font-semibold text-foreground" htmlFor={inputId}>{t("timezone")}</label>
+          <p className="mt-1 text-caption text-content-secondary">{t("timezoneHint")}</p>
         </div>
       </div>
       <div className="mt-3">

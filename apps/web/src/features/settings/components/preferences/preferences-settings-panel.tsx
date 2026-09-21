@@ -61,7 +61,7 @@ function PreferencesSettingsPanel({ isActive, profileSettings }: PreferencesSett
   if (loadError) {
     return (
       <div className="flex min-h-48 flex-col items-start justify-center gap-4 px-6 py-10 sm:px-8" role="alert">
-        <p className="text-ui text-capta-text-secondary">{t("loadError")}</p>
+        <p className="text-ui text-content-secondary">{t("loadError")}</p>
         <Button onClick={() => retry()} size="sm" type="button" variant="secondary">
           <RefreshCw aria-hidden="true" />
           {tActions("retry")}
@@ -77,7 +77,7 @@ function PreferencesSettingsPanel({ isActive, profileSettings }: PreferencesSett
           <ThemePreferenceField />
         </div>
         <section aria-labelledby="language-region-preference-title" className="pt-5" data-settings-preferences-group>
-          <h3 className="text-ui font-semibold text-capta-text-primary" id="language-region-preference-title">{t("languageRegion")}</h3>
+          <h3 className="text-ui font-semibold text-foreground" id="language-region-preference-title">{t("languageRegion")}</h3>
           <div className="mt-4 grid gap-5 sm:grid-cols-2">
             <LocaleSelectField error={form.formState.errors.locale?.message} locale={form.watch("locale")} onValueChange={(locale) => form.setValue("locale", locale, { shouldDirty: true, shouldTouch: true, shouldValidate: true })} />
             <TimeZoneSelectField error={form.formState.errors.timezone?.message} onValueChange={(timezone) => form.setValue("timezone", timezone, { shouldDirty: true, shouldTouch: true, shouldValidate: true })} value={form.watch("timezone")} />
@@ -115,8 +115,8 @@ function PreferencesPanelSkeleton() {
   const t = useTranslations("settings.preferences")
   return (
     <div aria-busy="true" aria-label={t("loading")} className="space-y-4 px-6 py-8 sm:px-8">
-      <div className="h-14 animate-pulse rounded bg-capta-surface-subtle" />
-      <div className="h-14 animate-pulse rounded bg-capta-surface-subtle" />
+      <div className="h-14 animate-pulse rounded bg-muted" />
+      <div className="h-14 animate-pulse rounded bg-muted" />
     </div>
   )
 }

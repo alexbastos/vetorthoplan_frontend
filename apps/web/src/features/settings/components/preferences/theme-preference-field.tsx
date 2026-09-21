@@ -17,29 +17,29 @@ function ThemePreferenceField() {
   const { preference, setPreference } = useAppTheme()
 
   return (
-    <section aria-labelledby="theme-preference-title" className="border-b border-capta-border-default py-4">
+    <section aria-labelledby="theme-preference-title" className="border-b border-border py-4">
       <div className="pb-2">
-        <h3 className="text-ui font-semibold text-capta-text-primary" id="theme-preference-title">{t("theme")}</h3>
-        <p className="mt-1 text-caption text-capta-text-secondary">{t("themeHint")}</p>
+        <h3 className="text-ui font-semibold text-foreground" id="theme-preference-title">{t("theme")}</h3>
+        <p className="mt-1 text-caption text-content-secondary">{t("themeHint")}</p>
       </div>
 
-      <div className="grid gap-5 border-t border-capta-border-default pt-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.7fr)] lg:gap-8">
+      <div className="grid gap-5 border-t border-border pt-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.7fr)] lg:gap-8">
         <div>
-          <h4 className="text-ui font-semibold text-capta-text-primary">{t("displayMode")}</h4>
-          <p className="mt-1 text-caption text-capta-text-secondary">{t("displayModeHint")}</p>
+          <h4 className="text-ui font-semibold text-foreground">{t("displayMode")}</h4>
+          <p className="mt-1 text-caption text-content-secondary">{t("displayModeHint")}</p>
         </div>
         <div aria-label={t("displayMode")} className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup">
           {themeOptions.map((option) => (
             <button
               aria-checked={preference === option}
-              className="group cursor-pointer text-left outline-none focus-visible:ring-2 focus-visible:ring-capta-border-focus"
+              className="group cursor-pointer text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
               key={option}
               onClick={() => setPreference(option)}
               role="radio"
               type="button"
             >
               <ThemePreview selected={preference === option} theme={option} />
-              <span className={cn("mt-2 block text-[0.625rem] leading-none font-medium uppercase", preference === option ? "text-capta-text-primary" : "text-capta-text-muted")}>{t(themeLabels[option])}</span>
+              <span className={cn("mt-2 block text-[0.625rem] leading-none font-medium uppercase", preference === option ? "text-foreground" : "text-muted-foreground")}>{t(themeLabels[option])}</span>
             </button>
           ))}
         </div>
@@ -53,7 +53,7 @@ function ThemePreview({ selected, theme }: { selected: boolean; theme: AppThemeP
   const isSystem = theme === "system"
 
   return (
-    <span aria-hidden="true" className={cn("flex h-20 overflow-hidden rounded-[var(--radius-token-sm)] border bg-capta-surface-card transition-colors", selected ? "border-capta-brand-primary" : "border-capta-border-default group-hover:border-capta-text-muted")}>
+    <span aria-hidden="true" className={cn("flex h-20 overflow-hidden rounded-[var(--radius-token-sm)] border bg-card transition-colors", selected ? "border-ring" : "border-border group-hover:border-muted-foreground")}>
       <ThemePreviewPanel dark={isDark} />
       {isSystem ? <ThemePreviewPanel dark /> : null}
     </span>

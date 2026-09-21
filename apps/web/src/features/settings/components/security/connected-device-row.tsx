@@ -66,19 +66,19 @@ function ConnectedDeviceRow({ isDisabled, isExiting, isRevoking, onExitComplete,
 
   return (
     <li className="flex items-center gap-3 overflow-hidden py-4 first:pt-0 last:pb-0" ref={rowRef}>
-      <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-token-md)] border border-capta-border-default bg-capta-surface-subtle text-capta-text-secondary">
+      <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-token-md)] border border-border bg-muted text-content-secondary">
         <DeviceIcon className="size-4" strokeWidth={1.75} />
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-ui font-semibold text-capta-text-primary">{session.deviceName || t("unknownDevice")}</p>
-        <p className="mt-0.5 truncate text-caption text-capta-text-secondary">{sessionDetails}</p>
+        <p className="truncate text-ui font-semibold text-foreground">{session.deviceName || t("unknownDevice")}</p>
+        <p className="mt-0.5 truncate text-caption text-content-secondary">{sessionDetails}</p>
       </div>
 
       <div className="flex shrink-0 items-center gap-3">
-        <span className={session.isCurrent ? "text-caption font-semibold text-capta-feedback-success" : "text-caption text-capta-text-secondary"}>{sessionStatus}</span>
+        <span className={session.isCurrent ? "text-caption font-semibold text-success" : "text-caption text-content-secondary"}>{sessionStatus}</span>
         {!session.isCurrent ? (
-          <Button aria-haspopup="dialog" aria-label={t("revokeDevice", { device: session.deviceName || t("unknownDevice") })} className="size-8 p-0 text-capta-text-muted hover:!bg-[var(--color-feedback-error)]/10 hover:text-[var(--color-feedback-error)]" disabled={isDisabled || isExiting} loading={isRevoking} onClick={() => onRevoke(session)} size="sm" type="button" variant="ghost">
+          <Button aria-haspopup="dialog" aria-label={t("revokeDevice", { device: session.deviceName || t("unknownDevice") })} className="size-8 p-0 text-muted-foreground hover:!bg-[var(--color-feedback-error)]/10 hover:text-[var(--color-feedback-error)]" disabled={isDisabled || isExiting} loading={isRevoking} onClick={() => onRevoke(session)} size="sm" type="button" variant="ghost">
             {!isRevoking ? <Trash2 aria-hidden="true" className="size-3.5" strokeWidth={1.5} /> : null}
           </Button>
         ) : null}

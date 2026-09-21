@@ -30,23 +30,23 @@ async function FaqSection() {
       id="faq"
       aria-labelledby="landing-faq-title"
       aria-describedby="landing-faq-description"
-      className="relative left-1/2 isolate w-screen -translate-x-1/2 overflow-hidden border-b border-[var(--landing-grid-border)] bg-capta-surface-card"
+      className="relative left-1/2 isolate w-screen -translate-x-1/2 overflow-hidden border-b border-[var(--landing-grid-border)] bg-card"
       data-landing-faq
     >
       <FaqEntrance>
         <FaqGridDecoration />
         <div className="relative z-10 mx-auto w-full max-w-[var(--layout-landing-max-width)] px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
           <header className="mx-auto max-w-[48rem] text-center" data-landing-faq-intro>
-            <p className="text-overline text-capta-text-muted">{content.intro.eyebrow}</p>
+            <p className="text-overline text-muted-foreground">{content.intro.eyebrow}</p>
             <h2
               id="landing-faq-title"
-              className="mt-4 font-heading text-heading-3 font-medium tracking-[-0.02em] text-pretty text-capta-text-primary"
+              className="mt-4 font-heading text-heading-3 font-medium tracking-[-0.02em] text-pretty text-foreground"
             >
               {content.intro.title}
             </h2>
             <p
               id="landing-faq-description"
-              className="mx-auto mt-4 max-w-[36rem] text-body text-pretty text-capta-text-secondary"
+              className="mx-auto mt-4 max-w-[36rem] text-body text-pretty text-content-secondary"
             >
               {content.intro.description}
             </p>

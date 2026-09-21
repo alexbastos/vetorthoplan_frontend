@@ -62,7 +62,7 @@ function AnalysisReasoning({ reasoningLabels, runningLabel, stage }: AnalysisRea
         aria-expanded={isOpen}
         aria-label={`${isOpen ? reasoningLabels.hideDetails : reasoningLabels.showDetails}: ${stage.title}`}
         data-analysis-reasoning-trigger
-        className="invisible inline-flex cursor-pointer items-center gap-2 rounded-[var(--radius-token-sm)] text-caption font-medium text-capta-text-secondary opacity-0 outline-none hover:text-capta-text-primary focus-visible:ring-2 focus-visible:ring-capta-border-focus focus-visible:ring-offset-2 aria-disabled:cursor-default aria-disabled:hover:text-capta-text-secondary"
+        className="invisible inline-flex cursor-pointer items-center gap-2 rounded-[var(--radius-token-sm)] text-caption font-medium text-content-secondary opacity-0 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-disabled:cursor-default aria-disabled:hover:text-content-secondary"
         onClick={(event) => {
           if (event.currentTarget.getAttribute("aria-disabled") !== "false") {
             return
@@ -87,18 +87,18 @@ function AnalysisReasoning({ reasoningLabels, runningLabel, stage }: AnalysisRea
       </button>
 
       <div className="relative mt-2">
-        <div data-analysis-reasoning-running-content className="invisible absolute inset-x-0 top-0 border-l border-capta-border-default pl-4 opacity-0">
-          <p className="text-caption leading-[1.66] text-capta-text-secondary">{stage.process}</p>
+        <div data-analysis-reasoning-running-content className="invisible absolute inset-x-0 top-0 border-l border-border pl-4 opacity-0">
+          <p className="text-caption leading-[1.66] text-content-secondary">{stage.process}</p>
         </div>
 
         <div data-analysis-reasoning-done-content className="invisible absolute inset-x-0 top-0 opacity-0">
           <div ref={collapsible} id={contentId} className="h-0 overflow-hidden">
-            <div className="border-l border-capta-border-default pb-2 pl-4">
-              <p className="text-caption leading-[1.66] text-capta-text-secondary">{stage.process}</p>
+            <div className="border-l border-border pb-2 pl-4">
+              <p className="text-caption leading-[1.66] text-content-secondary">{stage.process}</p>
             </div>
           </div>
 
-          <p className="text-meta font-normal leading-relaxed text-capta-text-primary">{stage.result}</p>
+          <p className="text-meta font-normal leading-relaxed text-foreground">{stage.result}</p>
         </div>
       </div>
     </div>

@@ -8,6 +8,11 @@
   --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
   --font-heading: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-weight-extralight: 200;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -40,52 +45,22 @@
   --color-accent-soft: var(--color-surface-accent);
   --color-content-secondary: var(--color-text-secondary);
   --color-content-disabled: var(--color-text-disabled);
+  --color-content-inverse: var(--color-text-inverse);
   --color-primary-hover: var(--color-brand-primary-hover);
   --color-primary-active: var(--color-brand-primary-active);
   --color-primary-disabled: var(--color-brand-primary-disabled);
-  --color-brand-accent: var(--color-brand-accent);
-  --color-brand-secondary: var(--color-brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-secondary-foreground: var(--color-obsidian);
   --color-success: var(--color-feedback-success);
   --color-warning: var(--color-feedback-warning);
   --color-info: var(--color-feedback-info);
   --color-link: var(--color-link-default);
+  --color-intelligence: var(--color-product-intelligence);
+  --color-notices: var(--color-product-notices);
   --ease-enter: var(--motion-ease-enter);
   --ease-exit: var(--motion-ease-exit);
   --ease-standard: var(--motion-ease-standard);
-
-  /* Compatibilidade temporaria durante a migracao dos consumidores legados. */
-  --color-capta-surface-default: var(--color-surface-default);
-  --color-capta-surface-sidebar: var(--color-surface-sidebar);
-  --color-capta-surface-workspace: var(--color-surface-workspace);
-  --color-capta-surface-stage: var(--color-surface-stage);
-  --color-capta-surface-raised: var(--color-surface-raised);
-  --color-capta-surface-card: var(--color-surface-card);
-  --color-capta-surface-inverse: var(--color-surface-inverse);
-  --color-capta-surface-subtle: var(--color-surface-subtle);
-  --color-capta-surface-subtle-hover: var(--color-surface-subtle-hover);
-  --color-capta-surface-hover: var(--color-surface-hover);
-  --color-capta-surface-selected: var(--color-surface-selected);
-  --color-capta-surface-muted: var(--color-surface-muted);
-  --color-capta-surface-accent: var(--color-surface-accent);
-  --color-capta-text-primary: var(--color-text-primary);
-  --color-capta-text-secondary: var(--color-text-secondary);
-  --color-capta-text-muted: var(--color-text-muted);
-  --color-capta-text-disabled: var(--color-text-disabled);
-  --color-capta-text-inverse: var(--color-text-inverse);
-  --color-capta-border-default: var(--color-border-default);
-  --color-capta-border-focus: var(--color-border-focus);
-  --color-capta-brand-primary: var(--color-brand-primary);
-  --color-capta-brand-primary-hover: var(--color-brand-primary-hover);
-  --color-capta-brand-primary-active: var(--color-brand-primary-active);
-  --color-capta-brand-primary-disabled: var(--color-brand-primary-disabled);
-  --color-capta-brand-accent: var(--color-brand-accent);
-  --color-capta-brand-secondary: var(--color-brand-secondary);
-  --color-capta-product-intelligence: var(--color-product-intelligence);
-  --color-capta-product-notices: var(--color-product-notices);
-  --color-capta-feedback-success: var(--color-feedback-success);
-  --color-capta-feedback-warning: var(--color-feedback-warning);
-  --color-capta-feedback-error: var(--color-feedback-error);
-  --color-capta-feedback-info: var(--color-feedback-info);
 
   --spacing-1: var(--space-1);
   --spacing-2: var(--space-2);
@@ -100,9 +75,9 @@
   --radius-lg: var(--radius-token-lg);
   --radius-xl: var(--radius-token-xl);
   --radius-full: var(--radius-token-full);
-  --ease-capta-enter: var(--motion-ease-enter);
-  --ease-capta-exit: var(--motion-ease-exit);
-  --ease-capta-standard: var(--motion-ease-standard);
+  --ease-enter: var(--motion-ease-enter);
+  --ease-exit: var(--motion-ease-exit);
+  --ease-standard: var(--motion-ease-standard);
 
   --text-display: var(--type-display-size);
   --text-display--line-height: var(--type-display-line-height);
@@ -208,10 +183,10 @@
   --color-brand-primary-hover: color-mix(in srgb, var(--color-sky-signal) 88%, var(--color-inkstone));
   --color-brand-primary-active: color-mix(in srgb, var(--color-sky-signal) 78%, var(--color-inkstone));
   --color-brand-primary-disabled: var(--color-linen);
-  --color-brand-accent: var(--color-electric-iris);
-  --color-brand-secondary: var(--color-electric-iris);
+  --brand-accent: var(--color-electric-iris);
+  --brand-secondary: var(--color-electric-iris);
   --color-link-default: #3270db;
-  --color-product-intelligence: var(--color-brand-secondary);
+  --color-product-intelligence: var(--brand-secondary);
   --color-product-notices: var(--color-coral-700);
   --color-feedback-success: var(--color-sage-700);
   --color-feedback-warning: var(--color-amber-700);
@@ -233,6 +208,7 @@
   --button-danger-background-hover: var(--color-coral-800);
   --button-danger-background-active: var(--color-coral-900);
   --button-danger-background-disabled: var(--color-brand-primary-disabled);
+  --button-danger-text-default: var(--color-paper-white);
   --button-danger-text-disabled: var(--button-text-disabled);
   --button-text-inverse: var(--color-inkstone);
   --button-text-default: var(--color-text-primary);
@@ -459,8 +435,8 @@
   --color-brand-primary-hover: color-mix(in srgb, var(--color-sky-signal) 88%, white);
   --color-brand-primary-active: color-mix(in srgb, var(--color-sky-signal) 78%, var(--color-inkstone));
   --color-brand-primary-disabled: #424247;
-  --color-brand-accent: var(--color-electric-iris);
-  --color-brand-secondary: var(--color-electric-iris);
+  --brand-accent: var(--color-electric-iris);
+  --brand-secondary: var(--color-electric-iris);
   --color-link-default: #8abbff;
   --color-product-intelligence: var(--color-electric-iris);
   --color-product-notices: var(--color-coral-700);
@@ -486,6 +462,7 @@
   --button-danger-background-hover: var(--color-coral-700);
   --button-danger-background-active: var(--color-coral-800);
   --button-danger-background-disabled: #424247;
+  --button-danger-text-default: var(--color-inkstone);
   --button-danger-text-disabled: var(--color-graphite);
   --button-text-inverse: var(--color-inkstone);
   --button-text-default: var(--color-text-primary);

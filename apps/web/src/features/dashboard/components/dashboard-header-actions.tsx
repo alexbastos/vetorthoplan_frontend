@@ -8,11 +8,11 @@ function DashboardHeaderActions() {
   const t = useTranslations("dashboard")
   return (
     <HeaderActionsSlot>
-      <span className="flex h-9 items-center gap-2 rounded-full bg-capta-surface-subtle px-3.5 text-ui text-capta-text-secondary">
+      <span className="flex h-9 items-center gap-2 rounded-full bg-muted px-3.5 text-ui text-content-secondary">
         {t("period")}
         <ChevronDown aria-hidden="true" className="size-3.5" />
       </span>
-      <span aria-label={t("export")} className="flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-capta-text-secondary">
+      <span aria-label={t("export")} className="flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary">
         <Download aria-hidden="true" className="size-[1.125rem]" />
       </span>
     </HeaderActionsSlot>

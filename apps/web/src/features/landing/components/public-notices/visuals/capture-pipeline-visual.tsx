@@ -27,24 +27,24 @@ function CapturePipelineVisual({ content, isActive }: CapturePipelineVisualProps
     >
       <div
         aria-hidden="true"
-        className="w-full max-w-[44rem] overflow-hidden rounded-[var(--radius-token-lg)] border border-capta-border-default bg-capta-surface-card shadow-[var(--shadow-card-layered)]"
+        className="w-full max-w-[44rem] overflow-hidden rounded-[var(--radius-token-lg)] border border-border bg-card shadow-[var(--shadow-card-layered)]"
       >
-        <div className="relative flex h-8 items-center border-b border-capta-border-default px-3">
+        <div className="relative flex h-8 items-center border-b border-border px-3">
           <div className="flex shrink-0 items-center gap-1">
             <span className="size-1.5 rounded-full bg-[var(--color-neutral-400)]" />
             <span className="size-1.5 rounded-full bg-[var(--color-neutral-400)]" />
             <span className="size-1.5 rounded-full bg-[var(--color-neutral-400)]" />
           </div>
-          <span className="absolute left-1/2 -translate-x-1/2 rounded-full bg-capta-surface-subtle px-8 py-1 text-[0.5rem] text-capta-text-muted">
+          <span className="absolute left-1/2 -translate-x-1/2 rounded-full bg-muted px-8 py-1 text-[0.5rem] text-muted-foreground">
             app.captagov.com.br/pipeline
           </span>
         </div>
 
-        <header className="flex h-12 items-center justify-between gap-4 border-b border-capta-border-default px-4">
-          <h3 className="text-caption font-semibold text-capta-text-primary sm:text-ui">
+        <header className="flex h-12 items-center justify-between gap-4 border-b border-border px-4">
+          <h3 className="text-caption font-semibold text-foreground sm:text-ui">
             {content.heading}
           </h3>
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-[0.625rem] text-capta-text-secondary sm:text-caption">
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-[0.625rem] text-content-secondary sm:text-caption">
             <Clock3 aria-hidden="true" className="size-3" strokeWidth={1.8} />
             {content.periodLabel}
           </span>
@@ -54,21 +54,21 @@ function CapturePipelineVisual({ content, isActive }: CapturePipelineVisualProps
           {[0, 1].map((segmentIndex) => (
             <div
               data-pipeline-progress-track
-              className="pointer-events-none absolute top-6 left-0 z-[5] h-px w-0 bg-capta-border-default"
+              className="pointer-events-none absolute top-6 left-0 z-[5] h-px w-0 bg-border"
               key={segmentIndex}
             >
               <span
                 data-pipeline-progress-fill
-                className="block size-full origin-left scale-x-0 bg-capta-feedback-success will-change-transform"
+                className="block size-full origin-left scale-x-0 bg-success will-change-transform"
               />
             </div>
           ))}
 
-          <div className="grid h-full grid-cols-3 divide-x divide-capta-border-default">
+          <div className="grid h-full grid-cols-3 divide-x divide-border">
             {content.columns.map((column) => (
               <section
                 data-pipeline-stage-column
-                className="relative min-w-0 bg-capta-surface-workspace/35"
+                className="relative min-w-0 bg-workspace/35"
                 key={column.title}
               >
                 <header className="relative z-10 flex h-12 items-center justify-center gap-1.5 px-2 text-center">
@@ -78,9 +78,9 @@ function CapturePipelineVisual({ content, isActive }: CapturePipelineVisualProps
                   >
                     <span
                       data-pipeline-stage-marker
-                      className="size-2 shrink-0 rounded-full bg-capta-border-default ring-4 ring-capta-surface-card will-change-transform"
+                      className="size-2 shrink-0 rounded-full bg-border ring-4 ring-card will-change-transform"
                     />
-                    <h4 className="truncate text-[0.5625rem] font-semibold text-capta-text-secondary sm:text-caption">
+                    <h4 className="truncate text-[0.5625rem] font-semibold text-content-secondary sm:text-caption">
                       {column.title}
                     </h4>
                   </div>
@@ -115,7 +115,7 @@ function CapturePipelineVisual({ content, isActive }: CapturePipelineVisualProps
             ))}
           </div>
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-capta-surface-card to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-card to-transparent" />
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ function HomeHeroBanner() {
       />
       <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.85)_0%,rgba(0,36,92,0.25)_40%,rgba(8,123,193,0.12)_55%,transparent_70%)]" />
 
-      <div className="relative z-10 flex w-full flex-col justify-between p-6 text-capta-text-inverse sm:p-10 md:p-12">
+      <div className="relative z-10 flex w-full flex-col justify-between p-6 text-content-inverse sm:p-10 md:p-12">
         <p data-home-hero-badge className="flex items-center gap-2 text-[13px] font-medium sm:text-[15px]">
           {t("badge")}
           <UserPlus aria-hidden="true" className="size-4" />

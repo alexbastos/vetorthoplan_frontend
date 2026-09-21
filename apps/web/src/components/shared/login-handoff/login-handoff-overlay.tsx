@@ -26,11 +26,11 @@ function LoginHandoffOverlay({ labels, onExitComplete, state }: LoginHandoffOver
       aria-atomic="true"
       aria-busy="true"
       aria-live="polite"
-      className="fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-center gap-4 bg-capta-surface-card px-6 text-center opacity-0"
+      className="fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-center gap-4 bg-card px-6 text-center opacity-0"
       role="status"
     >
       <TriangleLoader size={52} />
-      <div className="relative h-5 w-72 text-overline text-capta-text-secondary">
+      <div className="relative h-5 w-72 text-overline text-content-secondary">
         <p className="absolute inset-0 flex items-center justify-center whitespace-nowrap" data-login-handoff-status="authenticating">
           {labels?.authenticating ?? t("authenticating")}
         </p>

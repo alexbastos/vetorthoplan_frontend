@@ -56,7 +56,7 @@ function ProtectedSessionRefreshGate() {
 
   return (
     <main aria-busy="true" aria-live="polite" className="flex min-h-dvh items-center justify-center px-6 py-12">
-      <p className="text-ui text-capta-text-secondary">{t("checking")}</p>
+      <p className="text-ui text-content-secondary">{t("checking")}</p>
     </main>
   )
 }
@@ -66,10 +66,10 @@ function ProtectedAreaUnavailable() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-6 py-12">
       <section aria-labelledby="session-unavailable-title" className="w-full max-w-md space-y-3 text-center">
-        <h1 id="session-unavailable-title" className="text-heading-4 text-capta-text-primary">
+        <h1 id="session-unavailable-title" className="text-heading-4 text-foreground">
           {t("unavailableTitle")}
         </h1>
-        <p className="text-ui text-capta-text-secondary">
+        <p className="text-ui text-content-secondary">
           {t("unavailableDescription")}
         </p>
       </section>

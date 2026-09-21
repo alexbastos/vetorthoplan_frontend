@@ -20,8 +20,8 @@ function ForgotPasswordForm() {
   return (
     <section ref={formRef} className="mx-auto w-full max-w-sm space-y-4">
       <header className="space-y-2" data-forgot-password-step>
-        <h1 className="text-heading-4 text-capta-text-primary">{t("forgotPassword.title")}</h1>
-        <p className="text-ui text-capta-text-secondary">
+        <h1 className="text-heading-4 text-foreground">{t("forgotPassword.title")}</h1>
+        <p className="text-ui text-content-secondary">
           {t("forgotPassword.description")}
         </p>
       </header>
@@ -45,9 +45,9 @@ function ForgotPasswordForm() {
         </div>
       </form>
 
-      <p className="text-center text-ui text-capta-text-secondary" data-forgot-password-step>
+      <p className="text-center text-ui text-content-secondary" data-forgot-password-step>
         {t("shared.rememberedPassword")}{" "}
-        <AuthNavLink className="font-semibold text-capta-text-primary" href="/login">
+        <AuthNavLink className="font-semibold text-foreground" href="/login">
           {t("shared.signIn")}
         </AuthNavLink>
       </p>
