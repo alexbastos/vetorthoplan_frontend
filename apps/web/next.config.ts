@@ -15,7 +15,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   output: isStandaloneBuild ? "standalone" : undefined,
-  transpilePackages: ["@capta/api-client"],
+  transpilePackages: ["@vetorthoplan/api-client"],
   devIndicators: false,
   async headers() {
     return [

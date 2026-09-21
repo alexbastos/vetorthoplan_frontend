@@ -1,4 +1,4 @@
-# @capta/api-client
+# @vetorthoplan/api-client
 
 Tipos TypeScript gerados a partir do snapshot versionado da Authentication API.
 

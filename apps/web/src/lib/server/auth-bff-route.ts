@@ -1,6 +1,6 @@
 import "server-only"
 
-import { getApiErrorLogContext, normalizeAuthenticationError, type NormalizedAuthenticationError } from "@capta/api-client"
+import { getApiErrorLogContext, normalizeAuthenticationError, type NormalizedAuthenticationError } from "@vetorthoplan/api-client"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 

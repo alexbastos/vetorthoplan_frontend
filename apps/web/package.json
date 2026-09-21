@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@capta/api-client": "workspace:*",
+    "@vetorthoplan/api-client": "workspace:*",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.7.1",
     "@react-three/drei": "^10.7.8",

@@ -1,6 +1,6 @@
 import "server-only"
 
-import type { AuthenticationApiClient } from "@capta/api-client"
+import type { AuthenticationApiClient } from "@vetorthoplan/api-client"
 
 import {
   getRequestedPrompts,

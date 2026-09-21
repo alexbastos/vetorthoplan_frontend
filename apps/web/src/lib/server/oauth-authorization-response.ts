@@ -1,6 +1,6 @@
 import "server-only"
 
-import type { AuthenticationApiClient } from "@capta/api-client"
+import type { AuthenticationApiClient } from "@vetorthoplan/api-client"
 
 import { getRequestedScopes } from "./oauth-authorization-request"
 import type { OAuthTransaction } from "./oauth-transaction"

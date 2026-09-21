@@ -1,6 +1,6 @@
 import "server-only"
 
-import type { OAuthAuthorizeQuery } from "@capta/api-client"
+import type { OAuthAuthorizeQuery } from "@vetorthoplan/api-client"
 
 const AUTHORIZATION_PARAMETER_NAMES = [
   "response_type",

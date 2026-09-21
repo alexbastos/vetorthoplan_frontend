@@ -1,4 +1,4 @@
-import type { ActiveSessionsResponse, CurrentUserResponse, UploadCurrentUserAvatarResponse } from "@capta/api-client"
+import type { ActiveSessionsResponse, CurrentUserResponse, UploadCurrentUserAvatarResponse } from "@vetorthoplan/api-client"
 
 type AccountProfile = CurrentUserResponse["profile"]
 

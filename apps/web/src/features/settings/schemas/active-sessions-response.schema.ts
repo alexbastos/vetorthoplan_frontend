@@ -1,4 +1,4 @@
-import type { ActiveSessionsResponse } from "@capta/api-client"
+import type { ActiveSessionsResponse } from "@vetorthoplan/api-client"
 import { z } from "zod"
 
 const NullableStringSchema = z.string().nullable()

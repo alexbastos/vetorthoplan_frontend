@@ -1,6 +1,6 @@
 import "server-only"
 
-import type { AuthenticationApiClient } from "@capta/api-client"
+import type { AuthenticationApiClient } from "@vetorthoplan/api-client"
 
 import { isAppLocale } from "@/i18n/config"
 import { setLocaleCookie, type LocaleCookieWriter } from "@/i18n/locale-cookie"

@@ -1,7 +1,7 @@
 import "server-only"
 
 import { createHash } from "node:crypto"
-import type { AuthenticationApiClient, CurrentUserResponse, RequestOptions } from "@capta/api-client"
+import type { AuthenticationApiClient, CurrentUserResponse, RequestOptions } from "@vetorthoplan/api-client"
 
 import { createAuthenticationApiClient } from "./authentication-api"
 import { logAuthenticationFailure, logUnexpectedAuthenticationFailure } from "./auth-bff-route"

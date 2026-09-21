@@ -20,9 +20,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@capta/api-client':
-        specifier: workspace:*
-        version: link:../../packages/api-client
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.8)
@@ -41,6 +38,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.101.4
         version: 5.101.4(@tanstack/react-query@5.101.4(react@19.2.8))(react@19.2.8)
+      '@vetorthoplan/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

@@ -1,4 +1,4 @@
-import type { UpdateCurrentUserInput } from "@capta/api-client"
+import type { UpdateCurrentUserInput } from "@vetorthoplan/api-client"
 import { z } from "zod"
 
 import { appLocales, isValidTimeZone } from "@/i18n/config"

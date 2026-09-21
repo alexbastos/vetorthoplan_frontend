@@ -1,6 +1,6 @@
 import "server-only"
 
-import { ApiHttpClient, AuthenticationApiClient } from "@capta/api-client"
+import { ApiHttpClient, AuthenticationApiClient } from "@vetorthoplan/api-client"
 
 import { getServerEnvironment, type ServerEnvironment } from "./environment"
 

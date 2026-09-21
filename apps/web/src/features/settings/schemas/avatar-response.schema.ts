@@ -1,4 +1,4 @@
-import type { DeleteCurrentUserAvatarResponse } from "@capta/api-client"
+import type { DeleteCurrentUserAvatarResponse } from "@vetorthoplan/api-client"
 import { z } from "zod"
 
 import type { AvatarUploadResult } from "../types/settings"
