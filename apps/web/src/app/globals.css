@@ -28,7 +28,32 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Utilitários Tailwind: bg-capta-surface-card, text-capta-text-primary, etc. */
+  /* Extensoes semanticas do produto. Os valores de marca continuam desacoplados
+     das classes consumidas pelos componentes. */
+  --color-workspace: var(--color-surface-workspace);
+  --color-stage: var(--color-surface-stage);
+  --color-raised: var(--color-surface-raised);
+  --color-inverse: var(--color-surface-inverse);
+  --color-hover: var(--color-surface-hover);
+  --color-selected: var(--color-surface-selected);
+  --color-muted-strong: var(--color-surface-muted);
+  --color-accent-soft: var(--color-surface-accent);
+  --color-content-secondary: var(--color-text-secondary);
+  --color-content-disabled: var(--color-text-disabled);
+  --color-primary-hover: var(--color-brand-primary-hover);
+  --color-primary-active: var(--color-brand-primary-active);
+  --color-primary-disabled: var(--color-brand-primary-disabled);
+  --color-brand-accent: var(--color-brand-accent);
+  --color-brand-secondary: var(--color-brand-secondary);
+  --color-success: var(--color-feedback-success);
+  --color-warning: var(--color-feedback-warning);
+  --color-info: var(--color-feedback-info);
+  --color-link: var(--color-link-default);
+  --ease-enter: var(--motion-ease-enter);
+  --ease-exit: var(--motion-ease-exit);
+  --ease-standard: var(--motion-ease-standard);
+
+  /* Compatibilidade temporaria durante a migracao dos consumidores legados. */
   --color-capta-surface-default: var(--color-surface-default);
   --color-capta-surface-sidebar: var(--color-surface-sidebar);
   --color-capta-surface-workspace: var(--color-surface-workspace);
@@ -116,19 +141,23 @@
 }
 
 :root {
-  /* Primitivas de cor */
-  --color-neutral-0: #ffffff;
-  --color-neutral-50: #fafafa;
-  --color-neutral-100: #f4f4f4;
-  --color-neutral-200: #ececec;
-  --color-neutral-300: #e1e1e1;
-  --color-neutral-400: #c9c9c9;
-  --color-neutral-500: #b8b8b8;
-  --color-neutral-600: #919191;
-  --color-neutral-700: #737373;
-  --color-neutral-800: #3a3a3a;
-  --color-neutral-900: #171717;
-  --color-neutral-950: #0f0f0f;
+  /* Paleta Aqua adaptada para o Vetorthoplan. */
+  --color-sky-signal: #67beff;
+  --color-electric-iris: #4288ff;
+  --color-paper-white: #fafbfc;
+  --color-mist: #f3f7fa;
+  --color-fog: #f2f6fa;
+  --color-linen: #e5e8ec;
+  --color-ash: #efefef;
+  --color-inkstone: #292c3d;
+  --color-slate: #3e4150;
+  --color-pewter: #686a76;
+  --color-graphite: #7d7e7e;
+  --color-silver: #c2c3c8;
+  --color-obsidian: #171719;
+  --color-midnight: #1e1e20;
+
+  /* Cores funcionais reservadas para feedback de sistema. */
   --color-sage-50: #eaf6f0;
   --color-sage-200: #c2e5d4;
   --color-sage-500: #4fb286;
@@ -154,33 +183,34 @@
   --color-steel-800: #274e6b;
   --color-steel-900: #204058;
 
-  /* Cores semânticas */
-  --color-surface-default: #ececee;
-  --color-surface-sidebar: var(--color-surface-workspace);
-  --color-surface-workspace: #fafafa;
-  --color-surface-stage: var(--color-surface-card);
-  --color-surface-raised: rgb(250 250 250 / 66.67%);
-  --color-surface-card: #ffffff;
-  --color-surface-inverse: #0b1f3a;
-  --color-surface-subtle: #f4f4f5;
-  --color-surface-subtle-hover: #e1e3e8;
-  --color-surface-hover: #eeedec;
-  --color-surface-selected: #c8dff0;
-  --color-surface-muted: #ececee;
-  --color-surface-accent: #fff9e8;
-  --color-text-primary: #171717;
-  --color-text-secondary: #737373;
-  --color-text-muted: #91919e;
-  --color-text-disabled: #b8b8b8;
-  --color-text-inverse: #ffffff;
-  --color-border-default: #e1e1e1;
-  --color-border-focus: #315fcd;
-  --color-brand-primary: #0b1f3a;
-  --color-brand-primary-hover: #102a4c;
-  --color-brand-primary-active: #07172c;
-  --color-brand-primary-disabled: #c9c9c9;
-  --color-brand-accent: #c88b1d;
-  --color-brand-secondary: #315fcd;
+  /* Cores semanticas */
+  --color-surface-default: var(--color-paper-white);
+  --color-surface-sidebar: var(--color-paper-white);
+  --color-surface-workspace: var(--color-paper-white);
+  --color-surface-stage: var(--color-paper-white);
+  --color-surface-raised: var(--color-mist);
+  --color-surface-card: var(--color-fog);
+  --color-surface-inverse: var(--color-obsidian);
+  --color-surface-subtle: var(--color-mist);
+  --color-surface-subtle-hover: var(--color-ash);
+  --color-surface-hover: var(--color-ash);
+  --color-surface-selected: color-mix(in srgb, var(--color-sky-signal) 18%, var(--color-paper-white));
+  --color-surface-muted: var(--color-mist);
+  --color-surface-accent: color-mix(in srgb, var(--color-sky-signal) 8%, var(--color-paper-white));
+  --color-text-primary: var(--color-inkstone);
+  --color-text-secondary: var(--color-slate);
+  --color-text-muted: var(--color-pewter);
+  --color-text-disabled: var(--color-silver);
+  --color-text-inverse: var(--color-paper-white);
+  --color-border-default: var(--color-linen);
+  --color-border-focus: var(--color-electric-iris);
+  --color-brand-primary: var(--color-sky-signal);
+  --color-brand-primary-hover: color-mix(in srgb, var(--color-sky-signal) 88%, var(--color-inkstone));
+  --color-brand-primary-active: color-mix(in srgb, var(--color-sky-signal) 78%, var(--color-inkstone));
+  --color-brand-primary-disabled: var(--color-linen);
+  --color-brand-accent: var(--color-electric-iris);
+  --color-brand-secondary: var(--color-electric-iris);
+  --color-link-default: #3270db;
   --color-product-intelligence: var(--color-brand-secondary);
   --color-product-notices: var(--color-coral-700);
   --color-feedback-success: var(--color-sage-700);
@@ -188,15 +218,15 @@
   --color-feedback-error: var(--color-coral-700);
   --color-feedback-info: var(--color-steel-700);
 
-  /* Button — tokens semânticos documentados no Figma */
+  /* Button — compacto, plano e com uma unica acao preenchida. */
   --button-primary-background-default: var(--color-brand-primary);
   --button-primary-background-hover: var(--color-brand-primary-hover);
   --button-primary-background-active: var(--color-brand-primary-active);
   --button-primary-background-disabled: var(--color-brand-primary-disabled);
   --button-primary-text-disabled: var(--button-text-disabled);
-  --button-secondary-background-default: var(--color-surface-card);
-  --button-secondary-background-hover: var(--color-surface-subtle);
-  --button-secondary-background-active: var(--color-surface-subtle-hover);
+  --button-secondary-background-default: transparent;
+  --button-secondary-background-hover: color-mix(in srgb, var(--color-electric-iris) 7%, transparent);
+  --button-secondary-background-active: color-mix(in srgb, var(--color-electric-iris) 12%, transparent);
   --button-ghost-background-hover: var(--color-surface-subtle);
   --button-ghost-background-active: var(--color-surface-subtle-hover);
   --button-danger-background-default: var(--color-coral-700);
@@ -204,14 +234,15 @@
   --button-danger-background-active: var(--color-coral-900);
   --button-danger-background-disabled: var(--color-brand-primary-disabled);
   --button-danger-text-disabled: var(--button-text-disabled);
-  --button-text-inverse: var(--color-text-inverse);
+  --button-text-inverse: var(--color-inkstone);
   --button-text-default: var(--color-text-primary);
+  --button-text-secondary: var(--color-link-default);
   --button-text-disabled: var(--color-text-disabled);
-  --button-border-default: var(--color-border-default);
-  --button-focus-color: var(--color-brand-primary);
+  --button-border-default: var(--color-electric-iris);
+  --button-focus-color: var(--color-electric-iris);
   --button-focus-weight: 2px;
-  --button-height-sm: 2rem;
-  --button-height-md: 2.25rem;
+  --button-height-sm: 2.25rem;
+  --button-height-md: 2.5rem;
   --button-radius: var(--radius-token-md);
   --button-gap-sm: var(--space-1);
   --button-gap-md: var(--space-2);
@@ -221,14 +252,14 @@
   /* Input — tokens semânticos documentados no Figma */
   --input-surface-default: var(--color-surface-card);
   --input-surface-disabled: var(--color-surface-subtle);
-  --input-border-default: #e0e0e0;
-  --input-border-focus: var(--color-brand-primary);
+  --input-border-default: var(--color-linen);
+  --input-border-focus: var(--color-electric-iris);
   --input-border-error: var(--color-feedback-error);
   --input-text: var(--color-text-primary);
   --input-text-disabled: var(--color-text-disabled);
-  --input-placeholder: #71717a;
-  --input-height: 2.25rem;
-  --input-radius: var(--radius-token-lg);
+  --input-placeholder: var(--color-graphite);
+  --input-height: 2.5rem;
+  --input-radius: var(--radius-token-md);
   --input-gap: var(--space-2);
   --input-padding-block: var(--space-2);
   --input-padding-inline: var(--space-3);
@@ -236,10 +267,10 @@
   /* Input Field — tokens semânticos documentados no Figma */
   --input-field-gap: var(--space-2);
   --input-field-label-gap: var(--space-1);
-  --input-field-label-color: #6b665f;
-  --input-field-label-color-disabled: #ada9a3;
-  --input-field-helper-color: #8b867f;
-  --input-field-helper-color-disabled: #ada9a3;
+  --input-field-label-color: var(--color-slate);
+  --input-field-label-color-disabled: var(--color-silver);
+  --input-field-helper-color: var(--color-pewter);
+  --input-field-helper-color-disabled: var(--color-silver);
   --input-field-label-size: 0.8125rem;
   --input-field-label-line-height: 1.2;
   --input-field-helper-size: 0.6875rem;
@@ -247,34 +278,34 @@
 
   /* Checkbox — tokens semânticos documentados no Figma */
   --checkbox-size: 1.125rem;
-  --checkbox-radius: 0.375rem;
+  --checkbox-radius: var(--radius-token-sm);
   --checkbox-border-width-default: 1.5px;
   --checkbox-surface-default: var(--color-surface-card);
   --checkbox-surface-checked: var(--color-brand-primary);
   --checkbox-surface-hover: var(--color-brand-primary-hover);
   --checkbox-surface-disabled: var(--color-brand-primary-disabled);
-  --checkbox-border-default: #e0e0e0;
+  --checkbox-border-default: var(--color-linen);
   --checkbox-border-hover: var(--color-brand-primary-hover);
   --checkbox-border-focus: var(--color-brand-primary);
   --checkbox-border-disabled: var(--color-brand-primary-disabled);
   --checkbox-icon: var(--color-text-inverse);
 
   /* Avatar de perfil */
-  --profile-avatar-surface: var(--color-brand-primary);
+  --profile-avatar-surface: var(--color-electric-iris);
 
-  /* Card — tokens semânticos documentados no Figma */
+  /* Card — superficie fosca com elevacao quase imperceptivel. */
   --card-base-gap: var(--space-4);
-  --card-base-padding: var(--space-8);
-  --card-base-radius: var(--radius-token-xl);
+  --card-base-padding: var(--space-6);
+  --card-base-radius: var(--radius-token-2xl);
   --card-base-shadow: var(--shadow-card);
-  --card-composite-surface: var(--color-neutral-50);
-  --card-composite-radius: 0.875rem;
+  --card-composite-surface: var(--color-mist);
+  --card-composite-radius: var(--radius-token-lg);
   --card-composite-border: var(--color-border-default);
   --card-composite-shadow-footer: 0 1px 3px rgb(0 0 0 / 4%);
   --card-composite-padding-inline: 1.125rem;
   --card-header-min-height: 2.625rem;
   --card-header-padding-block: 0.625rem;
-  --card-header-text: #64748b;
+  --card-header-text: var(--color-pewter);
   --card-header-main-padding-top: 0.875rem;
   --card-header-main-padding-bottom: 1rem;
   --card-header-main-gap: var(--space-2);
@@ -289,17 +320,25 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-7: 1.75rem;
   --space-8: 2rem;
+  --space-10: 2.5rem;
   --space-12: 3rem;
+  --space-20: 5rem;
   --space-16: 4rem;
   --radius-token-sm: 0.25rem;
   --radius-token-md: 0.5rem;
   --radius-token-lg: 0.75rem;
   --radius-token-xl: 1rem;
+  --radius-token-2xl: 1.25rem;
   --radius-token-full: 9999px;
-  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -1px rgb(0 0 0 / 6%);
-  --shadow-card-layered: 0 1px 3px rgb(0 0 0 / 2%);
+  --shadow-subtle: 0 0 0 1px rgb(0 0 0 / 2%), 0 1px 1px 0.5px rgb(0 0 0 / 2%), 0 3px 3px 1.5px rgb(0 0 0 / 2%), 0 6px 6px -3px rgb(0 0 0 / 2%), 0 12px 12px -6px rgb(0 0 0 / 2%), 0 24px 24px -12px rgb(0 0 0 / 2%);
+  --shadow-elevated: inset 0 1px 0 rgb(255 255 255), 0 0 0 1px rgb(0 0 0 / 6%), 0 1px 1px 0.5px rgb(0 0 0 / 6%), 0 3px 3px 1.5px rgb(0 0 0 / 6%), 0 6px 6px -3px rgb(0 0 0 / 6%), 0 12px 12px -6px rgb(0 0 0 / 6%), 0 24px 24px -12px rgb(0 0 0 / 6%);
+  --shadow-floating: 0 0 0 1px rgb(0 0 0 / 10%), 0 1px 1px 0.5px rgb(0 0 0 / 10%), 0 3px 3px 1.5px rgb(0 0 0 / 10%), 0 6px 6px -3px rgb(0 0 0 / 10%), 0 12px 12px -6px rgb(0 0 0 / 10%), 0 24px 24px -12px rgb(0 0 0 / 10%);
+  --shadow-card: var(--shadow-subtle);
+  --shadow-card-layered: var(--shadow-subtle);
   --shadow-analysis-success: 0 0 0 3px color-mix(in srgb, var(--color-feedback-success) 16%, transparent);
   --shadow-card-analytics: 0 1px 2px rgb(0 0 0 / 5%);
   --shadow-stage: -2px -2px 10px rgb(0 0 0 / 2%);
@@ -313,44 +352,47 @@
   --motion-ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Tipografia — estilos locais do Figma */
-  --type-display-size: 6.125rem;
+  /* Tipografia Aqua com Geist Sans e Geist Mono. */
+  --type-display-size: clamp(3.5rem, 7vw, 4.5rem);
   --type-display-line-height: 1;
-  --type-display-letter-spacing: -0.04em;
-  --type-heading-1-size: 3.9375rem;
-  --type-heading-1-line-height: 1;
-  --type-heading-1-letter-spacing: -0.02em;
-  --type-heading-2-size: 2.8125rem;
-  --type-heading-2-line-height: 1;
-  --type-heading-2-letter-spacing: -0.02em;
-  --type-heading-3-size: 2.0625rem;
-  --type-heading-3-line-height: 1;
-  --type-heading-3-letter-spacing: -0.02em;
-  --type-heading-4-size: 1.4375rem;
-  --type-heading-4-line-height: 1.3;
-  --type-body-large-size: 1.1875rem;
+  --type-display-letter-spacing: 0;
+  --type-heading-1-size: clamp(2.5rem, 5.5vw, 3.5rem);
+  --type-heading-1-line-height: 1.1;
+  --type-heading-1-letter-spacing: 0;
+  --type-heading-2-size: clamp(2rem, 4vw, 2.5rem);
+  --type-heading-2-line-height: 1.1;
+  --type-heading-2-letter-spacing: 0;
+  --type-heading-3-size: 1.5rem;
+  --type-heading-3-line-height: 1.2;
+  --type-heading-3-letter-spacing: 0;
+  --type-heading-4-size: 1.25rem;
+  --type-heading-4-line-height: 1.4;
+  --type-body-large-size: 1.25rem;
   --type-body-large-line-height: 1.4;
   --type-body-size: 1rem;
-  --type-body-line-height: 1.4;
+  --type-body-line-height: 1.5;
   --type-ui-size: 0.875rem;
   --type-ui-line-height: 1.4;
-  --type-meta-size: 0.8125rem;
+  --type-meta-size: 0.75rem;
   --type-meta-line-height: 1.2;
   --type-caption-size: 0.6875rem;
   --type-caption-line-height: 1.2;
   --type-overline-size: 0.6875rem;
   --type-overline-letter-spacing: 0.04em;
 
-  /* Estrutura base auditada no Figma */
+  /* Estrutura base */
   --layout-sidebar-width-expanded: 16rem;
   --layout-sidebar-width-collapsed: 4.5rem;
   --layout-header-height: 4rem;
   --layout-stage-gap-top: 0.5rem;
   --layout-stage-radius-top-left: 1.25rem;
-  --layout-landing-max-width: 71.25rem;
-  --layout-landing-half-width: 35.625rem;
-  --landing-grid-border: #e5e5e5;
-  --landing-grid-line: rgb(229 229 229 / 60%);
+  --layout-page-max-width: 75rem;
+  --layout-content-max-width: 42.5rem;
+  --layout-section-gap: clamp(5rem, 9vw, 7.5rem);
+  --layout-landing-max-width: var(--layout-page-max-width);
+  --layout-landing-half-width: 37.5rem;
+  --landing-grid-border: var(--color-linen);
+  --landing-grid-line: color-mix(in srgb, var(--color-linen) 60%, transparent);
 
   /* Mapeamento shadcn/ui */
   --background: var(--color-surface-default);
@@ -360,9 +402,9 @@
   --popover: var(--color-surface-card);
   --popover-foreground: var(--color-text-primary);
   --primary: var(--color-brand-primary);
-  --primary-foreground: var(--color-text-inverse);
-  --secondary: var(--color-surface-card);
-  --secondary-foreground: var(--color-text-primary);
+  --primary-foreground: var(--color-inkstone);
+  --secondary: transparent;
+  --secondary-foreground: var(--color-link-default);
   --muted: var(--color-surface-subtle);
   --muted-foreground: var(--color-text-muted);
   --accent: var(--color-surface-subtle);
@@ -372,7 +414,7 @@
   --input: var(--color-border-default);
   --ring: var(--color-border-focus);
   --radius: var(--radius-token-md);
-  --chart-1: #087bc1;
+  --chart-1: var(--color-electric-iris);
   --chart-2: #15803d;
   --chart-3: #e5a000;
   --chart-4: #7c3aed;
@@ -380,7 +422,7 @@
   --sidebar: var(--color-surface-raised);
   --sidebar-foreground: var(--color-text-primary);
   --sidebar-primary: var(--color-brand-primary);
-  --sidebar-primary-foreground: var(--color-text-inverse);
+  --sidebar-primary-foreground: var(--color-inkstone);
   --sidebar-accent: var(--color-surface-subtle);
   --sidebar-accent-foreground: var(--color-text-primary);
   --sidebar-border: var(--color-border-default);
@@ -390,38 +432,37 @@
 }
 
 .dark {
-  /* Superfícies: navegação mais escura, palco principal #171717 e elevação gradual. */
-  --color-surface-default: var(--color-neutral-950);
-  --color-surface-sidebar: var(--color-neutral-950);
-  --color-surface-workspace: var(--color-neutral-950);
-  --color-surface-stage: var(--color-neutral-900);
-  --color-surface-raised: #202020;
-  --color-surface-card: #242424;
-  --color-surface-inverse: var(--color-neutral-100);
-  --color-surface-subtle: #2a2a2a;
-  --color-surface-subtle-hover: #333333;
-  --color-surface-hover: #2d2d2d;
-  --color-surface-selected: #363636;
-  --color-surface-muted: #202020;
-  --color-surface-accent: #2b261c;
+  /* Tema escuro de compatibilidade, derivado das superficies fornecidas. */
+  --color-surface-default: var(--color-obsidian);
+  --color-surface-sidebar: var(--color-obsidian);
+  --color-surface-workspace: var(--color-obsidian);
+  --color-surface-stage: var(--color-midnight);
+  --color-surface-raised: #242426;
+  --color-surface-card: var(--color-midnight);
+  --color-surface-inverse: var(--color-paper-white);
+  --color-surface-subtle: #29292c;
+  --color-surface-subtle-hover: #323236;
+  --color-surface-hover: #29292c;
+  --color-surface-selected: color-mix(in srgb, var(--color-sky-signal) 20%, var(--color-midnight));
+  --color-surface-muted: #242426;
+  --color-surface-accent: color-mix(in srgb, var(--color-electric-iris) 14%, var(--color-midnight));
 
-  /* Tipografia e contornos: pares de leitura AA no palco. */
-  --color-text-primary: var(--color-neutral-100);
-  --color-text-secondary: var(--color-neutral-400);
-  --color-text-muted: var(--color-neutral-600);
-  --color-text-disabled: var(--color-neutral-700);
-  --color-text-inverse: var(--color-neutral-0);
-  --color-border-default: var(--color-neutral-800);
-  --color-border-focus: var(--color-neutral-400);
+  --color-text-primary: var(--color-paper-white);
+  --color-text-secondary: var(--color-linen);
+  --color-text-muted: var(--color-silver);
+  --color-text-disabled: var(--color-graphite);
+  --color-text-inverse: var(--color-inkstone);
+  --color-border-default: color-mix(in srgb, var(--color-linen) 18%, var(--color-midnight));
+  --color-border-focus: var(--color-electric-iris);
 
-  /* Ações: no dark mode, o primário deixa de ser azul e passa a ser neutro claro. */
-  --color-brand-primary: var(--color-neutral-100);
-  --color-brand-primary-hover: var(--color-neutral-0);
-  --color-brand-primary-active: var(--color-neutral-300);
-  --color-brand-primary-disabled: var(--color-neutral-700);
-  --color-brand-accent: #e3b35b;
-  --color-brand-secondary: #8aa9ff;
-  --color-product-intelligence: #315fcd;
+  --color-brand-primary: var(--color-sky-signal);
+  --color-brand-primary-hover: color-mix(in srgb, var(--color-sky-signal) 88%, white);
+  --color-brand-primary-active: color-mix(in srgb, var(--color-sky-signal) 78%, var(--color-inkstone));
+  --color-brand-primary-disabled: #424247;
+  --color-brand-accent: var(--color-electric-iris);
+  --color-brand-secondary: var(--color-electric-iris);
+  --color-link-default: #8abbff;
+  --color-product-intelligence: var(--color-electric-iris);
   --color-product-notices: var(--color-coral-700);
 
   /* Feedbacks usam os tons 500, mais legíveis em fundos escuros que os tons 700 do tema claro. */
@@ -430,27 +471,28 @@
   --color-feedback-error: var(--color-coral-500);
   --color-feedback-info: var(--color-steel-500);
 
-  /* Controles de ação. Nomes semânticos evitam o uso de `dark:` nos componentes. */
-  --button-primary-background-default: var(--color-neutral-100);
-  --button-primary-background-hover: var(--color-neutral-0);
-  --button-primary-background-active: var(--color-neutral-300);
-  --button-primary-background-disabled: var(--color-neutral-600);
-  --button-primary-text-disabled: var(--color-neutral-950);
-  --button-secondary-background-default: var(--color-surface-card);
-  --button-secondary-background-hover: var(--color-surface-subtle);
-  --button-secondary-background-active: var(--color-surface-subtle-hover);
+  /* Controles de acao. */
+  --button-primary-background-default: var(--color-sky-signal);
+  --button-primary-background-hover: var(--color-brand-primary-hover);
+  --button-primary-background-active: var(--color-brand-primary-active);
+  --button-primary-background-disabled: var(--color-brand-primary-disabled);
+  --button-primary-text-disabled: var(--color-graphite);
+  --button-secondary-background-default: transparent;
+  --button-secondary-background-hover: color-mix(in srgb, var(--color-electric-iris) 12%, transparent);
+  --button-secondary-background-active: color-mix(in srgb, var(--color-electric-iris) 18%, transparent);
   --button-ghost-background-hover: var(--color-surface-subtle);
   --button-ghost-background-active: var(--color-surface-subtle-hover);
   --button-danger-background-default: var(--color-coral-500);
   --button-danger-background-hover: var(--color-coral-700);
   --button-danger-background-active: var(--color-coral-800);
-  --button-danger-background-disabled: var(--color-neutral-600);
-  --button-danger-text-disabled: var(--color-neutral-950);
-  --button-text-inverse: var(--color-neutral-900);
+  --button-danger-background-disabled: #424247;
+  --button-danger-text-disabled: var(--color-graphite);
+  --button-text-inverse: var(--color-inkstone);
   --button-text-default: var(--color-text-primary);
-  --button-text-disabled: var(--color-neutral-600);
-  --button-border-default: var(--color-border-default);
-  --button-focus-color: var(--color-neutral-700);
+  --button-text-secondary: var(--color-link-default);
+  --button-text-disabled: var(--color-graphite);
+  --button-border-default: var(--color-electric-iris);
+  --button-focus-color: var(--color-electric-iris);
 
   /* Campos e seletores. */
   --input-surface-default: var(--color-surface-card);
@@ -468,24 +510,24 @@
 
   /* Seleção e formulários compactos. */
   --checkbox-surface-default: var(--color-surface-card);
-  --checkbox-surface-checked: var(--color-neutral-100);
-  --checkbox-surface-hover: var(--color-neutral-0);
-  --checkbox-surface-disabled: var(--color-neutral-700);
+  --checkbox-surface-checked: var(--color-sky-signal);
+  --checkbox-surface-hover: var(--color-brand-primary-hover);
+  --checkbox-surface-disabled: #424247;
   --checkbox-border-default: var(--color-border-default);
-  --checkbox-border-hover: var(--color-neutral-400);
+  --checkbox-border-hover: var(--color-electric-iris);
   --checkbox-border-focus: var(--color-border-focus);
-  --checkbox-border-disabled: var(--color-neutral-700);
-  --checkbox-icon: var(--color-neutral-900);
+  --checkbox-border-disabled: #424247;
+  --checkbox-icon: var(--color-inkstone);
 
   /* Avatar de perfil */
-  --profile-avatar-surface: var(--color-brand-secondary);
+  --profile-avatar-surface: var(--color-electric-iris);
 
   /* Cartões e superfícies compostas. */
   --card-composite-surface: var(--color-surface-raised);
   --card-composite-border: var(--color-border-default);
   --card-composite-shadow-footer: 0 1px 3px rgb(0 0 0 / 24%);
   --card-header-text: var(--color-text-secondary);
-  --shadow-card: 0 4px 10px rgb(0 0 0 / 28%);
+  --shadow-card: 0 0 0 1px rgb(255 255 255 / 6%), 0 12px 24px -12px rgb(0 0 0 / 35%);
   --shadow-card-layered: 0 1px 3px rgb(0 0 0 / 20%);
   --shadow-card-analytics: 0 1px 2px rgb(0 0 0 / 24%);
   --shadow-stage: -2px -2px 10px rgb(0 0 0 / 20%);
@@ -498,7 +540,7 @@
   --popover: var(--color-surface-card);
   --popover-foreground: var(--color-text-primary);
   --primary: var(--button-primary-background-default);
-  --primary-foreground: var(--button-text-inverse);
+  --primary-foreground: var(--color-inkstone);
   --secondary: var(--button-secondary-background-default);
   --secondary-foreground: var(--button-text-default);
   --muted: var(--color-surface-subtle);
@@ -517,7 +559,7 @@
   --sidebar: var(--color-surface-sidebar);
   --sidebar-foreground: var(--color-text-primary);
   --sidebar-primary: var(--button-primary-background-default);
-  --sidebar-primary-foreground: var(--button-text-inverse);
+  --sidebar-primary-foreground: var(--color-inkstone);
   --sidebar-accent: var(--color-surface-selected);
   --sidebar-accent-foreground: var(--color-text-primary);
   --sidebar-border: var(--color-border-default);
@@ -619,7 +661,7 @@
   .text-display {
     font-family: var(--font-heading);
     font-size: var(--type-display-size);
-    font-weight: 400;
+    font-weight: 200;
     line-height: var(--type-display-line-height);
     letter-spacing: var(--type-display-letter-spacing);
   }
@@ -628,21 +670,19 @@
   .text-heading-2,
   .text-heading-3 {
     font-family: var(--font-heading);
-    line-height: 1;
-    letter-spacing: -0.02em;
   }
 
-  .text-heading-1 { font-size: var(--type-heading-1-size); font-weight: 500; }
-  .text-heading-2 { font-size: var(--type-heading-2-size); font-weight: 600; }
-  .text-heading-3 { font-size: var(--type-heading-3-size); font-weight: 600; }
+  .text-heading-1 { font-size: var(--type-heading-1-size); font-weight: 200; line-height: var(--type-heading-1-line-height); letter-spacing: var(--type-heading-1-letter-spacing); }
+  .text-heading-2 { font-size: var(--type-heading-2-size); font-weight: 200; line-height: var(--type-heading-2-line-height); letter-spacing: var(--type-heading-2-letter-spacing); }
+  .text-heading-3 { font-size: var(--type-heading-3-size); font-weight: 400; line-height: var(--type-heading-3-line-height); letter-spacing: var(--type-heading-3-letter-spacing); }
   .text-heading-4 { font-family: var(--font-heading); font-size: var(--type-heading-4-size); font-weight: 400; line-height: var(--type-heading-4-line-height); }
   .text-body-large { font-size: var(--type-body-large-size); line-height: var(--type-body-large-line-height); }
   .text-body { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
   .text-ui { font-size: var(--type-ui-size); line-height: var(--type-ui-line-height); }
-  .text-ui-semibold { font-size: var(--type-ui-size); font-weight: 600; line-height: var(--type-ui-line-height); }
-  .text-meta { font-family: var(--font-mono); font-size: var(--type-meta-size); font-weight: 600; line-height: var(--type-meta-line-height); }
+  .text-ui-semibold { font-size: var(--type-ui-size); font-weight: 500; line-height: var(--type-ui-line-height); }
+  .text-meta { font-family: var(--font-mono); font-size: var(--type-meta-size); font-weight: 500; line-height: var(--type-meta-line-height); }
   .text-caption { font-size: var(--type-caption-size); line-height: var(--type-caption-line-height); }
-  .text-overline { font-family: var(--font-mono); font-size: var(--type-overline-size); font-weight: 600; letter-spacing: var(--type-overline-letter-spacing); line-height: normal; text-transform: uppercase; }
+  .text-overline { font-family: var(--font-mono); font-size: var(--type-overline-size); font-weight: 500; letter-spacing: var(--type-overline-letter-spacing); line-height: normal; text-transform: uppercase; }
 }
 
 @media (prefers-reduced-motion: reduce) {
