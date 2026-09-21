@@ -1,0 +1,202 @@
+.frame {
+  width: calc(100% - 2rem);
+  max-width: var(--layout-landing-max-width);
+  margin-inline: auto;
+  border-inline: 1px solid var(--color-border-default);
+}
+
+.header {
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.documentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  min-height: calc(100svh - 5rem);
+  padding: 2rem 1rem 4rem;
+}
+
+.documentLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: var(--radius-token-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1.5;
+  outline: none;
+  transition: color 150ms ease;
+}
+
+.documentLink:hover,
+.documentLink[aria-current="page"] {
+  color: var(--color-text-primary);
+}
+
+.documentLink[aria-current="page"] {
+  font-weight: 600;
+}
+
+.documentLink[aria-current="page"]::before {
+  position: absolute;
+  top: 50%;
+  left: calc(-1rem - 1px);
+  width: 2px;
+  height: 1.25rem;
+  background: var(--color-brand-primary);
+  transform: translateY(-50%);
+  content: "";
+}
+
+.documentLink:focus-visible {
+  outline: 2px solid var(--button-focus-color);
+  outline-offset: 4px;
+}
+
+.documentBody {
+  line-height: 1.625;
+  overflow-wrap: anywhere;
+}
+
+.documentBody p,
+.documentBody ul,
+.documentBody dl {
+  margin-block: 1rem;
+}
+
+.documentTable {
+  margin-block: 1.5rem;
+  overflow-x: auto;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-token-md);
+}
+
+.documentTable table {
+  width: 100%;
+  min-width: 38rem;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.documentTable th,
+.documentTable td {
+  padding: 0.875rem 1rem;
+  vertical-align: top;
+}
+
+.documentTable th {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.documentTable td {
+  border-top: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+}
+
+.documentTable td:first-child {
+  width: 34%;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.documentBody > :first-child {
+  margin-top: 0;
+}
+
+.documentBody h2 {
+  margin-block: 3rem 1rem;
+  font-family: var(--font-heading);
+  font-size: var(--type-heading-4-size);
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.documentBody h3 {
+  margin-block: 1.75rem 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.documentBody ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.documentBody li + li,
+.documentBody dl > div + div {
+  margin-top: 0.75rem;
+}
+
+.documentBody li::marker {
+  color: var(--color-text-secondary);
+}
+
+.documentBody dt,
+.documentBody dd {
+  display: inline;
+}
+
+.documentBody dt,
+.documentBody strong {
+  font-weight: 600;
+}
+
+.documentCallout,
+.documentReview {
+  margin-block: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-token-lg);
+  background: var(--color-surface-subtle);
+}
+
+.documentReview {
+  border-left: 2px solid var(--color-brand-primary);
+  border-radius: 0;
+}
+
+.documentCallout p,
+.documentReview p {
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .frame {
+    width: calc(100% - 3rem);
+  }
+
+  .documentGrid {
+    min-height: calc(100svh - 6rem);
+    padding: 2rem 2rem 4rem;
+  }
+
+  .documentLink[aria-current="page"]::before {
+    left: calc(-2rem - 1px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .frame {
+    width: 100%;
+  }
+
+  .documentGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: start;
+    gap: 2rem;
+    padding-top: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .documentLink {
+    transition: none;
+  }
+}

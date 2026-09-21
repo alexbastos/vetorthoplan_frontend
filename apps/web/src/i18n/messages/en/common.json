@@ -1,0 +1,13 @@
+{
+  "metadata": {"description": "Intelligence that connects opportunities to results."},
+  "actions": {"cancel": "Cancel", "close": "Close", "continue": "Continue", "retry": "Try again", "save": "Save", "saveChanges": "Save changes", "signOut": "Sign out", "signingOut": "Signing out..."},
+  "status": {"loading": "Loading...", "comingSoon": "Coming soon", "comingSoonDescription": "This area is still being prepared.", "noInformation": "No information"},
+  "navigation": {"application": "Application", "home": "Home", "settings": "Settings", "help": "Help", "main": "Main navigation", "routes": "Application routes", "open": "Open navigation", "close": "Close navigation", "expand": "Expand navigation", "collapse": "Collapse navigation"},
+  "header": {"pageActions": "Page actions", "globalSearch": "Global search", "searchPlaceholder": "Search...", "notifications": "Notifications", "openProfileMenu": "Open profile menu"},
+  "accountMenu": {"label": "Account menu", "myAccount": "My account", "myProfile": "My profile", "security": "Security", "settings": "Settings", "preferences": "Preferences", "help": "Help", "manage": "Manage your account", "openSettings": "Open settings", "logoutErrorTitle": "Unable to sign out", "logoutErrorDescription": "Please try again shortly."},
+  "session": {"checking": "Checking your session...", "unavailableTitle": "Unable to verify your session", "unavailableDescription": "Please try again shortly. If the issue persists, contact support."},
+  "unsavedChanges": {"title": "Unsaved changes", "description": "Review what will be discarded before leaving.", "continueEditing": "Continue editing", "preview": "Changes preview", "showLess": "Show less", "showMore": "View {count, plural, one {# more change} other {# more changes}}", "restoreDescription": "Discarding will restore the current values.", "changeTitle": "{previousValue} to {value}", "discard": "Discard changes"},
+  "accessibility": {"editField": "Edit {field}", "notifications": "Notifications", "previousMonth": "Previous month", "nextMonth": "Next month"},
+  "datePicker": {"selectDate": "Select date", "placeholder": "mm/dd/yyyy"},
+  "placeholderPage": {"title": "Project foundation ready.", "description": "The authentication interface will be built in the next stage."}
+}

@@ -1,0 +1,25 @@
+{
+  "name": "capta",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=11 <12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "turbo run build --filter=./apps/* --filter=./packages/*",
+    "lint": "turbo run lint --filter=./apps/* --filter=./packages/*",
+    "typecheck": "turbo run typecheck --filter=./apps/* --filter=./packages/*",
+    "generate:api-types": "pnpm --filter @capta/api-client generate",
+    "test": "turbo run test --filter=./apps/* --filter=./packages/*",
+    "test:e2e": "turbo run test:e2e --filter=./apps/* --filter=./packages/*",
+    "format:check": "turbo run format:check --filter=./apps/* --filter=./packages/*"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.3"
+  }
+}

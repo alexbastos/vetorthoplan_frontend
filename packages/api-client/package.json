@@ -1,0 +1,14 @@
+{
+  "name": "@capta/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./authentication": "./src/generated/authentication-api.ts"
+  },
+  "scripts": {
+    "generate": "openapi-typescript ../../docs/openapi/authentication-api.openapi.json -o src/generated/authentication-api.ts",
+    "typecheck": "tsc --noEmit"
+  }
+}

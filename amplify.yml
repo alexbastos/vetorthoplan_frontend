@@ -1,0 +1,24 @@
+version: 1
+applications:
+  - appRoot: apps/web
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm
+            - pnpm --dir ../.. install
+        build:
+          commands:
+            - pnpm --dir ../.. run build
+            - rm -rf .next/cache
+            - rm -rf node_modules
+            - cp -r .next/standalone/node_modules/.pnpm/next@*/node_modules/* .next/standalone/apps/web/node_modules/ || true
+            - cp -r .next/standalone/node_modules/.pnpm/next@*/node_modules/* node_modules/ || true
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .next/cache/**/*
+          - ../../node_modules/**/*

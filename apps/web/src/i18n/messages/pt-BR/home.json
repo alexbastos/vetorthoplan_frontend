@@ -1,0 +1,5 @@
+{
+  "metadataTitle":"Início","greeting":"Olá, {firstName}","welcome":"Bem-vindo ao",
+  "hero":{"imageAlt":"Vista de uma cidade histórica entre montanhas","badge":"Indique um município","titleLine1":"Transformando como você","titleLine2":"capta, gerencia e cresce.","explore":"Explorar editais","talkToTroni":"Falar com o Troni"},
+  "shortcuts":{"title":"Onde deseja atuar hoje?","grants":"Mapeamento de Editais","grantsImageAlt":"Mão segurando uma lupa","troni":"Assistente Troni","troniImageAlt":"Perfil humano com elementos de inteligência artificial","alerts":"Alertas e Prazos Críticos","alertsImageAlt":"Megafone emitindo alertas"}
+}

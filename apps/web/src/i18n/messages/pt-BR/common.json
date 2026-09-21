@@ -1,0 +1,13 @@
+{
+  "metadata": {"description": "Inteligência para conectar oportunidades a resultados."},
+  "actions": {"cancel": "Cancelar", "close": "Fechar", "continue": "Continuar", "retry": "Tentar novamente", "save": "Salvar", "saveChanges": "Salvar alterações", "signOut": "Sair", "signingOut": "Saindo..."},
+  "status": {"loading": "Carregando...", "comingSoon": "Em breve", "comingSoonDescription": "Esta área ainda está sendo preparada.", "noInformation": "Sem informação"},
+  "navigation": {"application": "Aplicação", "home": "Início", "settings": "Configurações", "help": "Ajuda", "main": "Navegação principal", "routes": "Rotas da aplicação", "open": "Abrir navegação", "close": "Fechar navegação", "expand": "Expandir navegação", "collapse": "Recolher navegação"},
+  "header": {"pageActions": "Ações da página", "globalSearch": "Busca global", "searchPlaceholder": "Buscar...", "notifications": "Notificações", "openProfileMenu": "Abrir menu do perfil"},
+  "accountMenu": {"label": "Menu da conta", "myAccount": "Minha conta", "myProfile": "Meu perfil", "security": "Segurança", "settings": "Configurações", "preferences": "Preferências", "help": "Ajuda", "manage": "Gerenciar sua conta", "openSettings": "Abrir configurações", "logoutErrorTitle": "Não foi possível sair", "logoutErrorDescription": "Tente novamente em instantes."},
+  "session": {"checking": "Verificando sua sessão...", "unavailableTitle": "Não foi possível verificar sua sessão", "unavailableDescription": "Tente novamente em alguns instantes. Se o problema persistir, entre em contato com o suporte."},
+  "unsavedChanges": {"title": "Alterações não salvas", "description": "Revise o que será descartado antes de sair.", "continueEditing": "Continuar editando", "preview": "Prévia das alterações", "showLess": "Mostrar menos", "showMore": "Ver mais {count, plural, one {# alteração} other {# alterações}}", "restoreDescription": "Ao descartar, os valores atuais serão restaurados.", "changeTitle": "{previousValue} para {value}", "discard": "Descartar alterações"},
+  "accessibility": {"editField": "Editar {field}", "notifications": "Notificações", "previousMonth": "Mês anterior", "nextMonth": "Próximo mês"},
+  "datePicker": {"selectDate": "Selecionar data", "placeholder": "dd/mm/aaaa"},
+  "placeholderPage": {"title": "Fundação do projeto pronta.", "description": "A interface de autenticação será construída na próxima etapa."}
+}

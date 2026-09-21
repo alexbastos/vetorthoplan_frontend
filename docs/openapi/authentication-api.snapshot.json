@@ -1,0 +1,16 @@
+{
+  "sourceUrl": "https://bwtp7pm5pc.execute-api.us-east-1.amazonaws.com/docs/authentication_api/json",
+  "retrievedAtUtc": "2026-09-14T19:49:16Z",
+  "contentType": "application/json; charset=utf-8",
+  "openapiVersion": "3.1.0",
+  "apiTitle": "Authentication API — Identity Provider",
+  "apiVersion": "1.0.0",
+  "documentedBuild": {
+    "branch": "master",
+    "commit": "7c7653e",
+    "builtAtDocumented": "14/09/2026 18:54:13"
+  },
+  "endpointCount": 51,
+  "byteLength": 118266,
+  "sha256": "d6338c98d39fbe07ab15d9066af4b9c330c7b998285739b7075289c062e6e8c8"
+}

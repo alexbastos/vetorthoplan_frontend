@@ -1,0 +1,42 @@
+node_modules
+.next
+.git
+.turbo
+dist
+coverage
+playwright-report
+test-results
+
+# Runtime configuration and secrets must never enter the Docker build context.
+# Keep sanitized templates available for documentation and validation only.
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+!**/.env.*.example
+
+# Package-manager configuration can contain private registry credentials.
+.npmrc
+.pnpmrc
+**/.npmrc
+**/.pnpmrc
+
+# Local cloud/SSH credentials and private-key material.
+.aws
+.ssh
+**/.aws
+**/.ssh
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/*.jks
+**/*.keystore

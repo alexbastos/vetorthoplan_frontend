@@ -1,0 +1,429 @@
+{
+  "header": {
+    "mainNavigationLabel": "Navegação principal",
+    "homeLinkLabel": "CAPTAGOV — início",
+    "language": {
+      "chooseLanguage": "Escolher idioma",
+      "triggerLabel": "Escolher idioma. Atual: {language}",
+      "changeError": "Não foi possível trocar o idioma. Tente novamente.",
+      "locales": {
+        "pt-BR": "Português (PT-BR)",
+        "en": "English (EN)"
+      }
+    },
+    "navigation": {
+      "intelligence": "Inteligência",
+      "notices": "Editais",
+      "howItWorks": "Como funciona"
+    },
+    "actions": {
+      "login": "Entrar",
+      "register": "Comece grátis"
+    }
+  },
+  "hero": {
+    "eyebrow": "IA para captação pública",
+    "titleLine1": "Editais no radar,",
+    "titleLine2": "decisões com critério.",
+    "description": "A Capta analisa cada edital com base no perfil, nas prioridades e na capacidade de execução do município para indicar as oportunidades mais compatíveis.",
+    "actions": {
+      "secondary": "Ver demonstração",
+      "primary": "Comece grátis"
+    }
+  },
+  "productIntelligence": {
+    "intro": {
+      "eyebrow": "Capta Inteligência",
+      "title": "Tudo começa pelo município.",
+      "description": "As prioridades, o perfil e a capacidade de execução orientam a análise de cada edital e mostram quais oportunidades merecem atenção.",
+      "action": "Veja a análise"
+    },
+    "eyebrow": "Da busca à decisão",
+    "title": "Decida com contexto",
+    "description": "A Capta relaciona o perfil do município aos requisitos de cada edital e mostra a compatibilidade antes de recomendar uma oportunidade.",
+    "action": "Comece já",
+    "capabilities": {
+      "profile": {
+        "title": "Entenda o perfil do município",
+        "description": "Prioridades, áreas de interesse e capacidade de execução orientam cada análise."
+      },
+      "requirements": {
+        "title": "Analise requisitos e prazos",
+        "description": "A IA identifica critérios, documentos, contrapartidas e datas importantes."
+      },
+      "adherence": {
+        "title": "Priorize por aderência",
+        "description": "As oportunidades mais compatíveis aparecem primeiro para sua equipe."
+      }
+    },
+    "visual": {
+      "accessibleLabel": "Demonstração do fluxo de análise da CaptaGov: o perfil do município orienta a análise do edital, que resulta em uma oportunidade recomendada.",
+      "status": {
+        "pending": "Aguardando",
+        "running": "Analisando",
+        "success": "Concluído"
+      },
+      "reasoning": {
+        "completed": "Analisado em {duration}",
+        "showDetails": "Mostrar detalhes da análise",
+        "hideDetails": "Ocultar detalhes da análise"
+      },
+      "stages": {
+        "profile": {
+          "duration": "4s",
+          "title": "Perfil do município",
+          "summary": "Prioridades e áreas de interesse",
+          "details": {
+            "prioritiesLabel": "Áreas prioritárias",
+            "priorityHealth": "Saúde",
+            "priorityInfrastructure": "Infraestrutura",
+            "healthProject": "Atenção básica",
+            "infrastructureProject": "Mobilidade urbana"
+          },
+          "process": "Comparando áreas prioritárias, perfil e capacidade de execução...",
+          "result": "Saúde e infraestrutura são áreas prioritárias."
+        },
+        "notice": {
+          "duration": "6s",
+          "title": "Edital analisado",
+          "summary": "Critérios, prazos e contrapartidas",
+          "details": {
+            "mobility": {
+              "title": "Edital FUST 2026.2 — UBS",
+              "deadlineLabel": "Inscrição",
+              "deadlineValue": "09 set. 2026",
+              "counterpartyLabel": "Foco",
+              "counterpartyValue": "Conectividade"
+            },
+            "health": {
+              "title": "Edital 001/2026 — Saúde de Joviânia",
+              "deadlineLabel": "Vigência",
+              "deadlineValue": "31 dez. 2026",
+              "counterpartyLabel": "Modalidade",
+              "counterpartyValue": "Credenciamento"
+            },
+            "drainage": {
+              "title": "Chamada Pública 02/2026 — OSC",
+              "deadlineLabel": "Sessão",
+              "deadlineValue": "12 fev. 2027",
+              "counterpartyLabel": "Modalidade",
+              "counterpartyValue": "Parceria"
+            }
+          },
+          "process": "Extraindo critérios, prazos, documentos e contrapartidas...",
+          "result": "Prazo viável e documentação compatível."
+        },
+        "recommendation": {
+          "duration": "5s",
+          "title": "Oportunidade recomendada",
+          "summary": "Compatibilidade com o município",
+          "details": {
+            "adherenceLabel": "aderência",
+            "recommendationLabel": "Recomendada para inscrição",
+            "mobility": {
+              "title": "Edital FUST 2026.2 — UBS",
+              "adherenceValue": "96%",
+              "reason": "Saúde conectada · infraestrutura digital"
+            },
+            "health": {
+              "title": "Edital 001/2026 — Saúde de Joviânia",
+              "adherenceValue": "93%",
+              "reason": "Atenção básica · equipe elegível"
+            },
+            "drainage": {
+              "title": "Chamada Pública 02/2026 — OSC",
+              "adherenceValue": "89%",
+              "reason": "Capacidade de execução · parceria compatível"
+            }
+          },
+          "process": "Calculando a aderência entre o edital e as prioridades do município...",
+          "result": "Alta compatibilidade com as prioridades municipais."
+        }
+      }
+    }
+  },
+  "publicNotices": {
+    "tabsLabel": "Recursos do Capta Editais",
+    "intro": {
+      "eyebrow": "Capta Editais",
+      "title": "Do edital à inscrição.",
+      "description": "Acompanhe os editais, avalie o que importa e organize cada oportunidade até a inscrição.",
+      "action": "Explorar editais"
+    },
+    "features": {
+      "realtime": {
+        "title": "Radar em tempo real",
+        "description": "Acompanhe novos editais e comece pelas oportunidades que merecem atenção.",
+        "action": "Ver o radar"
+      },
+      "details": {
+        "title": "Visão da oportunidade",
+        "description": "Reúna valores, prazos e requisitos antes de decidir o próximo passo.",
+        "action": "Ver detalhes"
+      },
+      "pipeline": {
+        "title": "Pipeline de captação",
+        "description": "Organize os editais selecionados e acompanhe o avanço de cada oportunidade.",
+        "action": "Ver organização"
+      }
+    },
+    "visuals": {
+      "realtime": {
+        "accessibleLabel": "Painel conceitual com oportunidades encontradas em tempo real e um resumo da triagem diária.",
+        "heading": "Triagem em tempo real",
+        "todayLabel": "Hoje",
+        "summaryLabel": "Triagem diária",
+        "summaryValue": "57%",
+        "analyzedLabel": "Editais analisados",
+        "analyzedValue": "14 de 25",
+        "opportunities": {
+          "0": {
+            "title": "IA e Governança Preditiva Municipal",
+            "organization": "MCTI · Finep",
+            "amount": "R$ 3,2 mi",
+            "fit": "96%"
+          },
+          "1": {
+            "title": "Cidades Sustentáveis 2026",
+            "organization": "BNDES",
+            "amount": "R$ 4,5 mi",
+            "fit": "89%"
+          },
+          "2": {
+            "title": "Modernização de Unidades de Saúde",
+            "organization": "FNS",
+            "amount": "R$ 2,1 mi",
+            "fit": "78%"
+          },
+          "3": {
+            "title": "Infraestrutura Urbana Resiliente",
+            "organization": "Ministério das Cidades",
+            "amount": "R$ 6,8 mi",
+            "fit": "67%"
+          },
+          "4": {
+            "title": "Formação Digital para Escolas Públicas",
+            "organization": "MEC · FNDE",
+            "amount": "R$ 1,4 mi",
+            "fit": "54%"
+          },
+          "5": {
+            "title": "Eficiência Energética em Prédios Públicos",
+            "organization": "MME · Eletrobras",
+            "amount": "R$ 980 mil",
+            "fit": "42%"
+          }
+        }
+      },
+      "details": {
+        "accessibleLabel": "Composição em camadas com um seletor de dossiês e o resumo executivo da análise selecionada.",
+        "heading": "Dossiês",
+        "selectorDescription": "Selecione uma análise para visualizar",
+        "summaryLabel": "Síntese da análise",
+        "amountLabel": "Financiamento",
+        "deadlineLabel": "Inscrição",
+        "recommendationTitle": "Vale avançar",
+        "requirementsLabel": "Prontidão",
+        "dossiers": {
+          "0": {
+            "title": "Transformação Digital Municipal 2027",
+            "organization": "MCTI · Finep · Inovação",
+            "amountValue": "R$ 3,2 milhões",
+            "deadlineValue": "18 set. 2027",
+            "opinion": "Compatível com as prioridades de modernização e governança digital do município.",
+            "requirementsValue": "2 de 3 atendidos"
+          },
+          "1": {
+            "title": "Infraestrutura Urbana Sustentável 2027",
+            "organization": "Ministério das Cidades · Infraestrutura",
+            "amountValue": "R$ 5,8 milhões",
+            "deadlineValue": "04 out. 2027",
+            "opinion": "Converge com os projetos de mobilidade e infraestrutura resiliente previstos pelo município.",
+            "requirementsValue": "3 de 4 atendidos"
+          },
+          "2": {
+            "title": "Saúde Digital em Rede 2027",
+            "organization": "FNS · Saúde digital",
+            "amountValue": "R$ 2,4 milhões",
+            "deadlineValue": "27 out. 2027",
+            "opinion": "Fortalece a atenção básica com conectividade e integração dos serviços municipais de saúde.",
+            "requirementsValue": "2 de 4 atendidos"
+          }
+        }
+      },
+      "pipeline": {
+        "accessibleLabel": "Pipeline visual em que diferentes oportunidades avançam da seleção, passam pela preparação dos documentos e ficam prontas para inscrição.",
+        "heading": "Pipeline de oportunidades",
+        "periodLabel": "Ciclo de setembro",
+        "featuredOpportunities": {
+          "0": {
+            "title": "Transformação Digital Municipal 2027",
+            "organization": "MCTI · Finep",
+            "deadline": "18 set. 2027",
+            "progressLabel": "Documentos",
+            "progressValue": "2 de 3"
+          },
+          "1": {
+            "title": "Saúde Conectada em\nRede 2027",
+            "organization": "FNS · Saúde Digital",
+            "deadline": "03 out. 2027",
+            "progressLabel": "Habilitações",
+            "progressValue": "3 de 4"
+          },
+          "2": {
+            "title": "Infraestrutura Escolar Sustentável 2027",
+            "organization": "FNDE · Educação",
+            "deadline": "28 out. 2027",
+            "progressLabel": "Anexos técnicos",
+            "progressValue": "4 de 5"
+          }
+        },
+        "columns": {
+          "0": {
+            "title": "Selecionados",
+            "items": {
+              "0": { "title": "Infraestrutura Escolar 2027", "deadline": "28 set." }
+            }
+          },
+          "1": {
+            "title": "Em preparação",
+            "items": {
+              "0": { "title": "Atenção Primária em Saúde 2027", "deadline": "03 out." }
+            }
+          },
+          "2": {
+            "title": "Prontos para envio",
+            "items": {
+              "0": { "title": "Cidades Sustentáveis 2027", "deadline": "12 set." }
+            }
+          }
+        }
+      }
+    }
+  },
+  "faq": {
+    "intro": {
+      "eyebrow": "FAQ",
+      "title": "Perguntas frequentes.",
+      "description": "Entenda as fontes, a análise e o papel da sua equipe na Capta."
+    },
+    "questions": {
+      "audience": {
+        "question": "Para quem a Capta foi criada?",
+        "answer": "Para equipes de prefeituras que buscam oportunidades de recursos públicos. A Capta ajuda a organizar editais e avaliar quais oportunidades fazem sentido para as prioridades e a capacidade de execução do município."
+      },
+      "sources": {
+        "question": "Quais fontes de oportunidades estão disponíveis hoje?",
+        "answer": "A fonte inicial do MVP é o Transferegov.br. Outras fontes oficiais fazem parte da expansão da plataforma; as identificadas como cobertura em expansão ainda não integram a cobertura inicial."
+      },
+      "matching": {
+        "question": "Como a Capta identifica oportunidades compatíveis?",
+        "answer": "A Capta relaciona o tema, os requisitos e os prazos de cada edital ao perfil, às prioridades e às demandas do município. A análise mostra os fatores de compatibilidade para ajudar a equipe a definir o que merece atenção."
+      },
+      "traceability": {
+        "question": "Posso consultar a origem das informações?",
+        "answer": "Sim. A Capta organiza as informações mantendo a identificação da fonte oficial. A equipe pode conferir a origem dos dados e consultar a publicação original para confirmar regras, requisitos e prazos."
+      },
+      "humanReview": {
+        "question": "A Capta substitui a análise da equipe?",
+        "answer": "Não. A Capta ajuda a organizar e priorizar oportunidades, mas a validação dos requisitos e a decisão de avançar continuam com a equipe. Uma recomendação não garante aprovação nem obtenção dos recursos."
+      },
+      "gettingStarted": {
+        "question": "Como começar a usar?",
+        "answer": "Crie sua conta pelo cadastro da plataforma. Se já tiver uma conta, use a opção Entrar para acessar a Capta."
+      }
+    }
+  },
+  "closingCta": {
+    "title": "O próximo passo começa com uma oportunidade.",
+    "description": "Encontre oportunidades alinhadas ao seu município e organize o que merece atenção.",
+    "actions": {
+      "register": "Criar conta",
+      "login": "Entrar"
+    }
+  },
+  "footer": {
+    "brandDescription": "Inteligência para encontrar oportunidades de recursos públicos.",
+    "navigationLabel": "Navegação do rodapé",
+    "homeLinkLabel": "Capta — início",
+    "groups": {
+      "product": "Produto",
+      "platform": "Plataforma",
+      "legal": "Legal"
+    },
+    "links": {
+      "product": "Produto",
+      "publicNotices": "Editais",
+      "howItWorks": "Como funciona",
+      "faq": "Perguntas frequentes",
+      "register": "Criar conta",
+      "login": "Entrar",
+      "terms": "Termos de Uso",
+      "privacy": "Política de Privacidade"
+    },
+    "footerStatus": "Todos os sistemas operacionais",
+    "footerCenter": "Oportunidades públicas, decisões melhores.",
+    "copyright": "© {year} Capta. Todos os direitos reservados."
+  },
+  "architecturalStack": {
+    "intro": {
+      "eyebrow": "Como a Capta opera",
+      "title": "Do contexto à oportunidade.",
+      "description": "A Capta relaciona o contexto do município às oportunidades oficiais para orientar as decisões da sua equipe."
+    },
+    "stories": {
+      "discovery": {
+        "eyebrow": "A descoberta",
+        "title": "A busca não deveria começar do zero.",
+        "description": "Editais e chamadas públicas surgem em portais diferentes, com formatos, regras e prazos próprios. A Capta começa pelo Transferegov.br e transforma cada oportunidade em informação organizada e rastreável."
+      },
+      "analysis": {
+        "eyebrow": "A análise",
+        "title": "Nem toda oportunidade merece a mesma atenção.",
+        "description": "A Capta compara tema, prazo e requisitos com o perfil, as prioridades e as demandas do município. A recomendação mostra os fatores de aderência sem esconder a origem dos dados."
+      },
+      "decision": {
+        "eyebrow": "A decisão",
+        "title": "Sua equipe decide. A Capta mostra por onde começar.",
+        "description": "Cada oportunidade entra em uma fila explicável. O município pode validar, descartar ou acompanhar, enquanto os alertas mantêm os prazos visíveis."
+      }
+    },
+    "diagram": {
+      "accessibleDescription": "Diagrama do fluxo da Capta: o contexto do município orienta a Capta Inteligência e a organização feita pelo Capta Editais. A plataforma começa pelo Transferegov.br e prevê ampliar a cobertura para outras fontes oficiais, conectando a equipe ao ecossistema de recursos públicos.",
+      "layers": {
+        "municipality": {
+          "title": "Seu município",
+          "description": "Prioridades, demandas e capacidade de execução."
+        },
+        "intelligence": {
+          "title": "Capta Inteligência",
+          "description": "Entende o contexto antes de recomendar."
+        },
+        "notices": {
+          "title": "Capta Editais",
+          "description": "Estrutura, classifica e acompanha oportunidades."
+        },
+        "ecosystem": {
+          "title": "Ecossistema de recursos públicos",
+          "description": "Transferências, programas, editais e linhas de financiamento."
+        }
+      },
+      "sourceGroupLabel": "Fontes oficiais e sistemas públicos",
+      "sourceStatusLabels": {
+        "initial": "Fonte inicial",
+        "expanding": "Cobertura em expansão"
+      },
+      "sourceLabels": {
+        "transferegov": "Transferegov.br",
+        "dou": "DOU",
+        "sigconMg": "SIGCON-MG",
+        "investSus": "FNS / InvestSUS",
+        "simec": "FNDE / SIMEC",
+        "novoPac": "Novo PAC",
+        "bdmg": "BDMG",
+        "bndes": "BNDES",
+        "more": "+ novas fontes"
+      }
+    }
+  }
+}
