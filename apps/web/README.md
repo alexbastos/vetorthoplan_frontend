@@ -27,7 +27,7 @@ Copie `.env.example` para `.env.local` e configure:
 | Variável | Exposição | Momento | Obrigatória |
 | --- | --- | --- | --- |
 | `AUTHENTICATION_API_BASE_URL` | Somente servidor | Build e runtime | Sim |
-| `CAPTAGOV_APP_ORIGIN` | Somente servidor | Build e runtime | Sim |
+| `APP_ORIGIN` | Somente servidor | Build e runtime | Sim |
 | `OAUTH_TRANSACTION_SECRET` | Segredo server-side | Somente runtime | Sim em produção |
 | `SESSION_COOKIE_SECRET` | Segredo server-side | Somente runtime | Sim em produção |
 | `SESSION_COOKIE_PREVIOUS_SECRET` | Segredo server-side | Somente runtime | Apenas durante rotação |
@@ -56,7 +56,7 @@ anterior depois de sete dias. Cookies abertos pela chave anterior são reemitido
 com a chave atual na próxima resposta mutável do BFF. Cookies legados que
 continham tokens em texto puro não são aceitos; login e logout removem seus nomes.
 
-As mutações do BFF validam obrigatoriamente o header `Origin` contra `CAPTAGOV_APP_ORIGIN`. Destinos de retorno pós-login ou pós-logout também aceitam somente paths internos seguros.
+As mutações do BFF validam obrigatoriamente o header `Origin` contra `APP_ORIGIN`. Destinos de retorno pós-login ou pós-logout também aceitam somente paths internos seguros.
 
 As rotas públicas `POST /api/auth/register`, `POST /api/auth/login` e `POST /api/auth/verify-email` não expõem tokens nem encaminham mensagens técnicas da API. O login grava os cookies de sessão somente na resposta do BFF.
 
@@ -109,7 +109,7 @@ HTTPS, exceto para endereços loopback HTTP usados em desenvolvimento ou por
 clientes nativos.
 
 Depois da validação, a solicitação é mantida por no máximo dez minutos no cookie
-`capta_oauth_transaction`, com `HttpOnly`, `SameSite=Lax` e cifragem autenticada
+`vetorthoplan_oauth_transaction`, com `HttpOnly`, `SameSite=Lax` e cifragem autenticada
 AES-256-GCM. O cookie contém um ID aleatório, a solicitação original e o estado
 mínimo do fluxo; ao entrar em consentimento, também fica vinculado ao ID da conta
 autenticada. Login, MFA e consentimento recuperam essa transação em vez de confiar
@@ -171,7 +171,7 @@ Os cenários que serão executados na validação integrada estão na
 
 ## Deploy e Atualização (Docker na AWS EC2)
 
-A infraestrutura e o deploy deste frontend são gerenciados pelo projeto Terraform `captagov_terraform`. O processo de deploy está configurado para atualizar e recriar a imagem Docker na EC2 sempre que o Terraform é aplicado.
+A infraestrutura e o deploy deste frontend devem usar um projeto Terraform próprio do Vetorthoplan. O processo de deploy deve atualizar e recriar somente a imagem Docker do Vetorthoplan na EC2.
 
 Para atualizar a aplicação em produção, siga uma das abordagens abaixo:
 
@@ -182,11 +182,11 @@ O script do Terraform foi configurado para conectar na EC2, fazer o clone/pull d
    ```bash
    git add .
    git commit -m "Sua mensagem de atualização"
-   git push origin master
+   git push origin main
    ```
 2. **Execute o script de infraestrutura:**
    ```bash
-   cd ../captagov_terraform
+   cd ../vetorthoplan_terraform
    terraform apply
    ```
 
@@ -199,23 +199,23 @@ Caso precise intervir manualmente, acesse a instância e execute os passos:
    ```
 2. **Atualize o código e recrie o contêiner Docker:**
    ```bash
-   cd /home/ubuntu/captagov_frontend
-   git pull origin master
+   cd /home/ubuntu/vetorthoplan_frontend
+   git pull origin main
    set -a
    . ./.env
    set +a
    docker build \
      --build-arg AUTHENTICATION_API_BASE_URL \
-     --build-arg CAPTAGOV_APP_ORIGIN \
+     --build-arg APP_ORIGIN \
      --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID \
-     -t captagov-frontend .
-   docker stop captagov-frontend-container || true
-   docker rm captagov-frontend-container || true
-   docker run -d --restart unless-stopped --name captagov-frontend-container -p 3001:3000 --env-file .env captagov-frontend
+     -t vetorthoplan-frontend .
+   docker stop vetorthoplan-frontend-container || true
+   docker rm vetorthoplan-frontend-container || true
+   docker run -d --restart unless-stopped --name vetorthoplan-frontend-container -p 3001:3000 --env-file .env vetorthoplan-frontend
    ```
 
    O arquivo `.env` usado na EC2 deve definir `AUTHENTICATION_API_BASE_URL`,
-   `CAPTAGOV_APP_ORIGIN`, `OAUTH_TRANSACTION_SECRET` e `SESSION_COOKIE_SECRET`.
+   `APP_ORIGIN`, `OAUTH_TRANSACTION_SECRET` e `SESSION_COOKIE_SECRET`.
    As duas origens precisam
    usar HTTPS em produção e são fornecidas ao build e ao contêiner. Os segredos são
    exclusivos do runtime: devem ter 32 bytes aleatórios em base64url, permanecer

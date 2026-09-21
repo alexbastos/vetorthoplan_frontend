@@ -10,7 +10,7 @@ const CURRENT_KEY = Buffer.alloc(32, 17)
 const OTHER_KEY = Buffer.alloc(32, 29)
 const NOW = new Date("2026-09-10T12:00:00.000Z")
 const OPTIONS = {
-  additionalAuthenticatedData: "capta_session_access:capta-session-token",
+  additionalAuthenticatedData: "vetorthoplan_session_access:vetorthoplan-session-token",
   key: CURRENT_KEY,
   maxAgeSeconds: 900,
   now: NOW,
@@ -41,7 +41,7 @@ test("rejects tampering, another key, and another cookie purpose", () => {
   assert.deepEqual(
     openSessionToken(cookie, {
       ...OPTIONS,
-      additionalAuthenticatedData: "capta_session_refresh:capta-session-token",
+      additionalAuthenticatedData: "vetorthoplan_session_refresh:vetorthoplan-session-token",
     }),
     { status: "invalid" }
   )

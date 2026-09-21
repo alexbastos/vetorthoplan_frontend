@@ -84,7 +84,7 @@ Para cada caso, anote: data, ambiente, navegador/dispositivo, resultado
 | OAU-052 | Corromper o cookie cifrado ou alterar sua fase/conteúdo. | Transação inválida e limpa; nenhum dado é confiado. |
 | OAU-053 | Inspecionar respostas de `/oauth/*` e `/api/oauth/*`, inclusive erros. | `Cache-Control: no-store`, `Referrer-Policy: no-referrer` e `X-Content-Type-Options: nosniff`; páginas também têm CSP e X-Frame-Options. |
 | OAU-054 | Iniciar com origem da API contendo path/query/credenciais ou sem HTTPS. | Configuração rejeitada sem expor valor ou segredo. |
-| OAU-055 | Em produção, usar `CAPTAGOV_APP_ORIGIN` HTTP; localmente testar host HTTP não-loopback. | Ambos são rejeitados; HTTP local funciona somente em loopback fora de produção. |
+| OAU-055 | Em produção, usar `APP_ORIGIN` HTTP; localmente testar host HTTP não-loopback. | Ambos são rejeitados; HTTP local funciona somente em loopback fora de produção. |
 | OAU-056 | Omitir o segredo ou usar base64url com tamanho diferente de 32 bytes. | Fluxo OAuth indisponível por configuração inválida; erro público não revela detalhes. |
 | OAU-057 | Inspecionar HTML, JavaScript, storage, cookies legíveis, respostas e logs do navegador. | Nenhum token de sessão, token OAuth de terceiro, verifier ou segredo fica exposto. |
 | OAU-058 | Rotacionar `OAUTH_TRANSACTION_SECRET` com uma transação aberta. | A transação antiga é invalidada; uma nova autorização funciona normalmente. |

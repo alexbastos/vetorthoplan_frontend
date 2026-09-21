@@ -12,8 +12,8 @@ type SessionLifecycleContextValue = {
   completeLogout: () => void
 }
 
-const LOGOUT_CHANNEL = "captagov:session-lifecycle"
-const LOGOUT_STORAGE_KEY = "captagov:session-lifecycle-event"
+const LOGOUT_CHANNEL = "vetorthoplan:session-lifecycle"
+const LOGOUT_STORAGE_KEY = "vetorthoplan:session-lifecycle-event"
 const SessionLifecycleContext = createContext<SessionLifecycleContextValue | null>(null)
 
 function SessionLifecycleProvider({ children }: { children: ReactNode }) {

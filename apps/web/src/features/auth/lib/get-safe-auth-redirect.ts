@@ -1,5 +1,5 @@
 const DEFAULT_LOGIN_REDIRECT = "/app"
-const INTERNAL_URL_BASE = "http://capta.internal"
+const INTERNAL_URL_BASE = "http://vetorthoplan.internal"
 
 function getSafeAuthRedirect(destination: string | undefined): string {
   const decodedDestination = decodeDestination(destination)

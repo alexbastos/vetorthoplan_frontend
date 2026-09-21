@@ -15,8 +15,8 @@ import { AppThemeProvider } from "./app-theme-provider"
 import { UnsavedChangesGuard } from "./unsaved-changes-guard"
 import type { AppSidebarState } from "./types"
 
-const SIDEBAR_PREFERENCE_KEY = "captagov:app-sidebar-state"
-const SIDEBAR_PREFERENCE_EVENT = "captagov:app-sidebar-preference"
+const SIDEBAR_PREFERENCE_KEY = "vetorthoplan:app-sidebar-state"
+const SIDEBAR_PREFERENCE_EVENT = "vetorthoplan:app-sidebar-preference"
 
 type AppShellProps = {
   children: ReactNode

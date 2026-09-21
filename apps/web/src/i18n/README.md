@@ -28,12 +28,12 @@ Em Server Components, use `getTranslations` de `next-intl/server`.
 
 O idioma da renderização é resolvido nesta ordem:
 
-1. Cookie HttpOnly `capta_locale`, idioma escolhido no navegador ou projeção da preferência persistida no perfil.
+1. Cookie HttpOnly `vetorthoplan_locale`, idioma escolhido no navegador ou projeção da preferência persistida no perfil.
 2. Cabeçalho `Accept-Language` do navegador.
 3. `pt-BR` como fallback.
 
 O fuso horário usa a preferência IANA projetada no cookie HttpOnly
-`capta_time_zone` e recorre a `America/Sao_Paulo` quando ela estiver ausente ou
+`vetorthoplan_time_zone` e recorre a `America/Sao_Paulo` quando ela estiver ausente ou
 inválida. Idioma e fuso são sincronizados no login, na renovação de sessão e ao
 salvar as preferências. Esses cookies evitam consultar o perfil durante a
 renderização de cada rota.

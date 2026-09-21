@@ -6,7 +6,7 @@
       "dependsOn": ["^build"],
       "env": [
         "AUTHENTICATION_API_BASE_URL",
-        "CAPTAGOV_APP_ORIGIN",
+        "APP_ORIGIN",
         "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
         "NEXT_STANDALONE"
       ],

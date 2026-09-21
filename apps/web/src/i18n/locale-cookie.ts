@@ -1,6 +1,6 @@
 import type { AppLocale } from "./config"
 
-const LOCALE_COOKIE_NAME = "capta_locale"
+const LOCALE_COOKIE_NAME = "vetorthoplan_locale"
 const LOCALE_COOKIE_MAX_AGE_SECONDS = 365 * 24 * 60 * 60
 
 type LocaleCookieWriter = {

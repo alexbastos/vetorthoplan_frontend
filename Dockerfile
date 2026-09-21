@@ -10,10 +10,10 @@ WORKDIR /app
 # Non-secret values required while Next.js generates metadata and the browser bundle.
 # Never add credentials or runtime-only secrets to this build-argument block.
 ARG AUTHENTICATION_API_BASE_URL
-ARG CAPTAGOV_APP_ORIGIN
+ARG APP_ORIGIN
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ENV AUTHENTICATION_API_BASE_URL=${AUTHENTICATION_API_BASE_URL}
-ENV CAPTAGOV_APP_ORIGIN=${CAPTAGOV_APP_ORIGIN}
+ENV APP_ORIGIN=${APP_ORIGIN}
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
 
 # Copy manifests

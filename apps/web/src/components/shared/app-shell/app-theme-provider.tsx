@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 
-const THEME_PREFERENCE_STORAGE_KEY = "capta_theme_preference"
+const THEME_PREFERENCE_STORAGE_KEY = "vetorthoplan_theme_preference"
 
 type AppThemePreference = "dark" | "light" | "system"
 type ResolvedAppTheme = Exclude<AppThemePreference, "system">

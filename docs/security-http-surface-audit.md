@@ -46,7 +46,7 @@ baseline em enforcement e os demais controles da Etapa 6 continuam ativos.
 
 Todas as rotas abaixo usam métodos mutáveis porque até leituras de sessão
 podem rotacionar cookies. As rotas existentes validam `Origin` por igualdade exata
-com `CAPTAGOV_APP_ORIGIN` antes de falar com serviços externos.
+com `APP_ORIGIN` antes de falar com serviços externos.
 
 | Classe | Endpoints | Corpo | Sessão |
 | --- | --- | --- | --- |
@@ -81,7 +81,7 @@ recebe a mesma exceção.
 | `worker-src`, `media-src`, `object-src` | Nenhum worker, mídia, `object` ou `embed` identificado | `'none'`. |
 | `base-uri` | Nenhuma tag `base` identificada | `'none'`. |
 | `form-action` | Formulários React same-origin e consentimento HTML same-origin | `'self'`. Redirects OAuth são respostas HTTP e não exigem liberação aqui. |
-| `frame-ancestors` | Nenhuma integração que enquadre o CAPTAGOV | `'none'` em todas as páginas. |
+| `frame-ancestors` | Nenhuma integração que enquadre o Vetorthoplan | `'none'` em todas as páginas. |
 
 ### Código dinâmico e sinks
 
@@ -200,7 +200,7 @@ sensação de Strict CSP e permite o rollout observável da etapa 6.3.
 
 - `request-security.ts` é o seam único para origem, Fetch Metadata, método,
   media type, encoding e leitura limitada do corpo.
-- A origem aceita vem exclusivamente de `CAPTAGOV_APP_ORIGIN`; `Host`,
+- A origem aceita vem exclusivamente de `APP_ORIGIN`; `Host`,
   `X-Forwarded-Host` e a URL recebida não ampliam confiança atrás do proxy.
 - JSON aceita até 32 KiB. Consentimento OAuth mantém 256 bytes. Multipart de
   avatar aceita até 5 MiB mais 64 KiB de overhead.

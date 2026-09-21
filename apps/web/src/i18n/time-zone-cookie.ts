@@ -1,6 +1,6 @@
 import { resolveTimeZone } from "./config"
 
-const TIME_ZONE_COOKIE_NAME = "capta_time_zone"
+const TIME_ZONE_COOKIE_NAME = "vetorthoplan_time_zone"
 const TIME_ZONE_COOKIE_MAX_AGE_SECONDS = 365 * 24 * 60 * 60
 
 type TimeZoneCookieWriter = {

@@ -1,7 +1,7 @@
 import "server-only"
 
 const DEFAULT_POST_AUTH_REDIRECT = "/app"
-const INTERNAL_URL_BASE = "http://capta.internal"
+const INTERNAL_URL_BASE = "http://vetorthoplan.internal"
 const TRUSTED_FETCH_SITE = "same-origin"
 const UNTRUSTED_FETCH_SITES = new Set(["cross-site", "none", "same-site"])
 

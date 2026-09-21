@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common.metadata")
   return {
     metadataBase: getCanonicalUrl("/"),
-    title: { default: "CAPTAGOV", template: "%s | CAPTAGOV" },
+    title: { default: "Vetorthoplan", template: "%s | Vetorthoplan" },
     description: t("description"),
   }
 }

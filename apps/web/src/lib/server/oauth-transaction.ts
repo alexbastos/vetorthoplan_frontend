@@ -16,8 +16,8 @@ import type { OAuthTransactionSecret } from "./environment"
 
 const OAUTH_TRANSACTION_COOKIE_NAME =
   process.env.NODE_ENV === "production"
-    ? "__Host-Http-capta_oauth_transaction"
-    : "capta_oauth_transaction"
+    ? "__Host-Http-vetorthoplan_oauth_transaction"
+    : "vetorthoplan_oauth_transaction"
 const OAUTH_TRANSACTION_MAX_AGE_SECONDS = 10 * 60
 const TRANSACTION_ID_PATTERN = /^[A-Za-z0-9_-]{22}$/
 const ENCRYPTED_SEGMENT_PATTERN = /^[A-Za-z0-9_-]+$/

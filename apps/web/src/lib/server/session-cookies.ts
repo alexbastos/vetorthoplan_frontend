@@ -203,7 +203,7 @@ function openTokenWithRotation(
 }
 
 function createAdditionalAuthenticatedData(cookieName: string): string {
-  return `${cookieName}:capta-session-token`
+  return `${cookieName}:vetorthoplan-session-token`
 }
 
 function decodeSessionCookieSecret(secret: string): Buffer {

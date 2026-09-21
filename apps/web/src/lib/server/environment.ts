@@ -4,7 +4,7 @@ import { z } from "zod"
 
 const SERVER_ENVIRONMENT_VARIABLES = [
   "AUTHENTICATION_API_BASE_URL",
-  "CAPTAGOV_APP_ORIGIN",
+  "APP_ORIGIN",
   "OAUTH_TRANSACTION_SECRET",
   "SESSION_COOKIE_PREVIOUS_SECRET",
   "SESSION_COOKIE_SECRET",
@@ -43,7 +43,7 @@ const ServerEnvironmentSchema = z.object({
   AUTHENTICATION_API_BASE_URL: CanonicalOriginSchema
     .refine((url) => url.protocol === "https:", "must use HTTPS")
     .transform((url) => url.origin),
-  CAPTAGOV_APP_ORIGIN: CanonicalOriginSchema
+  APP_ORIGIN: CanonicalOriginSchema
     .refine(
       (url) => url.protocol === "https:" || (url.protocol === "http:" && isLoopbackHost(url.hostname)),
       "must use HTTPS, except for an HTTP loopback origin"
@@ -107,11 +107,11 @@ function getServerEnvironment(environment: NodeJS.ProcessEnv = process.env): Ser
     throw createConfigurationError(result.error)
   }
 
-  assertProductionAppOrigin(environment, result.data.CAPTAGOV_APP_ORIGIN)
+  assertProductionAppOrigin(environment, result.data.APP_ORIGIN)
 
   return {
     authenticationApiBaseUrl: result.data.AUTHENTICATION_API_BASE_URL,
-    appOrigin: result.data.CAPTAGOV_APP_ORIGIN,
+    appOrigin: result.data.APP_ORIGIN,
   }
 }
 
@@ -124,14 +124,14 @@ function getSessionServerEnvironment(
     throw createConfigurationError(result.error)
   }
 
-  assertProductionAppOrigin(environment, result.data.CAPTAGOV_APP_ORIGIN)
+  assertProductionAppOrigin(environment, result.data.APP_ORIGIN)
   assertDistinctSessionSecrets(
     result.data.SESSION_COOKIE_SECRET,
     result.data.SESSION_COOKIE_PREVIOUS_SECRET
   )
   return {
     authenticationApiBaseUrl: result.data.AUTHENTICATION_API_BASE_URL,
-    appOrigin: result.data.CAPTAGOV_APP_ORIGIN,
+    appOrigin: result.data.APP_ORIGIN,
     sessionCookieSecrets: createSessionCookieSecrets(result.data),
   }
 }
@@ -145,7 +145,7 @@ function getOAuthServerEnvironment(
     throw createConfigurationError(result.error)
   }
 
-  assertProductionAppOrigin(environment, result.data.CAPTAGOV_APP_ORIGIN)
+  assertProductionAppOrigin(environment, result.data.APP_ORIGIN)
   assertDistinctSessionSecrets(
     result.data.SESSION_COOKIE_SECRET,
     result.data.SESSION_COOKIE_PREVIOUS_SECRET
@@ -158,7 +158,7 @@ function getOAuthServerEnvironment(
 
   return {
     authenticationApiBaseUrl: result.data.AUTHENTICATION_API_BASE_URL,
-    appOrigin: result.data.CAPTAGOV_APP_ORIGIN,
+    appOrigin: result.data.APP_ORIGIN,
     oauthTransactionSecret: result.data.OAUTH_TRANSACTION_SECRET,
     sessionCookieSecrets: createSessionCookieSecrets(result.data),
   }
@@ -211,7 +211,7 @@ function assertPurposeSeparatedSecrets(
 
 function assertProductionAppOrigin(environment: NodeJS.ProcessEnv, appOrigin: string): void {
   if (environment.NODE_ENV === "production" && !appOrigin.startsWith("https://")) {
-    throw new ServerEnvironmentConfigurationError(["CAPTAGOV_APP_ORIGIN"])
+    throw new ServerEnvironmentConfigurationError(["APP_ORIGIN"])
   }
 }
 
