@@ -20,10 +20,14 @@ function AuthBackLink({ className }: AuthBackLinkProps) {
   const { isTransitioning } = useAuthTransition()
   const href = pathname === "/login" ? "/" : "/login"
 
+  if (pathname === "/login" || pathname === "/register") {
+    return null
+  }
+
   return (
     <button
       className={cn(
-        "motion-interactive absolute z-30 inline-flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-ui-semibold text-foreground outline-none transition-colors duration-200 hover:bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-wait",
+        "motion-interactive absolute z-30 inline-flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-ui text-content-secondary outline-none transition-colors duration-200 hover:bg-white/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-wait",
         className ?? "top-6 left-6",
       )}
       data-auth-back

@@ -1,7 +1,7 @@
 {
   "consent": {
     "metadataTitle": "Authorize access",
-    "brandAlt": "CAPTAGOV",
+    "brandAlt": "Orthovet",
     "eyebrow": "Secure authorization",
     "title": "Authorize access to your account?",
     "description": "Review who is requesting access and which permissions will be granted before continuing.",
@@ -21,7 +21,7 @@
     "scopes": {
       "openid": {
         "label": "Confirm your identity",
-        "description": "Allows confirmation that you signed in with a CAPTAGOV account."
+        "description": "Allows confirmation that you signed in with an Orthovet account."
       },
       "profile": {
         "label": "View basic profile information",
@@ -33,7 +33,7 @@
       },
       "offlineAccess": {
         "label": "Maintain authorized access",
-        "description": "Allows the application to continue the authorized access while you are not using CAPTAGOV."
+        "description": "Allows the application to continue the authorized access while you are not using Orthovet."
       },
       "other": {
         "description": "Allows use of the “{scope}” permission associated with your account."
@@ -52,7 +52,7 @@
         "title": "Authorization unavailable",
         "description": "We could not prepare this authorization right now. Please try again shortly."
       },
-      "backHome": "Back to CAPTAGOV"
+      "backHome": "Back to Orthovet"
     }
   }
 }

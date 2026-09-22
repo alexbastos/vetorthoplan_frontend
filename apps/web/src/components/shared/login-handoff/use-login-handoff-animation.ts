@@ -22,11 +22,15 @@ function useLoginHandoffAnimation({ onExitComplete, state }: UseLoginHandoffAnim
 
     const messages = Array.from(overlay.querySelectorAll<HTMLElement>("[data-login-handoff-status]"))
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const setActiveMessage = (index: number) => {
+      overlay.dataset.activeHandoffStatus = String(index)
+    }
 
     if (state === "authenticating") {
       if (reducedMotion) {
         gsap.set(overlay, { autoAlpha: 1, y: 0 })
-        gsap.set(messages, { autoAlpha: 1, y: 0 })
+        gsap.set(messages, { autoAlpha: 0, y: 0 })
+        gsap.set(messages[0], { autoAlpha: 1, y: 0 })
         return undefined
       }
 
@@ -35,18 +39,22 @@ function useLoginHandoffAnimation({ onExitComplete, state }: UseLoginHandoffAnim
         repeat: -1,
       })
 
-      gsap.set(messages.slice(1), { autoAlpha: 0, y: 2 })
+      gsap.set(messages, { autoAlpha: 0, y: 0 })
       gsap.set(messages[0], { autoAlpha: 1, y: 0 })
+      setActiveMessage(0)
 
       const entrance = gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 })
 
       statusTimeline
-        .to(messages[0], { autoAlpha: 0, duration: 0.18, ease: "power1.in", y: -2 }, 0.75)
-        .to(messages[1], { autoAlpha: 1, duration: 0.2, y: 0 }, "<0.04")
-        .to(messages[1], { autoAlpha: 0, duration: 0.18, ease: "power1.in", y: -2 }, 1.5)
-        .to(messages[2], { autoAlpha: 1, duration: 0.2, y: 0 }, "<0.04")
-        .to(messages[2], { autoAlpha: 0, duration: 0.18, ease: "power1.in", y: -2 }, 2.25)
-        .to(messages[0], { autoAlpha: 1, duration: 0.2, y: 0 }, "<0.04")
+        .to(messages[0], { autoAlpha: 0, duration: 0.16, ease: "power1.in", y: -2 }, 0.9)
+        .call(() => setActiveMessage(1))
+        .to(messages[1], { autoAlpha: 1, duration: 0.16, y: 0 }, ">")
+        .to(messages[1], { autoAlpha: 0, duration: 0.16, ease: "power1.in", y: -2 }, "+=0.9")
+        .call(() => setActiveMessage(2))
+        .to(messages[2], { autoAlpha: 1, duration: 0.16, y: 0 }, ">")
+        .to(messages[2], { autoAlpha: 0, duration: 0.16, ease: "power1.in", y: -2 }, "+=0.9")
+        .call(() => setActiveMessage(0))
+        .to(messages[0], { autoAlpha: 1, duration: 0.16, y: 0 }, ">")
 
       return () => {
         entrance.kill()
@@ -56,6 +64,10 @@ function useLoginHandoffAnimation({ onExitComplete, state }: UseLoginHandoffAnim
 
     if (state === "awaiting-destination") {
       gsap.set(overlay, { autoAlpha: 1, y: 0 })
+      const activeMessageIndex = Number(overlay.dataset.activeHandoffStatus ?? "0")
+      const activeMessage = messages[activeMessageIndex] ?? messages[0]
+      gsap.set(messages, { autoAlpha: 0, y: 0 })
+      gsap.set(activeMessage, { autoAlpha: 1, y: 0 })
       return undefined
     }
 

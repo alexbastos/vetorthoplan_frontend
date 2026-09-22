@@ -36,7 +36,13 @@ function useEmailVerificationHandlerEntrance({ scope, state }: EmailVerification
           })
         }
 
-        const steps = gsap.utils.toArray<HTMLElement>("[data-email-verification-handler-step]")
+        const steps = Array.from(
+          scope.current?.querySelectorAll<HTMLElement>("[data-email-verification-handler-step]") ?? [],
+        )
+
+        if (steps.length === 0) {
+          return undefined
+        }
 
         let unregisterMotion: () => void = () => {}
         const timeline = gsap.fromTo(
@@ -53,7 +59,10 @@ function useEmailVerificationHandlerEntrance({ scope, state }: EmailVerification
         )
 
         unregisterMotion = registerMotion("email-verification-handler-entrance", {
-          cancel: () => timeline.kill(),
+          cancel: () => {
+            timeline.kill()
+            gsap.set(steps, { autoAlpha: 1, y: 0 })
+          },
           settle: () => timeline.progress(1),
         })
 

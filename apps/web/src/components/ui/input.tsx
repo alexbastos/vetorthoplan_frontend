@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 type InputProps = React.ComponentPropsWithoutRef<"input"> & {
   leadingIcon?: React.ReactNode
   trailingIcon?: React.ReactNode
+  variant?: "default" | "pill"
   wrapperClassName?: string
 }
 
@@ -15,6 +16,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       wrapperClassName,
       leadingIcon,
       trailingIcon,
+      variant = "default",
       type,
       disabled,
       ...props
@@ -26,11 +28,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div
         data-slot="input"
+        data-variant={variant}
         className={cn(
-          "motion-interactive flex h-[var(--input-height)] w-full items-center gap-[var(--input-gap)] rounded-[var(--input-radius)] border bg-[var(--input-surface-default)] px-[var(--input-padding-inline)] py-[var(--input-padding-block)]",
+          "motion-interactive flex w-full items-center gap-[var(--input-gap)] border",
+          variant === "pill"
+            ? "h-[var(--input-pill-height)] rounded-[var(--control-pill-radius)] bg-[var(--control-pill-surface)] px-[var(--input-pill-padding-inline)] py-0 shadow-[var(--input-pill-shadow)] focus-within:border-[length:var(--input-pill-border-focus-width)]"
+            : "h-[var(--input-height)] rounded-[var(--input-radius)] bg-[var(--input-surface-default)] px-[var(--input-padding-inline)] py-[var(--input-padding-block)]",
           isInvalid
             ? "border-[var(--input-border-error)]"
-            : "border-[var(--input-border-default)] focus-within:border-[var(--input-border-focus)]",
+            : variant === "pill"
+              ? "border-[var(--input-pill-border-default)] focus-within:border-[var(--input-pill-border-focus)]"
+              : "border-[var(--input-border-default)] focus-within:border-[var(--input-border-focus)]",
           disabled && "bg-[var(--input-surface-disabled)]",
           wrapperClassName
         )}

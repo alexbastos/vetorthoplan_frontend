@@ -1,5 +1,5 @@
 {
-  "metadata": {"description": "Inteligência para conectar oportunidades a resultados."},
+  "metadata": {"description": "Planejamento ortopédico veterinário digital."},
   "actions": {"cancel": "Cancelar", "close": "Fechar", "continue": "Continuar", "retry": "Tentar novamente", "save": "Salvar", "saveChanges": "Salvar alterações", "signOut": "Sair", "signingOut": "Saindo..."},
   "status": {"loading": "Carregando...", "comingSoon": "Em breve", "comingSoonDescription": "Esta área ainda está sendo preparada.", "noInformation": "Sem informação"},
   "navigation": {"application": "Aplicação", "home": "Início", "settings": "Configurações", "help": "Ajuda", "main": "Navegação principal", "routes": "Rotas da aplicação", "open": "Abrir navegação", "close": "Fechar navegação", "expand": "Expandir navegação", "collapse": "Recolher navegação"},
@@ -9,5 +9,5 @@
   "unsavedChanges": {"title": "Alterações não salvas", "description": "Revise o que será descartado antes de sair.", "continueEditing": "Continuar editando", "preview": "Prévia das alterações", "showLess": "Mostrar menos", "showMore": "Ver mais {count, plural, one {# alteração} other {# alterações}}", "restoreDescription": "Ao descartar, os valores atuais serão restaurados.", "changeTitle": "{previousValue} para {value}", "discard": "Descartar alterações"},
   "accessibility": {"editField": "Editar {field}", "notifications": "Notificações", "previousMonth": "Mês anterior", "nextMonth": "Próximo mês"},
   "datePicker": {"selectDate": "Selecionar data", "placeholder": "dd/mm/aaaa"},
-  "placeholderPage": {"title": "Fundação do projeto pronta.", "description": "A interface de autenticação será construída na próxima etapa."}
+  "placeholderPage": {"title": "Esta área está em preparação.", "description": "Ela estará disponível em breve."}
 }

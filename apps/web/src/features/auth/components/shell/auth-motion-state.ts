@@ -4,73 +4,46 @@ import gsap from "gsap"
 
 import type { AuthVisualMode } from "./auth-transition-provider"
 
-function getAuthRecoveryLogoX(logoElement: Element) {
-  const stageElement = document.querySelector("[data-auth-stage]")
-
-  if (!stageElement) {
-    return 0
-  }
-
-  return (stageElement.clientWidth - logoElement.clientWidth) / 2 - 24
+function getAuthRecoveryLogoX() {
+  return 0
 }
 
-function positionAuthLogoForVisualMode(visualMode: AuthVisualMode) {
+function positionAuthLogoForVisualMode(_visualMode: AuthVisualMode) {
   const logoElement = document.querySelector("[data-auth-logo]")
 
-  if (!logoElement || visualMode === "split") {
-    return
+  if (logoElement) {
+    gsap.set(logoElement, { x: 0 })
   }
-
-  gsap.set(logoElement, { x: getAuthRecoveryLogoX(logoElement) })
 }
 
-function applyAuthShellFinalState(visualMode: AuthVisualMode) {
-  const logoElement = document.querySelector("[data-auth-logo]")
+function applyAuthShellFinalState(_visualMode: AuthVisualMode, includeForm = true) {
   const backElement = document.querySelector("[data-auth-back]")
   const flowElement = document.querySelector("[data-auth-flow]")
   const formElement = document.querySelector("[data-auth-form]")
-  const panelElement = document.querySelector("[data-auth-panel]")
+  const logoElement = document.querySelector("[data-auth-logo]")
+  const footerElement = document.querySelector("[data-auth-footer]")
 
   if (backElement) {
     gsap.set(backElement, { autoAlpha: 1, x: 0, y: 0 })
   }
 
-  if (formElement) {
-    gsap.set(formElement, { autoAlpha: 1, y: 0 })
+  if (includeForm && formElement) {
+    gsap.set(formElement, { autoAlpha: 1, x: 0, y: 0 })
   }
 
-  // O loader de confirmação de cadastro oculta o fluxo enquanto está ativo.
-  // Todo estado final do shell precisa restabelecê-lo antes da próxima entrada.
   if (flowElement) {
     gsap.set(flowElement, { autoAlpha: 1 })
-  }
-
-  if (visualMode !== "split") {
-    gsap.set("[data-auth-stage-bg]", { autoAlpha: 1 })
-
-    if (logoElement) {
-      gsap.set(logoElement, { autoAlpha: 1, x: getAuthRecoveryLogoX(logoElement), y: 0 })
-    }
-
-    if (panelElement) {
-      gsap.set(panelElement, { autoAlpha: 0, x: 0 })
-    }
-
-    return
   }
 
   if (logoElement) {
     gsap.set(logoElement, { autoAlpha: 1, x: 0, y: 0 })
   }
 
-  if (panelElement) {
-    gsap.set(panelElement, { autoAlpha: 1, x: 0 })
-    gsap.set("[data-auth-stage-bg]", { autoAlpha: 1 })
-    gsap.set("[data-auth-panel-bg]", { autoAlpha: 1 })
-    gsap.set("[data-auth-source]", { autoAlpha: 1, x: 0 })
-    gsap.set("[data-auth-showcase]", { autoAlpha: 1, x: 0, y: 0 })
-    gsap.set("[data-auth-tagline]", { autoAlpha: 1, y: 0 })
+  if (footerElement) {
+    gsap.set(footerElement, { autoAlpha: 1, x: 0, y: 0 })
   }
+
+  gsap.set("[data-auth-stage-bg]", { autoAlpha: 1 })
 }
 
 export { applyAuthShellFinalState, getAuthRecoveryLogoX, positionAuthLogoForVisualMode }

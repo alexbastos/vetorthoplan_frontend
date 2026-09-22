@@ -15,8 +15,9 @@ type LoginHandoffLabels = {
 type LoginHandoffContextValue = {
   awaitDestination: () => void
   beginHandoff: (labels?: LoginHandoffLabels) => boolean
+  completeDestinationTransition: () => void
   exitHandoff: () => Promise<void>
-  notifyDestinationReady: () => void
+  isDestinationHandoffActive: boolean
 }
 
 const LoginHandoffContext = createContext<LoginHandoffContextValue | null>(null)
@@ -62,12 +63,6 @@ function LoginHandoffProvider({ children }: { children: ReactNode }) {
     })
   }, [updateState])
 
-  const notifyDestinationReady = useCallback(() => {
-    if (stateRef.current === "awaiting-destination") {
-      void exitHandoff()
-    }
-  }, [exitHandoff])
-
   const resetAfterExit = useCallback(() => {
     updateState("idle")
     setLabels(undefined)
@@ -75,9 +70,21 @@ function LoginHandoffProvider({ children }: { children: ReactNode }) {
     exitResolverRef.current = null
   }, [updateState])
 
+  const completeDestinationTransition = useCallback(() => {
+    if (stateRef.current === "awaiting-destination") {
+      resetAfterExit()
+    }
+  }, [resetAfterExit])
+
   const value = useMemo(
-    () => ({ awaitDestination, beginHandoff, exitHandoff, notifyDestinationReady }),
-    [awaitDestination, beginHandoff, exitHandoff, notifyDestinationReady],
+    () => ({
+      awaitDestination,
+      beginHandoff,
+      completeDestinationTransition,
+      exitHandoff,
+      isDestinationHandoffActive: state === "awaiting-destination",
+    }),
+    [awaitDestination, beginHandoff, completeDestinationTransition, exitHandoff, state],
   )
 
   return (

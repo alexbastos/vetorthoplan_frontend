@@ -91,6 +91,11 @@ function AuthTransitionProvider({ children }: { children: ReactNode }) {
       return false
     }
 
+    // Finish any entrance at its final frame before the route exit begins. This
+    // prevents a child entrance timeline from continuing to write opacity or
+    // transform values while the outgoing form is being animated.
+    Array.from(motionControllersRef.current.values()).forEach((controller) => controller.settle())
+
     const nextTransition = { destination, phase: "exiting", visualMode: getAuthVisualMode(destination) } satisfies ActiveAuthTransition
     transitionLockRef.current = true
     transitionRef.current = nextTransition

@@ -13,6 +13,11 @@ function useAuthPageEntrance(scope: RefObject<HTMLElement | null>, onComplete: (
 
   useGSAP(
     () => {
+      const select = gsap.utils.selector(scope)
+      const stageBackground = select("[data-auth-stage-bg]")
+      const back = select("[data-auth-back]")
+      const logo = select("[data-auth-logo]")
+      const footer = select("[data-auth-footer]")
       const media = gsap.matchMedia()
 
       media.add("(prefers-reduced-motion: no-preference)", () => {
@@ -35,13 +40,10 @@ function useAuthPageEntrance(scope: RefObject<HTMLElement | null>, onComplete: (
         })
 
         timeline
-          .fromTo("[data-auth-stage]", { autoAlpha: 0, scale: 0.985, y: 14 }, { autoAlpha: 1, duration: 0.45, ease: "power3.out", scale: 1, y: 0 })
-          .fromTo("[data-auth-back]", { autoAlpha: 0, x: -14 }, { autoAlpha: 1, duration: 0.4, x: 0 }, "<0.12")
-          .fromTo("[data-auth-stage-bg], [data-auth-panel-bg]", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, "<0.05")
-          .fromTo("[data-auth-logo]", { autoAlpha: 0, y: -8 }, { autoAlpha: 1, duration: 0.35, y: 0 }, "<0.1")
-          .fromTo("[data-auth-source]", { autoAlpha: 0, x: -12 }, { autoAlpha: 1, duration: 0.35, x: 0 }, "<0.08")
-          .fromTo("[data-auth-showcase]", { autoAlpha: 0, x: 16, y: 8 }, { autoAlpha: 1, duration: 0.45, x: 0, y: 0 }, "<0.1")
-          .fromTo("[data-auth-tagline]", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, duration: 0.35, y: 0 }, "<0.1")
+          .fromTo(stageBackground, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 })
+          .fromTo(logo, { autoAlpha: 0, y: -8 }, { autoAlpha: 1, duration: 0.35, y: 0 }, "<0.1")
+          .fromTo(back, { autoAlpha: 0, x: -14 }, { autoAlpha: 1, duration: 0.4, x: 0 }, "<0.12")
+          .fromTo(footer, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, duration: 0.32, y: 0 }, "<0.08")
 
         return () => {
           timeline.kill()
@@ -50,6 +52,10 @@ function useAuthPageEntrance(scope: RefObject<HTMLElement | null>, onComplete: (
       })
 
       media.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(stageBackground, { autoAlpha: 1 })
+        gsap.set(back, { autoAlpha: 1, x: 0, y: 0 })
+        gsap.set(logo, { autoAlpha: 1, x: 0, y: 0 })
+        gsap.set(footer, { autoAlpha: 1, x: 0, y: 0 })
         onComplete()
         return undefined
       })

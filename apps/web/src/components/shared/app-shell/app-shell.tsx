@@ -56,7 +56,7 @@ function AppShell({ children, userName }: AppShellProps) {
     <AppUserProvider name={userName}>
       <AppThemeProvider>
         <UnsavedChangesGuard>
-          <div className="flex h-dvh overflow-hidden bg-background">
+          <div className="flex h-dvh overflow-hidden bg-background" data-app-shell>
             <AppSidebar onStateChange={setSidebarState} state={sidebarState} />
 
             {mobileNavigationOpen ? (

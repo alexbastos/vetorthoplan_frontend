@@ -71,11 +71,15 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
   }
 
   return (
-    <section ref={sectionRef} aria-labelledby="email-verification-sent-title" className="mx-auto w-full max-w-sm space-y-4">
+    <section
+      ref={sectionRef}
+      aria-labelledby="email-verification-sent-title"
+      className="mx-auto w-full max-w-[26rem] space-y-6"
+    >
       {hasPendingEmail ? (
         <>
-          <header className="space-y-2" data-email-verification-step>
-            <h1 id="email-verification-sent-title" className="text-heading-4 text-foreground">
+          <header className="space-y-2 text-center" data-email-verification-step>
+            <h1 id="email-verification-sent-title" className="text-heading-2 text-foreground">
               {t("title")}
             </h1>
             <p className="text-ui text-content-secondary">
@@ -87,9 +91,11 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
             <InputField
               readOnly
               tabIndex={-1}
-              wrapperClassName="pointer-events-none select-none bg-[var(--input-surface-disabled)] focus-within:border-[var(--input-border-default)]"
-              label={tFields("email")}
+              aria-label={tFields("email")}
+              showLabel={false}
               value={maskEmail(email)}
+              variant="pill"
+              wrapperClassName="pointer-events-none select-none"
             />
           </div>
 
@@ -107,8 +113,8 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
         </>
       ) : (
         <>
-          <header className="space-y-2" data-email-verification-step>
-            <h1 id="email-verification-sent-title" className="text-heading-4 text-foreground">
+          <header className="space-y-2 text-center" data-email-verification-step>
+            <h1 id="email-verification-sent-title" className="text-heading-2 text-foreground">
               {t("missingTitle")}
             </h1>
             <p className="text-ui text-content-secondary">
@@ -122,6 +128,7 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
               disabled={isTransitioning}
               onClick={() => navigateWithExit("/login")}
               type="button"
+              variant="pill"
             >
               {t("goToLogin")}
             </Button>

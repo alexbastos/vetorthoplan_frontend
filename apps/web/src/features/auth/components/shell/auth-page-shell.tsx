@@ -3,22 +3,15 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { ArrowRight } from "lucide-react"
 import type { ReactNode } from "react"
 
-import { Card } from "@/components/ui/card"
-import { CaptaBrandLogo } from "@/components/ui/capta-brand-logo"
-import { appVersion } from "@/lib/app-version"
 import { cn } from "@/lib/utils"
 
+import { useRegistrationConfirmationAnimation } from "../../hooks/animations/use-registration-confirmation-animation"
 import { AuthBackLink } from "../navigation/auth-back-link"
 import { RegistrationCreationLoader } from "../status/registration-creation-loader"
-import { AuthPageMotion, useAuthPageEntered } from "./auth-page-motion"
+import { AuthPageMotion } from "./auth-page-motion"
 import { AuthTransitionProvider, useAuthTransition } from "./auth-transition-provider"
-import { AuthSourceIndicator } from "../showcase/auth-source-indicator"
-import { EditalScannerAnimation } from "../showcase/edital-scanner-animation"
-import { useAuthShellStaticState } from "../../hooks/animations/use-auth-shell-static-state"
-import { useRegistrationConfirmationAnimation } from "../../hooks/animations/use-registration-confirmation-animation"
 
 type AuthPageShellProps = {
   children: ReactNode
@@ -29,181 +22,112 @@ type AuthPageShellProps = {
 function AuthPageShell({ children, className, footer }: AuthPageShellProps) {
   return (
     <AuthTransitionProvider>
-      <AuthPageShellContent className={className} footer={footer}>
-        {children}
-      </AuthPageShellContent>
+      <AuthPageMotion>
+        <AuthPageShellStage className={className} footer={footer}>
+          {children}
+        </AuthPageShellStage>
+      </AuthPageMotion>
     </AuthTransitionProvider>
-  )
-}
-
-function AuthPageShellContent({ children, className, footer }: AuthPageShellProps) {
-  return (
-    <AuthPageMotion>
-      <AuthPageShellStage className={className} footer={footer}>
-        {children}
-      </AuthPageShellStage>
-    </AuthPageMotion>
   )
 }
 
 function AuthPageShellStage({ children, className, footer }: AuthPageShellProps) {
   const t = useTranslations("auth.shell")
-  const { phase, registrationConfirmationState, targetVisualMode, visualMode } = useAuthTransition()
-  const hasEntered = useAuthPageEntered()
-  const isCenteredStage = visualMode !== "split"
-  const isTransitioningToSplit =
-    targetVisualMode === "split" && (phase === "exiting" || phase === "navigating")
-  const isSplitVisible = visualMode === "split" || isTransitioningToSplit
-  const isCenteredStageContentVisible = isCenteredStage && !isTransitioningToSplit
+  const { registrationConfirmationState } = useAuthTransition()
   const isRegistrationConfirmationActive = registrationConfirmationState !== "idle"
 
-  useAuthShellStaticState({ hasEntered, phase, visualMode })
   useRegistrationConfirmationAnimation({ state: registrationConfirmationState })
 
   return (
-    <div className="relative min-h-dvh bg-background p-0 lg:grid lg:place-items-center lg:px-6 lg:py-12">
+    <div className="auth-surface relative min-h-dvh overflow-hidden bg-background">
+      <Image
+        alt=""
+        className="object-cover object-center"
+        data-auth-stage-bg
+        fill
+        priority
+        sizes="100vw"
+        src="/images/auth/img_background_auth.avif"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-white/58"
+      />
+
+      <div
+        className="relative grid min-h-dvh grid-rows-[auto_1fr_auto] text-foreground"
+        data-auth-stage
+        data-auth-stage-variant="full"
+      >
+        <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center px-5 py-6 sm:px-8 lg:px-12 lg:py-8">
+          <Link
+            aria-label={t("brandHome")}
+            className="motion-interactive relative block h-12 w-52 rounded-sm outline-none hover:opacity-70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-white sm:h-14 sm:w-56"
+            data-auth-logo
+            href="/"
+          >
+            <Image
+              alt="Orthovet"
+              className="object-contain object-left"
+              fill
+              sizes="(min-width: 640px) 14rem, 13rem"
+              src="/brand/logo_vet_ofc.avif"
+            />
+          </Link>
+        </header>
+
         <AuthBackLink
           className={cn(
-            "top-6 left-6",
-            isCenteredStage && "top-8 left-6 lg:top-[5.5rem] lg:left-[max(3.5rem,calc(50%-38rem))]",
+            "top-[calc(50%-13rem)] left-[max(1.25rem,calc(50%-13.5rem))]",
             isRegistrationConfirmationActive && "pointer-events-none",
           )}
         />
 
-        <div className="min-h-dvh w-full lg:h-[calc(100dvh-6rem)] lg:min-h-0 lg:max-w-7xl lg:rounded-[calc(var(--radius-token-xl)+var(--space-2))] lg:border lg:border-border lg:bg-raised lg:p-2">
-          <div
-            className="relative min-h-dvh bg-card lg:h-full lg:min-h-0 lg:overflow-hidden lg:rounded-[var(--radius-token-xl)] lg:border lg:border-border lg:shadow-[var(--shadow-stage)]"
-            data-auth-stage
-            data-auth-stage-variant={isSplitVisible ? "split" : "full"}
-          >
-            <div
-              className={cn(
-                "pointer-events-none absolute inset-0",
-                isCenteredStage ? "opacity-100" : "opacity-0",
-              )}
-            >
-              <Image
-                alt=""
-                className="opacity-0 object-cover object-center"
-                data-auth-stage-bg
-                fill
-                loading="eager"
-                sizes="100vw"
-                src="/images/auth/img_background_recovery_password.avif"
-              />
+        <div
+          className={cn(
+            "relative z-10 flex min-h-0 flex-col",
+            isRegistrationConfirmationActive && "pointer-events-none",
+          )}
+          data-auth-flow
+        >
+          <main className="flex flex-1 items-center justify-center px-5 py-8 sm:px-8 sm:py-10">
+            <div className={cn("w-full max-w-[27rem]", className)} data-auth-form>
+              {children}
             </div>
-
-            <div
-              className={cn(
-                "absolute top-8 left-6 z-30 pointer-events-auto opacity-0",
-                isRegistrationConfirmationActive && "pointer-events-none",
-              )}
-              data-auth-logo
-            >
-              <CaptaBrandLogo
-                alt="CAPTAGOV"
-                className="h-auto w-[154px]"
-                height={36}
-                variant="black"
-                width={154}
-              />
-            </div>
-
-            <div
-              className={cn(
-                "relative z-10 min-h-dvh lg:grid lg:h-full lg:min-h-0",
-                isSplitVisible ? "lg:grid-cols-[1.1fr_0.9fr]" : "lg:grid-cols-1",
-                isRegistrationConfirmationActive && "pointer-events-none",
-              )}
-              data-auth-flow
-            >
-              <aside
-                aria-hidden={!isSplitVisible}
-                className={cn(
-                  "relative hidden overflow-hidden bg-card lg:block",
-                  isSplitVisible ? "lg:relative lg:opacity-100" : "lg:absolute lg:inset-y-0 lg:left-0 lg:pointer-events-none lg:opacity-0",
-                )}
-                data-auth-panel
-              >
-                <Image
-                  alt=""
-                  className="opacity-0 object-cover object-center"
-                  data-auth-panel-bg
-                  fill
-                  loading="eager"
-                  sizes="50vw"
-                  src="/images/auth/img_background_auth.avif"
-                />
-                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-96 bg-gradient-to-t from-card to-transparent" />
-                <AuthSourceIndicator />
-                <div className="absolute top-[calc(50%-var(--space-8))] right-8 z-10 max-w-xs -translate-y-1/2">
-                  <Card aria-hidden="true" className="auth-showcase-fade border-transparent border-r-0 p-6" data-auth-showcase variant="base">
-                    <div className="space-y-2">
-                      <p className="text-overline text-content-secondary">{t("opportunity")}</p>
-                      <p className="text-ui text-content-secondary">{t("opportunityDescription")}</p>
-                    </div>
-
-                    <EditalScannerAnimation />
-
-                    <p className="flex items-center gap-2 text-ui-semibold text-link">
-                      {t("viewOpportunity")}
-                      <ArrowRight aria-hidden="true" className="size-4" />
-                    </p>
-                  </Card>
-                </div>
-                <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-32 bg-gradient-to-r from-transparent to-card" />
-                <p className="absolute bottom-8 left-8 z-10 text-heading-3 text-foreground" data-auth-tagline>
-                  <span className="block">{t("headlineLine1")}</span>
-                  <span className="block">{t("headlineLine2")}</span>
-                </p>
-              </aside>
-
-              <div
-                className={cn(
-                  "flex min-h-dvh flex-col lg:min-h-0",
-                  isCenteredStageContentVisible ? "bg-transparent" : "bg-white",
-                )}
-                data-auth-content
-              >
-                <main
-                  className={cn(
-                    "flex flex-1 justify-center px-4 py-8 sm:px-6 sm:py-12",
-                    isCenteredStageContentVisible ? "items-center -translate-y-6 sm:-translate-y-8" : "items-center",
-                  )}
-                >
-                  <div className={cn("w-full max-w-md", className)} data-auth-form>
-                    {children}
-                  </div>
-                </main>
-
-                {!isCenteredStage && (
-                  <footer className="px-4 py-4 text-center sm:px-6 sm:py-6">
-                    {footer}
-                    <nav aria-label={t("legalLinks")} className="flex items-center justify-center gap-2 text-caption text-content-secondary" data-login-step>
-                      <Link
-                        className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        href="/termos-de-uso"
-                      >
-                        {t("terms")}
-                      </Link>
-                      <span aria-hidden="true">/</span>
-                      <Link
-                        className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        href="/politica-de-privacidade"
-                      >
-                        {t("privacy")}
-                      </Link>
-                      <span aria-hidden="true">/</span>
-                      <span aria-label={t("version", { version: appVersion })}>v{appVersion}</span>
-                    </nav>
-                  </footer>
-                )}
-              </div>
-            </div>
-
-            {isRegistrationConfirmationActive && <RegistrationCreationLoader />}
-          </div>
+          </main>
         </div>
+
+        <footer className="relative z-20 px-5 py-6 text-center sm:px-8 lg:py-8" data-auth-footer>
+          {footer}
+          <nav
+            aria-label={t("legalLinks")}
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-caption text-content-secondary"
+          >
+            <Link
+              className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              href="/"
+            >
+              {t("home")}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link
+              className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              href="/politica-de-privacidade"
+            >
+              {t("privacy")}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link
+              className="motion-interactive rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              href="/termos-de-uso"
+            >
+              {t("terms")}
+            </Link>
+          </nav>
+        </footer>
+
+        {isRegistrationConfirmationActive ? <RegistrationCreationLoader /> : null}
+      </div>
     </div>
   )
 }

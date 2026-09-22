@@ -1,7 +1,7 @@
 {
   "consent": {
     "metadataTitle": "Autorizar acesso",
-    "brandAlt": "CAPTAGOV",
+    "brandAlt": "Orthovet",
     "eyebrow": "Autorização segura",
     "title": "Autorizar acesso à sua conta?",
     "description": "Revise quem está solicitando acesso e quais permissões serão concedidas antes de continuar.",
@@ -21,7 +21,7 @@
     "scopes": {
       "openid": {
         "label": "Confirmar sua identidade",
-        "description": "Permite confirmar que você iniciou a sessão com uma conta CAPTAGOV."
+        "description": "Permite confirmar que você iniciou a sessão com uma conta Orthovet."
       },
       "profile": {
         "label": "Ver informações básicas do perfil",
@@ -33,7 +33,7 @@
       },
       "offlineAccess": {
         "label": "Manter o acesso autorizado",
-        "description": "Permite que o aplicativo continue o acesso autorizado quando você não estiver usando o CAPTAGOV."
+        "description": "Permite que o aplicativo continue o acesso autorizado quando você não estiver usando a Orthovet."
       },
       "other": {
         "description": "Permite usar a permissão “{scope}” associada à sua conta."
@@ -52,7 +52,7 @@
         "title": "Autorização indisponível",
         "description": "Não foi possível preparar esta autorização agora. Tente novamente em alguns instantes."
       },
-      "backHome": "Voltar ao CAPTAGOV"
+      "backHome": "Voltar à Orthovet"
     }
   }
 }

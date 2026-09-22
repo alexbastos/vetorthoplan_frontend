@@ -14,6 +14,10 @@ const buttonVariants = cva(
           "bg-[var(--button-primary-background-default)] text-[var(--button-text-inverse)] hover:bg-[var(--button-primary-background-hover)] active:bg-[var(--button-primary-background-active)] disabled:bg-[var(--button-primary-background-disabled)] disabled:text-[var(--button-primary-text-disabled)]",
         secondary:
           "border-[var(--button-border-default)] bg-[var(--button-secondary-background-default)] text-[var(--button-text-secondary)] hover:bg-[var(--button-secondary-background-hover)] active:bg-[var(--button-secondary-background-active)] disabled:border-[var(--button-primary-background-disabled)] disabled:text-[var(--button-text-disabled)]",
+        pill:
+          "rounded-[var(--control-pill-radius)] border-0 bg-[var(--control-pill-surface)] font-medium text-[var(--button-pill-text)] shadow-[var(--button-pill-shadow)] hover:bg-[var(--button-pill-surface-hover)] active:bg-[var(--button-pill-surface-active)] disabled:bg-[var(--button-primary-background-disabled)] disabled:text-[var(--button-text-disabled)]",
+        pillOption:
+          "rounded-[var(--control-pill-radius)] border-[var(--button-pill-option-border)] bg-[var(--control-pill-surface)] font-medium text-[var(--button-pill-text)] shadow-[var(--button-pill-option-shadow)] disabled:opacity-50",
         ghost:
           "bg-transparent text-[var(--button-text-default)] hover:bg-[var(--button-ghost-background-hover)] active:bg-[var(--button-ghost-background-active)] disabled:text-[var(--button-text-disabled)]",
         danger:
@@ -22,6 +26,7 @@ const buttonVariants = cva(
       size: {
         sm: "h-[var(--button-height-sm)] gap-[var(--button-gap-sm)] px-[var(--button-padding-inline-sm)] [&_svg:not([class*='size-'])]:size-3.5",
         md: "h-[var(--button-height-md)] gap-[var(--button-gap-md)] px-[var(--button-padding-inline-md)] [&_svg:not([class*='size-'])]:size-4",
+        lg: "h-[var(--button-height-lg)] gap-[var(--button-gap-lg)] px-[var(--button-padding-inline-lg)] text-[length:var(--button-font-size-lg)] [&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {

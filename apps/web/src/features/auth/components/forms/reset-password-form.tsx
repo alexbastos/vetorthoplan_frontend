@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, type FormEvent } from "react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -12,47 +12,56 @@ import { useResetPassword } from "../../hooks/use-reset-password"
 
 type ResetPasswordFormProps = {
   token?: string
+  preview?: boolean
 }
 
-function ResetPasswordForm({ token }: ResetPasswordFormProps) {
+function ResetPasswordForm({ token, preview = false }: ResetPasswordFormProps) {
   const t = useTranslations("auth")
   const { form, isSubmitting, onSubmit } = useResetPassword(token)
   const formRef = useRef<HTMLElement>(null)
 
   useResetPasswordFormEntrance(formRef)
 
+  const handlePreviewSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+  }
+
   return (
-    <section ref={formRef} className="mx-auto w-full max-w-sm space-y-4">
-      <header className="space-y-2" data-reset-password-step>
-        <h1 className="text-heading-4 text-foreground">{t("resetPassword.title")}</h1>
-        <p className="text-ui text-content-secondary">
-          {t("resetPassword.description")}
-        </p>
+    <section ref={formRef} className="mx-auto w-full max-w-[26rem] space-y-6">
+      <header className="space-y-2 text-center" data-reset-password-step>
+        <h1 className="text-heading-2 text-foreground">{t("resetPassword.title")}</h1>
+        <p className="text-ui text-content-secondary">{t("resetPassword.description")}</p>
       </header>
 
-      <form className="space-y-4" noValidate onSubmit={onSubmit}>
+      <form className="space-y-4" noValidate onSubmit={preview ? handlePreviewSubmit : onSubmit}>
         <div data-reset-password-step>
           <PasswordInputField
             {...form.register("password")}
+            aria-label={t("fields.newPassword")}
             autoComplete="new-password"
             error={form.formState.errors.password?.message}
             label={t("fields.newPassword")}
-            placeholder={t("fields.newPasswordPlaceholder")}
+            placeholder={t("fields.newPassword")}
             required
+            showLabel={false}
+            variant="pill"
           />
         </div>
         <div data-reset-password-step>
           <PasswordInputField
             {...form.register("confirmPassword")}
+            aria-label={t("fields.confirmPassword")}
             autoComplete="new-password"
             error={form.formState.errors.confirmPassword?.message}
             label={t("fields.confirmPassword")}
-            placeholder={t("fields.confirmPasswordPlaceholder")}
+            placeholder={t("fields.confirmPassword")}
             required
+            showLabel={false}
+            variant="pill"
           />
         </div>
         <div data-reset-password-step>
-          <Button className="w-full" loading={isSubmitting} type="submit">
+          <Button className="w-full" loading={preview ? false : isSubmitting} type="submit" variant="pill">
             {t("resetPassword.submit")}
           </Button>
         </div>
@@ -60,7 +69,7 @@ function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
       <p className="text-center text-ui text-content-secondary" data-reset-password-step>
         {t("shared.rememberedPassword")}{" "}
-        <AuthNavLink className="font-semibold text-foreground" href="/login">
+        <AuthNavLink className="font-medium text-foreground hover:underline" href="/login">
           {t("shared.signIn")}
         </AuthNavLink>
       </p>
