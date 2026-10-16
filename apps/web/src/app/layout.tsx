@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { JetBrains_Mono } from "next/font/google";
 import { getLocale, getMessages, getTimeZone, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { getCanonicalUrl } from "@/lib/seo/public-routes";
 import { Providers } from "./providers";
+
+const jetBrainsMono = JetBrains_Mono({
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common.metadata")
@@ -21,7 +28,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={locale}
-      className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers locale={locale} messages={messages} timeZone={timeZone}>{children}</Providers>

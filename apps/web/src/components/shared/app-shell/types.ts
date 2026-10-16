@@ -5,7 +5,7 @@ type AppSidebarState = "collapsed" | "expanded"
 type AppNavigationItem = {
   href: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
-  translationKey: "help" | "home" | "settings"
+  translationKey: "cases" | "help" | "home" | "settings"
 }
 
 type HeaderAppProps = {

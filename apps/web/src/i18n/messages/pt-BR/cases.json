@@ -1,0 +1,276 @@
+{
+  "metadataTitle": "Casos",
+  "newCaseMetadataTitle": "Novo caso",
+  "eyebrow": "Casos clínicos",
+  "title": "Casos",
+  "description": "Organize e acompanhe os casos clínicos dos seus pacientes.",
+  "actions": {
+    "newCase": "Novo Caso",
+    "createCase": "Criar novo caso",
+    "backToCases": "Voltar para casos",
+    "retry": "Tentar novamente"
+  },
+  "empty": {
+    "title": "Nenhum caso ainda",
+    "description": "Crie seu primeiro caso e comece o planejamento ortopédico."
+  },
+  "list": {
+    "title": "Casos cadastrados",
+    "count": "{count, plural, one {# caso} other {# casos}}",
+    "caption": "Lista de casos clínicos cadastrados",
+    "caseId": "ID {id}",
+    "fileCount": "{count, plural, one {# arquivo} other {# arquivos}}",
+    "notInformed": "Não informado",
+    "previewUnavailable": "Prévia indisponível",
+    "thumbnailAlt": "Prévia do caso {title}",
+    "updatedAt": "Atualizado em {date}",
+    "filters": {
+      "label": "Filtrar casos por status",
+      "all": "Todos",
+      "draft": "Rascunhos",
+      "in-progress": "Em andamento",
+      "completed": "Concluídos",
+      "archived": "Arquivados"
+    },
+    "emptyFilter": {
+      "title": "Nenhum caso nesta categoria",
+      "description": "Os casos aparecerão aqui quando chegarem a esta etapa.",
+      "action": "Ver todos os casos"
+    },
+    "columns": {
+      "case": "Caso",
+      "patient": "Paciente",
+      "profile": "Espécie e raça",
+      "status": "Status",
+      "updatedAt": "Atualizado em"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "in-progress": "Em andamento",
+      "completed": "Concluído",
+      "archived": "Arquivado"
+    }
+  },
+  "states": {
+    "loading": "Carregando casos...",
+    "loadErrorTitle": "Não foi possível carregar os casos",
+    "loadErrorDescription": "Tente novamente em alguns instantes."
+  },
+  "newCase": {
+    "title": "Novo caso clínico",
+    "description": "Registre as informações clínicas e os dados do paciente para iniciar um novo planejamento.",
+    "progress": {
+      "label": "Progresso da criação do caso",
+      "case-details": "Dados",
+      "file-import": "Arquivos",
+      "progressValue": "{step}: {progress}% preenchido"
+    },
+    "sections": {
+      "case": {
+        "title": "Identificação do caso",
+        "description": "Defina um título curto para localizar este caso com facilidade."
+      },
+      "patient": {
+        "title": "Dados do paciente",
+        "description": "Informe os dados básicos do animal atendido."
+      },
+      "clinical": {
+        "title": "Informações clínicas",
+        "description": "Adicione o contexto necessário para iniciar o planejamento ortopédico."
+      }
+    },
+    "fields": {
+      "title": "Título",
+      "patientName": "Nome do animal",
+      "species": "Espécie",
+      "breed": "Raça",
+      "sex": "Sexo",
+      "age": "Nascimento ou idade",
+      "ageMode": "Formato da idade",
+      "ageYears": "Idade",
+      "birthDate": "Data de nascimento",
+      "weightKg": "Peso (kg)",
+      "clinicalNotes": "Notas clínicas"
+    },
+    "placeholders": {
+      "title": "Avaliação ortopédica — joelho direito",
+      "patientName": "Luna",
+      "species": "Canina, felina, ave...",
+      "breed": "Labrador Retriever",
+      "ageYears": "4",
+      "birthDate": "dd/mm/aaaa",
+      "weightKg": "32,5",
+      "clinicalNotes": "Descreva sintomas, histórico, duração e observações relevantes."
+    },
+    "species": {
+      "canine": "Canina",
+      "feline": "Felina",
+      "equine": "Equina",
+      "other": "Outra"
+    },
+    "sex": {
+      "male": "Macho",
+      "female": "Fêmea",
+      "not-informed": "Não informado"
+    },
+    "ageModes": {
+      "approximate-years": "Idade aproximada",
+      "birth-date": "Data de nascimento"
+    },
+    "actions": {
+      "back": "Voltar",
+      "cancel": "Cancelar",
+      "increaseAge": "Aumentar idade em um ano",
+      "decreaseAge": "Diminuir idade em um ano",
+      "continue": "Continuar",
+      "continuing": "Avançando...",
+      "create": "Criar caso",
+      "creating": "Criando caso...",
+      "finish": "Concluir",
+      "importing": "Importando...",
+      "save": "Salvar",
+      "saving": "Salvando..."
+    },
+    "validation": {
+      "titleRequired": "Informe um título para o caso.",
+      "titleMax": "O título deve ter no máximo 160 caracteres.",
+      "patientNameRequired": "Informe o nome do animal.",
+      "sexRequired": "Selecione o sexo do animal.",
+      "patientNameMax": "O nome deve ter no máximo 120 caracteres.",
+      "speciesRequired": "Informe a espécie.",
+      "speciesMax": "A espécie deve ter no máximo 80 caracteres.",
+      "breedMax": "A raça deve ter no máximo 120 caracteres.",
+      "ageYears": "Informe uma idade entre 0 e 80 anos.",
+      "birthDate": "Informe uma data de nascimento válida.",
+      "birthDateOrAge": "Informe a data de nascimento ou a idade aproximada, não ambos.",
+      "weight": "Informe um peso entre 0,01 e 1.000 kg.",
+      "clinicalNotesMax": "As notas clínicas devem ter no máximo 1.000 caracteres."
+    },
+    "notifications": {
+      "createdTitle": "Caso criado com sucesso",
+      "createdDescription": "Agora importe os arquivos clínicos deste caso.",
+      "createErrorTitle": "Não foi possível criar o caso",
+      "validationError": "Revise os campos informados e tente novamente.",
+      "unavailableError": "O cadastro estará disponível assim que a integração com o servidor for ativada.",
+      "genericError": "Ocorreu um erro inesperado. Tente novamente."
+    },
+    "fileImport": {
+      "title": "Enviar arquivos",
+      "description": "Adicione os arquivos necessários para iniciar o planejamento deste caso.",
+      "sectionTitle": "Arquivos do caso",
+      "sectionDescription": "Selecione os arquivos relacionados a “{caseTitle}”.",
+      "fieldLabel": "Arquivos clínicos",
+      "dropTitle": "Escolha arquivos ou arraste e solte aqui",
+      "dropAction": "ou clique para selecionar",
+      "formats": "DICOM, JPEG, PNG, PDF e MP4, até 50 MB por arquivo.",
+      "browse": "Escolher arquivos",
+      "close": "Voltar aos dados do caso",
+      "preparing": "Preparando arquivo...",
+      "ready": "Concluído",
+      "importing": "Enviando...",
+      "selectedFiles": "{count, plural, one {# arquivo selecionado} other {# arquivos selecionados}}",
+      "removeFile": "Remover {fileName}",
+      "validation": {
+        "required": "Selecione pelo menos um arquivo para continuar.",
+        "empty": "O arquivo selecionado está vazio.",
+        "unsupportedType": "Selecione somente arquivos DICOM, JPEG, PNG, PDF ou MP4.",
+        "tooLarge": "Cada arquivo deve ter no máximo 50 MB.",
+        "duplicate": "Este arquivo já foi selecionado."
+      },
+      "notifications": {
+        "importedTitle": "Arquivos importados com sucesso",
+        "importedDescription": "Os arquivos foram vinculados ao caso clínico.",
+        "importErrorTitle": "Não foi possível importar os arquivos",
+        "caseNotFound": "O caso criado não foi encontrado. Volte à lista e tente novamente.",
+        "createUnavailableError": "A criação do caso estará disponível assim que a integração com o servidor for ativada.",
+        "unavailableError": "A importação estará disponível assim que a integração com o servidor for ativada.",
+        "validationError": "Revise os arquivos selecionados e tente novamente.",
+        "genericError": "Ocorreu um erro inesperado. Tente novamente."
+      }
+    }
+  },
+  "workspace": {
+    "metadataTitle": "Planejamento do caso",
+    "eyebrow": "Quadro do caso",
+    "back": "Voltar",
+    "backToCases": "Voltar para casos",
+    "theme": { "label": "Tema da interface", "light": "Modo claro", "dark": "Modo escuro" },
+    "sidebar": { "label": "Dados e imagens do caso", "title": "Caso", "id": "ID do caso", "ageYears": "{count, plural, one {# ano} other {# anos}}", "ageUnknown": "Idade não informada", "sex": { "male": "Macho", "female": "Fêmea", "notInformed": "Sexo não informado" } },
+    "caseDetails": {
+      "heading": "Detalhes do caso",
+      "identification": "Identificação",
+      "patient": "Paciente",
+      "species": "Espécie",
+      "breed": "Raça",
+      "sexLabel": "Sexo",
+      "sex": { "male": "Macho", "female": "Fêmea", "notInformed": "Não informado" },
+      "age": "Idade",
+      "ageYears": "{count, plural, one {# ano} other {# anos}}",
+      "birthDate": "Nascimento",
+      "weight": "Peso",
+      "clinical": "Notas clínicas",
+      "record": "Registro",
+      "status": "Status",
+      "createdAt": "Criado em",
+      "updatedAt": "Atualizado em",
+      "id": "ID do caso",
+      "notInformed": "Não informado"
+    },
+    "retry": "Tentar novamente",
+    "loading": "Carregando quadro do caso...",
+    "draft": "Rascunho",
+    "progress": { "label": "Etapas do planejamento", "details": "01 Dados", "files": "02 Arquivos", "calibrate": "03 Calibrar" },
+    "panel": { "region": "Painel do quadro", "navigation": "Áreas do quadro", "tools": "Ferramentas", "image": "Imagem", "navigationGroup": "Navegação", "moveImage": "Mover imagem", "calibrationGroup": "Calibração", "openCalibration": "Calibrar imagem", "scaleReady": "Escala validada nesta imagem.", "scaleChanged": "Há ajustes de calibração não validados.", "invertColors": "Cores invertidas" },
+    "missing": { "title": "Caso não encontrado", "description": "Este caso não está disponível nesta sessão. Volte à lista para localizar outro caso." },
+    "error": { "title": "Não foi possível abrir o quadro", "description": "O planejamento não está disponível agora. Tente novamente em instantes." },
+    "images": {
+      "title": "Imagens",
+      "count": "{count, plural, one {# imagem} other {# imagens}}",
+      "empty": "Nenhuma radiografia neste caso. Adicione um DICOM, JPEG ou PNG para começar.",
+      "uploadedOn": "Enviada em {date}",
+      "uploadDateUnavailable": "Data de envio indisponível",
+      "actions": {
+        "menu": "Opções de {name}",
+        "rename": "Renomear",
+        "copy": "Copiar",
+        "delete": "Excluir",
+        "copySuffix": "cópia",
+        "renameTitle": "Renomear imagem",
+        "renameDescription": "Altere o nome. O formato do arquivo será mantido.",
+        "name": "Nome da imagem",
+        "invalidName": "Informe um nome válido, sem barras e com até 255 caracteres.",
+        "deleteTitle": "Excluir imagem?",
+        "deleteDescription": "A imagem “{name}” e sua calibração serão removidas deste caso.",
+        "cancel": "Cancelar",
+        "save": "Salvar nome",
+        "renameSuccess": "Imagem renomeada",
+        "copySuccess": "Cópia adicionada ao caso",
+        "deleteSuccess": "Imagem excluída",
+        "unavailable": "As alterações nas imagens estarão disponíveis após a integração com o servidor.",
+        "error": "Não foi possível alterar a imagem. Tente novamente."
+      },
+      "status": { "calibrated": "Calibrada", "uncalibrated": "Não calibrada", "processing": "Processando", "unavailable": "Prévia indisponível" }
+    },
+    "attachments": "Anexos do caso",
+    "noImage": { "title": "Comece por uma radiografia", "description": "Adicione uma imagem do caso para visualizá-la e definir sua escala.", "panel": "As opções de calibração aparecerão quando uma radiografia estiver pronta." },
+    "upload": { "add": "Adicionar arquivos", "invalid": "Selecione DICOM, JPEG, PNG, PDF ou MP4 de até 50 MB por arquivo.", "success": "Arquivos adicionados ao caso", "unavailable": "O envio estará disponível após a integração com o servidor.", "error": "Não foi possível adicionar os arquivos." },
+    "imageState": { "processingTitle": "Preparando radiografia", "processingDescription": "A imagem está sendo processada. A calibração ficará disponível quando a visualização estiver pronta.", "unavailableTitle": "Não foi possível visualizar esta radiografia", "dicomDescription": "O visualizador DICOM ainda não está disponível nesta versão. O arquivo original permanece associado ao caso.", "invalidDescription": "Este arquivo não pôde ser decodificado como imagem. Confira o arquivo e tente enviar novamente." },
+    "viewer": { "region": "Visualizador da radiografia", "tools": "Ferramentas de visualização", "mark": "Marcar referência", "pan": "Mover imagem", "zoomOut": "Reduzir zoom", "zoomIn": "Aumentar zoom", "fit": "Ajustar à tela", "fullscreen": "Tela cheia", "exitFullscreen": "Sair da tela cheia", "imageAlt": "Radiografia {name}", "panHint": "Arraste para mover a imagem", "markHint": "Arraste sobre o marcador para definir a referência", "lineEditHint": "Arraste as pontas para ajustar ou a linha para mover", "circleEditHint": "Arraste a borda para ajustar ou o interior para mover" },
+    "calibration": {
+      "step": "Etapa 03 · Imagem",
+        "title": "Calibrar imagem", "backToImage": "Voltar às opções da imagem",
+      "description": "Defina uma referência conhecida para converter pixels em milímetros nesta imagem.",
+      "status": { "calibrated": "Calibrada", "uncalibrated": "Não calibrada" },
+        "imageInfo": "Dados da radiografia", "imageInfoHelp": "A incidência descreve a direção do raio X; o membro indica se a imagem é do lado esquerdo ou direito. Esses dados não alteram a calibração.", "view": "Incidência", "laterality": "Membro", "unknown": "Não informado", "orientationSaving": "Salvando dados da radiografia...", "orientationUnavailable": "Os dados da radiografia poderão ser salvos após a integração com o servidor.", "orientationError": "Não foi possível salvar os dados da radiografia.",
+      "views": { "craniocaudal": "Craniocaudal", "mediolateral": "Mediolateral", "other": "Outra" },
+      "sides": { "left": "Esquerdo", "right": "Direito" },
+        "markerTitle": "Forma do marcador", "markerStep": "1 de 2", "markerHelp": "Escolha a forma e marque uma referência de tamanho conhecido sobre a radiografia.", "methodLabel": "Forma do marcador", "line": "Linha", "circle": "Círculo", "circleUnavailable": "Círculo indisponível nesta imagem: os pixels têm proporções diferentes.", "lineHint": "Arraste de uma extremidade à outra da régua ou referência visível.", "circleHint": "Arraste do centro até a borda de uma esfera ou disco de referência.", "notReady": "A calibração ficará disponível quando esta imagem puder ser visualizada.",
+        "coordinates": { "title": "Ajuste por coordenadas", "help": "Pixels da imagem: {width} × {height}", "invalid": "Informe coordenadas válidas dentro da imagem e uma marcação de pelo menos 2 pixels.", "startX": "Início X", "startY": "Início Y", "endX": "Fim X", "endY": "Fim Y", "centerX": "Centro X", "centerY": "Centro Y", "radius": "Raio (px)", "apply": "Aplicar marcação" },
+        "presetTitle": "Escala (cm)", "rulerLabel": "Tamanho do marcador em centímetros", "scaleUnset": "—", "otherSize": "Outro valor", "useRuler": "Usar régua", "chooseMarkerSize": "Selecione a escala e marque a referência na imagem.", "drawSizedLine": "Marque {size} cm da referência na imagem.", "drawSizedCircle": "Ajuste o círculo ao marcador de {size} cm de diâmetro.",
+        "referenceTitle": "Tamanho real", "referenceLabel": "Outra medida", "referencePlaceholder": "Ex.: 2,5", "referenceHelp": "Informe o tamanho real da linha ou o diâmetro do círculo em milímetros.", "invalidScale": "Revise a marcação e a medida informada.",
+      "scaleTitle": "Escala da imagem", "scalePreview": "Prévia calculada", "savedScale": "Escala salva", "pendingScale": "Marque e informe o tamanho para calcular", "rowScale": "Vertical: {value} mm/px", "dicomEvidence": "Este DICOM contém dados de escala que exigem revisão antes de uso clínico.",
+      "save": "Validar calibração", "update": "Atualizar calibração", "reset": "Descartar ajustes", "unsavedMarker": "Marcação alterada", "saved": "Calibração salva para esta radiografia", "conflict": "A calibração foi alterada em outra sessão. Reabra o caso antes de salvar.", "unavailable": "A gravação estará disponível após a integração com o servidor.", "saveError": "Não foi possível salvar a calibração.",
+      "displayTitle": "Visualização", "displayHelp": "Brilho e contraste alteram apenas a exibição, sem modificar a escala.", "brightness": "Brilho", "contrast": "Contraste"
+    }
+  }
+}

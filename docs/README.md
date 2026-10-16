@@ -1,6 +1,6 @@
 # Documentação
 
-- [PRD da CAPTAGOV](./prd-captagov.md): visão de produto, escopo do MVP, requisitos e roadmap de validação.
+- [PRD da Orthovet](./prd-vetorthoplan.md): visão de produto, escopo do MVP, requisitos, segurança clínica e roadmap de validação.
 - [Contrato OpenAPI da Authentication API](./openapi/authentication-api.openapi.json): fonte versionada usada para gerar os tipos do cliente.
 - [Feature de autenticação](../apps/web/src/features/auth/README.md): responsabilidades do navegador e do BFF para login, MFA, senhas, recuperação, renovação de sessão e logout.
 - [Feature de configurações](../apps/web/src/features/settings/README.md): contratos de perfil e avatar, validação das sessões ativas e revogação de dispositivos.

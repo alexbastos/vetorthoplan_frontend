@@ -6,21 +6,31 @@ type EmptyStateProps = {
   action?: ReactNode
   className?: string
   description?: ReactNode
+  descriptionClassName?: string
   illustration?: ReactNode
   title: ReactNode
+  titleClassName?: string
 }
 
-function EmptyState({ action, className, description, illustration, title }: EmptyStateProps) {
+function EmptyState({
+  action,
+  className,
+  description,
+  descriptionClassName,
+  illustration,
+  title,
+  titleClassName,
+}: EmptyStateProps) {
   const titleId = useId()
 
   return (
     <section aria-labelledby={titleId} className={cn("flex w-full max-w-md flex-col items-center text-center", className)}>
-      {illustration ? <div className="mb-5">{illustration}</div> : null}
-      <h2 id={titleId} className="text-ui-semibold text-foreground">
+      {illustration ? <div className="mb-5" data-empty-state-part="illustration">{illustration}</div> : null}
+      <h2 id={titleId} className={cn("text-ui-semibold text-foreground", titleClassName)} data-empty-state-part="title">
         {title}
       </h2>
-      {description ? <p className="mt-2 text-ui text-content-secondary">{description}</p> : null}
-      {action ? <div className="mt-5">{action}</div> : null}
+      {description ? <p className={cn("mt-2 text-ui text-content-secondary", descriptionClassName)} data-empty-state-part="description">{description}</p> : null}
+      {action ? <div className="mt-5" data-empty-state-part="action">{action}</div> : null}
     </section>
   )
 }

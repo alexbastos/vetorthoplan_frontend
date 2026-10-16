@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, type FormEvent } from "react"
+import { useRef } from "react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -12,19 +12,14 @@ import { useResetPassword } from "../../hooks/use-reset-password"
 
 type ResetPasswordFormProps = {
   token?: string
-  preview?: boolean
 }
 
-function ResetPasswordForm({ token, preview = false }: ResetPasswordFormProps) {
+function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const t = useTranslations("auth")
   const { form, isSubmitting, onSubmit } = useResetPassword(token)
   const formRef = useRef<HTMLElement>(null)
 
   useResetPasswordFormEntrance(formRef)
-
-  const handlePreviewSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-  }
 
   return (
     <section ref={formRef} className="mx-auto w-full max-w-[26rem] space-y-6">
@@ -33,7 +28,7 @@ function ResetPasswordForm({ token, preview = false }: ResetPasswordFormProps) {
         <p className="text-ui text-content-secondary">{t("resetPassword.description")}</p>
       </header>
 
-      <form className="space-y-4" noValidate onSubmit={preview ? handlePreviewSubmit : onSubmit}>
+      <form className="space-y-4" noValidate onSubmit={onSubmit}>
         <div data-reset-password-step>
           <PasswordInputField
             {...form.register("password")}
@@ -61,7 +56,7 @@ function ResetPasswordForm({ token, preview = false }: ResetPasswordFormProps) {
           />
         </div>
         <div data-reset-password-step>
-          <Button className="w-full" loading={preview ? false : isSubmitting} type="submit" variant="pill">
+          <Button className="w-full" loading={isSubmitting} type="submit" variant="pill">
             {t("resetPassword.submit")}
           </Button>
         </div>

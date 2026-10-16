@@ -54,7 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           disabled={disabled}
           data-slot="input-control"
           className={cn(
-            "min-w-0 flex-1 bg-transparent text-ui text-[var(--input-text)] outline-none placeholder:text-[var(--input-placeholder)] disabled:cursor-not-allowed disabled:text-[var(--input-text-disabled)] disabled:placeholder:text-[var(--input-text-disabled)]",
+            "min-w-0 flex-1 bg-transparent text-ui text-[var(--input-text)] outline-none placeholder:text-[length:var(--input-placeholder-size)] placeholder:text-[var(--input-placeholder)] disabled:cursor-not-allowed disabled:text-[var(--input-text-disabled)] disabled:placeholder:text-[var(--input-text-disabled)]",
             className
           )}
           {...props}

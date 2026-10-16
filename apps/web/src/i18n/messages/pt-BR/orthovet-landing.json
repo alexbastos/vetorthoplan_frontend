@@ -1,0 +1,182 @@
+{
+  "header": {
+    "navigationLabel": "Navegação principal",
+    "homeLabel": "Orthovet — início",
+    "navigation": {
+      "platform": "Plataforma",
+      "workflow": "Como funciona",
+      "specialties": "Especialidades"
+    },
+    "login": "Entrar",
+    "demo": "Solicitar demonstração"
+  },
+  "hero": {
+    "eyebrow": "Planejamento ortopédico veterinário",
+    "titleLine1": "Planeje com precisão para",
+    "titleLine2": "operar com clareza.",
+    "description": "Transforme radiografias em planos cirúrgicos rastreáveis, com medições, simulação de implantes e relatórios em um só ambiente.",
+    "primaryAction": "Conhecer a plataforma",
+    "screenFrame": {
+      "label": "Prévia da plataforma Orthovet",
+      "title": "Planejamento digital, do exame à decisão.",
+      "description": "Uma área dedicada para visualizar o fluxo clínico será apresentada aqui.",
+      "status": "Em preparação"
+    }
+  },
+  "marketingMockup": {
+    "navigationLabel": "Etapas do planejamento",
+    "profileName": "Dr. Marcos Paulo",
+    "clinicName": "Clínica VetCare",
+    "caseGroup": "Caso",
+    "planningGroup": "Planejamento",
+    "filesGroup": "Arquivos",
+    "outputGroup": "Saída",
+    "images": "Imagens",
+    "calibration": "Calibração",
+    "measurements": "Medições",
+    "simulation": "Simulação",
+    "addFile": "Adicionar arquivo",
+    "lateralFile": "RX lateral.jpg",
+    "cranialFile": "RX cranial.jpg",
+    "examsFile": "Exames.pdf",
+    "report": "Relatório"
+  },
+  "intro": {
+    "label": "Conheça a Orthovet",
+    "firstLead": "Planeje a cirurgia sobre a própria radiografia.",
+    "firstBody": "Calibre a imagem, faça medições e simule implantes em um só ambiente, visualizando o plano antes de operar.",
+    "secondLead": "Do exame ao relatório, cada etapa permanece ligada ao caso.",
+    "secondBody": "Você pode revisar as referências e organizar as decisões do planejamento com clareza."
+  },
+  "platform": {
+    "title": "Do caso ao plano cirúrgico, sem perder o contexto.",
+    "case": {
+      "title": "Tudo reunido no caso",
+      "lead": "O contexto fica à mão.",
+      "description": "Organize paciente, radiografias e informações clínicas antes de planejar."
+    },
+    "precision": {
+      "title": "Precisão sobre a imagem",
+      "lead": "Cada medida tem referência.",
+      "description": "Calibre a radiografia, trace eixos e avalie medidas no mesmo ambiente."
+    },
+    "review": {
+      "title": "Plano visual e revisável",
+      "lead": "A decisão ganha contexto.",
+      "description": "Simule implantes, salve versões e prepare o relatório para revisão clínica."
+    }
+  },
+  "workflow": {
+    "eyebrow": "Fluxo de planejamento",
+    "title": "Da radiografia ao plano, em um fluxo rastre\u00e1vel.",
+    "descriptionMuted": "Centralize o exame, a escala, as medi\u00e7\u00f5es, a simula\u00e7\u00e3o",
+    "descriptionEmphasis": "e a revis\u00e3o profissional antes da cirurgia.",
+    "workspace": {
+      "label": "Pr\u00e9via do fluxo de planejamento Orthovet",
+      "title": "Planejamento digital, do exame \u00e0 decis\u00e3o.",
+      "description": "A interface cl\u00ednica detalhada ser\u00e1 apresentada nesta \u00e1rea.",
+      "status": "Em prepara\u00e7\u00e3o"
+    },
+    "caseBuilder": {
+      "label": "Pr\u00e9via da constru\u00e7\u00e3o de um caso Orthovet",
+      "title": "Construa o caso",
+      "description": "Re\u00fana paciente, contexto cl\u00ednico e arquivos de imagem antes de iniciar o planejamento.",
+      "identification": "Identifica\u00e7\u00e3o",
+      "caseName": "Nome do caso",
+      "caseValue": "THR \u00b7 Luna",
+      "patient": "Paciente",
+      "patientValue": "Luna \u00b7 Canino \u00b7 8 anos",
+      "clinicalContext": "Contexto cl\u00ednico",
+      "clinicalNote": "Avalia\u00e7\u00e3o pr\u00e9-operat\u00f3ria para planejamento de quadril esquerdo.",
+      "files": "Arquivos do caso",
+      "fileCount": "2 arquivos associados",
+      "upload": "Adicionar exames e documentos",
+      "radiograph": "Radiografia lateral",
+      "documents": "Hist\u00f3rico cl\u00ednico",
+      "readiness": "Completude do caso",
+      "readyStatus": "Pronto para planejar",
+      "saveAction": "Salvar caso",
+      "saved": "Caso salvo",
+      "stepStatus": "Etapa 01 de 04"
+    },
+    "calibrationScene": {
+      "label": "Pr\u00e9via da calibra\u00e7\u00e3o de escala de uma radiografia Orthovet",
+      "title": "Calibre a escala",
+      "description": "Defina a refer\u00eancia e ajuste a escala antes de medir.",
+      "stepStatus": "Etapa 02 de 04",
+      "image": "Radiografia lateral",
+      "guidance": "Ajuste manual assistido",
+      "mirror": "Espelhar radiografia",
+      "orientation": "Orienta\u00e7\u00e3o do paciente",
+      "orientationLeft": "Esquerda",
+      "orientationRight": "Direita",
+      "scale": "Escala conhecida",
+      "customScale": "Outro",
+      "action": "Calibrar imagem",
+      "unitValue": "mm"
+    },
+    "measurementScene": {
+      "label": "Bancada de ferramentas de medição e simulação cirúrgica Orthovet",
+      "title": "Meça e simule",
+      "stepStatus": "Etapa 03 de 04",
+      "image": "Imagem calibrada",
+      "tools": "Ferramentas de planejamento",
+      "distance": "Distância",
+      "distanceDescription": "Meça a distância entre dois pontos.",
+      "angle": "Ângulo",
+      "sawBlade": "Lâmina em arco",
+      "sawBladeDescription": "Ajuste o arco e o diâmetro do corte.",
+      "reposition": "Reposicionar",
+      "repositionDescription": "Recorte uma área livre e reposicione.",
+      "simulation": "Simulação técnica",
+      "measurementValue": "11,8",
+      "unit": "mm",
+      "calibration": "Escala válida",
+      "angleValue": "87°",
+      "implant": "Implante",
+      "implantSize": "25",
+      "planStatus": "Plano alinhado"
+    },
+    "ui": {
+      "caseId": "Caso OV-0248",
+      "caseLabel": "Planejamento pr\u00e9-operat\u00f3rio",
+      "imageLabel": "Radiografia lateral",
+      "imageSecondary": "Radiografia craniocaudal",
+      "imageTertiary": "Radiografia obl\u00edqua",
+      "information": "Caso",
+      "surgical": "Cir\u00fargico",
+      "professional": "M\u00f3vel",
+      "sharing": "Refer\u00eancia e compartilhamento",
+      "addSurgeon": "Adicionar cirurgi\u00e3o",
+      "images": "Imagens",
+      "tools": "Ferramentas",
+      "imageTab": "Imagem",
+      "calibration": "Calibra\u00e7\u00e3o v\u00e1lida",
+      "reference": "Refer\u00eancia: esfera 25 mm",
+      "measurements": "Medi\u00e7\u00f5es",
+      "measurementAxis": "Eixo anat\u00f4mico",
+      "measurementAngle": "Medida linear",
+      "implant": "Implante planejado",
+      "implantDescription": "Item de biblioteca versionada para revis\u00e3o profissional.",
+      "version": "Plano v1 \u00b7 rascunho"
+    },
+    "steps": {
+      "import": {
+        "title": "Construa o caso",
+        "description": "Re\u00fana dados do paciente, radiografias e contexto cl\u00ednico em um caso organizado e rastre\u00e1vel."
+      },
+      "calibrate": {
+        "title": "Calibre a escala",
+        "description": "Registre refer\u00eancia, unidade e fator de calibra\u00e7\u00e3o antes das medi\u00e7\u00f5es."
+      },
+      "plan": {
+        "title": "Me\u00e7a e simule",
+        "description": "Trace eixos, registre medidas e posicione implantes versionados sobre a imagem."
+      },
+      "review": {
+        "title": "Revise o plano",
+        "description": "Salve vers\u00f5es, identifique o respons\u00e1vel e prepare o relat\u00f3rio cl\u00ednico."
+      }
+    }
+  }
+}

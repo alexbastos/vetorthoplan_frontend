@@ -20,13 +20,13 @@ function ThemePreferenceField() {
     <section aria-labelledby="theme-preference-title" className="border-b border-border py-4">
       <div className="pb-2">
         <h3 className="text-ui font-semibold text-foreground" id="theme-preference-title">{t("theme")}</h3>
-        <p className="mt-1 text-caption text-content-secondary">{t("themeHint")}</p>
+        <p className="mt-1 text-caption text-description">{t("themeHint")}</p>
       </div>
 
       <div className="grid gap-5 border-t border-border pt-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.7fr)] lg:gap-8">
         <div>
           <h4 className="text-ui font-semibold text-foreground">{t("displayMode")}</h4>
-          <p className="mt-1 text-caption text-content-secondary">{t("displayModeHint")}</p>
+          <p className="mt-1 text-caption text-description">{t("displayModeHint")}</p>
         </div>
         <div aria-label={t("displayMode")} className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup">
           {themeOptions.map((option) => (

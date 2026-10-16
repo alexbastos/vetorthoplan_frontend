@@ -13,7 +13,7 @@ const SelectValue = SelectPrimitive.Value
 function SelectTrigger({ children, className, ...props }: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
   return (
     <SelectPrimitive.Trigger
-      className={cn("flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-[var(--input-radius)] border border-border bg-card px-3 text-left text-[0.8125rem] font-medium text-foreground outline-none transition-colors hover:border-content-secondary focus-visible:border-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-content-disabled [&>span]:truncate", className)}
+      className={cn("flex h-[var(--input-height)] w-full cursor-pointer items-center justify-between gap-2 rounded-[var(--input-radius)] border border-[var(--input-border-default)] bg-[var(--input-surface-default)] px-[var(--input-padding-inline)] text-left text-[0.8125rem] font-medium text-foreground outline-none transition-colors hover:border-content-secondary focus-visible:border-[var(--input-border-focus)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-[var(--input-surface-disabled)] disabled:text-content-disabled [&>span]:truncate", className)}
       {...props}
     >
       {children}

@@ -4,9 +4,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@property --orthovet-glass-overlay {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
+  --font-data: var(--font-jetbrains-mono), var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
   --font-heading: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-weight-extralight: 200;
   --font-weight-regular: 400;
@@ -38,17 +45,27 @@
   --color-workspace: var(--color-surface-workspace);
   --color-stage: var(--color-surface-stage);
   --color-raised: var(--color-surface-raised);
+  --color-showcase: var(--color-surface-showcase);
   --color-inverse: var(--color-surface-inverse);
   --color-hover: var(--color-surface-hover);
+  --color-search: var(--color-surface-search);
+  --color-search-active: var(--color-surface-search-active);
   --color-selected: var(--color-surface-selected);
   --color-muted-strong: var(--color-surface-muted);
   --color-accent-soft: var(--color-surface-accent);
   --color-content-secondary: var(--color-text-secondary);
   --color-content-disabled: var(--color-text-disabled);
   --color-content-inverse: var(--color-text-inverse);
-  --color-primary-hover: var(--color-brand-primary-hover);
-  --color-primary-active: var(--color-brand-primary-active);
-  --color-primary-disabled: var(--color-brand-primary-disabled);
+  --color-tab-label: var(--color-tab-label-default);
+  --color-description: var(--color-description-default);
+  --color-icon-muted: var(--color-icon-muted-default);
+  --color-icon-active: var(--color-icon-active-default);
+  --color-sidebar-icon: var(--color-sidebar-icon-default);
+  --color-sidebar-icon-active: var(--color-sidebar-icon-active-default);
+  --color-step-index: var(--color-text-step-index);
+  --color-primary-hover: var(--button-primary-background-hover);
+  --color-primary-active: var(--button-primary-background-active);
+  --color-primary-disabled: var(--button-primary-background-disabled);
   --color-brand-accent: var(--brand-accent);
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-secondary-foreground: var(--color-obsidian);
@@ -119,6 +136,19 @@
   /* Paleta Aqua adaptada para a Orthovet. */
   --color-sky-signal: #67beff;
   --color-electric-iris: #4288ff;
+  --color-pink-400: #f472b6;
+  --color-pink-600: #db2777;
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
   --color-paper-white: #fafbfc;
   --color-mist: #f3f7fa;
   --color-fog: #f2f6fa;
@@ -160,25 +190,37 @@
 
   /* Cores semanticas */
   --color-surface-default: var(--color-paper-white);
-  --color-surface-sidebar: var(--color-paper-white);
-  --color-surface-workspace: var(--color-paper-white);
-  --color-surface-stage: var(--color-paper-white);
+  --color-surface-sidebar: var(--color-neutral-50);
+  --color-surface-workspace: var(--color-neutral-50);
+  --color-surface-stage: var(--color-neutral-0);
   --color-surface-raised: var(--color-mist);
-  --color-surface-card: var(--color-fog);
+  --color-surface-showcase: #f4f4f4;
+  --color-surface-card: var(--color-surface-stage);
   --color-surface-inverse: var(--color-obsidian);
-  --color-surface-subtle: var(--color-mist);
+  --color-surface-subtle: var(--color-neutral-100);
   --color-surface-subtle-hover: var(--color-ash);
   --color-surface-hover: var(--color-ash);
+  --color-surface-search: var(--color-neutral-100);
+  --color-surface-search-active: var(--color-neutral-0);
   --color-surface-selected: color-mix(in srgb, var(--color-sky-signal) 18%, var(--color-paper-white));
-  --color-surface-muted: var(--color-mist);
+  --color-surface-muted: var(--color-neutral-100);
   --color-surface-accent: color-mix(in srgb, var(--color-sky-signal) 8%, var(--color-paper-white));
-  --color-text-primary: var(--color-inkstone);
+  --color-text-primary: var(--color-obsidian);
   --color-text-secondary: var(--color-slate);
-  --color-text-muted: var(--color-pewter);
+  --color-text-muted: var(--color-neutral-500);
   --color-text-disabled: var(--color-silver);
+  --color-text-step-index: #dbdbdb;
   --color-text-inverse: var(--color-paper-white);
+  --color-tab-label-default: #8f8f8f;
+  --color-description-default: var(--color-neutral-400);
+  --color-icon-muted-default: #bbbbbb;
+  --color-icon-active-default: #555555;
+  --color-patient-sex-female: var(--color-pink-600);
+  --color-sidebar-icon-default: var(--color-neutral-700);
+  --color-sidebar-icon-active-default: var(--color-neutral-900);
+  --search-active-shadow: 0 1px 4px rgb(23 23 23 / 8%);
   --color-border-default: var(--color-linen);
-  --color-border-focus: var(--color-electric-iris);
+  --color-border-focus: var(--color-neutral-800);
   --color-brand-primary: var(--color-sky-signal);
   --color-brand-primary-hover: color-mix(in srgb, var(--color-sky-signal) 88%, var(--color-inkstone));
   --color-brand-primary-active: color-mix(in srgb, var(--color-sky-signal) 78%, var(--color-inkstone));
@@ -189,20 +231,21 @@
   --color-product-intelligence: var(--brand-secondary);
   --color-product-notices: var(--color-coral-700);
   --color-feedback-success: var(--color-sage-700);
+  --color-file-upload-success: #008747;
   --color-feedback-warning: var(--color-amber-700);
   --color-feedback-error: var(--color-coral-700);
   --color-feedback-info: var(--color-steel-700);
 
   /* Button — compacto, plano e com uma unica acao preenchida. */
-  --button-primary-background-default: var(--color-brand-primary);
-  --button-primary-background-hover: var(--color-brand-primary-hover);
-  --button-primary-background-active: var(--color-brand-primary-active);
-  --button-primary-background-disabled: var(--color-brand-primary-disabled);
+  --button-primary-background-default: var(--color-neutral-800);
+  --button-primary-background-hover: var(--color-neutral-800);
+  --button-primary-background-active: var(--color-neutral-900);
+  --button-primary-background-disabled: var(--color-neutral-200);
   --button-primary-text-disabled: var(--button-text-disabled);
   --button-secondary-background-default: transparent;
-  --button-secondary-background-hover: color-mix(in srgb, var(--color-electric-iris) 7%, transparent);
-  --button-secondary-background-active: color-mix(in srgb, var(--color-electric-iris) 12%, transparent);
-  --button-ghost-background-hover: var(--color-surface-subtle);
+  --button-secondary-background-hover: var(--color-surface-hover);
+  --button-secondary-background-active: var(--color-neutral-200);
+  --button-ghost-background-hover: var(--color-surface-hover);
   --button-ghost-background-active: var(--color-surface-subtle-hover);
   --button-danger-background-default: var(--color-coral-700);
   --button-danger-background-hover: var(--color-coral-800);
@@ -210,17 +253,19 @@
   --button-danger-background-disabled: var(--color-brand-primary-disabled);
   --button-danger-text-default: var(--color-paper-white);
   --button-danger-text-disabled: var(--button-text-disabled);
-  --button-text-inverse: var(--color-inkstone);
+  --button-text-inverse: var(--color-neutral-0);
   --button-text-default: var(--color-text-primary);
-  --button-text-secondary: var(--color-link-default);
+  --button-text-secondary: var(--color-neutral-800);
   --button-text-disabled: var(--color-text-disabled);
-  --button-border-default: var(--color-electric-iris);
-  --button-focus-color: var(--color-electric-iris);
+  --button-border-default: var(--color-neutral-300);
+  --button-focus-color: var(--color-border-focus);
   --button-focus-weight: 2px;
   --button-height-sm: 2.25rem;
   --button-height-md: 2.5rem;
   --button-height-lg: 3.5rem;
-  --button-radius: var(--radius-token-md);
+  --button-radius: var(--radius-token-full);
+  --button-font-size: 0.8125rem;
+  --button-line-height: 1.25rem;
   --button-gap-sm: var(--space-1);
   --button-gap-md: var(--space-2);
   --button-gap-lg: var(--space-2);
@@ -243,11 +288,12 @@
   --input-surface-default: var(--color-surface-card);
   --input-surface-disabled: var(--color-surface-subtle);
   --input-border-default: var(--color-linen);
-  --input-border-focus: var(--color-electric-iris);
+  --input-border-focus: var(--color-border-focus);
   --input-border-error: var(--color-feedback-error);
   --input-text: var(--color-text-primary);
   --input-text-disabled: var(--color-text-disabled);
   --input-placeholder: var(--color-graphite);
+  --input-placeholder-size: var(--type-ui-size);
   --input-height: 2.5rem;
   --input-radius: var(--radius-token-md);
   --input-gap: var(--space-2);
@@ -260,12 +306,26 @@
   --input-pill-border-focus-width: 2px;
   --input-pill-shadow: 0 1px 3px rgb(41 44 61 / 7%);
 
+  /* Editor focado de casos — camadas tonais e foco neutro. */
+  --case-editor-canvas: var(--color-neutral-100);
+  --case-editor-input-surface: var(--color-neutral-50);
+  --case-editor-input-border: #f0f0f0;
+  --case-editor-input-border-focus: #d0d0d0;
+  --case-editor-placeholder: #c0c0c0;
+  --case-editor-radio-active: #2563eb;
+  --case-progress-label: var(--color-neutral-400);
+  --case-progress-label-active: var(--case-editor-radio-active);
+  --case-progress-track: var(--color-neutral-200);
+  --case-progress-fill: var(--case-editor-radio-active);
+  --case-viewer-shell: #000;
+  --case-viewer-canvas: #000;
+
   /* Toast — feedback flutuante neutro, independente da severidade. */
   --toast-surface: #fff;
   --toast-border: var(--color-linen);
-  --toast-title: var(--color-inkstone);
+  --toast-title: var(--color-obsidian);
   --toast-description: var(--color-pewter);
-  --toast-icon: var(--color-slate);
+  --toast-icon: var(--color-obsidian);
   --toast-shadow: 0 8px 24px rgb(20 31 41 / 10%);
 
   /* Input Field — tokens semânticos documentados no Figma */
@@ -290,7 +350,7 @@
   --checkbox-surface-disabled: var(--color-brand-primary-disabled);
   --checkbox-border-default: var(--color-linen);
   --checkbox-border-hover: var(--color-brand-primary-hover);
-  --checkbox-border-focus: var(--color-brand-primary);
+  --checkbox-border-focus: var(--color-border-focus);
   --checkbox-border-disabled: var(--color-brand-primary-disabled);
   --checkbox-icon: var(--color-text-inverse);
 
@@ -301,7 +361,7 @@
   --card-base-gap: var(--space-4);
   --card-base-padding: var(--space-6);
   --card-base-radius: var(--radius-token-2xl);
-  --card-base-shadow: var(--shadow-card);
+  --card-base-shadow: none;
   --card-composite-surface: var(--color-mist);
   --card-composite-radius: var(--radius-token-lg);
   --card-composite-border: var(--color-border-default);
@@ -405,10 +465,10 @@
   --card-foreground: var(--color-text-primary);
   --popover: var(--color-surface-card);
   --popover-foreground: var(--color-text-primary);
-  --primary: var(--color-brand-primary);
-  --primary-foreground: var(--color-inkstone);
+  --primary: var(--button-primary-background-default);
+  --primary-foreground: var(--button-text-inverse);
   --secondary: transparent;
-  --secondary-foreground: var(--color-link-default);
+  --secondary-foreground: var(--button-text-secondary);
   --muted: var(--color-surface-subtle);
   --muted-foreground: var(--color-text-muted);
   --accent: var(--color-surface-subtle);
@@ -423,10 +483,10 @@
   --chart-3: #e5a000;
   --chart-4: #7c3aed;
   --chart-5: #38bdf8;
-  --sidebar: var(--color-surface-raised);
+  --sidebar: var(--color-surface-sidebar);
   --sidebar-foreground: var(--color-text-primary);
-  --sidebar-primary: var(--color-brand-primary);
-  --sidebar-primary-foreground: var(--color-inkstone);
+  --sidebar-primary: var(--button-primary-background-default);
+  --sidebar-primary-foreground: var(--button-text-inverse);
   --sidebar-accent: var(--color-surface-subtle);
   --sidebar-accent-foreground: var(--color-text-primary);
   --sidebar-border: var(--color-border-default);
@@ -442,22 +502,32 @@
   --color-surface-workspace: var(--color-obsidian);
   --color-surface-stage: var(--color-midnight);
   --color-surface-raised: #242426;
+  --color-surface-showcase: #242426;
   --color-surface-card: var(--color-midnight);
   --color-surface-inverse: var(--color-paper-white);
-  --color-surface-subtle: #29292c;
-  --color-surface-subtle-hover: #323236;
-  --color-surface-hover: #29292c;
+  --color-surface-subtle: var(--color-neutral-800);
+  --color-surface-subtle-hover: var(--color-neutral-700);
+  --color-surface-hover: var(--color-neutral-800);
+  --color-surface-search: var(--color-neutral-800);
+  --color-surface-search-active: var(--color-neutral-700);
   --color-surface-selected: color-mix(in srgb, var(--color-sky-signal) 20%, var(--color-midnight));
-  --color-surface-muted: #242426;
+  --color-surface-muted: var(--color-neutral-800);
   --color-surface-accent: color-mix(in srgb, var(--color-electric-iris) 14%, var(--color-midnight));
 
   --color-text-primary: var(--color-paper-white);
   --color-text-secondary: var(--color-linen);
-  --color-text-muted: var(--color-silver);
+  --color-text-muted: var(--color-neutral-400);
   --color-text-disabled: var(--color-graphite);
   --color-text-inverse: var(--color-inkstone);
+  --color-tab-label-default: var(--color-neutral-300);
+  --color-description-default: var(--color-neutral-400);
+  --color-icon-muted-default: var(--color-neutral-500);
+  --color-icon-active-default: var(--color-neutral-100);
+  --color-sidebar-icon-default: var(--color-neutral-400);
+  --color-sidebar-icon-active-default: var(--color-neutral-100);
+  --search-active-shadow: 0 1px 4px rgb(0 0 0 / 24%);
   --color-border-default: color-mix(in srgb, var(--color-linen) 18%, var(--color-midnight));
-  --color-border-focus: var(--color-electric-iris);
+  --color-border-focus: var(--color-neutral-200);
 
   --color-brand-primary: var(--color-sky-signal);
   --color-brand-primary-hover: color-mix(in srgb, var(--color-sky-signal) 88%, white);
@@ -471,20 +541,21 @@
 
   /* Feedbacks usam os tons 500, mais legíveis em fundos escuros que os tons 700 do tema claro. */
   --color-feedback-success: var(--color-sage-500);
+  --color-file-upload-success: #4ce596;
   --color-feedback-warning: var(--color-amber-500);
   --color-feedback-error: var(--color-coral-500);
   --color-feedback-info: var(--color-steel-500);
 
   /* Controles de acao. */
-  --button-primary-background-default: var(--color-sky-signal);
-  --button-primary-background-hover: var(--color-brand-primary-hover);
-  --button-primary-background-active: var(--color-brand-primary-active);
+  --button-primary-background-default: var(--color-neutral-200);
+  --button-primary-background-hover: var(--color-neutral-200);
+  --button-primary-background-active: var(--color-neutral-0);
   --button-primary-background-disabled: var(--color-brand-primary-disabled);
   --button-primary-text-disabled: var(--color-graphite);
   --button-secondary-background-default: transparent;
-  --button-secondary-background-hover: color-mix(in srgb, var(--color-electric-iris) 12%, transparent);
-  --button-secondary-background-active: color-mix(in srgb, var(--color-electric-iris) 18%, transparent);
-  --button-ghost-background-hover: var(--color-surface-subtle);
+  --button-secondary-background-hover: var(--color-surface-hover);
+  --button-secondary-background-active: color-mix(in srgb, var(--color-neutral-200) 18%, transparent);
+  --button-ghost-background-hover: var(--color-surface-hover);
   --button-ghost-background-active: var(--color-surface-subtle-hover);
   --button-danger-background-default: var(--color-coral-500);
   --button-danger-background-hover: var(--color-coral-700);
@@ -492,12 +563,12 @@
   --button-danger-background-disabled: #424247;
   --button-danger-text-default: var(--color-inkstone);
   --button-danger-text-disabled: var(--color-graphite);
-  --button-text-inverse: var(--color-inkstone);
+  --button-text-inverse: var(--color-neutral-900);
   --button-text-default: var(--color-text-primary);
-  --button-text-secondary: var(--color-link-default);
+  --button-text-secondary: var(--color-neutral-200);
   --button-text-disabled: var(--color-graphite);
-  --button-border-default: var(--color-electric-iris);
-  --button-focus-color: var(--color-electric-iris);
+  --button-border-default: var(--color-neutral-700);
+  --button-focus-color: var(--color-border-focus);
 
   /* A variante pill acompanha a superficie do tema escuro. */
   --control-pill-surface: var(--color-surface-card);
@@ -520,6 +591,17 @@
   --input-pill-border-default: color-mix(in srgb, var(--color-linen) 30%, var(--color-midnight));
   --input-pill-border-focus: color-mix(in srgb, var(--color-linen) 58%, var(--color-midnight));
   --input-pill-shadow: 0 1px 3px rgb(0 0 0 / 16%);
+  --case-editor-canvas: var(--color-obsidian);
+  --case-editor-input-surface: var(--color-neutral-800);
+  --case-editor-input-border: var(--color-neutral-700);
+  --case-editor-input-border-focus: var(--color-neutral-600);
+  --case-editor-placeholder: var(--color-neutral-500);
+  --case-editor-radio-active: #60a5fa;
+  --color-patient-sex-female: var(--color-pink-400);
+  --case-progress-label: var(--color-neutral-400);
+  --case-progress-label-active: var(--case-editor-radio-active);
+  --case-progress-track: var(--color-neutral-700);
+  --case-progress-fill: var(--case-editor-radio-active);
   --input-field-label-color: var(--color-text-secondary);
   --input-field-label-color-disabled: var(--color-text-disabled);
   --input-field-helper-color: var(--color-text-muted);
@@ -557,9 +639,9 @@
   --popover: var(--color-surface-card);
   --popover-foreground: var(--color-text-primary);
   --primary: var(--button-primary-background-default);
-  --primary-foreground: var(--color-inkstone);
+  --primary-foreground: var(--button-text-inverse);
   --secondary: var(--button-secondary-background-default);
-  --secondary-foreground: var(--button-text-default);
+  --secondary-foreground: var(--button-text-secondary);
   --muted: var(--color-surface-subtle);
   --muted-foreground: var(--color-text-muted);
   --accent: var(--color-surface-subtle);
@@ -576,7 +658,7 @@
   --sidebar: var(--color-surface-sidebar);
   --sidebar-foreground: var(--color-text-primary);
   --sidebar-primary: var(--button-primary-background-default);
-  --sidebar-primary-foreground: var(--color-inkstone);
+  --sidebar-primary-foreground: var(--button-text-inverse);
   --sidebar-accent: var(--color-surface-selected);
   --sidebar-accent-foreground: var(--color-text-primary);
   --sidebar-border: var(--color-border-default);
@@ -631,6 +713,91 @@
   [data-slot="input"][data-variant="pill"] input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px var(--control-pill-surface) inset;
   }
+}
+
+[data-case-editor] {
+  --input-surface-default: var(--case-editor-input-surface);
+  --input-border-default: var(--case-editor-input-border);
+  --input-border-focus: var(--case-editor-input-border-focus);
+  --input-placeholder: var(--case-editor-placeholder);
+  --input-placeholder-size: 0.8125rem;
+  --ring: var(--case-editor-input-border-focus);
+  --case-editor-radio-selected: var(--case-editor-radio-active);
+}
+
+#new-case-form {
+  --input-field-label-color: var(--color-neutral-400);
+  --input-field-label-size: 0.6875rem;
+}
+
+.case-editor-radio {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  cursor: pointer;
+  border: 1px solid var(--color-neutral-400);
+  border-radius: 9999px;
+  background-color: var(--color-surface-card);
+}
+
+.case-editor-radio:checked {
+  border-color: var(--case-editor-radio-selected);
+  background-color: var(--case-editor-radio-selected);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 8 2.5 2.5L12 5' fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 0.75rem 0.75rem;
+}
+
+.case-editor-radio:focus-visible {
+  outline: 2px solid var(--case-editor-input-border-focus);
+  outline-offset: 2px;
+}
+
+.case-editor-radio:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.orthovet-glass-button {
+  --orthovet-glass-overlay: transparent;
+  --orthovet-glass-hover: rgb(255 255 255 / 6%);
+  --orthovet-glass-active: rgb(0 0 0 / 8%);
+
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  transition: --orthovet-glass-overlay 0.15s ease-out, transform 0.1s ease;
+  background-image: linear-gradient(var(--orthovet-glass-overlay), var(--orthovet-glass-overlay)), var(--orthovet-glass-fill);
+  color: var(--orthovet-glass-foreground);
+  box-shadow: var(--orthovet-glass-shadow);
+}
+
+.orthovet-glass-blue {
+  --orthovet-glass-fill: linear-gradient(180deg, #7cbcff, #4b95f5);
+  --orthovet-glass-foreground: #ffffff;
+  --orthovet-glass-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 55%),
+    inset 0 -2px 4px rgb(23 86 180 / 18%),
+    0 10px 22px rgb(73 146 255 / 34%),
+    0 1px 2px rgb(0 0 0 / 5%);
+}
+
+@media (hover: hover) {
+  .orthovet-glass-button:hover {
+    --orthovet-glass-overlay: var(--orthovet-glass-hover);
+  }
+}
+
+.orthovet-glass-button:active {
+  --orthovet-glass-overlay: var(--orthovet-glass-active);
+  transform: scale(0.985);
+}
+
+.orthovet-glass-button:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
 }
 
 @layer components {

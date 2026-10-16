@@ -4,6 +4,9 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
+import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
+import handoffStyles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
+
 type RefreshState = "checking" | "unavailable"
 
 // A renovação ocorre no Route Handler para persistir os cookies HttpOnly rotacionados.
@@ -55,8 +58,25 @@ function ProtectedSessionRefreshGate() {
   }
 
   return (
-    <main aria-busy="true" aria-live="polite" className="flex min-h-dvh items-center justify-center px-6 py-12">
-      <p className="text-ui text-content-secondary">{t("checking")}</p>
+    <main
+      aria-busy="true"
+      aria-live="polite"
+      className="flex min-h-dvh items-center justify-center bg-workspace px-6 text-center"
+      role="status"
+    >
+      <div className={handoffStyles.content}>
+        <LoginHandoffPawLoader size={104} />
+        <div className={handoffStyles.status}>
+          <p className={handoffStyles.message}>
+            <span className={handoffStyles.statusLabel}>{t("checking").replace(/(?:\.{3}|…)[\s]*$/u, "")}</span>
+            <svg aria-hidden="true" className={handoffStyles.statusDots} fill="none" viewBox="0 0 18 6">
+              <circle className={handoffStyles.statusDot} cx="3" cy="3" r="1.25" />
+              <circle className={handoffStyles.statusDot} cx="9" cy="3" r="1.25" />
+              <circle className={handoffStyles.statusDot} cx="15" cy="3" r="1.25" />
+            </svg>
+          </p>
+        </div>
+      </div>
     </main>
   )
 }

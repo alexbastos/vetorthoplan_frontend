@@ -2,91 +2,106 @@
 
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import type { RefObject } from "react"
+import { useRef, type RefObject } from "react"
 
 gsap.registerPlugin(useGSAP)
 
-function useHomePageEntrance(
-  scope: RefObject<HTMLElement | null>,
-  onDestinationTransitionComplete: () => void,
-  isDestinationHandoffActive: boolean,
-) {
+function useHomePageEntrance(scope: RefObject<HTMLElement | null>, isDestinationHandoffActive: boolean) {
+  const wasDestinationHandoffRef = useRef(isDestinationHandoffActive)
+  const hasEnteredRef = useRef(false)
+
   useGSAP(
     () => {
       const page = scope.current
+      if (!page) return undefined
 
-      if (!page) {
+      const select = (selector: string) => Array.from(page.querySelectorAll<HTMLElement>(selector))
+      const avatar = select("[data-home-greeting-avatar]")
+      const greetingText = select("[data-home-greeting-salutation], [data-home-greeting-title]")
+      const banners = select("[data-home-banner]")
+      const bannerImages = select("[data-home-banner-image]")
+      const bannerContent = select("[data-home-banner-content]")
+      const shortcutsHeading = select("[data-home-shortcuts-heading], [data-home-shortcuts-divider]")
+      // Animate wrappers so the cards' CSS hover transforms remain independent.
+      const shortcutItems = select("[data-home-shortcut-item]")
+      const targets = [
+        page,
+        ...avatar,
+        ...greetingText,
+        ...banners,
+        ...bannerImages,
+        ...bannerContent,
+        ...shortcutsHeading,
+        ...shortcutItems,
+      ]
+      const clearProps = "opacity,visibility,transform,transformOrigin,willChange"
+
+      const reveal = () => {
+        hasEnteredRef.current = true
+        gsap.set(targets, { clearProps })
+        page.dataset.homeEntrance = "ready"
+      }
+
+      if (isDestinationHandoffActive || wasDestinationHandoffRef.current) {
+        wasDestinationHandoffRef.current = true
+        // The AppShell owns the entrance after login; never animate it twice.
+        reveal()
         return undefined
       }
 
-      const select = <Element extends HTMLElement>(selector: string) => Array.from(page.querySelectorAll<Element>(selector))
-      const avatar = page.querySelector<HTMLElement>("[data-home-greeting-avatar]")
-      const greetingText = select("[data-home-greeting-salutation], [data-home-greeting-title]")
-      const hero = page.querySelector<HTMLElement>("[data-home-hero]")
-      const heroImage = page.querySelector<HTMLElement>("[data-home-hero-image]")
-      const heroContent = select("[data-home-hero-badge], [data-home-hero-title-line], [data-home-hero-actions]")
-      const shortcutsHeading = select("[data-home-shortcuts-title], [data-home-shortcuts-divider]")
-      const shortcutCards = select("[data-home-shortcut-card]")
-      const overlay = document.querySelector<HTMLElement>("[data-login-handoff-overlay]")
-      const appShell = document.querySelector<HTMLElement>("[data-app-shell]")
-      const isLoginHandoff = isDestinationHandoffActive && Boolean(overlay && appShell)
-      const destinationSurface = isLoginHandoff && appShell ? appShell : page
-      const dashboardStart = isLoginHandoff ? 0.45 : 0
       const media = gsap.matchMedia()
 
       media.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set(destinationSurface, { autoAlpha: 0, y: 4 })
-        gsap.set([avatar, ...greetingText], { autoAlpha: 0, scale: 1, y: 12 })
-        gsap.set(hero, { autoAlpha: 0, scale: 0.985, y: 12 })
-        gsap.set(heroImage, { scale: 1.04, transformOrigin: "center 40%" })
-        gsap.set(heroContent, { autoAlpha: 0, y: 16 })
-        gsap.set(shortcutsHeading, { autoAlpha: 0, y: 12 })
-        gsap.set(shortcutCards, { autoAlpha: 0, scale: 0.97, y: 28 })
-        if (isLoginHandoff && overlay) {
-          gsap.set(overlay, { autoAlpha: 1, y: 0 })
+        if (hasEnteredRef.current) {
+          reveal()
+          return undefined
         }
 
-        const timeline = gsap.timeline({ defaults: { ease: "power2.out" } })
+        gsap.set(targets, { willChange: "transform,opacity" })
+        gsap.set(page, { autoAlpha: 0, y: 4 })
+        gsap.set([...avatar, ...greetingText], { autoAlpha: 0, y: 12 })
+        gsap.set(banners, { autoAlpha: 0, scale: 0.985, y: 12 })
+        gsap.set(bannerImages, { scale: 1.04, transformOrigin: "center 40%" })
+        gsap.set(bannerContent, { autoAlpha: 0, y: 16 })
+        gsap.set(shortcutsHeading, { autoAlpha: 0, y: 12 })
+        gsap.set(shortcutItems, { autoAlpha: 0, scale: 0.97, y: 28 })
+
+        // Release the CSS hydration guard only after every start state is set.
+        page.dataset.homeEntrance = "ready"
+
+        const timeline = gsap.timeline({
+          defaults: { ease: "power2.out", overwrite: "auto" },
+          onComplete: () => {
+            hasEnteredRef.current = true
+          },
+        })
 
         timeline
-          .to(destinationSurface, { autoAlpha: 1, duration: 0.6, y: 0 }, dashboardStart)
-          .to(avatar, { autoAlpha: 1, duration: 0.45, ease: "back.out(1.4)", scale: 1, y: 0 }, dashboardStart + 0.08)
-          .to(greetingText, { autoAlpha: 1, duration: 0.4, stagger: 0.06, y: 0 }, dashboardStart + 0.08)
-          .to(hero, { autoAlpha: 1, duration: 0.55, scale: 1, y: 0 }, dashboardStart + 0.6)
-          .to(heroImage, { duration: 1.2, ease: "power1.out", scale: 1 }, dashboardStart + 0.6)
-          .to(heroContent, { autoAlpha: 1, duration: 0.45, stagger: 0.08, y: 0 }, dashboardStart + 0.78)
-          .to(shortcutsHeading, { autoAlpha: 1, duration: 0.4, stagger: 0.06, y: 0 }, dashboardStart + 1.27)
-          .to(shortcutCards, { autoAlpha: 1, duration: 0.55, scale: 1, stagger: 0.12, y: 0 }, dashboardStart + 1.35)
-
-        if (isLoginHandoff && overlay) {
-          timeline
-            .to(overlay, { autoAlpha: 0, duration: 0.45, ease: "power2.out", y: 0 }, 0)
-            .call(onDestinationTransitionComplete, [], 0.45)
-        }
+          .addLabel("greeting", 0.08)
+          .addLabel("banners", 0.6)
+          .addLabel("bannerContent", 0.78)
+          .addLabel("shortcutsHeading", 1.27)
+          .addLabel("shortcuts", 1.35)
+          .to(page, { autoAlpha: 1, duration: 0.6, y: 0 }, 0)
+          .to(avatar, { autoAlpha: 1, duration: 0.45, ease: "back.out(1.4)", y: 0 }, "greeting")
+          .to(greetingText, { autoAlpha: 1, duration: 0.4, stagger: 0.06, y: 0 }, "greeting")
+          .to(banners, { autoAlpha: 1, duration: 0.55, scale: 1, stagger: 0.08, y: 0 }, "banners")
+          .to(bannerImages, { duration: 1.2, ease: "power1.out", scale: 1 }, "banners")
+          .to(bannerContent, { autoAlpha: 1, duration: 0.45, stagger: 0.08, y: 0 }, "bannerContent")
+          .to(shortcutsHeading, { autoAlpha: 1, duration: 0.4, stagger: 0.06, y: 0 }, "shortcutsHeading")
+          .to(shortcutItems, { autoAlpha: 1, duration: 0.55, scale: 1, stagger: 0.12, y: 0 }, "shortcuts")
+          .set(targets, { clearProps })
 
         return () => timeline.kill()
       })
 
       media.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set([destinationSurface, avatar, ...greetingText, hero, heroImage, ...heroContent, ...shortcutsHeading, ...shortcutCards], {
-          autoAlpha: 1,
-          scale: 1,
-          y: 0,
-        })
-        if (isLoginHandoff && overlay) {
-          gsap.set(overlay, { autoAlpha: 0, y: 0 })
-        }
-
-        if (isLoginHandoff) {
-          onDestinationTransitionComplete()
-        }
-
-        return undefined
+        reveal()
       })
 
       return () => media.revert()
     },
-    { dependencies: [onDestinationTransitionComplete], scope },
+    { dependencies: [isDestinationHandoffActive], revertOnUpdate: true, scope },
   )
 }
 

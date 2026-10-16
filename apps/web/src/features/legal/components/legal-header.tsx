@@ -24,7 +24,7 @@ async function LegalHeader() {
           className="shrink-0 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--button-focus-color)] focus-visible:ring-offset-2"
           href="/"
         >
-          <CaptaBrandLogo alt="" className="h-auto w-16 sm:w-24 dark:invert" height={24} variant="black" width={96} />
+          <CaptaBrandLogo alt="" className="h-auto w-16 sm:w-24" height={24} variant="adaptive" width={96} />
         </Link>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <LandingLocaleSwitcher />

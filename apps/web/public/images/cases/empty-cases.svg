@@ -1,0 +1,40 @@
+<svg width="142" height="114" viewBox="20 16 142 114" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M102.341 58.654C93.961 58.704 85.451 58.314 77.491 56.104C69.531 53.894 62.491 49.724 56.091 44.854C51.901 41.684 48.091 39.164 42.651 39.544C37.332 39.824 32.244 41.808 28.141 45.204C21.221 51.264 22.271 62.464 25.031 70.344C29.191 82.214 41.851 90.454 52.601 95.824C65.031 102.034 78.681 105.644 92.371 107.714C104.371 109.534 119.781 110.864 130.171 103.024C139.721 95.834 142.341 79.394 140.001 68.294C139.432 65.016 137.686 62.057 135.091 59.974C128.381 55.074 118.381 58.344 110.841 58.514C108.091 58.574 105.201 58.644 102.341 58.654Z" fill="#F2F2F2"/>
+  <g stroke="#CFCFCF" stroke-width="0.85" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M61.623 19.701V24.001"/>
+    <path d="M59.469 21.941H63.769"/>
+    <path d="M143.515 105.669V109.969"/>
+    <path d="M141.361 107.885H145.661"/>
+  </g>
+  <circle cx="29.007" cy="86.127" r="0.98" fill="#CFCFCF"/>
+  <circle cx="112.76" cy="23.25" r="0.98" fill="#CFCFCF"/>
+  <ellipse cx="85.367" cy="125.119" rx="36.7" ry="2.28" fill="#F2F2F2"/>
+  <path d="M57.077 31.493H110.377C111.703 31.493 112.975 32.02 113.913 32.957C114.85 33.895 115.377 35.167 115.377 36.493V99.903C115.377 101.229 114.85 102.501 113.913 103.439C112.975 104.376 111.703 104.903 110.377 104.903H50.247C48.921 104.903 47.649 104.376 46.712 103.439C45.774 102.501 45.247 101.229 45.247 99.903V43.443L57.077 31.493Z" fill="white" stroke="#BABABA" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M115.203 62.489H60.243V105.609H115.203V62.489Z" fill="#D2D2D2"/>
+  <path d="M45.247 43.443H54.937C55.506 43.44 56.05 43.213 56.451 42.81C56.852 42.407 57.077 41.862 57.077 41.293V31.493L45.247 43.443Z" fill="white" stroke="#BABABA" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <path id="row" d="M58.69 0.5H4.33C2.215 0.5 0.5 2.215 0.5 4.33V15.96C0.5 18.075 2.215 19.79 4.33 19.79H58.69C60.805 19.79 62.52 18.075 62.52 15.96V4.33C62.52 2.215 60.805 0.5 58.69 0.5Z"/>
+    <circle id="dot" cx="3.34" cy="3.34" r="3.34"/>
+  </defs>
+  <g fill="white" stroke="#BABABA" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#row" transform="translate(56.34 48.18)"/>
+    <use href="#row" transform="translate(56.22 69.604)"/>
+    <use href="#row" transform="translate(56.22 91.05)"/>
+  </g>
+  <g fill="#D2D2D2">
+    <use href="#dot" transform="translate(63.97 55.04)"/>
+    <use href="#dot" transform="translate(74.50 55.04)"/>
+    <use href="#dot" transform="translate(85.04 55.04)"/>
+    <use href="#dot" transform="translate(63.97 76.487)"/>
+    <use href="#dot" transform="translate(74.50 76.487)"/>
+    <use href="#dot" transform="translate(85.04 76.487)"/>
+    <use href="#dot" transform="translate(63.97 97.913)"/>
+    <use href="#dot" transform="translate(74.50 97.913)"/>
+    <use href="#dot" transform="translate(85.04 97.913)"/>
+  </g>
+  <circle cx="119.985" cy="52.256" r="20.73" fill="white" stroke="#BABABA" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M134.86 67.42L140.38 72.94" stroke="#BABABA" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(136.65 74.24) rotate(-46.29)">
+    <path d="M5 0.5H2.52C1.404 0.5 0.5 1.404 0.5 2.52V23.12C0.5 24.236 1.404 25.14 2.52 25.14H5C6.116 25.14 7.02 24.236 7.02 23.12V2.52C7.02 1.404 6.116 0.5 5 0.5Z" fill="white" stroke="#BABABA" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

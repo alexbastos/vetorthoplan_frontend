@@ -5,7 +5,8 @@ import { createPortal } from "react-dom"
 import { useTranslations } from "next-intl"
 
 import { Button, buttonVariants } from "@/components/ui/button"
-import { VetorthoplanLoader } from "@/components/ui/vetorthoplan-loader"
+import { OrthoVetLoader } from "@/components/ui/vetorthoplan-loader"
+import { OrthoVetLoaderText } from "@/components/ui/orthovet-loader-text"
 import { cn } from "@/lib/utils"
 
 import { useEmailVerificationHandlerEntrance } from "../../hooks/animations/use-email-verification-handler-entrance"
@@ -13,15 +14,14 @@ import { useVerifyEmail, type EmailVerificationState } from "../../hooks/use-ver
 import { AuthNavLink } from "../navigation/auth-nav-link"
 
 type EmailVerificationHandlerProps = {
-  preview?: boolean
   token?: string
 }
 
-function EmailVerificationHandler({ preview = false, token }: EmailVerificationHandlerProps) {
+function EmailVerificationHandler({ token }: EmailVerificationHandlerProps) {
   const t = useTranslations("auth.verification")
   const sectionRef = useRef<HTMLElement>(null)
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
-  const { retry, state } = useVerifyEmail(token, preview)
+  const { retry, state } = useVerifyEmail(token)
 
   useEmailVerificationHandlerEntrance({ scope: sectionRef, state })
 
@@ -55,10 +55,10 @@ function EmailVerificationHandler({ preview = false, token }: EmailVerificationH
       role="status"
     >
       <div data-email-verification-handler-step>
-        <VetorthoplanLoader size={48} />
+        <OrthoVetLoader size={48} />
       </div>
-      <p className="text-ui text-content-secondary" data-email-verification-handler-step>
-        {t("resolving")}
+      <p data-email-verification-handler-step>
+        <OrthoVetLoaderText>{t("resolving")}</OrthoVetLoaderText>
       </p>
     </section>
   )

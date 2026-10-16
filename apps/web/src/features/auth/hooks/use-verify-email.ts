@@ -12,7 +12,7 @@ import { authBffClient } from "../services/auth-bff-client"
 
 type EmailVerificationState = "resolving" | "confirming" | "exiting" | "invalid-link" | "unavailable"
 
-function useVerifyEmail(token: string | undefined, preview = false) {
+function useVerifyEmail(token: string | undefined) {
   const router = useRouter()
   const [state, setState] = useState<EmailVerificationState>("resolving")
   const hasStartedForTokenRef = useRef<string | undefined | null>(null)
@@ -37,11 +37,6 @@ function useVerifyEmail(token: string | undefined, preview = false) {
   )
 
   const verifyEmail = useCallback(async () => {
-    if (preview) {
-      setState("confirming")
-      return
-    }
-
     const normalizedToken = token?.trim()
 
     if (!normalizedToken) {
@@ -68,7 +63,7 @@ function useVerifyEmail(token: string | undefined, preview = false) {
 
     setState("confirming")
     completeAndRedirect(verificationStartedAtRef.current)
-  }, [completeAndRedirect, preview, token])
+  }, [completeAndRedirect, token])
 
   useEffect(() => {
     if (hasStartedForTokenRef.current === token) {

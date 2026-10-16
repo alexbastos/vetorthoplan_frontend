@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { useAppUser } from "@/components/shared/app-shell/app-user-context"
 import { formatBrazilianPhone, formatBrazilianPostalCode } from "@/lib/brazilian-input"
 import { defaultLocale, defaultTimeZone, isAppLocale } from "@/i18n/config"
 import { createProfileSchema, createProfileUpdateRequest, type ProfileValues } from "../schemas/profile.schema"
@@ -52,6 +53,7 @@ function useProfileSettings() {
     [tValidation],
   )
   const getSettingsErrorMessage = useSettingsErrorMessage()
+  const { updateUser: updateAppUser } = useAppUser()
   const queryClient = useQueryClient()
   const router = useRouter()
   const avatarRevisionRef = useRef(0)
@@ -69,29 +71,34 @@ function useProfileSettings() {
     queryKey: PROFILE_QUERY_KEY,
     refetchOnMount: "always",
   })
-  const updateMutation = useMutation({ mutationFn: settingsBffClient.updateProfile })
+  const { isPending: isSaving, mutateAsync: updateProfileRequest } = useMutation({ mutationFn: settingsBffClient.updateProfile })
   const { isPending: isAvatarUploading, mutateAsync: uploadAvatarRequest } = useMutation({ mutationFn: settingsBffClient.uploadAvatar })
   const { isPending: isAvatarDeleting, mutateAsync: deleteAvatarRequest } = useMutation({ mutationFn: settingsBffClient.deleteAvatar })
 
   useEffect(() => {
     if (profileQuery.data) {
       form.reset(toProfileValues(profileQuery.data), { keepDirtyValues: true })
+      updateAppUser({
+        avatarUrl: profileQuery.data.profile.avatarUrl,
+        name: profileQuery.data.name,
+      })
     }
-  }, [form, profileQuery.data])
+  }, [form, profileQuery.data, updateAppUser])
 
   const commitProfileUser = useCallback((user: SettingsUser) => {
     const savedValues = toProfileValues(user)
     queryClient.setQueryData<SettingsUser>(PROFILE_QUERY_KEY, user)
     form.reset(savedValues)
+    updateAppUser({ avatarUrl: user.profile.avatarUrl, name: user.name })
     return savedValues
-  }, [form, queryClient])
+  }, [form, queryClient, updateAppUser])
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    const result = await updateMutation.mutateAsync(createProfileUpdateRequest(values))
+  const saveProfile = useCallback(async (values: ProfileValues) => {
+    const result = await updateProfileRequest(createProfileUpdateRequest(values))
 
     if (!result.ok) {
       toast.error(t("saveError"), { description: getSettingsErrorMessage(result.error.code) })
-      return
+      return false
     }
 
     const savedValues = commitProfileUser(result.data.user)
@@ -101,15 +108,18 @@ function useProfileSettings() {
     }
 
     toast.success(t("saved"), { description: t("savedDescription") })
-  })
+    return true
+  }, [activeLocale, activeTimeZone, commitProfileUser, getSettingsErrorMessage, router, t, updateProfileRequest])
+  const onSubmit = form.handleSubmit(saveProfile)
 
   const applyAvatarUrl = useCallback((avatarUrl: string | null) => {
     avatarRevisionRef.current += 1
     form.resetField("avatarUrl", { defaultValue: avatarUrl ?? "" })
+    updateAppUser({ avatarUrl })
     queryClient.setQueryData<SettingsUser>(PROFILE_QUERY_KEY, (user) => user
       ? { ...user, profile: { ...user.profile, avatarUrl } }
       : user)
-  }, [form, queryClient])
+  }, [form, queryClient, updateAppUser])
 
   const refreshAvatarUrl = useCallback(async (failedUrl: string) => {
     if (!failedUrl || form.getValues("avatarUrl") !== failedUrl) {
@@ -136,7 +146,8 @@ function useProfileSettings() {
     avatarRevisionRef.current += 1
     queryClient.setQueryData<SettingsUser>(PROFILE_QUERY_KEY, result.data.user)
     form.resetField("avatarUrl", { defaultValue: renewedAvatarUrl })
-  }, [form, queryClient])
+    updateAppUser({ avatarUrl: result.data.user.profile.avatarUrl, name: result.data.user.name })
+  }, [form, queryClient, updateAppUser])
 
   const uploadAvatar = useCallback(async (avatar: File) => {
     const result = await uploadAvatarRequest(avatar)
@@ -170,11 +181,12 @@ function useProfileSettings() {
     isAvatarDeleting,
     isAvatarUploading,
     isLoading: profileQuery.isLoading,
-    isSaving: updateMutation.isPending,
+    isSaving,
     loadError: profileQuery.error instanceof Error ? profileQuery.error.message : undefined,
     onSubmit,
     refreshAvatarUrl,
     retry: profileQuery.refetch,
+    saveProfile,
     uploadAvatar,
   }
 }

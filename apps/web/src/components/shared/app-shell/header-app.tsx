@@ -1,11 +1,13 @@
 "use client"
 
-import { BellDot, ChevronDown, Search } from "lucide-react"
+import { ChevronDown, Search } from "lucide-react"
 import { forwardRef, type ComponentProps } from "react"
 import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 
+import { AppNotificationsMenu } from "./app-notifications-menu"
+import { AppUserAvatar } from "./app-user-avatar"
 import type { HeaderAppProps } from "./types"
 
 function HeaderApp({ actions, context, navigation, notifications, profile }: HeaderAppProps) {
@@ -25,7 +27,7 @@ function HeaderApp({ actions, context, navigation, notifications, profile }: Hea
         <div id="app-header-actions" aria-label={t("pageActions")} className="hidden items-center gap-2 empty:hidden sm:flex">
           {actions}
         </div>
-        {notifications ?? <HeaderNotificationIndicator />}
+        {notifications ?? <AppNotificationsMenu />}
         {profile ?? <HeaderProfileIndicator />}
       </div>
     </header>
@@ -35,7 +37,7 @@ function HeaderApp({ actions, context, navigation, notifications, profile }: Hea
 function GlobalSearch() {
   const t = useTranslations("common.header")
   return (
-    <label className="hidden h-9 w-60 items-center gap-2 rounded-full bg-muted px-3.5 md:flex">
+    <label className="motion-interactive hidden h-9 w-60 items-center gap-2 rounded-full bg-search px-3.5 outline-none focus-within:bg-search-active focus-within:shadow-[var(--search-active-shadow)] md:flex">
       <Search aria-hidden="true" className="size-3 shrink-0 text-muted-foreground" />
       <span className="sr-only">{t("globalSearch")}</span>
       <input
@@ -47,36 +49,26 @@ function GlobalSearch() {
   )
 }
 
-function HeaderNotificationIndicator() {
-  const t = useTranslations("common.header")
-  return (
-    <span aria-label={t("notifications")} className="flex size-9 items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary">
-      <BellDot aria-hidden="true" className="size-[1.125rem]" />
-    </span>
-  )
-}
-
 type HeaderProfileIndicatorProps = {
+  avatarUrl?: string | null
   className?: string
   initials?: string
 }
 
 const HeaderProfileIndicator = forwardRef<HTMLButtonElement, HeaderProfileIndicatorProps & ComponentProps<"button">>(function HeaderProfileIndicator(
-  { className, initials = "U", ...props },
+  { avatarUrl = null, className, initials = "U", ...props },
   ref,
 ) {
   const t = useTranslations("common.header")
   return (
     <button
       aria-label={t("openProfileMenu")}
-      className={cn("motion-interactive flex h-[2.375rem] cursor-pointer items-center gap-1.5 rounded-full py-0.5 pr-1 pl-0.5 outline-none hover:bg-muted focus-visible:bg-muted", className)}
+      className={cn("motion-interactive flex h-[2.375rem] cursor-pointer items-center gap-1.5 rounded-[13px] py-0.5 pr-1 pl-0.5 outline-none hover:bg-muted focus-visible:bg-muted", className)}
       ref={ref}
       type="button"
       {...props}
     >
-      <span className="flex size-[2.125rem] items-center justify-center rounded-full bg-brand-secondary text-ui font-medium text-brand-secondary-foreground">
-        {initials.slice(0, 2).toUpperCase()}
-      </span>
+      <AppUserAvatar avatarUrl={avatarUrl} className="size-[2.125rem] text-ui" initials={initials} />
       <ChevronDown aria-hidden="true" className="size-3.5 text-content-secondary" />
     </button>
   )

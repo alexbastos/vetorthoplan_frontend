@@ -22,7 +22,6 @@ function useRegistrationConfirmationAnimation({ state }: RegistrationConfirmatio
       const backgroundElements = document.querySelectorAll("[data-auth-back], [data-auth-logo], [data-auth-flow]")
       const creatingStatusElement = document.querySelector("[data-auth-registration-status-creating]")
       const sentStatusElement = document.querySelector("[data-auth-registration-status-sent]")
-      const dotElements = document.querySelectorAll("[data-auth-registration-dot]")
 
       if (state === "loading") {
         if (!loaderElement) {
@@ -30,7 +29,6 @@ function useRegistrationConfirmationAnimation({ state }: RegistrationConfirmatio
         }
 
         const timeline = gsap.timeline({ defaults: { ease: "power2.out" } })
-        const dotsTimeline = gsap.timeline({ repeat: -1, yoyo: true })
 
         gsap.set(sentStatusElement, { autoAlpha: 0, y: 2 })
         gsap.set(creatingStatusElement, { autoAlpha: 1, y: 0 })
@@ -49,11 +47,8 @@ function useRegistrationConfirmationAnimation({ state }: RegistrationConfirmatio
             "<0.05",
           )
 
-        dotsTimeline.to(dotElements, { autoAlpha: 0.35, duration: 0.28, stagger: 0.12, y: -1 })
-
         return () => {
           timeline.kill()
-          dotsTimeline.kill()
         }
       }
 

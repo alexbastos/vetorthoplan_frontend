@@ -1,4 +1,5 @@
-import { VetorthoplanLoader } from "@/components/ui/vetorthoplan-loader"
+import { OrthoVetLoader } from "@/components/ui/vetorthoplan-loader"
+import { OrthoVetLoaderText } from "@/components/ui/orthovet-loader-text"
 import { useTranslations } from "next-intl"
 
 function RegistrationCreationLoader() {
@@ -12,18 +13,13 @@ function RegistrationCreationLoader() {
       data-auth-registration-loader
       role="status"
     >
-      <VetorthoplanLoader size={48} />
-      <div className="relative h-5 w-56 text-overline text-content-secondary">
+      <OrthoVetLoader size={48} />
+      <div className="relative h-5 w-56">
         <p className="absolute inset-0 flex items-center justify-center whitespace-nowrap" data-auth-registration-status-creating>
-          {t("creating")}
-          <span aria-hidden="true" className="inline-flex" data-auth-registration-dots>
-            <span data-auth-registration-dot>.</span>
-            <span data-auth-registration-dot>.</span>
-            <span data-auth-registration-dot>.</span>
-          </span>
+          <OrthoVetLoaderText>{t("creating")}</OrthoVetLoaderText>
         </p>
         <p className="absolute inset-0 flex items-center justify-center whitespace-nowrap opacity-0" data-auth-registration-status-sent>
-          {t("sent")}
+          <OrthoVetLoaderText loading={false}>{t("sent")}</OrthoVetLoaderText>
         </p>
       </div>
     </section>

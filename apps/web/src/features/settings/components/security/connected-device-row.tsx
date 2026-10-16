@@ -1,10 +1,11 @@
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { Laptop, Smartphone, Trash2 } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { useFormatter, useTranslations } from "next-intl"
 import { useRef } from "react"
 
 import { Button } from "@/components/ui/button"
+import { ConnectedDeviceIcon } from "./connected-device-icon"
 import type { ActiveSession } from "../../types/settings"
 
 gsap.registerPlugin(useGSAP)
@@ -14,14 +15,13 @@ type ConnectedDeviceRowProps = {
   isExiting: boolean
   isRevoking: boolean
   onExitComplete: (sessionId: string) => void
-  onRevoke: (session: ActiveSession) => void
+  onRevoke: (session: ActiveSession) => Promise<void>
   session: ActiveSession
 }
 
 function ConnectedDeviceRow({ isDisabled, isExiting, isRevoking, onExitComplete, onRevoke, session }: ConnectedDeviceRowProps) {
   const format = useFormatter()
   const t = useTranslations("settings.devices")
-  const DeviceIcon = isMobileDevice(session.deviceName) ? Smartphone : Laptop
   const location = [session.location?.city, session.location?.region, session.location?.countryCode]
     .filter(Boolean)
     .join(", ")
@@ -41,18 +41,23 @@ function ConnectedDeviceRow({ isDisabled, isExiting, isRevoking, onExitComplete,
 
       const media = gsap.matchMedia()
       media.add("(prefers-reduced-motion: no-preference)", () => {
-        const tween = gsap.to(row, {
-          autoAlpha: 0,
-          duration: 0.22,
-          ease: "power2.inOut",
-          height: 0,
-          onComplete: () => onExitComplete(session.id),
-          paddingBottom: 0,
-          paddingTop: 0,
-          y: -6,
-        })
+        const timeline = gsap.timeline({ onComplete: () => onExitComplete(session.id) })
+        timeline
+          .to(row, {
+            autoAlpha: 0,
+            duration: 0.18,
+            ease: "power2.in",
+            x: 18,
+          })
+          .to(row, {
+            duration: 0.2,
+            ease: "power2.inOut",
+            height: 0,
+            paddingBottom: 0,
+            paddingTop: 0,
+          })
 
-        return () => tween.kill()
+        return () => timeline.kill()
       })
       media.add("(prefers-reduced-motion: reduce)", () => {
         onExitComplete(session.id)
@@ -65,30 +70,32 @@ function ConnectedDeviceRow({ isDisabled, isExiting, isRevoking, onExitComplete,
   )
 
   return (
-    <li className="flex items-center gap-3 overflow-hidden py-4 first:pt-0 last:pb-0" ref={rowRef}>
-      <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-token-md)] border border-border bg-muted text-content-secondary">
-        <DeviceIcon className="size-4" strokeWidth={1.75} />
-      </span>
+    <li className="flex items-start gap-3 overflow-hidden py-4 first:pt-0 last:pb-0 sm:items-center sm:gap-4" ref={rowRef}>
+      <ConnectedDeviceIcon deviceName={session.deviceName} userAgent={session.userAgent} />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-ui font-semibold text-foreground">{session.deviceName || t("unknownDevice")}</p>
-        <p className="mt-0.5 truncate text-caption text-content-secondary">{sessionDetails}</p>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <p className="truncate text-ui font-semibold text-foreground">{session.deviceName || t("unknownDevice")}</p>
+          {session.isCurrent ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--color-feedback-success)_10%,transparent)] px-2 py-0.5 text-[0.6875rem] leading-4 font-medium text-success">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+              {t("currentSession")}
+            </span>
+          ) : null}
+        </div>
+        {sessionDetails ? <p className="mt-1 truncate text-caption text-content-secondary">{sessionDetails}</p> : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
-        <span className={session.isCurrent ? "text-caption font-semibold text-success" : "text-caption text-content-secondary"}>{sessionStatus}</span>
-        {!session.isCurrent ? (
-          <Button aria-haspopup="dialog" aria-label={t("revokeDevice", { device: session.deviceName || t("unknownDevice") })} className="size-8 p-0 text-muted-foreground hover:!bg-[var(--color-feedback-error)]/10 hover:text-[var(--color-feedback-error)]" disabled={isDisabled || isExiting} loading={isRevoking} onClick={() => onRevoke(session)} size="sm" type="button" variant="ghost">
+      {!session.isCurrent ? (
+        <div className="flex shrink-0 flex-col items-end gap-2 sm:translate-y-0.5 sm:flex-row sm:items-center sm:gap-3">
+          <span className="text-right text-caption text-description">{sessionStatus}</span>
+          <Button aria-label={t("revokeDevice", { device: session.deviceName || t("unknownDevice") })} className="size-8 shrink-0 p-0 text-muted-foreground hover:!bg-[var(--color-feedback-error)]/10 hover:text-[var(--color-feedback-error)]" disabled={isDisabled || isExiting} loading={isRevoking} onClick={() => void onRevoke(session)} size="sm" title={t("revokeDevice", { device: session.deviceName || t("unknownDevice") })} type="button" variant="ghost">
             {!isRevoking ? <Trash2 aria-hidden="true" className="size-3.5" strokeWidth={1.5} /> : null}
           </Button>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </li>
   )
-}
-
-function isMobileDevice(deviceName: string | null) {
-  return Boolean(deviceName && /android|iphone|ipad|mobile/i.test(deviceName))
 }
 
 export { ConnectedDeviceRow }

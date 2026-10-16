@@ -1,4 +1,5 @@
 import type { ActiveSession, AvatarUploadResult, ChangePasswordInput, ProfileUpdateRequest, SettingsBffError, SettingsBffErrorCode, SettingsBffResult, SettingsUser, TotpSetupResult, TotpSetupVerificationResult, TwoFactorAuthenticationStatusResult } from "../types/settings"
+import type { AppLocale } from "@/i18n/config"
 import { parseActiveSessionsResponse } from "../schemas/active-sessions-response.schema"
 
 const SETTINGS_ERROR_CODES = new Set<SettingsBffErrorCode>([
@@ -36,6 +37,7 @@ const settingsBffClient = {
   getProfile: () => request<{ user: SettingsUser }>("/api/settings/profile", "POST"),
   revokeActiveSession: (sessionId: string) => request<undefined>(`/api/settings/sessions/${encodeURIComponent(sessionId)}`, "DELETE"),
   updateProfile: (input: ProfileUpdateRequest) => request<{ user: SettingsUser }>("/api/settings/profile", "PUT", input),
+  updateLocale: (locale: AppLocale) => request<{ user: SettingsUser }>("/api/settings/profile", "PUT", { locale }),
   uploadAvatar: (avatar: File) => {
     const body = new FormData()
     body.append("avatar", avatar)

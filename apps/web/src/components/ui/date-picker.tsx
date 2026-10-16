@@ -1,6 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
+import { ChevronDown } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { Popover } from "radix-ui"
 import { useState } from "react"
@@ -11,6 +12,10 @@ import { getDateFnsLocale } from "@/i18n/date-fns-locale"
 import { Calendar } from "./calendar"
 
 type DatePickerProps = {
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
+  ariaLabel?: string
+  className?: string
   disabled?: boolean
   id: string
   onValueChange: (value: string) => void
@@ -18,7 +23,7 @@ type DatePickerProps = {
   value: string
 }
 
-function DatePicker({ disabled = false, id, onValueChange, placeholder, value }: DatePickerProps) {
+function DatePicker({ "aria-describedby": ariaDescribedBy, "aria-invalid": ariaInvalid, ariaLabel, className, disabled = false, id, onValueChange, placeholder, value }: DatePickerProps) {
   const locale = useLocale()
   const t = useTranslations("common.datePicker")
   const dateLocale = getDateFnsLocale(locale)
@@ -30,16 +35,23 @@ function DatePicker({ disabled = false, id, onValueChange, placeholder, value }:
     <Popover.Root onOpenChange={setOpen} open={open}>
       <Popover.Trigger asChild>
         <button
-          aria-label={t("selectDate")}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
+          aria-label={ariaLabel ?? t("selectDate")}
           className={cn(
             "flex min-w-0 flex-1 items-center justify-between gap-3 bg-transparent text-left font-sans text-[length:var(--type-ui-size)] leading-[var(--type-ui-line-height)] outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            selectedDate ? "font-medium text-foreground" : "font-normal text-muted-foreground",
+            selectedDate ? "font-medium text-foreground" : "text-[length:var(--input-placeholder-size)] font-normal text-[var(--input-placeholder)]",
+            className,
           )}
           disabled={disabled}
           id={id}
           type="button"
         >
-          <span>{selectedDate ? format(selectedDate, "P", { locale: dateLocale }) : (placeholder ?? t("placeholder"))}</span>
+          <span className="truncate">{selectedDate ? format(selectedDate, "P", { locale: dateLocale }) : (placeholder ?? t("placeholder"))}</span>
+          <ChevronDown
+            aria-hidden="true"
+            className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")}
+          />
         </button>
       </Popover.Trigger>
       <Popover.Portal>

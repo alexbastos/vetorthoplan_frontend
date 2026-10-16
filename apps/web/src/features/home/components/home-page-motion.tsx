@@ -5,15 +5,16 @@ import { type ReactNode, useRef } from "react"
 import { useLoginHandoff } from "@/components/shared/login-handoff/login-handoff-provider"
 
 import { useHomePageEntrance } from "../hooks/animations/use-home-page-entrance"
+import styles from "./home-page.module.css"
 
 function HomePageMotion({ children }: { children: ReactNode }) {
   const pageRef = useRef<HTMLDivElement>(null)
-  const { completeDestinationTransition, isDestinationHandoffActive } = useLoginHandoff()
+  const { isDestinationHandoffActive } = useLoginHandoff()
 
-  useHomePageEntrance(pageRef, completeDestinationTransition, isDestinationHandoffActive)
+  useHomePageEntrance(pageRef, isDestinationHandoffActive)
 
   return (
-    <div ref={pageRef} data-home-page className="flex w-full flex-1 flex-col px-6 py-8 sm:px-8 sm:py-10">
+    <div ref={pageRef} className={styles.page} data-home-entrance="pending" data-home-page>
       {children}
     </div>
   )

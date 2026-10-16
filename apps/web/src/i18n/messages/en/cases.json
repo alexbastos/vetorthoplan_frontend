@@ -1,0 +1,276 @@
+{
+  "metadataTitle": "Cases",
+  "newCaseMetadataTitle": "New case",
+  "eyebrow": "Clinical cases",
+  "title": "Cases",
+  "description": "Organize and track your patients' clinical cases.",
+  "actions": {
+    "newCase": "New Case",
+    "createCase": "Create new case",
+    "backToCases": "Back to cases",
+    "retry": "Try again"
+  },
+  "empty": {
+    "title": "No cases yet",
+    "description": "Create your first case and begin the orthopedic plan."
+  },
+  "list": {
+    "title": "Registered cases",
+    "count": "{count, plural, one {# case} other {# cases}}",
+    "caption": "List of registered clinical cases",
+    "caseId": "ID {id}",
+    "fileCount": "{count, plural, one {# file} other {# files}}",
+    "notInformed": "Not informed",
+    "previewUnavailable": "Preview unavailable",
+    "thumbnailAlt": "Preview of case {title}",
+    "updatedAt": "Updated {date}",
+    "filters": {
+      "label": "Filter cases by status",
+      "all": "All",
+      "draft": "Drafts",
+      "in-progress": "In progress",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "emptyFilter": {
+      "title": "No cases in this category",
+      "description": "Cases will appear here when they reach this stage.",
+      "action": "View all cases"
+    },
+    "columns": {
+      "case": "Case",
+      "patient": "Patient",
+      "profile": "Species and breed",
+      "status": "Status",
+      "updatedAt": "Updated"
+    },
+    "status": {
+      "draft": "Draft",
+      "in-progress": "In progress",
+      "completed": "Completed",
+      "archived": "Archived"
+    }
+  },
+  "states": {
+    "loading": "Loading cases...",
+    "loadErrorTitle": "Unable to load cases",
+    "loadErrorDescription": "Please try again shortly."
+  },
+  "newCase": {
+    "title": "New clinical case",
+    "description": "Add the clinical information and patient details needed to begin a new plan.",
+    "progress": {
+      "label": "Case creation progress",
+      "case-details": "Details",
+      "file-import": "Files",
+      "progressValue": "{step}: {progress}% complete"
+    },
+    "sections": {
+      "case": {
+        "title": "Case identification",
+        "description": "Choose a short title that makes this case easy to find."
+      },
+      "patient": {
+        "title": "Patient details",
+        "description": "Add the basic information about the animal being treated."
+      },
+      "clinical": {
+        "title": "Clinical information",
+        "description": "Add the context needed to begin the orthopedic plan."
+      }
+    },
+    "fields": {
+      "title": "Title",
+      "patientName": "Animal name",
+      "species": "Species",
+      "breed": "Breed",
+      "sex": "Sex",
+      "age": "Birth date or age",
+      "ageMode": "Age format",
+      "ageYears": "Age",
+      "birthDate": "Birth date",
+      "weightKg": "Weight (kg)",
+      "clinicalNotes": "Clinical notes"
+    },
+    "placeholders": {
+      "title": "Orthopedic assessment — right knee",
+      "patientName": "Luna",
+      "species": "Canine, feline, bird...",
+      "breed": "Labrador Retriever",
+      "ageYears": "4",
+      "birthDate": "mm/dd/yyyy",
+      "weightKg": "32.5",
+      "clinicalNotes": "Describe symptoms, history, duration, and relevant observations."
+    },
+    "species": {
+      "canine": "Canine",
+      "feline": "Feline",
+      "equine": "Equine",
+      "other": "Other"
+    },
+    "sex": {
+      "male": "Male",
+      "female": "Female",
+      "not-informed": "Not informed"
+    },
+    "ageModes": {
+      "approximate-years": "Approximate age",
+      "birth-date": "Birth date"
+    },
+    "actions": {
+      "back": "Back",
+      "cancel": "Cancel",
+      "increaseAge": "Increase age by one year",
+      "decreaseAge": "Decrease age by one year",
+      "continue": "Continue",
+      "continuing": "Continuing...",
+      "create": "Create case",
+      "creating": "Creating case...",
+      "finish": "Finish",
+      "importing": "Importing...",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "titleRequired": "Enter a title for the case.",
+      "titleMax": "The title must be at most 160 characters.",
+      "patientNameRequired": "Enter the animal's name.",
+      "sexRequired": "Select the animal's sex.",
+      "patientNameMax": "The name must be at most 120 characters.",
+      "speciesRequired": "Enter the species.",
+      "speciesMax": "The species must be at most 80 characters.",
+      "breedMax": "The breed must be at most 120 characters.",
+      "ageYears": "Enter an age between 0 and 80 years.",
+      "birthDate": "Enter a valid birth date.",
+      "birthDateOrAge": "Enter a birth date or approximate age, not both.",
+      "weight": "Enter a weight between 0.01 and 1,000 kg.",
+      "clinicalNotesMax": "Clinical notes must be at most 1,000 characters."
+    },
+    "notifications": {
+      "createdTitle": "Case created successfully",
+      "createdDescription": "Now import the clinical files for this case.",
+      "createErrorTitle": "Unable to create the case",
+      "validationError": "Review the information and try again.",
+      "unavailableError": "Case creation will be available when the server integration is enabled.",
+      "genericError": "An unexpected error occurred. Please try again."
+    },
+    "fileImport": {
+      "title": "Upload files",
+      "description": "Add the files needed to begin planning this case.",
+      "sectionTitle": "Case files",
+      "sectionDescription": "Select the files related to “{caseTitle}”.",
+      "fieldLabel": "Clinical files",
+      "dropTitle": "Choose files or drag and drop them here",
+      "dropAction": "or click to select",
+      "formats": "DICOM, JPEG, PNG, PDF, and MP4, up to 50 MB per file.",
+      "browse": "Browse files",
+      "close": "Back to case details",
+      "preparing": "Preparing file...",
+      "ready": "Completed",
+      "importing": "Uploading...",
+      "selectedFiles": "{count, plural, one {# selected file} other {# selected files}}",
+      "removeFile": "Remove {fileName}",
+      "validation": {
+        "required": "Select at least one file to continue.",
+        "empty": "The selected file is empty.",
+        "unsupportedType": "Select only DICOM, JPEG, PNG, PDF, or MP4 files.",
+        "tooLarge": "Each file must be 50 MB or less.",
+        "duplicate": "This file has already been selected."
+      },
+      "notifications": {
+        "importedTitle": "Files imported successfully",
+        "importedDescription": "The files were linked to the clinical case.",
+        "importErrorTitle": "Unable to import the files",
+        "caseNotFound": "The created case could not be found. Return to the list and try again.",
+        "createUnavailableError": "Case creation will be available when the server integration is enabled.",
+        "unavailableError": "File import will be available when the server integration is enabled.",
+        "validationError": "Review the selected files and try again.",
+        "genericError": "An unexpected error occurred. Please try again."
+      }
+    }
+  },
+  "workspace": {
+    "metadataTitle": "Case planning",
+    "eyebrow": "Case workspace",
+    "back": "Back",
+    "backToCases": "Back to cases",
+    "theme": { "label": "Interface theme", "light": "Light mode", "dark": "Dark mode" },
+    "sidebar": { "label": "Case details and images", "title": "Case", "id": "Case ID", "ageYears": "{count, plural, one {# year old} other {# years old}}", "ageUnknown": "Age not provided", "sex": { "male": "Male", "female": "Female", "notInformed": "Sex not provided" } },
+    "caseDetails": {
+      "heading": "Case details",
+      "identification": "Identification",
+      "patient": "Patient",
+      "species": "Species",
+      "breed": "Breed",
+      "sexLabel": "Sex",
+      "sex": { "male": "Male", "female": "Female", "notInformed": "Not provided" },
+      "age": "Age",
+      "ageYears": "{count, plural, one {# year} other {# years}}",
+      "birthDate": "Date of birth",
+      "weight": "Weight",
+      "clinical": "Clinical notes",
+      "record": "Record",
+      "status": "Status",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "id": "Case ID",
+      "notInformed": "Not provided"
+    },
+    "retry": "Try again",
+    "loading": "Loading case workspace...",
+    "draft": "Draft",
+    "progress": { "label": "Planning steps", "details": "01 Details", "files": "02 Files", "calibrate": "03 Calibrate" },
+    "panel": { "region": "Workspace panel", "navigation": "Workspace areas", "tools": "Tools", "image": "Image", "navigationGroup": "Navigation", "moveImage": "Move image", "calibrationGroup": "Calibration", "openCalibration": "Calibrate image", "scaleReady": "Scale validated for this image.", "scaleChanged": "Calibration changes have not been validated.", "invertColors": "Invert colors" },
+    "missing": { "title": "Case not found", "description": "This case is unavailable in this session. Return to the list to find another case." },
+    "error": { "title": "Unable to open the workspace", "description": "Planning is unavailable right now. Please try again shortly." },
+    "images": {
+      "title": "Images",
+      "count": "{count, plural, one {# image} other {# images}}",
+      "empty": "No radiographs in this case. Add a DICOM, JPEG, or PNG to begin.",
+      "uploadedOn": "Uploaded {date}",
+      "uploadDateUnavailable": "Upload date unavailable",
+      "actions": {
+        "menu": "Options for {name}",
+        "rename": "Rename",
+        "copy": "Copy",
+        "delete": "Delete",
+        "copySuffix": "copy",
+        "renameTitle": "Rename image",
+        "renameDescription": "Change the name. The file format will be preserved.",
+        "name": "Image name",
+        "invalidName": "Enter a valid name without slashes, up to 255 characters.",
+        "deleteTitle": "Delete image?",
+        "deleteDescription": "The image “{name}” and its calibration will be removed from this case.",
+        "cancel": "Cancel",
+        "save": "Save name",
+        "renameSuccess": "Image renamed",
+        "copySuccess": "Copy added to the case",
+        "deleteSuccess": "Image deleted",
+        "unavailable": "Image changes will be available after server integration.",
+        "error": "Unable to change the image. Please try again."
+      },
+      "status": { "calibrated": "Calibrated", "uncalibrated": "Not calibrated", "processing": "Processing", "unavailable": "Preview unavailable" }
+    },
+    "attachments": "Case attachments",
+    "noImage": { "title": "Start with a radiograph", "description": "Add a case image to view it and define its scale.", "panel": "Calibration options will appear when a radiograph is ready." },
+    "upload": { "add": "Add files", "invalid": "Select DICOM, JPEG, PNG, PDF, or MP4 files up to 50 MB each.", "success": "Files added to the case", "unavailable": "Upload will be available after server integration.", "error": "Unable to add the files." },
+    "imageState": { "processingTitle": "Preparing radiograph", "processingDescription": "The image is being processed. Calibration will be available once the preview is ready.", "unavailableTitle": "Unable to view this radiograph", "dicomDescription": "The DICOM viewer is not available in this version yet. The original file remains linked to the case.", "invalidDescription": "This file could not be decoded as an image. Check the file and try uploading it again." },
+    "viewer": { "region": "Radiograph viewer", "tools": "Viewing tools", "mark": "Mark reference", "pan": "Move image", "zoomOut": "Zoom out", "zoomIn": "Zoom in", "fit": "Fit to screen", "fullscreen": "Full screen", "exitFullscreen": "Exit full screen", "imageAlt": "Radiograph {name}", "panHint": "Drag to move the image", "markHint": "Drag over the marker to define the reference", "lineEditHint": "Drag an endpoint to adjust or the line to move", "circleEditHint": "Drag the edge to resize or inside to move" },
+    "calibration": {
+      "step": "Step 03 · Image",
+        "title": "Calibrate image", "backToImage": "Back to image options",
+      "description": "Define a known reference to convert pixels to millimeters for this image.",
+      "status": { "calibrated": "Calibrated", "uncalibrated": "Not calibrated" },
+        "imageInfo": "Radiograph details", "imageInfoHelp": "The projection describes the X-ray beam direction; the limb identifies the left or right side. These details do not change calibration.", "view": "Projection", "laterality": "Limb", "unknown": "Not provided", "orientationSaving": "Saving radiograph details...", "orientationUnavailable": "Radiograph details can be saved after server integration.", "orientationError": "Unable to save radiograph details.",
+      "views": { "craniocaudal": "Craniocaudal", "mediolateral": "Mediolateral", "other": "Other" },
+      "sides": { "left": "Left", "right": "Right" },
+        "markerTitle": "Marker shape", "markerStep": "1 of 2", "markerHelp": "Choose a shape and mark a reference of known size on the radiograph.", "methodLabel": "Marker shape", "line": "Line", "circle": "Circle", "circleUnavailable": "Circle is unavailable for this image because its pixels have different proportions.", "lineHint": "Drag from one end of the visible ruler or reference to the other.", "circleHint": "Drag from the center to the edge of a reference sphere or disc.", "notReady": "Calibration will be available once this image can be viewed.",
+        "coordinates": { "title": "Adjust coordinates", "help": "Image pixels: {width} × {height}", "invalid": "Enter valid coordinates inside the image and a marker of at least 2 pixels.", "startX": "Start X", "startY": "Start Y", "endX": "End X", "endY": "End Y", "centerX": "Center X", "centerY": "Center Y", "radius": "Radius (px)", "apply": "Apply marker" },
+        "presetTitle": "Scale (cm)", "rulerLabel": "Marker size in centimeters", "scaleUnset": "—", "otherSize": "Other value", "useRuler": "Use ruler", "chooseMarkerSize": "Select the scale and mark the reference on the image.", "drawSizedLine": "Mark {size} cm of the reference on the image.", "drawSizedCircle": "Fit the circle to the {size} cm diameter marker.",
+        "referenceTitle": "Actual size", "referenceLabel": "Other size", "referencePlaceholder": "E.g. 2.5", "referenceHelp": "Enter the actual line length or circle diameter in millimeters.", "invalidScale": "Review the marker and the entered measurement.",
+      "scaleTitle": "Image scale", "scalePreview": "Calculated preview", "savedScale": "Saved scale", "pendingScale": "Mark and enter the size to calculate", "rowScale": "Vertical: {value} mm/px", "dicomEvidence": "This DICOM contains scale data that requires review before clinical use.",
+      "save": "Validate calibration", "update": "Update calibration", "reset": "Discard edits", "unsavedMarker": "Marker changed", "saved": "Calibration saved for this radiograph", "conflict": "The calibration changed in another session. Reopen the case before saving.", "unavailable": "Saving will be available after server integration.", "saveError": "Unable to save the calibration.",
+      "displayTitle": "Display", "displayHelp": "Brightness and contrast only affect the view; they do not change the scale.", "brightness": "Brightness", "contrast": "Contrast"
+    }
+  }
+}

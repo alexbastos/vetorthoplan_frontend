@@ -4,23 +4,34 @@ import Image from "next/image"
 import { useTranslations } from "next-intl"
 
 import { useAppTheme, useAppUser } from "@/components/shared/app-shell"
+import { AppUserAvatar } from "@/components/shared/app-shell/app-user-avatar"
+
+import styles from "./home-page.module.css"
 
 function HomeGreeting() {
   const t = useTranslations("home")
-  const { initials, name } = useAppUser()
+  const { avatarUrl, initials, name } = useAppUser()
   const { resolvedTheme } = useAppTheme()
   const firstName = name.trim().split(/\s+/).filter(Boolean)[0] ?? ""
 
   return (
-    <header data-home-greeting className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-3.5">
-      <span data-home-greeting-avatar aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-secondary text-[16px] font-medium text-brand-secondary-foreground sm:size-11 sm:text-[18px]">
-        {initials}
+    <header className={styles.greeting} data-home-greeting>
+      <span className={styles.greetingAvatarFrame} data-home-greeting-avatar>
+        <AppUserAvatar avatarUrl={avatarUrl} className={styles.greetingAvatar} initials={initials} />
       </span>
-      <div className="min-w-0">
-        <p data-home-greeting-salutation className="text-[13px] font-medium text-content-secondary sm:text-[13.5px]">{t("greeting", { firstName })}</p>
-        <h1 data-home-greeting-title className="flex flex-wrap items-center gap-x-1 text-[22px] leading-tight font-medium tracking-[-0.03em] text-foreground sm:text-[27px]">
+      <div className={styles.greetingCopy}>
+        <p className={styles.greetingSalutation} data-home-greeting-salutation>{t("greeting", { firstName })}</p>
+        <h1 className={styles.greetingTitle} data-home-greeting-title>
           <span>{t("welcome")}</span>
-          <Image alt="CAPTAGOV" className="-ml-1 h-auto w-[92px] sm:w-[112px]" height={28} src={resolvedTheme === "dark" ? "/brand/logo_white.svg" : "/brand/logo_black.svg"} width={112} />
+          <span className={styles.greetingLogoFrame}>
+            <Image
+              alt="Orthovet"
+              className={styles.greetingLogo}
+              height={28}
+              src={resolvedTheme === "dark" ? "/brand/logo_vet_v2_white_spaced.svg" : "/brand/logo_vet_v2_black_spaced.svg"}
+              width={140}
+            />
+          </span>
         </h1>
       </div>
     </header>

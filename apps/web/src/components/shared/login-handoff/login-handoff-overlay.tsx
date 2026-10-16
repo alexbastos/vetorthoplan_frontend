@@ -1,20 +1,39 @@
 "use client"
 
-import { VetorthoplanLoader } from "@/components/ui/vetorthoplan-loader"
 import { useTranslations } from "next-intl"
 
-import type { LoginHandoffLabels, LoginHandoffState } from "./login-handoff-provider"
+import type { LoginHandoffLabels, LoginHandoffPhase } from "./login-handoff-provider"
+import { LoginHandoffPawLoader } from "./login-handoff-paw-loader"
 import { useLoginHandoffAnimation } from "./use-login-handoff-animation"
+import styles from "./login-handoff-overlay.module.css"
 
 type LoginHandoffOverlayProps = {
   labels?: LoginHandoffLabels
-  onExitComplete: () => void
-  state: LoginHandoffState
+  onDismissComplete: () => void
+  onLoaderExitComplete: () => void
+  onLoaderSettled: () => void
+  state: LoginHandoffPhase
 }
 
-function LoginHandoffOverlay({ labels, onExitComplete, state }: LoginHandoffOverlayProps) {
+function LoginHandoffOverlay({
+  labels,
+  onDismissComplete,
+  onLoaderExitComplete,
+  onLoaderSettled,
+  state,
+}: LoginHandoffOverlayProps) {
   const t = useTranslations("auth.handoff")
-  const overlayRef = useLoginHandoffAnimation({ onExitComplete, state })
+  const messages = [
+    labels?.authenticating ?? t("authenticating"),
+    labels?.validating ?? t("validating"),
+    labels?.preparing ?? t("preparing"),
+  ]
+  const { contentRef, messageIndex, messageRef, overlayRef } = useLoginHandoffAnimation({
+    messageCount: messages.length,
+    onDismissComplete,
+    onLoaderExitComplete,
+    state,
+  })
 
   if (state === "idle") {
     return null
@@ -26,22 +45,33 @@ function LoginHandoffOverlay({ labels, onExitComplete, state }: LoginHandoffOver
       aria-atomic="true"
       aria-busy="true"
       aria-live="polite"
-      className="fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-center gap-4 bg-workspace px-6 text-center opacity-0"
+      className="fixed inset-0 z-[100] flex min-h-dvh items-center justify-center bg-workspace px-6 text-center opacity-0"
       data-handoff-state={state}
       data-login-handoff-overlay
       role="status"
     >
-      <VetorthoplanLoader size={52} />
-      <div className="relative h-5 w-72 text-overline text-content-secondary">
-        <p className="absolute inset-0 flex items-center justify-center whitespace-nowrap" data-login-handoff-status="authenticating">
-          {labels?.authenticating ?? t("authenticating")}
-        </p>
-        <p className="absolute inset-0 flex items-center justify-center whitespace-nowrap opacity-0" data-login-handoff-status="validating">
-          {labels?.validating ?? t("validating")}
-        </p>
-        <p className="absolute inset-0 flex items-center justify-center whitespace-nowrap opacity-0" data-login-handoff-status="preparing">
-          {labels?.preparing ?? t("preparing")}
-        </p>
+      <div ref={contentRef} className={styles.content} data-login-handoff-content>
+        <LoginHandoffPawLoader
+          onSettled={onLoaderSettled}
+          settle={state === "awaiting-destination" || state === "exiting-loader" || state === "entering-destination"}
+          size={104}
+        />
+        <div className={styles.status}>
+          <p ref={messageRef} className={styles.message} data-login-handoff-status>
+            <span className={styles.statusLabel}>{messages[messageIndex]}</span>
+            <svg
+              aria-hidden="true"
+              className={styles.statusDots}
+              fill="none"
+              viewBox="0 0 18 6"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle className={styles.statusDot} cx="3" cy="3" r="1.25" />
+              <circle className={styles.statusDot} cx="9" cy="3" r="1.25" />
+              <circle className={styles.statusDot} cx="15" cy="3" r="1.25" />
+            </svg>
+          </p>
+        </div>
       </div>
     </section>
   )

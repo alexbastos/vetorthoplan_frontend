@@ -23,7 +23,7 @@ function LocaleSelectField({ error, locale, onValueChange }: LocaleSelectFieldPr
         <LocaleFlagIcon locale={locale} />
         <div className="min-w-0">
           <label className="text-caption font-semibold text-foreground" htmlFor={inputId}>{t("language")}</label>
-          <p className="mt-1 text-caption text-content-secondary">{t("languageHint")}</p>
+          <p className="mt-1 text-caption text-description">{t("languageHint")}</p>
         </div>
       </div>
       <div className="mt-3">

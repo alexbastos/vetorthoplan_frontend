@@ -1,16 +1,38 @@
 "use client"
 
-import { createContext, type ReactNode, useContext } from "react"
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
-type AppUser = {
-  initials: string
+type AppUserIdentity = {
+  avatarUrl: string | null
   name: string
+}
+
+type AppUser = AppUserIdentity & {
+  initials: string
+  updateUser: (updates: Partial<AppUserIdentity>) => void
 }
 
 const AppUserContext = createContext<AppUser | null>(null)
 
-function AppUserProvider({ children, name }: { children: ReactNode; name: string }) {
-  return <AppUserContext.Provider value={{ initials: getUserInitials(name), name }}>{children}</AppUserContext.Provider>
+function AppUserProvider({ avatarUrl, children, name }: AppUserIdentity & { children: ReactNode }) {
+  const [user, setUser] = useState<AppUserIdentity>(() => ({ avatarUrl, name }))
+
+  useEffect(() => {
+    setUser((currentUser) => currentUser.avatarUrl === avatarUrl && currentUser.name === name
+      ? currentUser
+      : { avatarUrl, name })
+  }, [avatarUrl, name])
+
+  const updateUser = useCallback((updates: Partial<AppUserIdentity>) => {
+    setUser((currentUser) => ({ ...currentUser, ...updates }))
+  }, [])
+  const value = useMemo<AppUser>(() => ({
+    ...user,
+    initials: getUserInitials(user.name),
+    updateUser,
+  }), [updateUser, user])
+
+  return <AppUserContext.Provider value={value}>{children}</AppUserContext.Provider>
 }
 
 function useAppUser(): AppUser {
@@ -34,4 +56,4 @@ function getUserInitials(name: string): string {
 }
 
 export { AppUserProvider, getUserInitials, useAppUser }
-export type { AppUser }
+export type { AppUser, AppUserIdentity }

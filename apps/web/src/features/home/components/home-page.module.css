@@ -1,0 +1,728 @@
+.page {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1600px;
+  min-height: 0;
+  margin-inline: auto;
+  padding: clamp(24px, 3.2vh, 36px) clamp(24px, 3vw, 48px) 28px;
+}
+
+/* Reserve the layout before hydration; GSAP reveals it after preparing its targets.
+   Without JavaScript or with reduced motion, the server-rendered Home stays visible. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .page[data-home-entrance="pending"] {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: clamp(20px, 3.2vh, 32px);
+}
+
+.greetingAvatarFrame {
+  display: block;
+  flex: none;
+}
+
+.lightEyebrow,
+.journeyEyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.greetingAvatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 30%;
+  background: var(--color-brand-secondary);
+  color: var(--color-brand-secondary-foreground);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.greetingCopy { min-width: 0; }
+
+.greetingSalutation {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.greetingTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: clamp(22px, 2vw, 27px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--color-foreground) 56%, var(--color-surface-stage));
+}
+
+.greetingLogoFrame {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 5.25em;
+  height: 1em;
+}
+
+.greetingLogo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.spotlight {
+  display: grid;
+  grid-template-columns: minmax(0, 1.78fr) minmax(290px, 0.82fr);
+  gap: 18px;
+  height: clamp(264px, 32dvh, 300px);
+  min-height: 0;
+}
+
+.presentation,
+.community {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: 0;
+  height: 100%;
+  border-radius: 18px;
+}
+
+.presentation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 38%);
+  gap: clamp(24px, 3vw, 48px);
+  align-items: center;
+  padding: clamp(28px, 2.5vw, 40px);
+  background: var(--color-obsidian);
+  color: var(--color-paper-white);
+}
+
+.landscapeLayer {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 0 auto;
+  width: 30%;
+  overflow: hidden;
+}
+
+.landscapeImage {
+  object-fit: cover;
+  object-position: right 60%;
+}
+
+.dataTransition {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 45%;
+  width: 25%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.presentationCopy {
+  z-index: 2;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.presentationTitle {
+  max-width: 540px;
+  font-family: var(--font-jetbrains-mono), var(--font-geist-mono), monospace;
+  font-size: clamp(30px, 2.15vw, 39px);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 1.14;
+}
+
+.bannerFooter {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.presentationDuration {
+  color: var(--color-silver);
+  font-family: var(--font-jetbrains-mono), var(--font-geist-mono), monospace;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.presentationPending {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 17px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.presentationPending {
+  border: 0;
+  background: var(--color-neutral-0);
+  color: var(--color-neutral-900);
+  cursor: not-allowed;
+}
+
+.videoPreview {
+  z-index: 2;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 16 / 9;
+  justify-self: center;
+  padding: 4px;
+  border: 1px solid rgb(255 255 255 / 21%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 10%);
+  box-shadow: 0 18px 42px rgb(0 0 0 / 32%);
+}
+
+.videoPreviewImage {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: #161e28;
+}
+
+.thumbnailImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.videoPreviewPlay {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-neutral-0);
+  color: var(--color-neutral-900);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 20%);
+}
+
+.community {
+  --community-illustration-line: var(--color-neutral-200);
+  --community-illustration-detail: var(--color-neutral-300);
+  --community-illustration-dot: var(--color-neutral-400);
+  --community-illustration-text: var(--color-neutral-600);
+
+  display: flex;
+  container-name: home-community;
+  container-type: size;
+  align-items: stretch;
+  padding: clamp(24px, 2vw, 32px);
+  border: 0;
+  background: var(--color-surface-default);
+  color: var(--color-text-primary);
+}
+
+:global(.dark) .community {
+  --community-illustration-line: var(--color-border-default);
+  --community-illustration-detail: var(--color-neutral-600);
+  --community-illustration-dot: var(--color-neutral-500);
+  --community-illustration-text: var(--color-text-secondary);
+}
+
+.communityCopy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: min(58%, 240px);
+  min-width: 170px;
+}
+
+.lightEyebrow { color: var(--color-pewter); }
+
+.journeyEyebrow {
+  color: var(--color-content-secondary);
+}
+
+.communityTitle {
+  max-width: 215px;
+  margin: 0;
+  font-size: clamp(25px, 2vw, 31px);
+  font-weight: 450;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.communityFooter {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.communitySocials {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.communitySocial {
+  /* Clip the tucked label, just as the viewport edge does in the reference. */
+  overflow: hidden;
+  width: 152px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.communitySocialTab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  width: 152px;
+  height: 100%;
+  padding: 0 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 0 10px 10px 0;
+  background: var(--color-card);
+  color: var(--color-neutral-0);
+  box-shadow: 0 4px 6px -1px rgb(23 23 25 / 10%);
+  cursor: default;
+  pointer-events: auto;
+  transform: translateX(-112px);
+  transition: transform 500ms ease-out, box-shadow 500ms ease-out;
+}
+
+.communitySocialTab::before,
+.communitySocialTab::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  transition: opacity 500ms ease-out;
+}
+
+.communitySocialTab::before {
+  background: var(--social-gradient);
+  opacity: 0.9;
+}
+
+.communitySocialTab::after {
+  background: var(--social-hover-gradient);
+  opacity: 0;
+}
+
+.communitySocialName,
+.communitySocialIcon {
+  position: relative;
+  z-index: 1;
+  flex: none;
+}
+
+.communitySocialName {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: letter-spacing 300ms ease-out;
+}
+
+.communitySocialIcon {
+  filter: drop-shadow(0 1px 2px rgb(23 23 25 / 12%));
+  transition: transform 500ms ease-out;
+}
+
+.communitySocial:is(:hover, :focus-within) .communitySocialTab {
+  box-shadow: 0 10px 15px -3px rgb(23 23 25 / 15%);
+  transform: translateX(-8px);
+}
+
+.communitySocial:is(:hover, :focus-within) .communitySocialTab::before { opacity: 0; }
+.communitySocial:is(:hover, :focus-within) .communitySocialTab::after { opacity: 0.9; }
+.communitySocial:is(:hover, :focus-within) .communitySocialName { letter-spacing: 0.1em; }
+.communitySocial:is(:hover, :focus-within) .communitySocialIcon { transform: scale(1.25); }
+
+.communitySocialTab:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: -3px;
+}
+
+.communitySocialInstagram {
+  --social-gradient: linear-gradient(to right, #db2777, #9333ea, #f97316);
+  --social-hover-gradient: linear-gradient(to right, #ec4899, #a855f7, #fb923c);
+}
+
+.communitySocialLinkedin {
+  --social-gradient: linear-gradient(to right, #2563eb, #60a5fa);
+  --social-hover-gradient: linear-gradient(to right, #3b82f6, #93c5fd);
+}
+
+.communitySocialWebsite {
+  --social-gradient: linear-gradient(to right, #059669, #14b8a6);
+  --social-hover-gradient: linear-gradient(to right, #10b981, #2dd4bf);
+}
+
+.communityArtwork {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 65%) 72%, transparent 94%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 65%) 72%, transparent 94%);
+}
+
+.communityBrowser {
+  position: absolute;
+  top: 50%;
+  right: -22px;
+  width: auto;
+  height: calc(100% - 44px);
+  aspect-ratio: 300 / 292;
+  filter: drop-shadow(0 12px 20px rgb(23 23 25 / 6%));
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 65%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 65%, transparent 100%);
+  transform: translateY(-50%);
+}
+
+.journey {
+  margin-top: clamp(24px, 4vh, 38px);
+  padding-top: clamp(18px, 2.5vh, 25px);
+  border-top: 1px solid var(--color-border);
+}
+
+.journeyHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.journeyTitle {
+  margin-top: 5px;
+  color: var(--color-foreground);
+  font-size: clamp(20px, 1.5vw, 24px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.journeyDescription {
+  color: var(--color-content-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.journeySteps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.journeyStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--color-foreground);
+}
+
+.journeyStepIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card);
+  color: var(--color-content-secondary);
+}
+
+.journeyStepNumber {
+  color: var(--color-content-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.journeyStepLabel {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 550;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shortcuts {
+  margin-top: clamp(24px, 4vh, 36px);
+}
+
+.shortcutsHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.shortcutsAll {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-link-default);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.shortcutsAll:hover { text-decoration: underline; }
+.shortcutsAll:focus-visible { border-radius: 3px; outline: 2px solid var(--color-border-focus); outline-offset: 4px; }
+
+.shortcutCard {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 210px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-card);
+  color: var(--color-foreground);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+.shortcutLink {
+  text-decoration: none;
+  transition: border-color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
+}
+
+.shortcutLink:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-content-disabled);
+  box-shadow: var(--shadow-card);
+}
+
+.shortcutLink:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
+}
+
+.shortcutRiffle {
+  --hairline-plate: var(--color-card);
+  --hairline-hi: var(--color-foreground);
+  --hairline-edge: var(--color-content-secondary);
+  --hairline-mid: var(--color-content-disabled);
+  --hairline-lo: var(--color-border);
+
+  position: absolute;
+  top: 50%;
+  right: -2%;
+  width: min(62%, 290px);
+  opacity: 0.9;
+  transform: translateY(-50%);
+}
+
+.shortcutCardWithRiffle .shortcutBody { pointer-events: none; }
+
+.shortcutBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 20px 22px;
+}
+
+.shortcutIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card);
+  color: var(--color-foreground);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.shortcutTitle {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.shortcutFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  color: var(--color-content-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.shortcutArrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.86);
+  color: var(--color-inkstone);
+  transition: background-color 250ms ease, color 250ms ease;
+}
+
+.shortcutLink:hover .shortcutArrow {
+  background: var(--color-link-default);
+  color: var(--color-surface-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shortcutLink,
+  .shortcutArrow { transition: none; }
+
+  .shortcutLink:hover { transform: none; }
+}
+
+@media (max-width: 1199px) {
+  .presentation { grid-template-columns: minmax(0, 1fr) minmax(205px, 38%); }
+  .presentationTitle { font-size: clamp(28px, 2.6vw, 34px); }
+  .communityBrowser { right: -46px; }
+}
+
+@media (max-width: 900px) {
+  .spotlight { grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr); }
+  .presentation { grid-template-columns: minmax(0, 1fr); }
+  .videoPreview { position: absolute; right: -70px; bottom: -37px; width: 48%; opacity: 0.35; }
+  .presentationCopy { max-width: 410px; }
+  .communityBrowser { right: -70px; opacity: 0.6; }
+  .journeyDescription { max-width: 240px; }
+}
+
+@media (max-width: 767px) {
+  .page { min-height: 100%; padding: 20px 18px 24px; }
+  .greeting { margin-bottom: 16px; }
+  .greetingAvatar { width: 40px; height: 40px; font-size: 16px; }
+  .greetingTitle { font-size: 21px; }
+  .spotlight { display: flex; flex-direction: column; gap: 12px; height: auto; }
+  .presentation { flex: none; height: 205px; padding: 22px; }
+  .presentationCopy { max-width: 350px; }
+  .presentationTitle { max-width: 300px; font-size: clamp(23px, 6.3vw, 28px); }
+  .bannerFooter { margin-top: 16px; }
+  .presentationPending { min-height: 36px; padding: 0 13px; font-size: 11px; }
+  .videoPreview { right: -35px; bottom: -44px; width: 46%; opacity: 0.5; }
+  .community { flex: none; height: 200px; padding: 16px 20px; }
+  .communityTitle { max-width: 185px; font-size: 21px; }
+  .communityFooter { padding-top: 4px; }
+  .communitySocials { gap: 8px; }
+  .communitySocial { height: 32px; }
+  .communityBrowser { right: -18px; height: calc(100% - 20px); opacity: 0.55; }
+  .journey { display: none; }
+  .shortcuts { margin-top: 18px; }
+}
+
+@media (max-width: 767px) and (max-height: 600px) {
+  .page { padding-top: 15px; padding-bottom: 15px; }
+  .greeting { margin-bottom: 11px; }
+  .presentation { height: 205px; }
+  .community { height: 196px; }
+}
+
+@media (min-width: 768px) and (max-height: 700px) {
+  .page { padding-top: 18px; padding-bottom: 18px; }
+  .greeting { margin-bottom: 17px; }
+  .spotlight { height: 248px; }
+  .journey { margin-top: 18px; padding-top: 15px; }
+  .journeySteps { margin-top: 14px; }
+}
+
+@media (min-width: 768px) and (max-height: 800px) {
+  .page { padding-top: 18px; padding-bottom: 18px; }
+  .greeting { margin-bottom: 16px; }
+  .spotlight { height: clamp(205px, 30dvh, 240px); }
+  .presentation { padding: 24px 30px; }
+  .presentationTitle { font-size: clamp(27px, 2vw, 34px); }
+  .community { padding: 24px; }
+  .communityTitle { font-size: clamp(25px, 1.8vw, 28px); }
+  .communityFooter { padding-top: 8px; }
+  .communitySocials { gap: 8px; }
+  .communitySocial { height: 36px; }
+  .journey { margin-top: 18px; padding-top: 15px; }
+  .journeySteps { margin-top: 14px; }
+  .shortcuts { margin-top: 16px; }
+}
+
+@media (min-width: 768px) and (max-height: 650px) {
+  .journey { display: none; }
+}
+
+/* Fit all three tabs beneath the two-line title in shorter cards. */
+@container home-community (max-height: 220px) {
+  .communityFooter { padding-top: 8px; }
+  .communitySocials { gap: 8px; }
+  .communitySocial { height: 32px; }
+}
+
+@container home-community (max-height: 185px) {
+  .communityTitle { font-size: clamp(21px, 2vw, 25px); }
+  .communityFooter { padding-top: 6px; }
+  .communitySocials { gap: 6px; }
+  .communitySocial { height: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .communitySocialTab,
+  .communitySocialTab::before,
+  .communitySocialTab::after,
+  .communitySocialName,
+  .communitySocialIcon { transition: none; }
+}

@@ -1,0 +1,182 @@
+{
+  "header": {
+    "navigationLabel": "Main navigation",
+    "homeLabel": "Orthovet — home",
+    "navigation": {
+      "platform": "Platform",
+      "workflow": "How it works",
+      "specialties": "Specialties"
+    },
+    "login": "Log in",
+    "demo": "Request a demo"
+  },
+  "hero": {
+    "eyebrow": "Veterinary orthopedic planning",
+    "titleLine1": "Plan with precision so you",
+    "titleLine2": "can operate with clarity.",
+    "description": "Turn radiographs into traceable surgical plans with measurements, implant simulation, and reports in one workspace.",
+    "primaryAction": "Explore the platform",
+    "screenFrame": {
+      "label": "Orthovet platform preview",
+      "title": "Digital planning, from examination to decision.",
+      "description": "A dedicated area for the clinical workflow preview will be presented here.",
+      "status": "In preparation"
+    }
+  },
+  "marketingMockup": {
+    "navigationLabel": "Planning stages",
+    "profileName": "Dr. Marcos Paulo",
+    "clinicName": "VetCare Clinic",
+    "caseGroup": "Case",
+    "planningGroup": "Planning",
+    "filesGroup": "Files",
+    "outputGroup": "Output",
+    "images": "Images",
+    "calibration": "Calibration",
+    "measurements": "Measurements",
+    "simulation": "Simulation",
+    "addFile": "Add file",
+    "lateralFile": "Lateral X-ray.jpg",
+    "cranialFile": "Cranial X-ray.jpg",
+    "examsFile": "Exams.pdf",
+    "report": "Report"
+  },
+  "intro": {
+    "label": "Meet Orthovet",
+    "firstLead": "Plan surgery directly on the radiograph.",
+    "firstBody": "Calibrate the image, take measurements, and simulate implants in one workspace, seeing the plan before you operate.",
+    "secondLead": "From the exam to the report, every step stays connected to the case.",
+    "secondBody": "You can review the references and organize planning decisions with clarity."
+  },
+  "platform": {
+    "title": "Keep the full case in view as you build the surgical plan.",
+    "case": {
+      "title": "Everything in one case",
+      "lead": "Keep the full context at hand.",
+      "description": "Organize patient details, radiographs, and clinical information before you plan."
+    },
+    "precision": {
+      "title": "Precision on the image",
+      "lead": "Every measurement has a reference.",
+      "description": "Calibrate the radiograph, trace axes, and review measurements in one workspace."
+    },
+    "review": {
+      "title": "A visual, reviewable plan",
+      "lead": "Put every decision in context.",
+      "description": "Simulate implants, save versions, and prepare the report for clinical review."
+    }
+  },
+  "workflow": {
+    "eyebrow": "Planning workflow",
+    "title": "From radiograph to plan, in a traceable workflow.",
+    "descriptionMuted": "Bring the examination, scale, measurements, simulation,",
+    "descriptionEmphasis": "and professional review together before surgery.",
+    "workspace": {
+      "label": "Orthovet planning workflow preview",
+      "title": "Digital planning, from examination to decision.",
+      "description": "The detailed clinical interface will be presented in this area.",
+      "status": "In preparation"
+    },
+    "caseBuilder": {
+      "label": "Orthovet case building preview",
+      "title": "Build the case",
+      "description": "Bring together the patient, clinical context, and imaging files before planning begins.",
+      "identification": "Identification",
+      "caseName": "Case name",
+      "caseValue": "THR \u00b7 Luna",
+      "patient": "Patient",
+      "patientValue": "Luna \u00b7 Canine \u00b7 8 years",
+      "clinicalContext": "Clinical context",
+      "clinicalNote": "Pre-operative assessment for left hip planning.",
+      "files": "Case files",
+      "fileCount": "2 linked files",
+      "upload": "Add examinations and documents",
+      "radiograph": "Lateral radiograph",
+      "documents": "Clinical history",
+      "readiness": "Case completeness",
+      "readyStatus": "Ready to plan",
+      "saveAction": "Save case",
+      "saved": "Case saved",
+      "stepStatus": "Step 01 of 04"
+    },
+    "calibrationScene": {
+      "label": "Orthovet radiograph scale calibration preview",
+      "title": "Calibrate the scale",
+      "description": "Set the reference and adjust the scale before measuring.",
+      "stepStatus": "Step 02 of 04",
+      "image": "Lateral radiograph",
+      "guidance": "Assisted manual adjustment",
+      "mirror": "Mirror radiograph",
+      "orientation": "Patient orientation",
+      "orientationLeft": "Left",
+      "orientationRight": "Right",
+      "scale": "Known scale",
+      "customScale": "Other",
+      "action": "Calibrate image",
+      "unitValue": "mm"
+    },
+    "measurementScene": {
+      "label": "Orthovet surgical measurement and simulation workbench",
+      "title": "Measure and simulate",
+      "stepStatus": "Step 03 of 04",
+      "image": "Calibrated image",
+      "tools": "Planning tools",
+      "distance": "Distance",
+      "distanceDescription": "Measure the distance between two points.",
+      "angle": "Angle",
+      "sawBlade": "Crescentic saw blade",
+      "sawBladeDescription": "Adjust the cutting arc and diameter.",
+      "reposition": "Reposition",
+      "repositionDescription": "Cut a freeform area and reposition it.",
+      "simulation": "Technical simulation",
+      "measurementValue": "11.8",
+      "unit": "mm",
+      "calibration": "Valid scale",
+      "angleValue": "87°",
+      "implant": "Implant",
+      "implantSize": "25",
+      "planStatus": "Plan aligned"
+    },
+    "ui": {
+      "caseId": "Case OV-0248",
+      "caseLabel": "Pre-operative planning",
+      "imageLabel": "Lateral radiograph",
+      "imageSecondary": "Craniocaudal radiograph",
+      "imageTertiary": "Oblique radiograph",
+      "information": "Case",
+      "surgical": "Surgical",
+      "professional": "Mobile",
+      "sharing": "Reference and sharing",
+      "addSurgeon": "Add surgeon",
+      "images": "Images",
+      "tools": "Tools",
+      "imageTab": "Image",
+      "calibration": "Valid calibration",
+      "reference": "Reference: 25 mm sphere",
+      "measurements": "Measurements",
+      "measurementAxis": "Anatomical axis",
+      "measurementAngle": "Linear measurement",
+      "implant": "Planned implant",
+      "implantDescription": "Versioned library item for professional review.",
+      "version": "Plan v1 \u00b7 draft"
+    },
+    "steps": {
+      "import": {
+        "title": "Build the case",
+        "description": "Bring patient data, radiographs, and clinical context together in an organized, traceable case."
+      },
+      "calibrate": {
+        "title": "Calibrate the scale",
+        "description": "Record the reference, unit, and calibration factor before taking measurements."
+      },
+      "plan": {
+        "title": "Measure and simulate",
+        "description": "Trace axes, record measurements, and position versioned implants over the image."
+      },
+      "review": {
+        "title": "Review the plan",
+        "description": "Save versions, identify the responsible professional, and prepare the clinical report."
+      }
+    }
+  }
+}

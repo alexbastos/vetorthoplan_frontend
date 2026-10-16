@@ -1,0 +1,34 @@
+.loader {
+  display: inline-grid;
+  flex: none;
+  height: var(--orthovet-paw-loader-size);
+  place-items: center;
+  width: var(--orthovet-paw-loader-size);
+}
+
+.symbol {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.mainPad {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.toesOrbit,
+.toeOrientation {
+  transform-box: view-box;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mainPad,
+  .toesOrbit,
+  .toeOrientation {
+    transform: none;
+  }
+}

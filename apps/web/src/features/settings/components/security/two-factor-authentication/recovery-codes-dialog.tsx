@@ -16,7 +16,7 @@ function RecoveryCodesDialog({ onAcknowledge, recoveryCodes }: RecoveryCodesDial
   return (
     <AlertDialog.Root open={Boolean(recoveryCodes?.length)}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/20 motion-safe:animate-in motion-safe:fade-in-0" />
+        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/25 backdrop-blur-sm motion-safe:animate-in motion-safe:fade-in-0" />
         <AlertDialog.Content
           className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-[var(--card-composite-surface)] shadow-[var(--card-composite-shadow-footer)] outline-none motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95"
           onEscapeKeyDown={(event) => event.preventDefault()}

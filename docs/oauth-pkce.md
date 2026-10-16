@@ -1,7 +1,7 @@
 # OAuth 2.0 Authorization Code com PKCE
 
 Este documento define a fronteira de segurança do fluxo OAuth implementado no
-frontend Vetorthoplan. O contrato versionado da Authentication API continua sendo a
+frontend Orthovet. O contrato versionado da Authentication API continua sendo a
 fonte de verdade para os endpoints públicos do provedor.
 
 Em 10/09/2026, o documento local foi comparado semanticamente com o
@@ -13,9 +13,9 @@ oficial e não apresentou divergências. O snapshot corresponde ao build
 
 | Componente | Responsabilidades | Não deve fazer |
 | --- | --- | --- |
-| Cliente externo | Registrar `client_id` e `redirect_uri`; gerar `state`, `nonce`, `code_verifier` e `code_challenge`; usar `S256`; iniciar a autorização; validar o `state` devolvido; trocar o código em `/oauth/token`; armazenar seus próprios tokens com segurança. | Enviar `code_verifier` ao BFF Vetorthoplan; aceitar `state` diferente; reutilizar código ou verifier; tratar o BFF como cofre de tokens da aplicação. |
-| Navegador Vetorthoplan | Navegar entre autorização, login, MFA e consentimento; enviar ao BFF somente a decisão de consentimento e o ID opaco da transação. | Escolher scopes na aprovação; ler tokens ou o conteúdo da transação; decidir destinos de redirect. |
-| BFF Vetorthoplan | Validar forma, tamanho e unicidade dos parâmetros; resolver a sessão; preservar a solicitação em cookie cifrado; chamar `/oauth/authorize` e `/oauth/consent` com o token de sessão; interpretar respostas sem seguir `302`; validar `Location` e `state`; renderizar e processar consentimento; encerrar a transação. | Trocar o authorization code por tokens do cliente externo; seguir o `Location`; buscar a `redirect_uri`; confiar em scopes ou destinos reenviados pelo navegador. |
+| Cliente externo | Registrar `client_id` e `redirect_uri`; gerar `state`, `nonce`, `code_verifier` e `code_challenge`; usar `S256`; iniciar a autorização; validar o `state` devolvido; trocar o código em `/oauth/token`; armazenar seus próprios tokens com segurança. | Enviar `code_verifier` ao BFF Orthovet; aceitar `state` diferente; reutilizar código ou verifier; tratar o BFF como cofre de tokens da aplicação. |
+| Navegador Orthovet | Navegar entre autorização, login, MFA e consentimento; enviar ao BFF somente a decisão de consentimento e o ID opaco da transação. | Escolher scopes na aprovação; ler tokens ou o conteúdo da transação; decidir destinos de redirect. |
+| BFF Orthovet | Validar forma, tamanho e unicidade dos parâmetros; resolver a sessão; preservar a solicitação em cookie cifrado; chamar `/oauth/authorize` e `/oauth/consent` com o token de sessão; interpretar respostas sem seguir `302`; validar `Location` e `state`; renderizar e processar consentimento; encerrar a transação. | Trocar o authorization code por tokens do cliente externo; seguir o `Location`; buscar a `redirect_uri`; confiar em scopes ou destinos reenviados pelo navegador. |
 | Authentication API | Validar de forma autoritativa o cliente, redirect, scopes e consentimento; autenticar o token de sessão; emitir e vincular o authorization code; executar `/oauth/token` e `/oauth/userinfo` conforme o contrato. | Delegar decisões autoritativas de cadastro do cliente ao frontend. |
 
 `POST /api/oauth/consent` é um endpoint privado do BFF, não um endpoint novo da
@@ -26,7 +26,7 @@ permanecem fora desse BFF e são consumidos pelo cliente externo.
 ## Fluxo
 
 1. O cliente externo cria uma solicitação Authorization Code com PKCE `S256` e
-   navega para `GET /oauth/authorize` do Vetorthoplan.
+   navega para `GET /oauth/authorize` da Orthovet.
 2. O BFF valida a solicitação e grava por até dez minutos uma transação AES-256-GCM
    em cookie `HttpOnly`, `SameSite=Lax` e de alta prioridade.
 3. O BFF resolve ou renova a sessão. Login por senha ou Google e o desafio MFA
@@ -48,7 +48,7 @@ permanecem fora desse BFF e são consumidos pelo cliente externo.
 | `AUTHENTICATION_API_BASE_URL` | Origem canônica HTTPS, sem caminho, query, fragmento ou credenciais. |
 | `APP_ORIGIN` | Origem canônica HTTPS. HTTP é aceito somente para `localhost`, `127.0.0.1` ou `[::1]` fora de produção. |
 | `OAUTH_TRANSACTION_SECRET` | Exatamente 32 bytes aleatórios codificados em base64url sem padding (43 caracteres). É runtime-only e não pode usar `NEXT_PUBLIC_` nem ser enviado como build argument. |
-| `SESSION_COOKIE_SECRET` | Chave runtime-only de 32 bytes para cifrar a sessão Vetorthoplan usada durante o fluxo. Deve ser diferente do segredo de transação. |
+| `SESSION_COOKIE_SECRET` | Chave runtime-only de 32 bytes para cifrar a sessão Orthovet usada durante o fluxo. Deve ser diferente do segredo de transação. |
 | `SESSION_COOKIE_PREVIOUS_SECRET` | Chave anterior opcional, aceita somente durante uma rotação controlada dos cookies de sessão. |
 
 Gere um segredo por ambiente com:

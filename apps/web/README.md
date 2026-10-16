@@ -222,3 +222,4 @@ Caso precise intervir manualmente, acesse a instância e execute os passos:
    somente no gerenciador de segredos/`.env` da instância e nunca ser enviados como
    build arguments. `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, quando usado, deve ser fornecido
    ao build porque seu valor público é incorporado ao JavaScript do navegador.
+a

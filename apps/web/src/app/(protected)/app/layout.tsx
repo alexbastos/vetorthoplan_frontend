@@ -14,7 +14,11 @@ export default async function ProtectedAppLayout({ children }: LayoutProps<"/app
   const session = await resolveServerSession({ cookieReader: cookieStore })
 
   if (session.state === "authenticated") {
-    return <AppShell userName={session.user.name}>{children}</AppShell>
+    return (
+      <AppShell userAvatarUrl={session.user.profile.avatarUrl} userName={session.user.name}>
+        {children}
+      </AppShell>
+    )
   }
 
   if (session.state === "refresh-required") {

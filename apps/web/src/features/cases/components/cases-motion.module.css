@@ -1,0 +1,8 @@
+/* Keep the server-rendered layout in place until GSAP prepares the entrance.
+   Without scripting or with reduced motion, content remains immediately visible. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .entrance[data-cases-entrance="pending"] {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

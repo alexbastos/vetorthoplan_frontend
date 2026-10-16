@@ -2,6 +2,7 @@
 
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
+import { KeyRound } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { useTranslations } from "next-intl"
 
@@ -190,22 +191,23 @@ function PasswordSettingsPanel({ isActive }: PasswordSettingsPanelProps) {
   }
 
   return (
-    <form ref={formRef} className="space-y-6 border-t border-border px-6 py-6 sm:px-8" noValidate onSubmit={handleSubmit}>
-      <section aria-labelledby="security-password-title" className="space-y-4" data-settings-password-group>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <form ref={formRef} className="px-6 pt-6 pb-5 sm:px-8 sm:pt-7" noValidate onSubmit={handleSubmit}>
+      <section aria-labelledby="security-password-title" data-settings-password-group>
+        <div className="flex min-h-9 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-ui-semibold text-foreground" id="security-password-title">{t("title")}</h3>
-            <p className="mt-1 max-w-xl text-ui text-content-secondary">{t("description")}</p>
+            <h2 className="font-heading text-ui-semibold text-foreground" id="security-password-title">{t("title")}</h2>
+            <p className="mt-1 max-w-xl text-ui text-description">{t("description")}</p>
           </div>
           {!isEditing ? (
-            <Button className="!h-7 px-2 text-caption font-semibold" onClick={beginEditing} size="sm" type="button" variant="secondary">
+            <Button onClick={beginEditing} size="sm" type="button" variant="secondary">
+              <KeyRound aria-hidden="true" />
               {t("changeAction")}
             </Button>
           ) : null}
         </div>
 
         {isEditing ? (
-          <div aria-live="polite" className="max-w-md" key={step} ref={stepContentRef}>
+          <div aria-live="polite" className="mt-2" key={step} ref={stepContentRef}>
             {step === "current" ? <PasswordSettingsField autoComplete="current-password" error={form.formState.errors.currentPassword?.message} hidePasswordLabel={t("hidePassword")} label={t("currentPassword")} placeholder={t("currentPasswordPlaceholder")} registration={form.register("currentPassword")} showPasswordLabel={t("showPassword")} /> : null}
             {step === "new" ? <PasswordSettingsField autoComplete="new-password" error={form.formState.errors.newPassword?.message} hidePasswordLabel={t("hidePassword")} label={t("newPassword")} placeholder={t("newPasswordPlaceholder")} registration={form.register("newPassword")} showPasswordLabel={t("showPassword")} /> : null}
             {step === "confirmation" ? <PasswordSettingsField autoComplete="new-password" error={form.formState.errors.confirmPassword?.message} hidePasswordLabel={t("hidePassword")} label={t("confirmPassword")} placeholder={t("confirmPasswordPlaceholder")} registration={form.register("confirmPassword")} showPasswordLabel={t("showPassword")} /> : null}
@@ -213,9 +215,9 @@ function PasswordSettingsPanel({ isActive }: PasswordSettingsPanelProps) {
         ) : null}
       </section>
 
-      {isEditing ? <div className="flex max-w-md justify-end gap-3 pt-2" data-settings-password-group>
+      {isEditing ? <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end" data-settings-password-group>
         {step === "current" ? (
-          <Button disabled={isTransitioning || isSaving} onClick={cancelEditing} type="button" variant="ghost">
+          <Button disabled={isTransitioning || isSaving} onClick={cancelEditing} type="button" variant="secondary">
             {tActions("cancel")}
           </Button>
         ) : null}

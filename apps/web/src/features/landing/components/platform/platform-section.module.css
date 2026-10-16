@@ -1,0 +1,324 @@
+.section {
+  position: relative;
+  background: var(--color-paper-white);
+}
+
+.inner {
+  width: min(100%, 1352px);
+  margin-inline: auto;
+  padding-top: 76px;
+  border-inline: 1px solid #f2f2f2;
+}
+
+.title {
+  max-width: 960px;
+  margin-inline: auto;
+  padding-inline: 24px;
+  color: var(--color-obsidian);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: 36px;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.titleCharacter {
+  color: inherit;
+}
+
+.titlePending .titleCharacter {
+  color: rgb(23 23 25 / 12%);
+}
+
+.titleActive .titleCharacter {
+  animation: platform-title-shimmer 600ms ease-out var(--character-delay) both;
+}
+
+@keyframes platform-title-shimmer {
+  0% { color: rgb(23 23 25 / 12%); }
+  20% { color: var(--brand-secondary); }
+  50% { color: var(--color-sky-signal); }
+  80% { color: color-mix(in srgb, var(--color-sky-signal) 65%, white); }
+  100% { color: var(--color-obsidian); }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
+  margin-top: 48px;
+  border-block: 1px solid #f2f2f2;
+  background: #f2f2f2;
+}
+
+.pillar {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  overflow: hidden;
+  padding: 24px 20px 40px;
+  background: var(--color-paper-white);
+  text-align: center;
+}
+
+.visualSlot {
+  width: min(100%, 396px);
+  aspect-ratio: 396 / 235;
+  flex: none;
+}
+
+.illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The title's viewport observer drives the illustration entrance. */
+.titlePending ~ .grid :is(.caseRadiograph, .caseSheet, .caseNote, .caseSignal) {
+  opacity: 0;
+}
+
+.titleActive ~ .grid .caseRadiograph {
+  animation: case-radiograph-enter 700ms var(--motion-ease-enter) 180ms both;
+}
+
+.titleActive ~ .grid .caseSheet {
+  animation: case-sheet-enter 700ms var(--motion-ease-enter) 330ms both;
+}
+
+.titleActive ~ .grid .caseNote {
+  animation: case-note-enter 650ms var(--motion-ease-enter) 530ms both;
+}
+
+.titleActive ~ .grid .caseSignal {
+  animation: case-signal-enter 450ms ease-out 720ms both;
+}
+
+.titleActive ~ .grid .caseSignalHalo {
+  animation: case-indicator-breathe 3.4s ease-in-out 1.2s infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.titlePending ~ .grid :is(.precisionFrame, .precisionAnatomy, .precisionAxis, .precisionPlateau, .precisionAngleField, .precisionAngle, .precisionPoints, .precisionToolbar) {
+  opacity: 0;
+}
+
+.titleActive ~ .grid .precisionFrame {
+  animation: precision-frame-enter 650ms var(--motion-ease-enter) 180ms both;
+}
+
+.titleActive ~ .grid .precisionAnatomy {
+  animation: precision-anatomy-enter 750ms var(--motion-ease-enter) 340ms both;
+}
+
+.titleActive ~ .grid .precisionToolbar {
+  animation: precision-toolbar-enter 650ms var(--motion-ease-enter) 600ms both;
+}
+
+.titleActive ~ .grid .precisionAxis {
+  animation: precision-axis-draw 800ms ease-in-out 650ms both;
+}
+
+.titleActive ~ .grid .precisionPlateau {
+  animation: precision-plateau-draw 650ms ease-in-out 810ms both;
+}
+
+.titleActive ~ .grid .precisionAngleField {
+  animation: precision-angle-field-enter 450ms ease-out 1050ms both;
+}
+
+.titleActive ~ .grid .precisionAngle {
+  animation: precision-angle-draw 480ms ease-out 1120ms both;
+}
+
+.titleActive ~ .grid .precisionPoints {
+  animation: precision-points-enter 350ms ease-out 1300ms both;
+}
+
+.titlePending ~ .grid :is(.reviewFrame, .reviewAnatomy, .reviewImplant, .reviewScrew, .reviewVersion, .reviewReport) {
+  opacity: 0;
+}
+
+.titleActive ~ .grid .reviewFrame {
+  animation: review-frame-enter 650ms var(--motion-ease-enter) 180ms both;
+}
+
+.titleActive ~ .grid .reviewAnatomy {
+  animation: review-anatomy-enter 650ms var(--motion-ease-enter) 330ms both;
+}
+
+.titleActive ~ .grid .reviewImplant {
+  animation: review-implant-enter 600ms var(--motion-ease-enter) 720ms both;
+}
+
+.titleActive ~ .grid .reviewScrew {
+  animation: review-screw-enter 320ms ease-out both;
+  transform-box: fill-box;
+  transform-origin: right center;
+}
+
+.titleActive ~ .grid .reviewVersion {
+  animation: review-version-enter 450ms ease-out 1360ms both;
+}
+
+.titleActive ~ .grid .reviewReport {
+  animation: review-report-enter 650ms var(--motion-ease-enter) 1510ms both;
+}
+
+@keyframes case-radiograph-enter {
+  from { opacity: 0; transform: translate(-12px, 8px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes case-sheet-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes case-note-enter {
+  from { opacity: 0; transform: translate(10px, 8px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes case-signal-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes case-indicator-breathe {
+  0%, 100% { opacity: .5; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes precision-frame-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes precision-anatomy-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes precision-toolbar-enter {
+  from { opacity: 0; transform: translate(-8px, 6px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes precision-axis-draw {
+  from { opacity: 0; stroke-dasharray: 142; stroke-dashoffset: 142; }
+  to { opacity: 1; stroke-dasharray: 142; stroke-dashoffset: 0; }
+}
+
+@keyframes precision-plateau-draw {
+  from { opacity: 0; stroke-dasharray: 118; stroke-dashoffset: 118; }
+  to { opacity: 1; stroke-dasharray: 118; stroke-dashoffset: 0; }
+}
+
+@keyframes precision-angle-field-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes precision-angle-draw {
+  from { opacity: 0; stroke-dasharray: 28; stroke-dashoffset: 28; }
+  to { opacity: 1; stroke-dasharray: 28; stroke-dashoffset: 0; }
+}
+
+@keyframes precision-points-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes review-frame-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes review-anatomy-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes review-implant-enter {
+  from { opacity: 0; transform: translate(12px, -3px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes review-screw-enter {
+  from { opacity: 0; transform: scaleX(.05); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes review-version-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes review-report-enter {
+  from { opacity: 0; transform: translate(8px, 8px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+
+.copy {
+  width: 100%;
+  max-width: 289px;
+}
+
+.copy h3 {
+  color: var(--color-obsidian);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 20px;
+}
+
+.copy p {
+  margin-top: 20px;
+  color: var(--color-obsidian);
+  font-size: 16px;
+  letter-spacing: -.01em;
+  line-height: 22px;
+}
+
+.lead {
+  display: block;
+  color: var(--color-neutral-500);
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    padding-top: 92px;
+  }
+
+  .title {
+    padding-inline: 36px;
+    font-size: 40px;
+    line-height: 44px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 70px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .titlePending .titleCharacter,
+  .titleActive .titleCharacter {
+    animation: none;
+    color: var(--color-obsidian);
+  }
+
+  .titlePending ~ .grid :is(.caseRadiograph, .caseSheet, .caseNote, .caseSignal, .precisionFrame, .precisionAnatomy, .precisionAxis, .precisionPlateau, .precisionAngleField, .precisionPoints, .precisionToolbar, .reviewFrame, .reviewAnatomy, .reviewImplant, .reviewScrew, .reviewVersion, .reviewReport) {
+    opacity: 1;
+  }
+
+  .titleActive ~ .grid :is(.caseRadiograph, .caseSheet, .caseNote, .caseSignal, .caseSignalHalo, .precisionFrame, .precisionAnatomy, .precisionAxis, .precisionPlateau, .precisionAngleField, .precisionAngle, .precisionPoints, .precisionToolbar, .reviewFrame, .reviewAnatomy, .reviewImplant, .reviewScrew, .reviewVersion, .reviewReport) {
+    animation: none;
+  }
+}

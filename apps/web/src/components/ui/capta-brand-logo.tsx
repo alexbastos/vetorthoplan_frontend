@@ -3,6 +3,7 @@ import type { ComponentPropsWithoutRef } from "react"
 import { cn } from "@/lib/utils"
 
 export type CaptaBrandLogoVariant =
+  | "adaptive"
   | "original"
   | "blue"
   | "blue-gradient"
@@ -21,27 +22,55 @@ interface CaptaBrandLogoProps extends Omit<ComponentPropsWithoutRef<typeof Image
   alt?: string
 }
 
-const variantSrcMap: Record<CaptaBrandLogoVariant, string> = {
-  original: "/brand/logo_black.svg",
-  black: "/brand/logo_black.svg",
-  blue: "/brand/logo_blue.svg",
-  "blue-gradient": "/brand/logo_blue_gradient.svg",
-  gold: "/brand/logo_gold.svg",
-  "gold-gradient": "/brand/logo_gold_gradient.svg",
-  white: "/brand/logo_white.svg",
-  dark: "/brand/logo_black.svg",
-  currentColor: "/brand/logo_currentColor.svg",
+type StaticCaptaBrandLogoVariant = Exclude<CaptaBrandLogoVariant, "adaptive">
+
+const variantSrcMap: Record<StaticCaptaBrandLogoVariant, string> = {
+  original: "/brand/logo_vet_v2_black_spaced.svg",
+  black: "/brand/logo_vet_v2_black_spaced.svg",
+  blue: "/brand/logo_vet_v2_black_spaced.svg",
+  "blue-gradient": "/brand/logo_vet_v2_black_spaced.svg",
+  gold: "/brand/logo_vet_v2_black_spaced.svg",
+  "gold-gradient": "/brand/logo_vet_v2_black_spaced.svg",
+  white: "/brand/logo_vet_v2_white_spaced.svg",
+  dark: "/brand/logo_vet_v2_white_spaced.svg",
+  currentColor: "/brand/logo_vet_v2_black_spaced.svg",
 }
 
 export function CaptaBrandLogo({
-  variant = "black",
+  variant = "adaptive",
   width = 200,
   height = 50,
   className,
-  alt = "CAPTAGOV",
+  alt = "Orthovet",
   ...props
 }: CaptaBrandLogoProps) {
-  const src = variantSrcMap[variant] || variantSrcMap.original
+  if (variant === "adaptive") {
+    return (
+      <span className={cn("relative inline-block", className)}>
+        <Image
+          src="/brand/logo_vet_v2_black_spaced.svg"
+          alt={alt}
+          width={width}
+          height={height}
+          className="h-auto w-full object-contain dark:opacity-0"
+          priority
+          {...props}
+        />
+        <Image
+          src="/brand/logo_vet_v2_white_spaced.svg"
+          alt=""
+          aria-hidden="true"
+          width={width}
+          height={height}
+          className="absolute inset-0 h-auto w-full object-contain opacity-0 dark:opacity-100"
+          priority
+          {...props}
+        />
+      </span>
+    )
+  }
+
+  const src = variantSrcMap[variant]
 
   return (
     <Image

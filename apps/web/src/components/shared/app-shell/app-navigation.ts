@@ -1,10 +1,9 @@
-import { CircleHelp, House, Settings } from "lucide-react"
-
 import type { AppNavigationItem } from "./types"
+import { CasesNavigationIcon, HelpNavigationIcon, HomeNavigationIcon, SettingsNavigationIcon } from "./app-navigation-icons"
 
 const homeNavigationItem: AppNavigationItem = {
   href: "/app",
-  icon: House,
+  icon: HomeNavigationIcon,
   translationKey: "home",
 }
 
@@ -12,11 +11,19 @@ const homeNavigationItem: AppNavigationItem = {
  * Funcionalidades em preparação permanecem fora da navegação do MVP.
  * As respectivas rotas podem ser retomadas quando os fluxos estiverem prontos.
  */
-const primaryNavigationItems: AppNavigationItem[] = []
+const primaryNavigationItems: AppNavigationItem[] = [
+  { href: "/app/cases", icon: CasesNavigationIcon, translationKey: "cases" },
+]
+
+const settingsNavigationItem: AppNavigationItem = {
+  href: "/app/settings",
+  icon: SettingsNavigationIcon,
+  translationKey: "settings",
+}
 
 const supportNavigationItems: AppNavigationItem[] = [
-  { href: "/app/settings", icon: Settings, translationKey: "settings" },
-  { href: "/app/ajuda", icon: CircleHelp, translationKey: "help" },
+  settingsNavigationItem,
+  { href: "/app/ajuda", icon: HelpNavigationIcon, translationKey: "help" },
 ]
 
 function getAppRouteContext(pathname: string): "application" | AppNavigationItem["translationKey"] {
@@ -31,4 +38,4 @@ function getAppRouteContext(pathname: string): "application" | AppNavigationItem
   return navigationItem?.translationKey ?? "application"
 }
 
-export { getAppRouteContext, homeNavigationItem, primaryNavigationItems, supportNavigationItems }
+export { getAppRouteContext, homeNavigationItem, primaryNavigationItems, settingsNavigationItem, supportNavigationItems }

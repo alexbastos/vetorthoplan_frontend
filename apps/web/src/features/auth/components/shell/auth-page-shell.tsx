@@ -71,7 +71,7 @@ function AuthPageShellStage({ children, className, footer }: AuthPageShellProps)
               className="object-contain object-left"
               fill
               sizes="(min-width: 640px) 14rem, 13rem"
-              src="/brand/logo_vet_ofc.avif"
+              src="/brand/logo_vet_v2_black_spaced.svg"
             />
           </Link>
         </header>

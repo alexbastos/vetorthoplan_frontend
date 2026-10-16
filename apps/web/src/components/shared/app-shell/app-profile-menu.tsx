@@ -1,65 +1,69 @@
 "use client"
 
-import { CircleHelp, LoaderCircle, LogOut, Settings, Settings2, ShieldCheck, UserRound } from "lucide-react"
+import { ArrowLeft, ChevronRight, LoaderCircle, Settings } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { SlideMenu, type SlideMenuItem } from "@/components/ui/slide-menu"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { LocaleFlagIcon } from "@/components/ui/locale-flag-icon"
 import { useLogout } from "@/features/auth/hooks/use-logout"
+import { useProfileLocale } from "@/features/settings/hooks/use-profile-locale"
+import { appLocales } from "@/i18n/config"
 
 import { useAppUser } from "./app-user-context"
+import { AppUserAvatar } from "./app-user-avatar"
 import { HeaderProfileIndicator } from "./header-app"
+import { AccountMenuIcon, HelpMenuIcon, LanguageMenuIcon, SignOutMenuIcon, ThemeMenuIcon } from "./app-profile-menu-icons"
+import { useAppTheme } from "./app-theme-provider"
 import { useUnsavedChangesGuard } from "./unsaved-changes-guard"
 
-type ProfileMenuLabels = { account: string; help: string; preferences: string; profile: string; security: string; settings: string; signOut: string; signingOut: string }
+const menuItemClassName = "h-10 cursor-pointer gap-3 rounded-[0.625rem] px-3 py-1 text-[0.875rem] leading-5 font-medium tracking-[-0.01em] text-black focus:bg-black/[0.04] dark:text-white dark:focus:bg-white/[0.06]"
+const menuIconClassName = "size-[1.125rem] shrink-0 text-muted-foreground"
 
-function getProfileMenuItems({ isLoggingOut, labels, onLogout, onUnavailable }: { isLoggingOut: boolean; labels: ProfileMenuLabels; onLogout: () => void; onUnavailable: () => void }): SlideMenuItem[] {
-  return [
-    {
-      children: [
-        { icon: <UserRound aria-hidden="true" className="size-4" />, id: "profile-details", label: labels.profile, onSelect: onUnavailable },
-        { icon: <ShieldCheck aria-hidden="true" className="size-4" />, id: "profile-security", label: labels.security, onSelect: onUnavailable },
-      ],
-      icon: <UserRound aria-hidden="true" className="size-4" />,
-      id: "account",
-      label: labels.account,
-    },
-    {
-      children: [
-        { icon: <Settings2 aria-hidden="true" className="size-4" />, id: "preferences", label: labels.preferences, onSelect: onUnavailable },
-      ],
-      icon: <Settings2 aria-hidden="true" className="size-4" />,
-      id: "settings",
-      label: labels.settings,
-    },
-    { icon: <CircleHelp aria-hidden="true" className="size-4" />, id: "help", label: labels.help, onSelect: onUnavailable },
-    {
-      disabled: isLoggingOut,
-      icon: isLoggingOut ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <LogOut aria-hidden="true" className="size-4" />,
-      id: "logout",
-      label: isLoggingOut ? labels.signingOut : labels.signOut,
-      onSelect: onLogout,
-      separatorBefore: true,
-      variant: "destructive",
-    },
-  ]
-}
-
-function AppProfileMenu({ initials }: { initials: string }) {
+function AppProfileMenu() {
   const t = useTranslations("common")
-  const { name } = useAppUser()
+  const router = useRouter()
+  const { avatarUrl, initials, name } = useAppUser()
   const { isLoggingOut, logout } = useLogout()
+  const { resolvedTheme, setPreference } = useAppTheme()
+  const { isSavingLocale, locale, selectLocale } = useProfileLocale()
   const { requestNavigation } = useUnsavedChangesGuard()
   const [isOpen, setIsOpen] = useState(false)
-  const [path, setPath] = useState<string[]>([])
+  const [menuView, setMenuView] = useState<"account" | "language">("account")
+  const previousMenuView = useRef(menuView)
+  const languageTriggerRef = useRef<HTMLDivElement>(null)
+  const selectedLocaleRef = useRef<HTMLDivElement>(null)
 
-  function handleOpenChange(nextOpen: boolean) {
-    setIsOpen(nextOpen)
-    if (!nextOpen) {
-      setPath([])
+  useEffect(() => {
+    if (!isOpen) return
+
+    if (menuView === "language") selectedLocaleRef.current?.focus()
+    else if (previousMenuView.current === "language") languageTriggerRef.current?.focus()
+
+    previousMenuView.current = menuView
+  }, [isOpen, menuView])
+
+  function handleOpenChange(open: boolean) {
+    setIsOpen(open)
+    if (!open) {
+      setMenuView("account")
+      previousMenuView.current = "account"
     }
+  }
+
+  function navigateToSettings() {
+    setIsOpen(false)
+    requestNavigation(() => router.push("/app/settings"))
+  }
+
+  function showUnavailableMessage() {
+    toast.info(t("status.comingSoon"), { description: t("status.comingSoonDescription") })
+  }
+
+  function changeLocale(value: string) {
+    requestNavigation(() => selectLocale(value))
   }
 
   async function handleLogout() {
@@ -70,57 +74,135 @@ function AppProfileMenu({ initials }: { initials: string }) {
     }
   }
 
-  const profileMenuItems = getProfileMenuItems({
-    isLoggingOut,
-    labels: { account: t("accountMenu.myAccount"), help: t("accountMenu.help"), preferences: t("accountMenu.preferences"), profile: t("accountMenu.myProfile"), security: t("accountMenu.security"), settings: t("accountMenu.settings"), signOut: t("actions.signOut"), signingOut: t("actions.signingOut") },
-    onLogout: () => requestNavigation(() => void handleLogout()),
-    onUnavailable: () => toast.info(t("status.comingSoon"), { description: t("status.comingSoonDescription") }),
-  })
-
   return (
     <DropdownMenu onOpenChange={handleOpenChange} open={isOpen}>
       <DropdownMenuTrigger asChild>
-        <HeaderProfileIndicator initials={initials} />
+        <HeaderProfileIndicator avatarUrl={avatarUrl} initials={initials} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
         aria-label={t("accountMenu.label")}
-        className="w-[19.5rem] min-w-[19.5rem] overflow-hidden rounded-[1.125rem] border border-border bg-card p-0 shadow-[0_1.25rem_2.5rem_rgb(23_23_23_/_12%)]"
+        className="w-[16.5rem] min-w-[16.5rem] overflow-hidden rounded-[var(--radius-token-xl)] border border-border bg-card p-1.5 shadow-[var(--shadow-floating)]"
+        onKeyDown={(event) => {
+          if (menuView === "language" && event.key === "ArrowLeft") {
+            event.preventDefault()
+            setMenuView("account")
+          }
+        }}
         sideOffset={10}
       >
-        {path.length === 0 ? (
-          <ProfileMenuHeader initials={initials} name={name} onSettingsClick={() => setPath(["settings"])} />
-        ) : null}
-        <SlideMenu hideScrollbar items={profileMenuItems} onPathChange={setPath} path={path} rootLabel={t("accountMenu.label")} />
+        <ProfileMenuHeader avatarUrl={avatarUrl} initials={initials} name={name} onSettingsClick={navigateToSettings} />
+        <DropdownMenuGroup
+          className={`animate-in fade-in duration-150 motion-reduce:animate-none ${menuView === "language" ? "slide-in-from-right-2" : "slide-in-from-left-2"}`}
+          key={menuView}
+        >
+          {menuView === "account" ? (
+            <>
+              <DropdownMenuItem className={menuItemClassName} onSelect={showUnavailableMessage}>
+                <AccountMenuIcon aria-hidden="true" className={menuIconClassName} />
+                <span>{t("accountMenu.myAccount")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuCheckboxItem
+                aria-label={t("accountMenu.darkTheme")}
+                checked={resolvedTheme === "dark"}
+                className={`${menuItemClassName} pr-3 [&_[data-slot=dropdown-menu-checkbox-item-indicator]]:hidden`}
+                onCheckedChange={(checked) => setPreference(checked ? "dark" : "light")}
+                onSelect={(event) => event.preventDefault()}
+              >
+                <ThemeMenuIcon aria-hidden="true" className={menuIconClassName} />
+                <span>{t("accountMenu.theme")}</span>
+                <span aria-hidden="true" className={`ml-auto flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors motion-reduce:transition-none ${resolvedTheme === "dark" ? "bg-foreground" : "bg-muted"}`}>
+                  <span className={`size-4 rounded-full bg-card shadow-sm transition-transform motion-reduce:transition-none ${resolvedTheme === "dark" ? "translate-x-4" : "translate-x-0"}`} />
+                </span>
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuItem
+                className={`${menuItemClassName} pr-3`}
+                onKeyDown={(event) => {
+                  if (event.key === "ArrowRight") {
+                    event.preventDefault()
+                    setMenuView("language")
+                  }
+                }}
+                onSelect={(event) => {
+                  event.preventDefault()
+                  setMenuView("language")
+                }}
+                ref={languageTriggerRef}
+              >
+                <LanguageMenuIcon aria-hidden="true" className={menuIconClassName} />
+                <span>{t("accountMenu.language")}</span>
+                <span className="ml-auto text-xs font-normal text-content-secondary">{locale.toUpperCase()}</span>
+                <ChevronRight aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+              </DropdownMenuItem>
+              <DropdownMenuItem className={menuItemClassName} onSelect={showUnavailableMessage}>
+                <HelpMenuIcon aria-hidden="true" className={menuIconClassName} />
+                <span>{t("accountMenu.help")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={`${menuItemClassName} mt-1.5`}
+                disabled={isLoggingOut}
+                onSelect={() => requestNavigation(() => void handleLogout())}
+              >
+                {isLoggingOut ? (
+                  <LoaderCircle aria-hidden="true" className={`${menuIconClassName} animate-spin`} strokeWidth={1.5} />
+                ) : (
+                  <SignOutMenuIcon aria-hidden="true" className={menuIconClassName} />
+                )}
+                <span>{isLoggingOut ? t("actions.signingOut") : t("actions.signOut")}</span>
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <>
+              <DropdownMenuItem
+                aria-label={t("accountMenu.backToAccountMenu")}
+                className={`${menuItemClassName} mb-1`}
+                onSelect={(event) => {
+                  event.preventDefault()
+                  setMenuView("account")
+                }}
+              >
+                <ArrowLeft aria-hidden="true" className={menuIconClassName} strokeWidth={1.75} />
+                <span>{t("accountMenu.language")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuRadioGroup aria-label={t("accountMenu.language")} className="space-y-0.5" onValueChange={changeLocale} value={locale}>
+                {appLocales.map((option) => (
+                  <DropdownMenuRadioItem className={`${menuItemClassName} pr-10 data-[state=checked]:bg-black/[0.04] dark:data-[state=checked]:bg-white/[0.06] [&_[data-slot=dropdown-menu-radio-item-indicator]]:right-3`} disabled={isSavingLocale} key={option} ref={option === locale ? selectedLocaleRef : undefined} value={option}>
+                    <LocaleFlagIcon className="size-[1.125rem]" locale={option} />
+                    <span lang={option}>{t(`accountMenu.localeNames.${option}`)}</span>
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </>
+          )}
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
 type ProfileMenuHeaderProps = {
+  avatarUrl: string | null
   initials: string
   name: string
   onSettingsClick: () => void
 }
 
-function ProfileMenuHeader({ initials, name, onSettingsClick }: ProfileMenuHeaderProps) {
+function ProfileMenuHeader({ avatarUrl, initials, name, onSettingsClick }: ProfileMenuHeaderProps) {
   const t = useTranslations("common.accountMenu")
   return (
-    <header className="flex items-center gap-4 border-b border-border px-5 py-4">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-secondary text-ui font-medium text-brand-secondary-foreground">
-        {initials.slice(0, 2).toUpperCase()}
-      </span>
+    <header className="flex items-center gap-2.5 px-2.5 pt-2 pb-2.5">
+      <AppUserAvatar avatarUrl={avatarUrl} className="size-[2.125rem] text-[0.8125rem] leading-none" initials={initials} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-ui-semibold text-foreground">{name}</p>
-        <p className="mt-1 text-ui text-content-secondary">{t("manage")}</p>
+        <p className="truncate text-[0.90625rem] leading-tight font-semibold tracking-[-0.01em] text-black dark:text-white">{name}</p>
+        <p className="mt-0.5 truncate text-[0.78125rem] leading-tight text-content-secondary">{t("manage")}</p>
       </div>
       <button
         aria-label={t("openSettings")}
-        className="motion-interactive flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        className="motion-interactive flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-[0.625rem] text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
         onClick={onSettingsClick}
         type="button"
       >
-        <Settings aria-hidden="true" className="size-[1.125rem]" />
+        <Settings aria-hidden="true" className="size-[1.125rem]" strokeWidth={1.5} />
       </button>
     </header>
   )

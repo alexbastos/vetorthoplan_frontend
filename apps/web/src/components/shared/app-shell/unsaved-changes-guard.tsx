@@ -100,28 +100,28 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
 
       <AlertDialog.Root onOpenChange={(open) => !open && cancelNavigation()} open={isDialogOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/20 motion-safe:animate-in motion-safe:fade-in-0" />
-          <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-[var(--card-composite-surface)] shadow-[var(--card-composite-shadow-footer)] outline-none motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95">
-            <header className="flex min-h-[var(--card-header-min-height)] items-center justify-between gap-4 bg-[var(--color-surface-raised)] px-[var(--card-composite-padding-inline)] py-[var(--card-header-padding-block)]">
+          <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/25 backdrop-blur-sm motion-safe:animate-in motion-safe:fade-in-0" />
+          <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-muted shadow-[var(--card-composite-shadow-footer)] outline-none motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95">
+            <header className="flex min-h-[var(--card-header-min-height)] shrink-0 items-center justify-between gap-4 bg-muted px-[var(--card-composite-padding-inline)] py-[var(--card-header-padding-block)]">
               <div>
                 <AlertDialog.Title className="font-semibold text-ui text-foreground">{t("title")}</AlertDialog.Title>
                 <AlertDialog.Description className="mt-1 text-ui text-content-secondary">{t("description")}</AlertDialog.Description>
               </div>
               <AlertDialog.Cancel asChild>
-                <button aria-label={t("continueEditing")} className="motion-interactive -mr-2 flex size-9 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring" onClick={cancelNavigation} type="button">
+                <button aria-label={t("continueEditing")} className="motion-interactive -mr-2 flex size-9 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none hover:bg-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring" onClick={cancelNavigation} type="button">
                   <X aria-hidden="true" className="size-4" />
                 </button>
               </AlertDialog.Cancel>
             </header>
 
-            <div className="relative z-10 -my-px overflow-hidden rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-[var(--color-surface-card)]">
+            <div className="relative z-10 -my-px min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[var(--card-composite-radius)] border border-[var(--card-composite-border)] bg-card">
               <div className="px-5 py-6 sm:px-6">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-caption font-medium tracking-[0.08em] text-muted-foreground uppercase">{t("preview")}</p>
                   {hiddenChangesCount > 0 ? (
                     <button
                       aria-expanded={isChangesExpanded}
-                      className="motion-interactive cursor-pointer rounded-[var(--radius-token-sm)] px-1.5 py-1 text-caption font-medium text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                      className="motion-interactive cursor-pointer rounded-[var(--radius-token-sm)] px-1.5 py-1 text-caption font-medium text-content-secondary outline-none hover:bg-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                       onClick={() => setIsChangesExpanded((expanded) => !expanded)}
                       type="button"
                     >
@@ -153,7 +153,7 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
               </div>
             </div>
 
-            <footer className="flex min-h-[var(--card-footer-min-height)] flex-col-reverse gap-3 bg-[var(--color-surface-raised)] px-[var(--card-composite-padding-inline)] py-[var(--card-footer-padding-block)] sm:flex-row sm:items-center sm:justify-end">
+            <footer className="flex min-h-[var(--card-footer-min-height)] shrink-0 flex-col-reverse gap-3 bg-muted px-[var(--card-composite-padding-inline)] py-[var(--card-footer-padding-block)] sm:flex-row sm:items-center sm:justify-end">
               <AlertDialog.Cancel asChild>
                 <Button onClick={cancelNavigation} size="sm" type="button" variant="secondary">
                   {t("continueEditing")}

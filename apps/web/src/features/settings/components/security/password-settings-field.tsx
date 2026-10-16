@@ -2,6 +2,8 @@ import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
+import { cn } from "@/lib/utils"
+
 type PasswordSettingsFieldProps = {
   autoComplete: "current-password" | "new-password"
   error?: string
@@ -19,33 +21,35 @@ function PasswordSettingsField({ autoComplete, error, hidePasswordLabel, label, 
   const visibilityLabel = isPasswordVisible ? hidePasswordLabel : showPasswordLabel
 
   return (
-    <div className="border-b border-border py-4">
-      <label className="text-caption font-semibold text-muted-foreground" htmlFor={inputId}>
-        {label}<span aria-hidden="true" className="ml-1 text-[var(--color-feedback-error)]">*</span>
-      </label>
-      <div className="mt-1.5 flex items-center gap-3">
-        <input
-          {...registration}
-          aria-describedby={error ? errorId : undefined}
-          aria-invalid={Boolean(error)}
-          autoComplete={autoComplete}
-          className="min-w-0 flex-1 bg-transparent text-ui font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:outline-none"
-          id={inputId}
-          placeholder={placeholder}
-          required
-          type={isPasswordVisible ? "text" : "password"}
-        />
-        <button
-          aria-label={visibilityLabel}
-          aria-pressed={isPasswordVisible}
-          className="shrink-0 cursor-pointer rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          onClick={() => setIsPasswordVisible((isVisible) => !isVisible)}
-          type="button"
-        >
-          {isPasswordVisible ? <EyeOff aria-hidden="true" className="size-3.5" strokeWidth={1.5} /> : <Eye aria-hidden="true" className="size-3.5" strokeWidth={1.5} />}
-        </button>
+    <div>
+      <div className={cn("border-b py-4 transition-colors focus-within:border-[var(--input-border-focus)]", error ? "border-[var(--input-border-error)]" : "border-border")}>
+        <label className="mb-1.5 block font-data text-[0.6875rem] leading-4 font-medium text-foreground" htmlFor={inputId}>
+          {label}<span aria-hidden="true" className="text-[var(--color-feedback-error)]"> *</span>
+        </label>
+        <div className="flex items-center gap-3">
+          <input
+            {...registration}
+            aria-describedby={error ? errorId : undefined}
+            aria-invalid={Boolean(error)}
+            autoComplete={autoComplete}
+            className="min-w-0 flex-1 bg-transparent py-1 text-[0.75rem] leading-5 text-description outline-none placeholder:text-[0.75rem] placeholder:text-[var(--input-placeholder)] focus-visible:outline-none"
+            id={inputId}
+            placeholder={placeholder}
+            required
+            type={isPasswordVisible ? "text" : "password"}
+          />
+          <button
+            aria-label={visibilityLabel}
+            aria-pressed={isPasswordVisible}
+            className="shrink-0 cursor-pointer rounded-[var(--button-radius)] p-1 text-description transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[var(--button-focus-weight)] focus-visible:ring-[var(--button-focus-color)]"
+            onClick={() => setIsPasswordVisible((isVisible) => !isVisible)}
+            type="button"
+          >
+            {isPasswordVisible ? <EyeOff aria-hidden="true" className="size-3.5" strokeWidth={1.5} /> : <Eye aria-hidden="true" className="size-3.5" strokeWidth={1.5} />}
+          </button>
+        </div>
       </div>
-      {error ? <p className="mt-1 text-caption text-[var(--color-feedback-error)]" id={errorId} role="alert">{error}</p> : null}
+      {error ? <p className="mt-2 text-caption text-[var(--color-feedback-error)]" id={errorId} role="alert">{error}</p> : null}
     </div>
   )
 }

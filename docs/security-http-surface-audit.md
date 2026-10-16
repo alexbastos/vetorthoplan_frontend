@@ -81,7 +81,7 @@ recebe a mesma exceção.
 | `worker-src`, `media-src`, `object-src` | Nenhum worker, mídia, `object` ou `embed` identificado | `'none'`. |
 | `base-uri` | Nenhuma tag `base` identificada | `'none'`. |
 | `form-action` | Formulários React same-origin e consentimento HTML same-origin | `'self'`. Redirects OAuth são respostas HTTP e não exigem liberação aqui. |
-| `frame-ancestors` | Nenhuma integração que enquadre o Vetorthoplan | `'none'` em todas as páginas. |
+| `frame-ancestors` | Nenhuma integração que enquadre a Orthovet | `'none'` em todas as páginas. |
 
 ### Código dinâmico e sinks
 

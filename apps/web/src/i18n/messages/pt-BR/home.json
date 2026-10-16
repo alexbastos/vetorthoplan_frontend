@@ -1,5 +1,45 @@
 {
-  "metadataTitle":"Início","greeting":"Olá, {firstName}","welcome":"Bem-vindo ao",
-  "hero":{"imageAlt":"Vista de uma cidade histórica entre montanhas","badge":"Indique um município","titleLine1":"Transformando como você","titleLine2":"capta, gerencia e cresce.","explore":"Explorar editais","talkToTroni":"Falar com o Troni"},
-  "shortcuts":{"title":"Onde deseja atuar hoje?","grants":"Mapeamento de Editais","grantsImageAlt":"Mão segurando uma lupa","troni":"Assistente Troni","troniImageAlt":"Perfil humano com elementos de inteligência artificial","alerts":"Alertas e Prazos Críticos","alertsImageAlt":"Megafone emitindo alertas"}
+  "metadataTitle": "Início",
+  "greeting": "Olá, {firstName}",
+  "welcome": "Bem-vindo ao",
+  "spotlightLabel": "Apresentação e comunidade Orthovet",
+  "presentation": {
+    "title": "Antes da primeira incisão, vem o plano.",
+    "watch": "Assistir apresentação",
+    "duration": "2 min",
+    "pending": "Vídeo em produção",
+    "previewLabel": "Miniatura do vídeo de apresentação da Orthovet"
+  },
+  "community": {
+    "eyebrow": "COMUNIDADE",
+    "title": "Ideias que<br></br>nos conectam.",
+    "socialLabel": "Redes sociais da Orthovet",
+    "description": "Conteúdo clínico, novidades e bastidores.",
+    "pending": "Canais em breve",
+    "explore": "Conhecer canais",
+    "previewStatus": "em breve",
+    "previewTitle": "Conteúdo em breve",
+    "previewMeta": "Clínica · tecnologia · comunidade",
+    "previewComment": {
+      "firstLine": "Agora planejo com",
+      "secondLine": "mais clareza."
+    }
+  },
+  "journey": {
+    "eyebrow": "UMA VISÃO DO PRODUTO",
+    "title": "Do exame ao plano",
+    "description": "Uma jornada digital de apoio à decisão do médico-veterinário.",
+    "image": "Importar imagem",
+    "measure": "Calibrar e medir",
+    "plan": "Planejar",
+    "report": "Comunicar o plano"
+  },
+  "shortcuts": {
+    "title": "Explore a Orthovet",
+    "viewAll": "Ver casos",
+    "cases": "Casos",
+    "comingSoon": "Em breve",
+    "openCases": "Acessar casos",
+    "preparing": "Conteúdo em preparação"
+  }
 }

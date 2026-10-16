@@ -1,76 +1,52 @@
 "use client"
 
 import { RefreshCw } from "lucide-react"
-import { useCallback, useEffect, useRef } from "react"
 import { useTranslations } from "next-intl"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
-import { formatBrazilianPhone, formatBrazilianPostalCode, onlyDigits } from "@/lib/brazilian-input"
 import { useProfileSettingsEntrance } from "../../hooks/animations/use-profile-settings-entrance"
-import { usePostalCodeLookup } from "../../hooks/use-postal-code-lookup"
+import { useProfileFormScope } from "../../hooks/use-profile-form-scope"
 import type { ProfileSettingsController } from "../../hooks/use-profile-settings"
-import { useSettingsErrorMessage } from "../../hooks/use-settings-error-message"
-import type { ProfileValues } from "../../schemas/profile.schema"
-import { ProfileAvatarUpload } from "./profile-avatar-upload"
-import { ProfileDateRow, ProfileFormRow, ProfileTextAreaRow } from "./profile-form-row"
+import { ADDRESS_PROFILE_FIELDS, PERSONAL_PROFILE_FIELDS, type ProfileAccountField } from "../../lib/profile-form-fields"
+import { AddressSettingsSection } from "./address-settings-section"
+import { PersonalInformationSection } from "./personal-information-section"
 
 type ProfileSettingsPanelProps = {
   isActive: boolean
   profileSettings: ProfileSettingsController
+  scope: "address" | "personal"
 }
 
-function ProfileSettingsPanel({ isActive, profileSettings }: ProfileSettingsPanelProps) {
+function ProfileSettingsPanel({ isActive, profileSettings, scope }: ProfileSettingsPanelProps) {
   const t = useTranslations("settings")
   const tActions = useTranslations("common.actions")
-  const { deleteAvatar, form, isAvatarDeleting, isAvatarUploading, isLoading, isSaving, loadError, onSubmit, refreshAvatarUrl, retry, uploadAvatar } = profileSettings
-  const getSettingsErrorMessage = useSettingsErrorMessage()
-  const { registerUnsavedChangesHandler } = useUnsavedChangesGuard()
-  const postalCodeLookup = usePostalCodeLookup(form)
+  const { form, isLoading, isSaving, loadError, retry, saveProfile } = profileSettings
   const formRef = useRef<HTMLFormElement>(null)
-  const dirtyFields = form.formState.dirtyFields
-  const hasProfileUnsavedChanges = profileFields.some((field) => dirtyFields[field])
-  const postalCodeDigitCount = onlyDigits(form.watch("zipCode")).length
-  const postalCodeError = postalCodeLookup.status === "invalid"
-    ? postalCodeLookup.message
-    : form.formState.isSubmitted && postalCodeDigitCount > 0 && postalCodeDigitCount < 8
-      ? getSettingsErrorMessage("INVALID_POSTAL_CODE")
-      : undefined
+  const [isEditing, setIsEditing] = useState(false)
+  const [hasAttemptedSave, setHasAttemptedSave] = useState(false)
+  const fields: readonly ProfileAccountField[] = scope === "personal" ? PERSONAL_PROFILE_FIELDS : ADDRESS_PROFILE_FIELDS
+  const getFieldLabel = useCallback((field: ProfileAccountField) => t(`fields.${field}`), [t])
+  const closeEditor = useCallback(() => {
+    setIsEditing(false)
+    setHasAttemptedSave(false)
+  }, [])
 
-  useProfileSettingsEntrance(formRef, !isLoading && !loadError)
-
-  const discardChanges = useCallback(() => {
-    for (const field of profileFields) form.resetField(field)
-  }, [form])
-  const hasUnsavedChanges = useCallback(
-    () => profileFields.some((field) => form.getFieldState(field).isDirty),
-    [form],
-  )
-  const getUnsavedChanges = useCallback(() => getProfileUnsavedChanges(form.getValues(), form.formState.dirtyFields, form.formState.defaultValues ?? {}, (field) => t(`fields.${field}`)), [form, t])
+  useProfileSettingsEntrance(formRef, isActive && !isLoading && !loadError)
+  const { discardChanges, hasUnsavedChanges } = useProfileFormScope({
+    fields,
+    form,
+    getLabel: getFieldLabel,
+    isActive,
+    onDiscardChanges: closeEditor,
+  })
 
   useEffect(() => {
-    if (!isActive) return
-
-    return registerUnsavedChangesHandler({ discardChanges, getUnsavedChanges, hasUnsavedChanges })
-  }, [discardChanges, getUnsavedChanges, hasUnsavedChanges, isActive, registerUnsavedChangesHandler])
-
-  useEffect(() => {
-    if (!isActive || !hasProfileUnsavedChanges) {
-      return
-    }
-
-    function warnBeforeUnload(event: BeforeUnloadEvent) {
-      event.preventDefault()
-      event.returnValue = ""
-    }
-
-    window.addEventListener("beforeunload", warnBeforeUnload)
-
-    return () => window.removeEventListener("beforeunload", warnBeforeUnload)
-  }, [hasProfileUnsavedChanges, isActive])
+    if (!isActive) closeEditor()
+  }, [closeEditor, isActive])
 
   if (isLoading) {
-    return <ProfilePanelSkeleton />
+    return <ProfilePanelSkeleton scope={scope} />
   }
 
   if (loadError) {
@@ -88,111 +64,103 @@ function ProfileSettingsPanel({ isActive, profileSettings }: ProfileSettingsPane
     )
   }
 
+  const handleScopedSubmit = form.handleSubmit(async (values) => {
+    if (await saveProfile(values)) closeEditor()
+  }, () => {
+    setHasAttemptedSave(true)
+  })
+
+  function beginEditing() {
+    setHasAttemptedSave(false)
+    setIsEditing(true)
+    requestAnimationFrame(() => form.setFocus(scope === "personal" ? "name" : "zipCode"))
+  }
+
   return (
-    <form ref={formRef} className="space-y-8 px-6 pt-4 pb-8 sm:px-8" noValidate onSubmit={onSubmit}>
-      <section aria-labelledby="profile-personal-information" className="space-y-4" data-settings-profile-group>
-        <h3 className="text-ui-semibold text-foreground" id="profile-personal-information">
-          {t("profile.personalInformation")}
-        </h3>
-
-        <ProfileAvatarUpload
-          isDeleting={isAvatarDeleting}
-          isUploading={isAvatarUploading}
-          name={form.watch("name")}
-          onAvatarLoadError={refreshAvatarUrl}
-          onDelete={deleteAvatar}
-          onUpload={uploadAvatar}
-          src={form.watch("avatarUrl")}
+    <form
+      ref={formRef}
+      className=""
+      noValidate
+      onSubmit={handleScopedSubmit}
+    >
+      {scope === "personal" ? (
+        <>
+          <PersonalInformationSection isEditing={isEditing} onEdit={beginEditing} profileSettings={profileSettings} showValidationErrors={hasAttemptedSave} />
+          {isEditing ? (
+            <div className="flex flex-col-reverse gap-3 px-6 pt-2 pb-5 sm:flex-row sm:justify-end sm:px-8" data-settings-profile-group>
+              <Button disabled={isSaving} onClick={discardChanges} type="button" variant="secondary">{tActions("cancel")}</Button>
+              <Button disabled={!hasUnsavedChanges} loading={isSaving} type="submit">{tActions("saveChanges")}</Button>
+            </div>
+          ) : null}
+        </>
+      ) : (
+        <AddressSettingsSection
+          hasUnsavedChanges={hasUnsavedChanges}
+          isEditing={isEditing}
+          onCancel={discardChanges}
+          onEdit={beginEditing}
+          onValidationAttempt={() => setHasAttemptedSave(true)}
+          profileSettings={profileSettings}
+          showValidationErrors={hasAttemptedSave}
         />
-        <input type="hidden" {...form.register("avatarUrl")} />
-
-        <ProfileFormRow autoComplete="name" error={form.formState.errors.name?.message} label={t("fields.name")} placeholder={t("fields.namePlaceholder")} registration={form.register("name")} required />
-        <ProfileFormRow autoComplete="email" editable={false} error={form.formState.errors.email?.message} label={t("fields.email")} placeholder={t("fields.emailPlaceholder")} registration={form.register("email")} required type="email" />
-        <ProfileFormRow
-          autoComplete="tel"
-          error={form.formState.errors.phone?.message}
-          formatValue={formatBrazilianPhone}
-          inputMode="tel"
-          label={t("fields.phone")}
-          placeholder="(00) 00000-0000"
-          registration={form.register("phone")}
-          type="tel"
-        />
-        <ProfileDateRow
-          error={form.formState.errors.birthDate?.message}
-          label={t("fields.birthDate")}
-          onValueChange={(value) => form.setValue("birthDate", value, { shouldDirty: true, shouldValidate: true })}
-          value={form.watch("birthDate")}
-        />
-        <ProfileTextAreaRow
-          error={form.formState.errors.bio?.message}
-          onValueChange={(value) => form.setValue("bio", value, { shouldDirty: true, shouldValidate: true })}
-          value={form.watch("bio")}
-        />
-      </section>
-
-      <section aria-labelledby="profile-location" className="space-y-4" data-settings-profile-group>
-        <div>
-          <h3 className="text-ui-semibold text-foreground" id="profile-location">{t("profile.location")}</h3>
-          <p className="mt-1 text-ui text-content-secondary">{t("profile.locationDescription")}</p>
-        </div>
-
-        <ProfileFormRow
-          autoComplete="postal-code"
-          description={postalCodeLookup.message}
-          error={postalCodeError}
-          formatValue={formatBrazilianPostalCode}
-          inputMode="numeric"
-          label={t("fields.zipCode")}
-          onValueChange={postalCodeLookup.onPostalCodeChange}
-          placeholder="00000-000"
-          registration={form.register("zipCode")}
-        />
-        <ProfileFormRow autoComplete="street-address" error={form.formState.errors.street?.message} label={t("fields.street")} placeholder={t("fields.streetPlaceholder")} registration={form.register("street")} />
-        <ProfileFormRow autoComplete="address-level2" error={form.formState.errors.city?.message} label={t("fields.city")} placeholder={t("fields.cityPlaceholder")} registration={form.register("city")} />
-        <ProfileFormRow autoComplete="address-level1" error={form.formState.errors.state?.message} label={t("fields.state")} placeholder={t("fields.statePlaceholder")} registration={form.register("state")} />
-        <ProfileFormRow autoComplete="country" error={form.formState.errors.country?.message} label={t("fields.country")} placeholder="BR" registration={form.register("country")} />
-      </section>
-
-      <div className="flex justify-end pt-6" data-settings-profile-group>
-        <Button
-          disabled={postalCodeLookup.status === "invalid" || postalCodeLookup.status === "loading" || Boolean(postalCodeError)}
-          loading={isSaving}
-          type="submit"
-        >
-          {tActions("saveChanges")}
-        </Button>
-      </div>
+      )}
     </form>
   )
 }
 
-type ProfileDisplayField = "bio" | "birthDate" | "city" | "country" | "name" | "phone" | "state" | "street" | "zipCode"
-
-const profileFields: ProfileDisplayField[] = ["bio", "birthDate", "city", "country", "name", "phone", "state", "street", "zipCode"]
-
-function getProfileUnsavedChanges(
-  values: ProfileValues,
-  dirtyFields: Partial<Record<keyof ProfileValues, boolean>>,
-  defaultValues: Partial<ProfileValues>,
-  getLabel: (field: ProfileDisplayField) => string,
-) {
-  return profileFields
-    .filter((field) => dirtyFields[field])
-    .map((field) => ({ field, label: getLabel(field), previousValue: defaultValues[field] ?? "", value: values[field] }))
-}
-
-function ProfilePanelSkeleton() {
+function ProfilePanelSkeleton({ scope }: { scope: ProfileSettingsPanelProps["scope"] }) {
   const t = useTranslations("settings.profile")
-  return (
-    <div aria-busy="true" aria-label={t("loading")} className="space-y-6 px-6 py-8 sm:px-8">
-      <div className="h-5 w-40 animate-pulse rounded bg-muted" />
-      <div className="h-24 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="h-16 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
-        <div className="h-16 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
+
+  if (scope === "address") {
+    return (
+      <div aria-busy="true" aria-label={t("loading")} className="px-6 py-7 sm:px-8">
+        <div className="flex items-center justify-between gap-4">
+          <div className="h-4 w-36 animate-pulse rounded bg-muted" />
+          <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
+        </div>
+        <div className="mt-6 grid gap-x-10 gap-y-6 sm:grid-cols-2">
+          {Array.from({ length: 5 }, (_, index) => (
+            <div className={index === 2 ? "space-y-2 sm:col-span-2" : "space-y-2"} key={index}>
+              <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+              <div className="h-4 w-36 animate-pulse rounded bg-muted" />
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="h-28 animate-pulse rounded-[var(--radius-token-lg)] bg-muted" />
+    )
+  }
+
+  return (
+    <div aria-busy="true" aria-label={t("loading")}>
+      <div className="flex items-center gap-4 px-6 py-6 sm:px-8">
+        <div className="size-16 shrink-0 animate-pulse rounded-full bg-muted" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="h-4 w-36 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-52 max-w-full animate-pulse rounded bg-muted" />
+        </div>
+        <div className="hidden h-9 w-28 animate-pulse rounded-md bg-muted sm:block" />
+      </div>
+      <div className="space-y-6 border-t border-border px-6 py-7 sm:px-8">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-64 max-w-full animate-pulse rounded bg-muted" />
+          </div>
+          <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
+        </div>
+        <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div className="space-y-2" key={index}>
+              <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+              <div className="h-4 w-36 animate-pulse rounded bg-muted" />
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2">
+          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+        </div>
+      </div>
     </div>
   )
 }

@@ -6,12 +6,14 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button motion-interactive inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--button-radius)] border border-transparent bg-clip-padding text-ui-semibold whitespace-nowrap outline-none select-none focus-visible:ring-[var(--button-focus-weight)] focus-visible:ring-[var(--button-focus-color)] disabled:pointer-events-none disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "group/button motion-interactive inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--button-radius)] border border-transparent bg-clip-padding text-[length:var(--button-font-size)] font-medium leading-[var(--button-line-height)] whitespace-nowrap outline-none select-none focus-visible:ring-[var(--button-focus-weight)] focus-visible:ring-[var(--button-focus-color)] disabled:pointer-events-none disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary:
-          "bg-[var(--button-primary-background-default)] text-[var(--button-text-inverse)] hover:bg-[var(--button-primary-background-hover)] active:bg-[var(--button-primary-background-active)] disabled:bg-[var(--button-primary-background-disabled)] disabled:text-[var(--button-primary-text-disabled)]",
+          "border-0 bg-[var(--button-primary-background-default)] text-[var(--button-text-inverse)] transition-opacity hover:bg-[var(--button-primary-background-hover)] hover:opacity-90 active:bg-[var(--button-primary-background-active)] disabled:bg-[var(--button-primary-background-disabled)] disabled:text-[var(--button-primary-text-disabled)] disabled:opacity-100",
+        orthovet:
+          "orthovet-glass-button orthovet-glass-blue !h-12 !gap-2.5 !rounded-full !border-0 !px-5 !text-[15px] !font-medium !leading-[22.5px] focus-visible:!ring-0",
         secondary:
           "border-[var(--button-border-default)] bg-[var(--button-secondary-background-default)] text-[var(--button-text-secondary)] hover:bg-[var(--button-secondary-background-hover)] active:bg-[var(--button-secondary-background-active)] disabled:border-[var(--button-primary-background-disabled)] disabled:text-[var(--button-text-disabled)]",
         pill:
@@ -25,7 +27,7 @@ const buttonVariants = cva(
       },
       size: {
         sm: "h-[var(--button-height-sm)] gap-[var(--button-gap-sm)] px-[var(--button-padding-inline-sm)] [&_svg:not([class*='size-'])]:size-3.5",
-        md: "h-[var(--button-height-md)] gap-[var(--button-gap-md)] px-[var(--button-padding-inline-md)] [&_svg:not([class*='size-'])]:size-4",
+        md: "h-[var(--button-height-md)] gap-[var(--button-gap-md)] px-[var(--button-padding-inline-md)] sm:h-[var(--button-height-sm)] [&_svg:not([class*='size-'])]:size-4",
         lg: "h-[var(--button-height-lg)] gap-[var(--button-gap-lg)] px-[var(--button-padding-inline-lg)] text-[length:var(--button-font-size-lg)] [&_svg:not([class*='size-'])]:size-5",
       },
     },

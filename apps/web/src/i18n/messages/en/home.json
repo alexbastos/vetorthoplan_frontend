@@ -1,5 +1,45 @@
 {
-  "metadataTitle":"Home","greeting":"Hello, {firstName}","welcome":"Welcome to",
-  "hero":{"imageAlt":"View of a historic city surrounded by mountains","badge":"Recommend a municipality","titleLine1":"Transforming how you","titleLine2":"find, manage, and grow.","explore":"Explore grants","talkToTroni":"Talk to Troni"},
-  "shortcuts":{"title":"What would you like to work on today?","grants":"Grant Mapping","grantsImageAlt":"Hand holding a magnifying glass","troni":"Troni Assistant","troniImageAlt":"Human profile with artificial intelligence elements","alerts":"Alerts and Critical Deadlines","alertsImageAlt":"Megaphone broadcasting alerts"}
+  "metadataTitle": "Home",
+  "greeting": "Hello, {firstName}",
+  "welcome": "Welcome to",
+  "spotlightLabel": "Orthovet presentation and community",
+  "presentation": {
+    "title": "Before the first incision comes the plan.",
+    "watch": "Watch presentation",
+    "duration": "2 min",
+    "pending": "Video in production",
+    "previewLabel": "Thumbnail for the Orthovet presentation video"
+  },
+  "community": {
+    "eyebrow": "COMMUNITY",
+    "title": "Ideas that<br></br>connect us.",
+    "socialLabel": "Orthovet social channels",
+    "description": "Clinical content, product news, and behind-the-scenes updates.",
+    "pending": "Channels coming soon",
+    "explore": "Explore channels",
+    "previewStatus": "soon",
+    "previewTitle": "Content coming soon",
+    "previewMeta": "Clinical care · technology · community",
+    "previewComment": {
+      "firstLine": "Now I plan with",
+      "secondLine": "more clarity."
+    }
+  },
+  "journey": {
+    "eyebrow": "A PRODUCT VISION",
+    "title": "From image to plan",
+    "description": "A digital journey that supports veterinary clinical judgment.",
+    "image": "Import an image",
+    "measure": "Calibrate and measure",
+    "plan": "Plan",
+    "report": "Communicate the plan"
+  },
+  "shortcuts": {
+    "title": "Explore Orthovet",
+    "viewAll": "View cases",
+    "cases": "Cases",
+    "comingSoon": "Coming soon",
+    "openCases": "Open cases",
+    "preparing": "Content in preparation"
+  }
 }
