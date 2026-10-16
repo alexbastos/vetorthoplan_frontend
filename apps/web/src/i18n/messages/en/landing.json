@@ -1,0 +1,357 @@
+{
+  "header": {
+    "mainNavigationLabel": "Main navigation",
+    "homeLinkLabel": "CAPTAGOV — home",
+    "navigation": {
+      "product": "Product",
+      "solutions": "Solutions",
+      "resources": "Resources",
+      "pricing": "Pricing"
+    },
+    "actions": {
+      "login": "Log in",
+      "register": "Start for free"
+    }
+  },
+  "hero": {
+    "eyebrow": "AI for public funding",
+    "titleLine1": "Public notices on the radar,",
+    "titleLine2": "better decisions.",
+    "description": "AI analyzes public notices and recommends the opportunities that best match your municipality's profile and priorities.",
+    "actions": {
+      "secondary": "See a demo",
+      "primary": "Start for free"
+    }
+  },
+  "productIntelligence": {
+    "intro": {
+      "eyebrow": "Opportunity intelligence",
+      "title": "The right opportunity starts with context",
+      "description": "Turn thousands of public notices into clear decisions. CaptaGov connects your municipality's priorities with the opportunities most likely to deliver results.",
+      "action": "See how it works"
+    },
+    "eyebrow": "From search to decision",
+    "title": "Decide with context",
+    "description": "AI compares each public notice with your municipality's profile and priorities to show the opportunities with the strongest fit.",
+    "action": "Start for free",
+    "capabilities": {
+      "profile": {
+        "title": "Understand the municipality's profile",
+        "description": "Priorities, areas of interest, and execution capacity guide every analysis."
+      },
+      "requirements": {
+        "title": "Analyze requirements and deadlines",
+        "description": "AI identifies criteria, documents, matching funds, and important dates."
+      },
+      "adherence": {
+        "title": "Prioritize by fit",
+        "description": "The most compatible opportunities appear first for your team."
+      }
+    },
+    "visual": {
+      "accessibleLabel": "Demonstration of CaptaGov's analysis flow: the municipality's profile guides the public notice analysis, resulting in a recommended opportunity.",
+      "status": {
+        "pending": "Waiting",
+        "running": "Analyzing",
+        "success": "Completed"
+      },
+      "reasoning": {
+        "completed": "Analyzed in {duration}",
+        "showDetails": "Show analysis details",
+        "hideDetails": "Hide analysis details"
+      },
+      "stages": {
+        "profile": {
+          "duration": "4s",
+          "title": "Municipality profile",
+          "summary": "Priorities and areas of interest",
+          "details": {
+            "prioritiesLabel": "Priority areas",
+            "priorityHealth": "Healthcare",
+            "priorityInfrastructure": "Infrastructure",
+            "healthProject": "Primary care",
+            "infrastructureProject": "Urban mobility"
+          },
+          "process": "Comparing priority areas, profile, and execution capacity...",
+          "result": "Healthcare and infrastructure are priority areas."
+        },
+        "notice": {
+          "duration": "6s",
+          "title": "Public notice analyzed",
+          "summary": "Criteria, deadlines, and matching funds",
+          "details": {
+            "mobility": {
+              "title": "FUST Notice 2026.2 — UBS",
+              "deadlineLabel": "Application",
+              "deadlineValue": "Sep. 9, 2026",
+              "counterpartyLabel": "Focus",
+              "counterpartyValue": "Connectivity"
+            },
+            "health": {
+              "title": "Notice 001/2026 — Joviânia Health",
+              "deadlineLabel": "Valid through",
+              "deadlineValue": "Dec. 31, 2026",
+              "counterpartyLabel": "Modality",
+              "counterpartyValue": "Accreditation"
+            },
+            "drainage": {
+              "title": "Public Call 02/2026 — CSO",
+              "deadlineLabel": "Session",
+              "deadlineValue": "Feb. 12, 2027",
+              "counterpartyLabel": "Modality",
+              "counterpartyValue": "Partnership"
+            }
+          },
+          "process": "Extracting criteria, deadlines, documents, and matching funds...",
+          "result": "Viable deadline and compatible documentation."
+        },
+        "recommendation": {
+          "duration": "5s",
+          "title": "Opportunity recommended",
+          "summary": "Compatibility with the municipality",
+          "details": {
+            "adherenceLabel": "fit",
+            "recommendationLabel": "Recommended to apply",
+            "mobility": {
+              "title": "FUST Notice 2026.2 — UBS",
+              "adherenceValue": "96%",
+              "reason": "Connected healthcare · digital infrastructure"
+            },
+            "health": {
+              "title": "Notice 001/2026 — Joviânia Health",
+              "adherenceValue": "93%",
+              "reason": "Primary care · eligible team"
+            },
+            "drainage": {
+              "title": "Public Call 02/2026 — CSO",
+              "adherenceValue": "89%",
+              "reason": "Delivery capacity · compatible partnership"
+            }
+          },
+          "process": "Calculating the fit between the notice and municipal priorities...",
+          "result": "Strong compatibility with municipal priorities."
+        }
+      }
+    }
+  },
+  "publicNotices": {
+    "tabsLabel": "Capta Notices features",
+    "intro": {
+      "eyebrow": "Capta Notices",
+      "title": "Opportunities organized so your team can move forward.",
+      "description": "Track new public notices, explore the most relevant opportunities, and organize what moves forward to funding.",
+      "action": "Explore notices"
+    },
+    "features": {
+      "realtime": {
+        "title": "Real-time radar",
+        "description": "Track new public notices and start with the opportunities that deserve attention.",
+        "action": "View the radar"
+      },
+      "details": {
+        "title": "Opportunity overview",
+        "description": "Bring funding, deadlines, and requirements together before deciding the next step.",
+        "action": "View details"
+      },
+      "pipeline": {
+        "title": "Funding pipeline",
+        "description": "Organize selected notices and follow the progress of every opportunity.",
+        "action": "View organization"
+      }
+    },
+    "visuals": {
+      "realtime": {
+        "accessibleLabel": "Conceptual dashboard with opportunities found in real time and a daily screening summary.",
+        "heading": "Real-time screening",
+        "todayLabel": "Today",
+        "summaryLabel": "Daily screening",
+        "summaryValue": "57%",
+        "analyzedLabel": "Notices analyzed",
+        "analyzedValue": "14 of 25",
+        "opportunities": {
+          "0": {
+            "title": "AI and Predictive Municipal Governance",
+            "organization": "MCTI · Finep",
+            "amount": "BRL 3.2M",
+            "fit": "96%"
+          },
+          "1": {
+            "title": "Sustainable Cities 2026",
+            "organization": "BNDES",
+            "amount": "BRL 4.5M",
+            "fit": "89%"
+          },
+          "2": {
+            "title": "Healthcare Facility Modernization",
+            "organization": "FNS",
+            "amount": "BRL 2.1M",
+            "fit": "78%"
+          },
+          "3": {
+            "title": "Resilient Urban Infrastructure",
+            "organization": "Ministry of Cities",
+            "amount": "BRL 6.8M",
+            "fit": "67%"
+          },
+          "4": {
+            "title": "Digital Training for Public Schools",
+            "organization": "MEC · FNDE",
+            "amount": "BRL 1.4M",
+            "fit": "54%"
+          },
+          "5": {
+            "title": "Energy Efficiency in Public Buildings",
+            "organization": "MME · Eletrobras",
+            "amount": "BRL 980K",
+            "fit": "42%"
+          }
+        }
+      },
+      "details": {
+        "accessibleLabel": "Layered composition with a dossier selector and the executive summary of the selected analysis.",
+        "heading": "Dossiers",
+        "selectorDescription": "Select an analysis to view",
+        "summaryLabel": "Analysis summary",
+        "amountLabel": "Funding",
+        "deadlineLabel": "Application",
+        "recommendationTitle": "Worth pursuing",
+        "requirementsLabel": "Readiness",
+        "dossiers": {
+          "0": {
+            "title": "Municipal Digital Transformation 2027",
+            "organization": "MCTI · Finep · Innovation",
+            "amountValue": "BRL 3.2 million",
+            "deadlineValue": "Sep. 18, 2027",
+            "opinion": "Aligned with the municipality's modernization and digital governance priorities.",
+            "requirementsValue": "2 of 3 met"
+          },
+          "1": {
+            "title": "Sustainable Urban Infrastructure 2027",
+            "organization": "Ministry of Cities · Infrastructure",
+            "amountValue": "BRL 5.8 million",
+            "deadlineValue": "Oct. 4, 2027",
+            "opinion": "Aligned with the municipality's mobility and resilient infrastructure projects.",
+            "requirementsValue": "3 of 4 met"
+          },
+          "2": {
+            "title": "Connected Digital Healthcare 2027",
+            "organization": "FNS · Digital healthcare",
+            "amountValue": "BRL 2.4 million",
+            "deadlineValue": "Oct. 27, 2027",
+            "opinion": "Strengthens primary care through connectivity and integrated municipal health services.",
+            "requirementsValue": "2 of 4 met"
+          }
+        }
+      },
+      "pipeline": {
+        "accessibleLabel": "Visual pipeline where different opportunities move from selection through document preparation until they are ready to apply.",
+        "heading": "Opportunity pipeline",
+        "periodLabel": "September cycle",
+        "featuredOpportunities": {
+          "0": {
+            "title": "Municipal Digital Transformation 2027",
+            "organization": "MCTI · Finep",
+            "deadline": "Sep. 18, 2027",
+            "progressLabel": "Documents",
+            "progressValue": "2 of 3"
+          },
+          "1": {
+            "title": "Connected Healthcare\nNetwork 2027",
+            "organization": "FNS · Digital Health",
+            "deadline": "Oct. 3, 2027",
+            "progressLabel": "Qualifications",
+            "progressValue": "3 of 4"
+          },
+          "2": {
+            "title": "Sustainable School Infrastructure 2027",
+            "organization": "FNDE · Education",
+            "deadline": "Oct. 28, 2027",
+            "progressLabel": "Technical files",
+            "progressValue": "4 of 5"
+          }
+        },
+        "columns": {
+          "0": {
+            "title": "Selected",
+            "items": {
+              "0": { "title": "School Infrastructure 2027", "deadline": "Sep. 28" }
+            }
+          },
+          "1": {
+            "title": "In preparation",
+            "items": {
+              "0": { "title": "Primary Healthcare 2027", "deadline": "Oct. 3" }
+            }
+          },
+          "2": {
+            "title": "Ready to submit",
+            "items": {
+              "0": { "title": "Sustainable Cities 2027", "deadline": "Sep. 12" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "architecturalStack": {
+    "intro": {
+      "eyebrow": "How Capta works",
+      "title": "A layer between your municipality and public funding opportunities.",
+      "description": "Capta connects your municipality's context to opportunities published through official sources. Each public notice arrives organized, traceable, and accompanied by the factors your team needs to make an informed decision."
+    },
+    "stories": {
+      "discovery": {
+        "eyebrow": "Discovery",
+        "title": "The search should not have to start from scratch.",
+        "description": "Public notices and calls for proposals appear across different portals, each with its own format, rules, and deadlines. Capta starts with Transferegov.br and turns every opportunity into organized, traceable information."
+      },
+      "analysis": {
+        "eyebrow": "Analysis",
+        "title": "Not every opportunity deserves the same attention.",
+        "description": "Capta compares subject, deadline, and requirements with the municipality's profile, priorities, and needs. Each recommendation shows the factors behind the match without obscuring the source data."
+      },
+      "decision": {
+        "eyebrow": "Decision",
+        "title": "Your team decides. Capta shows where to start.",
+        "description": "Each opportunity enters an explainable action queue. The municipality can validate, dismiss, or track it while alerts keep deadlines visible."
+      }
+    },
+    "diagram": {
+      "accessibleDescription": "Diagram of Capta's flow: the municipality's context guides Capta Intelligence and the organization provided by Capta Notices. The platform starts with Transferegov.br and plans to expand coverage to other official sources, connecting the team to the public funding ecosystem.",
+      "layers": {
+        "municipality": {
+          "title": "Your municipality",
+          "description": "Priorities, needs, and execution capacity."
+        },
+        "intelligence": {
+          "title": "Capta Intelligence",
+          "description": "Understands the context before making recommendations."
+        },
+        "notices": {
+          "title": "Capta Notices",
+          "description": "Structures, classifies, and tracks opportunities."
+        },
+        "ecosystem": {
+          "title": "Public funding ecosystem",
+          "description": "Transfers, programs, public notices, and financing lines."
+        }
+      },
+      "sourceGroupLabel": "Official sources and public systems",
+      "sourceStatusLabels": {
+        "initial": "Initial source",
+        "expanding": "Coverage expanding"
+      },
+      "sourceLabels": {
+        "transferegov": "Transferegov.br",
+        "dou": "DOU",
+        "sigconMg": "SIGCON-MG",
+        "investSus": "FNS / InvestSUS",
+        "simec": "FNDE / SIMEC",
+        "novoPac": "Novo PAC",
+        "bdmg": "BDMG",
+        "bndes": "BNDES",
+        "more": "+ more sources"
+      }
+    }
+  }
+}

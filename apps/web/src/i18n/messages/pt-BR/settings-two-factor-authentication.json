@@ -1,0 +1,30 @@
+{
+  "twoFactorAuthentication": {
+    "title": "Autenticação em duas etapas",
+    "description": "Recomendamos exigir um código de verificação além da sua senha para proteger a sua conta.",
+    "authenticatorApp": "App autenticador (TOTP)",
+    "configureAction": "Configurar",
+    "back": "Voltar",
+    "disabled": "desativado",
+    "enabled": "ativado",
+    "toggleAuthenticatorApp": "Ativar ou desativar o app autenticador",
+    "setupTitle": "Ative a autenticação em duas etapas",
+    "setupDescription": "Escaneie o QR code em um app autenticador, como Google Authenticator ou Authy.",
+    "setupPending": "O QR code será disponibilizado quando a configuração segura estiver disponível.",
+    "setupReady": "Escaneie este QR code com seu app autenticador. A confirmação por código será solicitada em seguida.",
+    "qrCodeLabel": "QR code exclusivo para configuração do app autenticador",
+    "qrCodeLoadingLabel": "Preparando QR code de configuração",
+    "qrCodePlaceholderLabel": "QR code de configuração indisponível",
+    "verificationCode": "Código de verificação",
+    "verificationCodeDigit": "Dígito {digit} do código de verificação",
+    "verificationCodeHelp": "Digite o código de seis dígitos mostrado no seu app autenticador.",
+    "verifyAndEnable": "Verificar e ativar",
+    "verifyingCode": "Verificando código...",
+    "invalidVerificationCode": "O código informado não é válido. Tente novamente.",
+    "verificationUnavailable": "Não foi possível concluir a verificação. Gere um novo QR code e tente novamente.",
+    "recoveryCodesTitle": "Guarde seus códigos de recuperação",
+    "recoveryCodesDescription": "Cada código pode ser usado uma única vez caso você perca acesso ao seu app autenticador. Eles não serão exibidos novamente.",
+    "recoveryCodesAcknowledgement": "Já guardei os códigos",
+    "verificationCodePending": "Informe o código de seis dígitos após escanear o QR code."
+  }
+}

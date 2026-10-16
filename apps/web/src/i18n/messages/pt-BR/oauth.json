@@ -1,0 +1,58 @@
+{
+  "consent": {
+    "metadataTitle": "Autorizar acesso",
+    "brandAlt": "CAPTAGOV",
+    "eyebrow": "Autorização segura",
+    "title": "Autorizar acesso à sua conta?",
+    "description": "Revise quem está solicitando acesso e quais permissões serão concedidas antes de continuar.",
+    "applicationLabel": "Aplicação solicitante",
+    "applicationIdentifierHelp": "Identificador confirmado pela Authentication API.",
+    "accountLabel": "Conta utilizada",
+    "permissionsTitle": "Permissões solicitadas",
+    "permissionsDescription": "O aplicativo poderá realizar somente as ações apresentadas abaixo.",
+    "noAdditionalPermissions": "Nenhuma permissão adicional foi informada nesta solicitação.",
+    "privacyNotice": "Sua senha e as credenciais da sua sessão nunca serão compartilhadas com o aplicativo.",
+    "allow": "Permitir acesso",
+    "allowing": "Permitindo acesso...",
+    "allowingStatus": "A autorização está sendo processada.",
+    "cancel": "Cancelar",
+    "cancelling": "Cancelando...",
+    "cancellingStatus": "O cancelamento está sendo processado.",
+    "scopes": {
+      "openid": {
+        "label": "Confirmar sua identidade",
+        "description": "Permite confirmar que você iniciou a sessão com uma conta CAPTAGOV."
+      },
+      "profile": {
+        "label": "Ver informações básicas do perfil",
+        "description": "Permite acessar dados básicos, como seu nome e informações públicas do perfil."
+      },
+      "email": {
+        "label": "Ver seu endereço de e-mail",
+        "description": "Permite acessar o endereço de e-mail associado à sua conta."
+      },
+      "offlineAccess": {
+        "label": "Manter o acesso autorizado",
+        "description": "Permite que o aplicativo continue o acesso autorizado quando você não estiver usando o CAPTAGOV."
+      },
+      "other": {
+        "description": "Permite usar a permissão “{scope}” associada à sua conta."
+      }
+    },
+    "errors": {
+      "invalid": {
+        "title": "Solicitação inválida",
+        "description": "Esta autorização não existe mais ou não corresponde à solicitação iniciada. Volte ao aplicativo e tente novamente."
+      },
+      "expired": {
+        "title": "Solicitação expirada",
+        "description": "O tempo para revisar esta autorização terminou. Volte ao aplicativo para iniciar uma nova solicitação."
+      },
+      "unavailable": {
+        "title": "Autorização indisponível",
+        "description": "Não foi possível preparar esta autorização agora. Tente novamente em alguns instantes."
+      },
+      "backHome": "Voltar ao CAPTAGOV"
+    }
+  }
+}

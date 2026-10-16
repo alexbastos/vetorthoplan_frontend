@@ -1,0 +1,17 @@
+{
+  "name": "@capta/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./authentication": "./src/generated/authentication-api.ts",
+    "./vetorthoplan": "./src/generated/vetorthoplan-backend.ts"
+  },
+  "scripts": {
+    "generate": "npm run generate:authentication && npm run generate:vetorthoplan",
+    "generate:authentication": "openapi-typescript ../../docs/openapi/authentication-api.openapi.json -o src/generated/authentication-api.ts",
+    "generate:vetorthoplan": "openapi-typescript ../../docs/openapi/vetorthoplan-backend.openapi.json -o src/generated/vetorthoplan-backend.ts",
+    "typecheck": "tsc --noEmit"
+  }
+}

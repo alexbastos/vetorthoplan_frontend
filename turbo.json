@@ -1,0 +1,21 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": { "cache": false, "persistent": true },
+    "build": {
+      "dependsOn": ["^build"],
+      "env": [
+        "AUTHENTICATION_API_BASE_URL",
+        "CAPTAGOV_APP_ORIGIN",
+        "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
+        "NEXT_STANDALONE"
+      ],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "lint": { "dependsOn": ["^lint"], "outputs": [] },
+    "typecheck": { "dependsOn": ["^typecheck"], "outputs": [] },
+    "test": { "dependsOn": ["^test"], "outputs": ["coverage/**"] },
+    "test:e2e": { "dependsOn": ["build"], "outputs": ["playwright-report/**", "test-results/**"] },
+    "format:check": { "outputs": [] }
+  }
+}

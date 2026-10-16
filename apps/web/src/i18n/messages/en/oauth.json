@@ -1,0 +1,58 @@
+{
+  "consent": {
+    "metadataTitle": "Authorize access",
+    "brandAlt": "CAPTAGOV",
+    "eyebrow": "Secure authorization",
+    "title": "Authorize access to your account?",
+    "description": "Review who is requesting access and which permissions will be granted before continuing.",
+    "applicationLabel": "Requesting application",
+    "applicationIdentifierHelp": "Identifier confirmed by the Authentication API.",
+    "accountLabel": "Account in use",
+    "permissionsTitle": "Requested permissions",
+    "permissionsDescription": "The application will only be able to perform the actions shown below.",
+    "noAdditionalPermissions": "No additional permission was included in this request.",
+    "privacyNotice": "Your password and session credentials will never be shared with the application.",
+    "allow": "Allow access",
+    "allowing": "Allowing access...",
+    "allowingStatus": "The authorization is being processed.",
+    "cancel": "Cancel",
+    "cancelling": "Cancelling...",
+    "cancellingStatus": "The cancellation is being processed.",
+    "scopes": {
+      "openid": {
+        "label": "Confirm your identity",
+        "description": "Allows confirmation that you signed in with a CAPTAGOV account."
+      },
+      "profile": {
+        "label": "View basic profile information",
+        "description": "Allows access to basic data such as your name and public profile information."
+      },
+      "email": {
+        "label": "View your email address",
+        "description": "Allows access to the email address associated with your account."
+      },
+      "offlineAccess": {
+        "label": "Maintain authorized access",
+        "description": "Allows the application to continue the authorized access while you are not using CAPTAGOV."
+      },
+      "other": {
+        "description": "Allows use of the “{scope}” permission associated with your account."
+      }
+    },
+    "errors": {
+      "invalid": {
+        "title": "Invalid request",
+        "description": "This authorization no longer exists or does not match the request that was started. Return to the application and try again."
+      },
+      "expired": {
+        "title": "Request expired",
+        "description": "The time to review this authorization has ended. Return to the application to start a new request."
+      },
+      "unavailable": {
+        "title": "Authorization unavailable",
+        "description": "We could not prepare this authorization right now. Please try again shortly."
+      },
+      "backHome": "Back to CAPTAGOV"
+    }
+  }
+}

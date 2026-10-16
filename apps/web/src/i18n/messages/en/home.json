@@ -1,0 +1,5 @@
+{
+  "metadataTitle":"Home","greeting":"Hello, {firstName}","welcome":"Welcome to",
+  "hero":{"imageAlt":"View of a historic city surrounded by mountains","badge":"Recommend a municipality","titleLine1":"Transforming how you","titleLine2":"find, manage, and grow.","explore":"Explore grants","talkToTroni":"Talk to Troni"},
+  "shortcuts":{"title":"What would you like to work on today?","grants":"Grant Mapping","grantsImageAlt":"Hand holding a magnifying glass","troni":"Troni Assistant","troniImageAlt":"Human profile with artificial intelligence elements","alerts":"Alerts and Critical Deadlines","alertsImageAlt":"Megaphone broadcasting alerts"}
+}
