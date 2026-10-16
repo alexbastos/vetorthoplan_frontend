@@ -1,0 +1,14 @@
+{
+  "navigationLabel": "Documentos legais",
+  "documents": {
+    "terms": "Termos de Uso",
+    "privacy": "Política de Privacidade"
+  },
+  "header": {
+    "navigationLabel": "Navegação institucional",
+    "homeLinkLabel": "CAPTAGOV — início",
+    "skipToContent": "Ir para o documento",
+    "login": "Entrar",
+    "register": "Criar conta"
+  }
+}
