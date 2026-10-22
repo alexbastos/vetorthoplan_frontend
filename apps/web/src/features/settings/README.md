@@ -18,8 +18,8 @@ Campos opcionais vazios são enviados como `null`. E-mail, função, status e UR
 do avatar não fazem parte desse corpo. O avatar possui endpoints próprios.
 
 As respostas do perfil são validadas em runtime e projetadas antes de chegar ao
-navegador. Propriedades que a tela não consome são descartadas. Perfil e
-Preferências compartilham o mesmo formulário e o mesmo cache; atualizações
+navegador. Propriedades que a tela não consome são descartadas. Perfil pessoal e
+Endereço compartilham o mesmo formulário e o mesmo cache; atualizações
 externas preservam campos locais ainda não salvos.
 
 ## Avatar

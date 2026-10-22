@@ -7,6 +7,8 @@ type ReportOnlyContentSecurityPolicyOptions = {
   allowGoogleIdentity: boolean
   isDevelopment: boolean
   nonce: string
+  uploadStorageOrigins?: readonly string[]
+  previewStorageOrigins?: readonly string[]
 }
 
 const CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER =
@@ -107,10 +109,23 @@ function createReportOnlyContentSecurityPolicy({
   allowGoogleIdentity,
   isDevelopment,
   nonce,
+  uploadStorageOrigins = [],
+  previewStorageOrigins = [],
 }: ReportOnlyContentSecurityPolicyOptions): string {
   if (!CSP_NONCE_PATTERN.test(nonce)) {
     throw new TypeError("Invalid CSP nonce")
   }
+  const validateStorageOrigin = (value: string) => {
+    const parsed = new URL(value)
+    if (parsed.origin !== value || parsed.username || parsed.password
+      || (parsed.protocol !== "https:" && !(isDevelopment && parsed.protocol === "http:"
+        && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname)))) {
+      throw new TypeError("Invalid upload storage origin")
+    }
+    return parsed.origin
+  }
+  const storageOrigins = uploadStorageOrigins.map(validateStorageOrigin)
+  const previewOrigins = previewStorageOrigins.map(validateStorageOrigin)
 
   const scriptSources = [
     "'self'",
@@ -133,6 +148,7 @@ function createReportOnlyContentSecurityPolicy({
   const connectSources = [
     "'self'",
     ...(allowGoogleIdentity ? [GOOGLE_IDENTITY_ROOT] : []),
+    ...storageOrigins,
     ...(isDevelopment ? ["ws:"] : []),
   ]
   const frameSources = allowGoogleIdentity ? [GOOGLE_IDENTITY_ROOT] : ["'none'"]
@@ -144,11 +160,11 @@ function createReportOnlyContentSecurityPolicy({
     `style-src ${styleFallbackSources.join(" ")}`,
     `style-src-elem ${styleElementSources.join(" ")}`,
     "style-src-attr 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    `img-src 'self' blob: data: ${previewOrigins.join(" ")}`.trim(),
     "font-src 'self'",
     `connect-src ${connectSources.join(" ")}`,
     `frame-src ${frameSources.join(" ")}`,
-    "worker-src 'none'",
+    "worker-src 'self'",
     "media-src 'self'",
     "manifest-src 'self'",
     "object-src 'none'",

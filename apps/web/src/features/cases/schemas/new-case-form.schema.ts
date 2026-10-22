@@ -1,9 +1,13 @@
 import { z } from "zod"
 
+import { ageMonthsAtDate, parseDeclaredAge, utcDateOnly } from "../lib/case-age"
+import { isValidCaseWeightInput } from "./case-weight.schema"
+
 type NewCaseValidationMessages = {
+  ageMonths: string
   ageYears: string
+  ageLimit: string
   birthDate: string
-  birthDateOrAge: string
   breedMax: string
   clinicalNotesMax: string
   patientNameMax: string
@@ -16,70 +20,33 @@ type NewCaseValidationMessages = {
   weight: string
 }
 
-function createNewCaseFormSchema(messages: NewCaseValidationMessages) {
+function createNewCaseFormSchema(messages: NewCaseValidationMessages, referenceDate: () => string = utcDateOnly) {
   return z.object({
     ageYears: z.string(),
+    ageMonths: z.string(),
     birthDate: z.string(),
     breed: z.string().trim().max(120, messages.breedMax),
-    clinicalNotes: z.string().trim().max(1_000, messages.clinicalNotesMax),
+    clinicalNotes: z.string().trim().max(4_000, messages.clinicalNotesMax),
     patientName: z.string().trim().min(1, messages.patientNameRequired).max(120, messages.patientNameMax),
-    sex: z.enum(["female", "male"]).optional(),
+    sex: z.enum(["female", "male"], { error: messages.sexRequired }),
     species: z.string().trim().min(1, messages.speciesRequired).max(80, messages.speciesMax),
-    title: z.string().trim().min(1, messages.titleRequired).max(160, messages.titleMax),
+    title: z.string().trim().min(1, messages.titleRequired).max(200, messages.titleMax),
     weightKg: z.string(),
   }).superRefine((values, context) => {
-    if (!values.sex) {
-      context.addIssue({ code: "custom", message: messages.sexRequired, path: ["sex"] })
-    }
-
-    if (values.ageYears && values.birthDate) {
-      context.addIssue({ code: "custom", message: messages.birthDateOrAge, path: ["birthDate"] })
-    }
-
-    if (values.ageYears) {
-      const years = Number(values.ageYears)
-
-      if (!/^\d+$/.test(values.ageYears) || !Number.isInteger(years) || years < 0 || years > 80) {
-        context.addIssue({ code: "custom", message: messages.ageYears, path: ["ageYears"] })
+    if (values.birthDate) {
+      if (ageMonthsAtDate(values.birthDate, referenceDate()) === null) {
+        context.addIssue({ code: "custom", message: messages.birthDate, path: ["birthDate"] })
       }
+    } else {
+      const age = parseDeclaredAge(values.ageYears, values.ageMonths)
+      if (age.kind === "invalid") context.addIssue({ code: "custom", path: [age.field],
+        message: age.reason === "limit" ? messages.ageLimit : age.reason === "years" ? messages.ageYears : messages.ageMonths })
     }
 
-    if (values.birthDate && !isValidPastDate(values.birthDate)) {
-      context.addIssue({ code: "custom", message: messages.birthDate, path: ["birthDate"] })
-    }
-
-    if (values.weightKg) {
-      const normalizedWeight = values.weightKg.replace(",", ".")
-      const weight = Number(normalizedWeight)
-
-      if (!/^\d+(?:[.,]\d{1,2})?$/.test(values.weightKg) || !Number.isFinite(weight) || weight <= 0 || weight > 1_000) {
-        context.addIssue({ code: "custom", message: messages.weight, path: ["weightKg"] })
-      }
+    if (!isValidCaseWeightInput(values.weightKg)) {
+      context.addIssue({ code: "custom", message: messages.weight, path: ["weightKg"] })
     }
   })
-}
-
-function isValidPastDate(value: string): boolean {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
-
-  if (!match) {
-    return false
-  }
-
-  const [, year, month, day] = match
-  const parsedDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
-  const isValidDate = parsedDate.getUTCFullYear() === Number(year)
-    && parsedDate.getUTCMonth() === Number(month) - 1
-    && parsedDate.getUTCDate() === Number(day)
-
-  if (!isValidDate) {
-    return false
-  }
-
-  const today = new Date()
-  const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
-
-  return parsedDate.getTime() <= todayUtc
 }
 
 type NewCaseFormValues = z.infer<ReturnType<typeof createNewCaseFormSchema>>

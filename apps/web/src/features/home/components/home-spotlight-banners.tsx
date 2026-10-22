@@ -1,8 +1,7 @@
-import { Play } from "lucide-react"
+import { ChevronRight, Play } from "lucide-react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
 
-import { HomeDataTransition } from "./home-data-transition"
 import { HomeCommunityBrowser } from "./home-community-browser"
 import styles from "./home-page.module.css"
 
@@ -12,32 +11,38 @@ function HomeSpotlightBanners() {
   return (
     <section aria-label={t("spotlightLabel")} className={styles.spotlight} data-home-spotlight>
       <article aria-labelledby="home-presentation-title" className={styles.presentation} data-home-banner>
-        <div aria-hidden="true" className={styles.landscapeLayer}>
-          <Image
-            alt=""
-            className={styles.landscapeImage}
-            data-home-banner-image
-            fill
-            priority
-            sizes="(max-width: 767px) 70vw, (max-width: 1199px) 40vw, 32vw"
-            src="/images/home/img_paisagem_banner.avif"
-          />
-        </div>
-        <HomeDataTransition />
+        <Image
+          alt=""
+          aria-hidden="true"
+          className={styles.presentationTexture}
+          draggable={false}
+          height={724}
+          priority
+          sizes="(max-width: 1050px) 100vw, 70vw"
+          src="/images/home/img_banner.avif"
+          width={2171}
+        />
         <div className={styles.presentationCopy}>
           <h2 className={styles.presentationTitle} data-home-banner-content id="home-presentation-title">
             {t("presentation.title")}
           </h2>
           <div className={styles.bannerFooter} data-home-banner-content>
             <button aria-label={`${t("presentation.watch")}. ${t("presentation.pending")}`} className={styles.presentationPending} disabled title={t("presentation.pending")} type="button">
-              <Play aria-hidden="true" className="size-4 fill-current" />
               {t("presentation.watch")}
+              <ChevronRight aria-hidden="true" size={19} strokeWidth={1.8} />
             </button>
-            <span className={styles.presentationDuration}>{t("presentation.duration")}</span>
           </div>
         </div>
 
         <div aria-label={t("presentation.previewLabel")} className={styles.videoPreview} data-home-preview role="img">
+          <span aria-hidden="true" className={styles.videoPreviewGuide}>
+            <span className={styles.videoPreviewLineTop} />
+            <span className={styles.videoPreviewLineBottom} />
+            <span className={styles.videoPreviewCornerTopLeft} />
+            <span className={styles.videoPreviewCornerTopRight} />
+            <span className={styles.videoPreviewCornerBottomLeft} />
+            <span className={styles.videoPreviewCornerBottomRight} />
+          </span>
           <div className={styles.videoPreviewImage}>
             <Image
               alt=""

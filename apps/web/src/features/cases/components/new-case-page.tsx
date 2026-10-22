@@ -1,31 +1,38 @@
 "use client"
 
 import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useCallback, useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { useImportCaseFiles } from "../hooks/use-import-case-files"
 import { useNewCaseForm } from "../hooks/use-new-case-form"
-import type { CreateCaseInput } from "../types/cases"
+import { getCaseWorkspaceHref } from "../lib/case-workspace-route"
+import type { CaseDetail } from "../types/case-detail"
 import { CaseCreationProgress, type CaseCreationStep } from "./case-creation-progress"
 import { CaseFilesImport } from "./case-files-import"
 import { NewCaseForm } from "./new-case-form"
 
 function NewCasePage() {
+  const router = useRouter()
   const t = useTranslations("cases.newCase")
   const [currentStep, setCurrentStep] = useState<CaseCreationStep>("case-details")
-  const [caseInput, setCaseInput] = useState<CreateCaseInput | null>(null)
-  const continueToFileImport = useCallback((input: CreateCaseInput) => {
-    setCaseInput(input)
+  const [createdCase, setCreatedCase] = useState<CaseDetail | null>(null)
+  const [uploadBusy, setUploadBusy] = useState(false)
+  const [uploadConfirmed, setUploadConfirmed] = useState(false)
+  const continueToFileImport = useCallback((created: CaseDetail) => {
+    setCreatedCase(created)
     setCurrentStep("file-import")
   }, [])
-  const controller = useNewCaseForm({ onContinue: continueToFileImport })
-  const fileImportController = useImportCaseFiles({ caseInput })
+  const controller = useNewCaseForm({ onCreated: continueToFileImport })
   const isCaseDetailsStep = currentStep === "case-details"
-  const isBusy = controller.isContinuing || fileImportController.isImporting
-  const activeFormId = isCaseDetailsStep ? "new-case-form" : "case-files-form"
-  const handleBack = isCaseDetailsStep ? controller.cancel : () => setCurrentStep("case-details")
+  const isBusy = controller.isCreating || uploadBusy
+  const finish = useCallback(() => {
+    if (createdCase) {
+      router.push(getCaseWorkspaceHref(createdCase.id))
+    }
+  }, [createdCase, router])
+  const handleBack = isCaseDetailsStep ? controller.cancel : finish
 
   return (
     <div className="min-h-dvh bg-[var(--case-editor-canvas)]" data-case-editor>
@@ -37,14 +44,16 @@ function NewCasePage() {
           </Button>
 
           <div className="flex items-center gap-2">
-            <Button disabled={isBusy} onClick={controller.cancel} size="sm" type="button" variant="secondary">
-              {t("actions.cancel")}
-            </Button>
-            <Button form={activeFormId} loading={isBusy} size="sm" type="submit">
-              {isCaseDetailsStep
-                ? controller.isContinuing ? t("actions.continuing") : t("actions.continue")
-                : fileImportController.isImporting ? t("actions.importing") : t("actions.finish")}
-            </Button>
+            {isCaseDetailsStep ? (
+              <>
+                <Button disabled={isBusy} onClick={controller.cancel} size="sm" type="button" variant="secondary">{t("actions.cancel")}</Button>
+                <Button form="new-case-form" loading={controller.isCreating} size="sm" type="submit">
+                  {controller.isCreating ? t("actions.creating") : t("actions.create")}
+                </Button>
+              </>
+            ) : (
+              <Button disabled={isBusy} onClick={finish} size="sm" type="button">{t("actions.openCase")}</Button>
+            )}
           </div>
         </div>
       </header>
@@ -53,7 +62,7 @@ function NewCasePage() {
         <CaseCreationProgress
           caseCompletion={controller.completion}
           currentStep={currentStep}
-          fileCompletion={fileImportController.completion}
+          fileCompletion={uploadConfirmed ? 100 : 0}
         />
 
         {isCaseDetailsStep ? (
@@ -69,9 +78,10 @@ function NewCasePage() {
           </section>
         ) : (
           <CaseFilesImport
-            caseTitle={caseInput?.title ?? ""}
-            controller={fileImportController}
-            onClose={() => setCurrentStep("case-details")}
+            caseId={createdCase?.id ?? ""}
+            caseTitle={createdCase?.title ?? ""}
+            onBusyChange={setUploadBusy}
+            onConfirmed={() => setUploadConfirmed(true)}
           />
         )}
       </main>

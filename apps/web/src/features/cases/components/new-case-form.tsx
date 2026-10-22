@@ -1,14 +1,14 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import type { KeyboardEvent } from "react"
 import { Controller, useWatch } from "react-hook-form"
 
 import { InputField } from "@/components/ui/input-field"
 
 import type { NewCaseFormController } from "../hooks/use-new-case-form"
-import { sanitizeUnsignedDecimal } from "../lib/numeric-input"
-import { CaseAgeField, CaseDateField, CaseRadioField, CaseTextareaField } from "./case-form-controls"
+import { nextCaseWeightInputValue } from "../lib/case-weight-input"
+import { CaseRadioField, CaseTextareaField } from "./case-form-controls"
+import { CasePatientAgeFields } from "./case-patient-age-fields"
 
 type NewCaseFormProps = {
   controller: NewCaseFormController
@@ -16,7 +16,7 @@ type NewCaseFormProps = {
 
 function NewCaseForm({ controller }: NewCaseFormProps) {
   const t = useTranslations("cases.newCase")
-  const { form, isContinuing, onSubmit } = controller
+  const { form, isCreating, onSubmit } = controller
   const clinicalNotes = useWatch({ control: form.control, name: "clinicalNotes" })
   const notesRegistration = form.register("clinicalNotes")
   const sexOptions = [
@@ -29,10 +29,10 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
       <section aria-label={t("sections.case.title")}>
         <InputField
           {...form.register("title")}
-          disabled={isContinuing}
+          disabled={isCreating}
           error={form.formState.errors.title?.message}
           label={t("fields.title")}
-          maxLength={160}
+          maxLength={200}
           placeholder={t("placeholders.title")}
           required
         />
@@ -44,7 +44,7 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
             <InputField
               {...form.register("patientName")}
               autoComplete="off"
-              disabled={isContinuing}
+              disabled={isCreating}
               error={form.formState.errors.patientName?.message}
               label={t("fields.patientName")}
               maxLength={120}
@@ -56,7 +56,7 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
           <div className="sm:col-span-2">
             <InputField
               {...form.register("species")}
-              disabled={isContinuing}
+              disabled={isCreating}
               error={form.formState.errors.species?.message}
               label={t("fields.species")}
               maxLength={80}
@@ -68,7 +68,7 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
           <div className="sm:col-span-2">
             <InputField
               {...form.register("breed")}
-              disabled={isContinuing}
+              disabled={isCreating}
               error={form.formState.errors.breed?.message}
               label={t("fields.breed")}
               maxLength={120}
@@ -83,18 +83,19 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
               render={({ field, fieldState }) => (
                 <InputField
                   {...field}
-                  disabled={isContinuing}
+                  disabled={isCreating}
                   error={fieldState.error?.message}
                   inputMode="decimal"
                   label={t("fields.weightKg")}
                   onChange={(event) => {
-                    const value = sanitizeUnsignedDecimal(event.target.value)
-                    event.target.value = value
-                    field.onChange(value)
+                    const candidate = event.currentTarget.value
+                    const next = nextCaseWeightInputValue(field.value, candidate)
+                    if (next === candidate) field.onChange(next)
+                    else event.currentTarget.value = next
                   }}
-                  onKeyDown={preventNonDecimalKey}
-                  pattern="[0-9]*[.,]?[0-9]{0,2}"
+                  pattern="[0-9]{0,5}([.,][0-9]{0,2})?"
                   placeholder={t("placeholders.weightKg")}
+                  spellCheck={false}
                   type="text"
                 />
               )}
@@ -103,7 +104,7 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
 
           <div className="sm:col-span-3">
             <CaseRadioField
-              disabled={isContinuing}
+              disabled={isCreating}
               error={form.formState.errors.sex?.message}
               label={t("fields.sex")}
               name="sex"
@@ -112,90 +113,24 @@ function NewCaseForm({ controller }: NewCaseFormProps) {
               required
             />
           </div>
-          <div className="sm:col-span-3">
-            <Controller
-              control={form.control}
-              name="birthDate"
-              render={({ field, fieldState }) => (
-                <CaseDateField
-                  disabled={isContinuing}
-                  error={fieldState.error?.message}
-                  id="case-birth-date"
-                  label={t("fields.birthDate")}
-                  onValueChange={(value) => {
-                    field.onChange(value)
-                    if (value && form.getValues("ageYears")) {
-                      form.setValue("ageYears", "", { shouldDirty: true, shouldValidate: true })
-                    }
-                  }}
-                  placeholder={t("placeholders.birthDate")}
-                  value={field.value}
-                />
-              )}
-            />
-          </div>
-
-          <div className="sm:col-span-3">
-            <Controller
-              control={form.control}
-              name="ageYears"
-              render={({ field, fieldState }) => (
-                <CaseAgeField
-                  decreaseLabel={t("actions.decreaseAge")}
-                  disabled={isContinuing}
-                  error={fieldState.error?.message}
-                  id="case-age-years"
-                  increaseLabel={t("actions.increaseAge")}
-                  label={t("fields.ageYears")}
-                  name={field.name}
-                  onBlur={field.onBlur}
-                  onKeyDown={preventNonIntegerKey}
-                  onValueChange={(value) => {
-                    field.onChange(value)
-                    if (value && form.getValues("birthDate")) {
-                      form.setValue("birthDate", "", { shouldDirty: true, shouldValidate: true })
-                    }
-                  }}
-                  placeholder={t("placeholders.ageYears")}
-                  ref={field.ref}
-                  value={field.value}
-                />
-              )}
-            />
-          </div>
+          <CasePatientAgeFields controller={controller} />
         </div>
       </section>
 
       <section aria-label={t("sections.clinical.title")} className="border-t border-border pt-7">
         <CaseTextareaField
           {...notesRegistration}
-          disabled={isContinuing}
+          disabled={isCreating}
           error={form.formState.errors.clinicalNotes?.message}
           id="case-clinical-notes"
           label={t("fields.clinicalNotes")}
-          maxLength={1000}
+          maxLength={4000}
           placeholder={t("placeholders.clinicalNotes")}
           valueLength={clinicalNotes.length}
         />
       </section>
     </form>
   )
-}
-
-const EDITING_KEYS = new Set(["ArrowLeft", "ArrowRight", "Backspace", "Delete", "End", "Enter", "Escape", "Home", "Tab"])
-
-function preventNonIntegerKey(event: KeyboardEvent<HTMLInputElement>) {
-  if (isEditingShortcut(event) || /^\d$/.test(event.key)) return
-  event.preventDefault()
-}
-
-function preventNonDecimalKey(event: KeyboardEvent<HTMLInputElement>) {
-  if (isEditingShortcut(event) || /^\d$/.test(event.key) || event.key === "," || event.key === ".") return
-  event.preventDefault()
-}
-
-function isEditingShortcut(event: KeyboardEvent<HTMLInputElement>): boolean {
-  return event.ctrlKey || event.metaKey || event.altKey || EDITING_KEYS.has(event.key)
 }
 
 export { NewCaseForm }

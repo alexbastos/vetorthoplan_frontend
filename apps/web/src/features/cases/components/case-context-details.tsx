@@ -4,26 +4,33 @@ import { CircleHelp, Mars, Venus } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import type { ReactNode } from "react"
 
-import { getPatientAgeYears } from "../lib/patient-age"
-import type { CaseSummary } from "../types/cases"
+import { splitAgeMonths } from "../lib/case-age"
+import type { CaseDetail } from "../types/case-detail"
 
 const detailLabelClassName = "font-data text-[0.6875rem] leading-4 font-medium text-foreground"
 const detailValueClassName = "mt-1 whitespace-pre-wrap break-words text-[0.75rem] leading-5 font-normal text-description"
 
-function CaseContextDetails({ caseSummary }: { caseSummary: CaseSummary }) {
+function CaseContextDetails({ caseSummary }: { caseSummary: CaseDetail }) {
   const t = useTranslations("cases.workspace.caseDetails")
   const tStatus = useTranslations("cases.list.status")
   const locale = useLocale()
   const patient = caseSummary.patient
-  const ageYears = getPatientAgeYears(patient.age)
-  const sex = patient.sex === "male" || patient.sex === "female" ? patient.sex : "notInformed"
+  const sex = patient.sex === "MALE" ? "male" : patient.sex === "FEMALE" ? "female" : "notInformed"
   const dateFormatter = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" })
-  const birthDate = patient.age?.kind === "birth-date"
-    ? dateFormatter.format(new Date(`${patient.age.birthDate}T00:00:00Z`))
+  const birthDate = patient.birthDate
+    ? dateFormatter.format(new Date(`${patient.birthDate}T00:00:00Z`))
     : null
-  const weight = patient.weightKg == null
+  const ageParts = splitAgeMonths(patient.approximateAgeMonths)
+  const age = ageParts === null ? t("notInformed") : ageParts.years === 0 ? t("ageMonths", { count: ageParts.months })
+    : ageParts.months === 0 ? t("ageYears", { count: ageParts.years })
+      : t("ageYearsMonths", { years: ageParts.years, months: ageParts.months })
+  const ageSource = patient.ageSource === "BIRTH_DATE" ? t("ageFromBirthDate")
+    : patient.ageSource === "DECLARED" ? t("ageDeclared") : null
+  const ageReference = patient.ageReferenceDate
+    ? dateFormatter.format(new Date(`${patient.ageReferenceDate}T00:00:00Z`)) : null
+  const weight = patient.weightKg === null
     ? t("notInformed")
-    : `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(patient.weightKg)} kg`
+    : `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(Number(patient.weightKg))} kg`
 
   return (
     <section aria-label={t("heading")} className="min-w-0">
@@ -44,7 +51,11 @@ function CaseContextDetails({ caseSummary }: { caseSummary: CaseSummary }) {
           <DetailField label={t("species")} value={patient.species} />
           <DetailField label={t("breed")} value={patient.breed || t("notInformed")} />
           <DetailField label={t("sexLabel")} value={t(`sex.${sex}`)} />
-          <DetailField label={t("age")} value={ageYears === null ? t("notInformed") : t("ageYears", { count: ageYears })} />
+          <DetailField label={t("age")} value={<>
+            {age}
+            {ageParts && ageSource ? <span className="block text-caption">{ageSource}</span> : null}
+            {ageParts && ageReference ? <span className="block text-caption">{t("ageReference", { date: ageReference })}</span> : null}
+          </>} />
           {birthDate ? <DetailField label={t("birthDate")} value={birthDate} /> : null}
           <DetailField label={t("weight")} value={weight} />
         </dl>

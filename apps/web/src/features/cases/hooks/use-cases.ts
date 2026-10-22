@@ -1,29 +1,29 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
 
-import { casesRepository } from "../services/cases-repository"
-import { CasesRepositoryError } from "./cases-repository-error"
+import { fetchCaseList, type CaseListStatus } from "../services/case-list-api"
 import { casesQueryKeys } from "./cases-query-keys"
 
-function useCases() {
-  const query = useQuery({
-    queryFn: async ({ signal }) => {
-      const result = await casesRepository.listCases({ signal })
-
-      if (!result.ok) {
-        throw new CasesRepositoryError(result.error)
-      }
-
-      return result.data
-    },
-    queryKey: casesQueryKeys.list(),
+function useCases(status: CaseListStatus | null, search: string) {
+  const query = useInfiniteQuery({
+    queryFn: ({ pageParam, signal }) => fetchCaseList({ cursor: pageParam, search, status }, { signal }),
+    queryKey: casesQueryKeys.listPage(status, search),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    retry: 1,
   })
 
   return {
-    cases: query.data ?? [],
-    isLoading: query.isLoading,
-    loadError: query.error,
+    cases: query.data?.pages.flatMap((page) => page.items) ?? [],
+    statusCounts: query.data?.pages[0]?.statusCounts,
+    isLoading: query.isPending,
+    isRefreshing: query.isFetching && !query.isFetchingNextPage,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    loadMoreError: query.isFetchNextPageError,
+    loadMore: query.fetchNextPage,
+    loadError: query.isPending ? query.error : null,
     retry: query.refetch,
   }
 }

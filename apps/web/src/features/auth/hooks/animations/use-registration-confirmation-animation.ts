@@ -4,10 +4,8 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 
 import type { RegistrationConfirmationState } from "../../components/shell/auth-transition-provider"
-import {
-  REGISTRATION_CONFIRMATION_EXIT_DURATION,
-  REGISTRATION_CONFIRMATION_STATUS_CHANGE_DELAY,
-} from "../../lib/registration-confirmation"
+import { useAuthTransition } from "../../components/shell/auth-transition-provider"
+import { REGISTRATION_CONFIRMATION_EXIT_DURATION, REGISTRATION_CONFIRMATION_STATUS_CHANGE_DELAY } from "../../lib/registration-confirmation"
 
 type RegistrationConfirmationAnimationOptions = {
   state: RegistrationConfirmationState
@@ -16,15 +14,23 @@ type RegistrationConfirmationAnimationOptions = {
 gsap.registerPlugin(useGSAP)
 
 function useRegistrationConfirmationAnimation({ state }: RegistrationConfirmationAnimationOptions) {
+  const { resetRegistrationConfirmation } = useAuthTransition()
+
   useGSAP(
     () => {
       const loaderElement = document.querySelector("[data-auth-registration-loader]")
-      const backgroundElements = document.querySelectorAll("[data-auth-back], [data-auth-logo], [data-auth-flow]")
       const creatingStatusElement = document.querySelector("[data-auth-registration-status-creating]")
       const sentStatusElement = document.querySelector("[data-auth-registration-status-sent]")
 
       if (state === "loading") {
         if (!loaderElement) {
+          return
+        }
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          gsap.set(loaderElement, { autoAlpha: 1, y: 0 })
+          gsap.set(creatingStatusElement, { autoAlpha: 0 })
+          gsap.set(sentStatusElement, { autoAlpha: 1, y: 0 })
           return
         }
 
@@ -34,8 +40,7 @@ function useRegistrationConfirmationAnimation({ state }: RegistrationConfirmatio
         gsap.set(creatingStatusElement, { autoAlpha: 1, y: 0 })
 
         timeline
-          .to(backgroundElements, { autoAlpha: 0, duration: 0.28 })
-          .fromTo(loaderElement, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, duration: 0.32, y: 0 }, "<0.12")
+          .fromTo(loaderElement, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, duration: 0.32, y: 0 })
           .to(
             creatingStatusElement,
             { autoAlpha: 0, duration: 0.18, ease: "power1.in", y: -2 },
@@ -52,15 +57,24 @@ function useRegistrationConfirmationAnimation({ state }: RegistrationConfirmatio
         }
       }
 
+      if (state === "navigating" && loaderElement) {
+        gsap.set(loaderElement, { autoAlpha: 1, y: 0 })
+      }
+
       if (state === "exiting" && loaderElement) {
-        const timeline = gsap.timeline({ defaults: { ease: "power2.inOut" } })
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          resetRegistrationConfirmation()
+          return
+        }
+
+        const timeline = gsap.timeline({ defaults: { ease: "power2.inOut" }, onComplete: resetRegistrationConfirmation })
 
         timeline.to(loaderElement, { autoAlpha: 0, duration: REGISTRATION_CONFIRMATION_EXIT_DURATION, y: -4 })
 
         return () => timeline.kill()
       }
     },
-    { dependencies: [state] },
+    { dependencies: [resetRegistrationConfirmation, state] },
   )
 }
 

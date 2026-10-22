@@ -4,7 +4,7 @@
   "status": {"loading": "Loading...", "comingSoon": "Coming soon", "comingSoonDescription": "This area is still being prepared.", "noInformation": "No information"},
   "navigation": {"application": "Application", "home": "Home", "cases": "Cases", "settings": "Settings", "help": "Help", "main": "Main navigation", "routes": "Application routes", "open": "Open navigation", "close": "Close navigation", "expand": "Expand navigation", "collapse": "Collapse navigation"},
   "whatsNew": {"eyebrow": "What's new", "title": "Cases in one place", "description": "Find your cases and pick up where you left off."},
-  "sidebarFooter": {"helpCenter": "Help center", "version": "Version {version}"},
+  "sidebarFooter": {"helpCenter": "Help center"},
   "header": {"pageActions": "Page actions", "globalSearch": "Global search", "searchPlaceholder": "Search...", "notifications": "Notifications", "openProfileMenu": "Open profile menu"},
   "notificationMenu": {"empty": "No notifications yet", "viewAll": "View all"},
   "accountMenu": {"label": "Account menu", "myAccount": "My account", "myProfile": "My profile", "security": "Security", "settings": "Settings", "preferences": "Preferences", "theme": "Theme", "darkTheme": "Dark theme", "language": "Language", "backToAccountMenu": "Back to account menu", "localeNames": {"pt-BR": "Portuguese (Brazil)", "en": "English"}, "languageSaveError": "Unable to change the language", "help": "Help", "manage": "Manage your account", "openSettings": "Open settings", "logoutErrorTitle": "Unable to sign out", "logoutErrorDescription": "Please try again shortly."},

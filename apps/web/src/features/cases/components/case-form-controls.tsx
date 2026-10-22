@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, X } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
 
 import { DatePicker } from "@/components/ui/date-picker"
@@ -13,15 +13,16 @@ type FieldShellProps = {
   error?: string
   htmlFor?: string
   label: string
+  labelHidden?: boolean
   required?: boolean
 }
 
-function FieldShell({ children, error, htmlFor, label, required = false }: FieldShellProps) {
+function FieldShell({ children, error, htmlFor, label, labelHidden = false, required = false }: FieldShellProps) {
   const errorId = htmlFor ? `${htmlFor}-error` : undefined
 
   return (
     <div className="flex min-w-0 w-full flex-col gap-[var(--input-field-gap)]">
-      <label className="flex min-h-4 items-center gap-[var(--input-field-label-gap)] text-[length:var(--input-field-label-size)] leading-[var(--input-field-label-line-height)] font-semibold text-[var(--input-field-label-color)]" htmlFor={htmlFor}>
+      <label className={labelHidden ? "sr-only" : "flex min-h-4 items-center gap-[var(--input-field-label-gap)] text-[length:var(--input-field-label-size)] leading-[var(--input-field-label-line-height)] font-semibold text-[var(--input-field-label-color)]"} htmlFor={htmlFor}>
         {label}
         {required ? <span aria-hidden="true" className="ml-1 text-destructive">*</span> : null}
       </label>
@@ -55,6 +56,8 @@ function CaseRadioField({ disabled, error, label, name, options, registration, r
           <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground" key={option.value}>
             <input
               {...registration}
+              aria-describedby={error ? errorId : undefined}
+              aria-invalid={Boolean(error)}
               className="case-editor-radio"
               disabled={disabled}
               name={name}
@@ -72,6 +75,7 @@ function CaseRadioField({ disabled, error, label, name, options, registration, r
 }
 
 type CaseDateFieldProps = {
+  clearLabel?: string
   disabled?: boolean
   error?: string
   id: string
@@ -81,7 +85,7 @@ type CaseDateFieldProps = {
   value: string
 }
 
-function CaseDateField({ disabled, error, id, label, onValueChange, placeholder, value }: CaseDateFieldProps) {
+function CaseDateField({ clearLabel, disabled, error, id, label, onValueChange, placeholder, value }: CaseDateFieldProps) {
   return (
     <FieldShell error={error} htmlFor={id} label={label}>
       <div
@@ -101,57 +105,68 @@ function CaseDateField({ disabled, error, id, label, onValueChange, placeholder,
           placeholder={placeholder}
           value={value}
         />
+        {value && clearLabel ? <button
+          aria-label={clearLabel}
+          className="ml-2 flex size-6 shrink-0 items-center justify-center rounded-sm text-content-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-40"
+          disabled={disabled}
+          onClick={() => { onValueChange(""); document.getElementById(id)?.focus() }}
+          type="button"
+        ><X aria-hidden="true" className="size-3.5" /></button> : null}
       </div>
     </FieldShell>
   )
 }
 
 type CaseAgeFieldProps = {
+  describedBy?: string
   decreaseLabel: string
   disabled?: boolean
   error?: string
   id: string
   increaseLabel: string
   label: string
+  max: number
   name: string
   onBlur: ComponentProps<"input">["onBlur"]
   onKeyDown?: ComponentProps<"input">["onKeyDown"]
   onValueChange: (value: string) => void
   placeholder?: string
+  readOnly?: boolean
   ref: ComponentProps<"input">["ref"]
   value: string
 }
 
-function CaseAgeField({ decreaseLabel, disabled, error, id, increaseLabel, label, name, onBlur, onKeyDown, onValueChange, placeholder, ref, value }: CaseAgeFieldProps) {
+function CaseAgeField({ describedBy, decreaseLabel, disabled, error, id, increaseLabel, label, max, name, onBlur, onKeyDown, onValueChange, placeholder, readOnly = false, ref, value }: CaseAgeFieldProps) {
   const age = value === "" ? null : Number(value)
-  const canIncrease = age === null || age < 80
+  const canIncrease = age === null || age < max
   const canDecrease = age === null || age > 0
 
   function step(direction: 1 | -1) {
     const next = age === null ? (direction === 1 ? 1 : 0) : age + direction
-    onValueChange(String(Math.max(0, Math.min(80, next))))
+    onValueChange(String(Math.max(0, Math.min(max, next))))
   }
 
   return (
-    <FieldShell error={error} htmlFor={id} label={label}>
+    <FieldShell error={error} htmlFor={id} label={label} labelHidden>
       <div className={cn(
         "flex h-[var(--input-height)] w-full items-center rounded-[var(--input-radius)] border bg-[var(--input-surface-default)] focus-within:border-[var(--input-border-focus)]",
         error ? "border-[var(--input-border-error)]" : "border-[var(--input-border-default)]",
         disabled && "bg-[var(--input-surface-disabled)]",
       )}>
         <input
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={[describedBy, error ? `${id}-error` : undefined].filter(Boolean).join(" ") || undefined}
           aria-invalid={Boolean(error)}
           className="min-w-0 flex-1 bg-transparent pl-[var(--input-padding-inline)] text-ui text-[var(--input-text)] outline-none placeholder:text-[length:var(--input-placeholder-size)] placeholder:text-[var(--input-placeholder)] disabled:cursor-not-allowed disabled:text-[var(--input-text-disabled)]"
           disabled={disabled}
           id={id}
           inputMode="numeric"
-          maxLength={2}
+          maxLength={String(max).length}
           name={name}
           onBlur={onBlur}
-          onChange={(event) => onValueChange(sanitizeUnsignedInteger(event.target.value, 2))}
+          onChange={(event) => { if (!readOnly) onValueChange(sanitizeUnsignedInteger(event.target.value, String(max).length)) }}
           onKeyDown={(event) => {
             if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+              if (readOnly) return
               event.preventDefault()
               if (event.key === "ArrowUp" && canIncrease) step(1)
               if (event.key === "ArrowDown" && canDecrease) step(-1)
@@ -162,10 +177,12 @@ function CaseAgeField({ decreaseLabel, disabled, error, id, increaseLabel, label
           pattern="[0-9]*"
           placeholder={placeholder}
           ref={ref}
+          readOnly={readOnly}
           type="text"
           value={value}
         />
-        <div className="flex h-full w-8 shrink-0 flex-col items-center justify-center pr-1">
+        <span aria-hidden="true" className={cn("shrink-0 pl-2 text-[0.6875rem] leading-4 font-normal text-description lowercase", readOnly && "pr-[var(--input-padding-inline)]")}>{label}</span>
+        {!readOnly ? <div className="flex h-full w-8 shrink-0 flex-col items-center justify-center pr-1">
           <button
             aria-label={increaseLabel}
             className="flex h-4 w-7 items-center justify-center rounded-sm text-content-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--input-border-focus)] disabled:cursor-not-allowed disabled:opacity-40"
@@ -184,7 +201,7 @@ function CaseAgeField({ decreaseLabel, disabled, error, id, increaseLabel, label
           >
             <ChevronDown aria-hidden="true" className="size-3 -translate-y-1" />
           </button>
-        </div>
+        </div> : null}
       </div>
     </FieldShell>
   )

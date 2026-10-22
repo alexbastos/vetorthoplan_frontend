@@ -104,7 +104,7 @@ Ordem de migracao:
 4. Select, Dropdown e Checkbox.
 5. DatePicker e Calendar.
 6. Feedback, Sonner e estados vazios.
-7. SlideMenu, modais e loaders.
+7. Modais e loaders.
 8. Shell, header, sidebar e navegacao.
 9. Autenticacao.
 10. Paginas completas.

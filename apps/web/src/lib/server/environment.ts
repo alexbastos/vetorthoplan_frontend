@@ -5,6 +5,8 @@ import { z } from "zod"
 const SERVER_ENVIRONMENT_VARIABLES = [
   "AUTHENTICATION_API_BASE_URL",
   "APP_ORIGIN",
+  "CLINICAL_API_BASE_URL",
+  "CLINICAL_API_IDENTITY_MODE",
   "OAUTH_TRANSACTION_SECRET",
   "SESSION_COOKIE_PREVIOUS_SECRET",
   "SESSION_COOKIE_SECRET",
@@ -51,6 +53,16 @@ const ServerEnvironmentSchema = z.object({
     .transform((url) => url.origin),
 })
 
+const ClinicalServerEnvironmentSchema = z.object({
+  CLINICAL_API_BASE_URL: CanonicalOriginSchema
+    .refine(
+      (url) => url.protocol === "https:" || (url.protocol === "http:" && isLoopbackHost(url.hostname)),
+      "must use HTTPS, except for an HTTP loopback origin"
+    )
+    .transform((url) => url.origin),
+  CLINICAL_API_IDENTITY_MODE: z.enum(["local", "jwt"]),
+})
+
 const RuntimeSecretSchema = z
   .string()
   .regex(/^[A-Za-z0-9_-]{43}$/, "must be an unpadded 32-byte base64url value")
@@ -79,6 +91,11 @@ type ServerEnvironment = {
   authenticationApiBaseUrl: string
   appOrigin: string
 }
+
+type ClinicalServerEnvironment = Readonly<{
+  clinicalApiBaseUrl: string
+  identityMode: "local" | "jwt"
+}>
 
 type SessionServerEnvironment = ServerEnvironment & {
   sessionCookieSecrets: SessionCookieSecrets
@@ -112,6 +129,29 @@ function getServerEnvironment(environment: NodeJS.ProcessEnv = process.env): Ser
   return {
     authenticationApiBaseUrl: result.data.AUTHENTICATION_API_BASE_URL,
     appOrigin: result.data.APP_ORIGIN,
+  }
+}
+
+function getClinicalServerEnvironment(
+  environment: NodeJS.ProcessEnv = process.env
+): ClinicalServerEnvironment {
+  const result = ClinicalServerEnvironmentSchema.safeParse(environment)
+
+  if (!result.success) {
+    throw createConfigurationError(result.error)
+  }
+
+  if (result.data.CLINICAL_API_IDENTITY_MODE === "local" && environment.NODE_ENV !== "development" && environment.NODE_ENV !== "test") {
+    throw new ServerEnvironmentConfigurationError(["CLINICAL_API_IDENTITY_MODE"])
+  }
+
+  if (result.data.CLINICAL_API_IDENTITY_MODE === "jwt" && !result.data.CLINICAL_API_BASE_URL.startsWith("https:")) {
+    throw new ServerEnvironmentConfigurationError(["CLINICAL_API_BASE_URL"])
+  }
+
+  return {
+    clinicalApiBaseUrl: result.data.CLINICAL_API_BASE_URL,
+    identityMode: result.data.CLINICAL_API_IDENTITY_MODE,
   }
 }
 
@@ -238,12 +278,14 @@ function isLoopbackHost(hostname: string): boolean {
 }
 
 export {
+  getClinicalServerEnvironment,
   getOAuthServerEnvironment,
   getSessionServerEnvironment,
   getServerEnvironment,
   validateServerRuntimeEnvironment,
 }
 export type {
+  ClinicalServerEnvironment,
   OAuthTransactionSecret,
   ServerEnvironment,
   SessionCookieSecrets,

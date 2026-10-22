@@ -27,6 +27,10 @@ Copie `.env.example` para `.env.local` e configure:
 | Variável | Exposição | Momento | Obrigatória |
 | --- | --- | --- | --- |
 | `AUTHENTICATION_API_BASE_URL` | Somente servidor | Build e runtime | Sim |
+| `CLINICAL_API_BASE_URL` | Somente servidor | Runtime clínico | Para integração clínica |
+| `CLINICAL_API_IDENTITY_MODE` | Somente servidor | Runtime clínico | `jwt` para API remota; `local` apenas em development/test |
+| `UPLOAD_STORAGE_ORIGINS` | Somente servidor | Runtime, CSP report-only | Origens exatas do POST direto ao storage |
+| `PREVIEW_STORAGE_ORIGINS` | Somente servidor | Runtime, CSP report-only | Origens exatas das prévias temporárias |
 | `APP_ORIGIN` | Somente servidor | Build e runtime | Sim |
 | `OAUTH_TRANSACTION_SECRET` | Segredo server-side | Somente runtime | Sim em produção |
 | `SESSION_COOKIE_SECRET` | Segredo server-side | Somente runtime | Sim em produção |
@@ -38,6 +42,45 @@ o prefixo `NEXT_PUBLIC_` e nunca ser enviados como build arguments. O BFF não
 utiliza `GOOGLE_CLIENT_SECRET`; essa credencial não deve ser fornecida ao projeto.
 Em produção, o processo encerra com erro durante a inicialização quando qualquer
 configuração server-side obrigatória estiver ausente ou inválida.
+
+Para a API clínica em desenvolvimento, configure `CLINICAL_API_BASE_URL` com a
+origem que o processo do BFF alcança, por exemplo `http://127.0.0.1:8000`, sem
+`/docs` ou `/api/v1`, e `CLINICAL_API_IDENTITY_MODE=local`. Essa configuração é
+validada no servidor quando o cliente clínico é criado. HTTP só é aceito em
+loopback; o modo `local` é recusado fora de `development`/`test`. No projeto do
+backend, configure `IDENTITY_MODE=local`, `LOCAL_TENANT_ID` e `LOCAL_ACTOR_ID`.
+Não copie esses IDs para o frontend. O modo local não envia Bearer nem pode ser
+usado em produção. A conexão remota usa um token clínico separado.
+
+A origem oficial agora é `https://bwtp7pm5pc.execute-api.us-east-1.amazonaws.com`
+(Swagger em `/docs`, contrato em `/openapi.json`). A publicação de 21/10/2026
+continua na versão 0.9.0 e mantém os mesmos payloads, mas passou a declarar
+Bearer/JWT nas operações clínicas. Configure essa origem, sem caminho, com
+`CLINICAL_API_IDENTITY_MODE=jwt`. O BFF resolve a sessão geral, consulta as
+organizações ativas e troca o token para `vetorthoplan-api`. Com uma organização,
+a seleção é automática; com várias, a tela pede escolha. O token clínico fica
+cifrado em cookie HttpOnly e é renovado por nova troca; o refresh token geral
+permanece separado. Nenhum token deve chegar ao JavaScript do navegador.
+
+O time confirmou o [contrato suplementar da troca](../../docs/organization-token-contract.md),
+implementado no BFF mesmo antes de aparecer no Swagger público. A URL de
+autenticação não deve ser copiada inteira para a variável: o cliente já inclui
+o prefixo `/authentication_api/api/v1/auth`. Após alterar `.env`, reinicie o
+servidor do frontend. Veja o [relatório da conexão remota](../../docs/clinical-remote-integration-status.md).
+
+Para repetir apenas as verificações públicas de saúde/contrato, sem conta ou
+dados clínicos, execute `corepack pnpm --filter web check:clinical-remote`.
+O diagnóstico usa a origem oficial por padrão e permite uma origem explícita
+como argumento. Não lê `.env` e não emite tokens. Saída 2 indica pendências;
+saída 0 valida somente essas verificações públicas, sem certificar autenticação,
+storage, CORS ou worker. A ausência da rota no OpenAPI ainda gera
+`ORGANIZATION_TOKEN_UNDOCUMENTED`, mesmo com o contrato suplementar implementado.
+
+Para testar upload e prévia no navegador, configure as origens exatas do storage
+em `UPLOAD_STORAGE_ORIGINS` e `PREVIEW_STORAGE_ORIGINS`, separadas por vírgula.
+Essas variáveis alimentam a CSP em modo report-only; o backend/storage também
+precisam permitir a origem do produto conforme a operação. A URL assinada da
+prévia vem do backend e nunca deve ser copiada para essas variáveis.
 
 ## Sessão
 

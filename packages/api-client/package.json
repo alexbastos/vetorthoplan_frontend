@@ -5,10 +5,17 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./authentication": "./src/generated/authentication-api.ts"
+    "./http-client": "./src/http-client.ts",
+    "./authentication": "./src/generated/authentication-api.ts",
+    "./clinical": "./src/generated/clinical-api.ts",
+    "./clinical-contract": "./src/clinical-contract.ts",
+    "./organization-token-contract": "./src/organization-token-contract.ts"
   },
   "scripts": {
-    "generate": "openapi-typescript ../../docs/openapi/authentication-api.openapi.json -o src/generated/authentication-api.ts",
+    "generate": "openapi-typescript ../../docs/openapi/authentication-api.openapi.json -o src/generated/authentication-api.ts && openapi-typescript ../../docs/openapi/clinical-api.openapi.json -o src/generated/clinical-api.ts",
+    "generate:authentication": "openapi-typescript ../../docs/openapi/authentication-api.openapi.json -o src/generated/authentication-api.ts",
+    "generate:clinical": "openapi-typescript ../../docs/openapi/clinical-api.openapi.json -o src/generated/clinical-api.ts",
+    "verify:clinical": "node scripts/verify-clinical-contract.mjs",
     "typecheck": "tsc --noEmit"
   }
 }

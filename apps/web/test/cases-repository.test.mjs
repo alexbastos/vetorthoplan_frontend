@@ -25,7 +25,7 @@ const { createFrontendOnlyCasesAdapter } = await import(
 const { createInMemoryCasesAdapter } = await import(
   "../src/features/cases/services/in-memory-cases-adapter.ts"
 )
-const { sanitizeUnsignedDecimal, sanitizeUnsignedInteger } = await import(
+const { sanitizeUnsignedInteger } = await import(
   "../src/features/cases/lib/numeric-input.ts"
 )
 const { CASE_FILE_MAX_SIZE, validateCaseFile } = await import(
@@ -83,12 +83,9 @@ test("calculates age from the patient's birthday", () => {
   assert.equal(getPatientAgeYears(null), null)
 })
 
-test("sanitizes the numeric case fields before validation", () => {
+test("sanitizes unsigned integer fields before validation", () => {
   assert.equal(sanitizeUnsignedInteger("3a4", 2), "34")
   assert.equal(sanitizeUnsignedInteger("343", 2), "34")
-  assert.equal(sanitizeUnsignedDecimal("sd32,323"), "32,32")
-  assert.equal(sanitizeUnsignedDecimal("12.3.4"), "12.34")
-  assert.equal(sanitizeUnsignedDecimal(",5"), "0,5")
 })
 
 test("accepts clinical file formats and enforces the 50 MB limit", () => {

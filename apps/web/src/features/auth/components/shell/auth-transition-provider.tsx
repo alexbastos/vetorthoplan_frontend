@@ -7,7 +7,7 @@ import { applyAuthShellFinalState } from "./auth-motion-state"
 
 type AuthVisualMode = "confirmation" | "recovery" | "split"
 type AuthTransitionPhase = "idle" | "exiting" | "navigating" | "entering"
-type RegistrationConfirmationState = "idle" | "loading" | "exiting"
+type RegistrationConfirmationState = "idle" | "loading" | "navigating" | "exiting"
 
 type ActiveAuthTransition = {
   destination: string
@@ -86,6 +86,13 @@ function AuthTransitionProvider({ children }: { children: ReactNode }) {
     })
   }, [pathname])
 
+  useEffect(() => {
+    if (pathname === "/register/check-email" && registrationConfirmationState === "navigating") {
+      // Keep the overlay visible until Next has committed the destination page.
+      setRegistrationConfirmationState("exiting")
+    }
+  }, [pathname, registrationConfirmationState])
+
   const beginTransition = useCallback((destination: string) => {
     if (transitionRef.current || transitionLockRef.current) {
       return false
@@ -113,7 +120,7 @@ function AuthTransitionProvider({ children }: { children: ReactNode }) {
   }, [registrationConfirmationState])
 
   const completeRegistrationConfirmation = useCallback(() => {
-    setRegistrationConfirmationState("exiting")
+    setRegistrationConfirmationState("navigating")
   }, [])
 
   const resetRegistrationConfirmation = useCallback(() => {

@@ -1,0 +1,22 @@
+{
+  "sourceUrl": "https://cecia.ufsj.edu.br/openapi.json",
+  "sourceFile": "clinical-api.published-0.9.0-2026-10-20.openapi.json",
+  "sourceKind": "published OpenAPI downloaded over HTTPS; operational flows not verified",
+  "retrievedAtUtc": null,
+  "retrievedOn": "2026-10-20",
+  "backendBranch": null,
+  "backendRevision": null,
+  "sourceGeneratedAtUtc": null,
+  "openapiVersion": "3.1.0",
+  "apiTitle": "VetOrthoPlan Backend API",
+  "apiVersion": "0.9.0",
+  "pathCount": 14,
+  "operationCount": 17,
+  "schemaCount": 38,
+  "referenceCount": 99,
+  "sourceByteLength": 39281,
+  "sourceSha256": "b1ffad63397979621a9bd73d394ebb9498a6bf3ac28ef0ab0ec5e859b5e6b836",
+  "byteLength": 39281,
+  "sha256": "b1ffad63397979621a9bd73d394ebb9498a6bf3ac28ef0ab0ec5e859b5e6b836",
+  "generatedSha256": "5922f1c58dfb725792f2327c480d7c52feb17e28b71604837fc27e18797b5b8b"
+}

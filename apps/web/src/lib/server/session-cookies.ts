@@ -9,6 +9,7 @@ import {
 
 import type { SessionCookieSecrets } from "./environment"
 import { openSessionToken, sealSessionToken } from "./session-cookie-codec"
+import { clinicalIdentityCookieNames } from "./clinical-identity-cookies"
 
 const ACCESS_TOKEN_MAX_AGE_SECONDS = 15 * 60
 const REFRESH_TOKEN_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
@@ -148,6 +149,7 @@ function clearSessionCookies(cookieStore: Pick<SessionCookieStore, "set">): void
   expireCookie(cookieStore, SESSION_ACCESS_COOKIE_NAME)
   expireCookie(cookieStore, SESSION_REFRESH_COOKIE_NAME)
   clearLegacySessionCookies(cookieStore)
+  for (const name of Object.values(clinicalIdentityCookieNames(process.env.NODE_ENV === "production"))) expireCookie(cookieStore, name)
 }
 
 function clearLegacySessionCookies(cookieStore: Pick<SessionCookieStore, "set">): void {

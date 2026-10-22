@@ -1,72 +1,50 @@
 "use client"
 
-import { useQueryClient } from "@tanstack/react-query"
-import { ArrowLeft, FileImage, FileText, Film, RefreshCw, Upload } from "lucide-react"
+import { ArrowLeft, FileImage, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { useRef, useState, type ChangeEvent } from "react"
-import { toast } from "sonner"
+import { useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
 import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 import { useAppTheme } from "@/components/shared/app-shell/app-theme-provider"
+import { Button } from "@/components/ui/button"
 
-import { useCaseWorkspace } from "../hooks/use-case-workspace"
-import { casesQueryKeys } from "../hooks/cases-query-keys"
-import { CasesRepositoryError } from "../hooks/cases-repository-error"
-import { CASE_FILE_ACCEPT_ATTRIBUTE, validateCaseFile } from "../lib/case-file-policy"
-import { casesRepository } from "../services/cases-repository"
-import type { CaseWorkspaceFile } from "../types/case-workspace"
+import { useCaseDetail } from "../hooks/use-case-detail"
+import { useCaseIngestions } from "../hooks/use-case-ingestions"
+import { canPreviewCaseImage, caseImageViewerMessage } from "../lib/case-image-state"
+import { CaseDetailRequestError } from "../services/case-detail-api"
 import { CaseContextDetails } from "./case-context-details"
-import { CaseWorkspaceImage } from "./case-workspace-image"
+import { CaseFilesImport } from "./case-files-import"
+import { CaseImagesList } from "./case-images-list"
+import { CasePreviewPanel } from "./case-preview-panel"
 import { CaseWorkspacePanel, type WorkspacePanelSection } from "./case-workspace-panel"
-import { CaseImageListItem } from "./case-image-list-item"
 
 type CaseWorkspacePageProps = { caseId: string }
-type WorkspaceImage = Extract<CaseWorkspaceFile, { kind: "image" }>
 
 function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
   const t = useTranslations("cases.workspace")
   const tCaseStatus = useTranslations("cases.list.status")
-  const queryClient = useQueryClient()
   const router = useRouter()
   const { requestNavigation } = useUnsavedChangesGuard()
   const { resolvedTheme, setPreference } = useAppTheme()
-  const query = useCaseWorkspace(caseId)
-  const [activeImageId, setActiveImageId] = useState<string | null>(null)
-  const [emptySection, setEmptySection] = useState<WorkspacePanelSection>("images")
-  const [isImporting, setIsImporting] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  async function handleAddFiles(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? [])
-    event.target.value = ""
-    if (files.length === 0) return
-    if (files.some((file) => !validateCaseFile(file).ok)) {
-      toast.error(t("upload.invalid"))
-      return
-    }
-
-    setIsImporting(true)
-    try {
-      const result = await casesRepository.importFiles({ caseId, files })
-      if (!result.ok) throw new CasesRepositoryError(result.error)
-      await queryClient.invalidateQueries({ queryKey: casesQueryKeys.all })
-      toast.success(t("upload.success"))
-    } catch (error) {
-      toast.error(error instanceof CasesRepositoryError && error.code === "FILES_UNAVAILABLE"
-        ? t("upload.unavailable") : t("upload.error"))
-    } finally {
-      setIsImporting(false)
-    }
-  }
+  const query = useCaseDetail(caseId)
+  const ingestion = useCaseIngestions(caseId, Boolean(query.data))
+  const { imagesQuery, jobActive } = ingestion
+  const [activeSection, setActiveSection] = useState<WorkspacePanelSection>("case")
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [uploadBusy, setUploadBusy] = useState(false)
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null)
+  useEffect(() => {
+    if (selectedImageId && imagesQuery.data && !imagesQuery.data.some(image => image.id === selectedImageId)) setSelectedImageId(null)
+  }, [imagesQuery.data, selectedImageId])
 
   if (query.isLoading) return <WorkspaceLoading label={t("loading")} />
   if (!query.data) {
-    const missing = query.error instanceof CasesRepositoryError && query.error.code === "CASE_NOT_FOUND"
+    const missing = query.error instanceof CaseDetailRequestError
+      && (query.error.code === "CASE_NOT_FOUND" || query.error.code === "VALIDATION_ERROR")
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[var(--case-editor-canvas)] px-6 text-center">
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[var(--case-editor-canvas)] px-6 text-center" role="alert">
         <FileImage aria-hidden="true" className="size-9 text-description" />
         <h1 className="text-xl font-bold text-foreground">{t(missing ? "missing.title" : "error.title")}</h1>
         <p className="max-w-md text-sm text-description">{t(missing ? "missing.description" : "error.description")}</p>
@@ -78,42 +56,40 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
     )
   }
 
-  const { case: caseSummary, files } = query.data
-  const images = files.filter((file): file is WorkspaceImage => file.kind === "image")
-  const attachments = files.filter((file) => file.kind === "attachment")
-  const existingImageNames = images.map((image) => image.file.name)
-  const selectedImage = images.find((image) => image.file.id === activeImageId)
-    ?? images.find((image) => image.rendering.status === "ready") ?? images[0]
-  const imageActions = (
-    <Button aria-label={t("upload.add")} className="!size-7 !rounded-[var(--radius-token-md)] !px-0" disabled={isImporting} onClick={() => fileInputRef.current?.click()} size="sm" title={t("upload.add")} type="button" variant="ghost">
-      <Upload aria-hidden="true" className="size-4" strokeWidth={1.5} />
-    </Button>
-  )
-  const imageList = (
-    <div className="min-w-0">
-      <div className="flex items-center justify-between gap-2 pb-3">
-        <p className="font-data text-[0.6875rem] leading-4 font-medium text-foreground">{t("images.count", { count: images.length })}</p>
-      </div>
-      <div className="space-y-1.5">
-        {images.length > 0 ? images.map((image) => (
-          <CaseImageListItem caseId={caseId} existingNames={existingImageNames} image={image} isActive={selectedImage?.file.id === image.file.id} key={image.file.id} onSelect={() => requestNavigation(() => setActiveImageId(image.file.id))} />
-        )) : <p className="py-5 text-[0.75rem] leading-5 font-normal text-description">{t("images.empty")}</p>}
-      </div>
-      {attachments.length > 0 ? (
-        <div className="mt-5 border-t border-border pt-4">
-          <h3 className="font-data text-[0.6875rem] leading-4 font-medium text-foreground">{t("attachments")}</h3>
-          <ul className="mt-2 space-y-2">
-            {attachments.map((file) => (
-              <li className="flex min-w-0 items-center gap-2 text-[0.75rem] leading-5 font-normal text-description" key={file.file.id}>
-                {file.format === "pdf" ? <FileText aria-hidden="true" className="size-3.5 shrink-0" /> : <Film aria-hidden="true" className="size-3.5 shrink-0" />}
-                <span className="truncate" title={file.file.name}>{file.file.name}</span>
-              </li>
-            ))}
-          </ul>
+  const caseDetail = query.data
+  const images = imagesQuery.data ?? []
+  const selectedImage = images.find((image) => image.id === selectedImageId)
+    ?? images.find(canPreviewCaseImage) ?? images[0]
+  const canShowPreview = canPreviewCaseImage(selectedImage)
+  const selectedIngestion = ingestion.entries.find((entry) => entry.imageId === selectedImage?.id)
+  const selectedJob = selectedIngestion?.job
+  const imageMessage = caseImageViewerMessage(selectedImage, selectedJob?.status, selectedIngestion?.retryAcknowledged)
+  const viewerTitle = imagesQuery.isPending ? "imagesLoading.title" : imagesQuery.isError ? "imagesReadError.title"
+    : `${imageMessage}.title` as const
+  const viewerDescription = imagesQuery.isPending ? "imagesLoading.description" : imagesQuery.isError ? "imagesReadError.description"
+    : `${imageMessage}.description` as const
+  const closeUpload = () => {
+    setUploadOpen(false)
+  }
+  const openUpload = () => {
+    setUploadOpen(true)
+  }
+  const imageList = <>
+    <div className={uploadOpen ? "" : "hidden"}>
+      <CaseFilesImport caseId={caseId} caseTitle={caseDetail.title} ingestion={ingestion} mode="existing" onBusyChange={setUploadBusy} onClose={closeUpload} />
+    </div>
+    <div className={uploadOpen ? "hidden" : ""}>
+      {jobActive || ingestion.hasFailedJob || ingestion.hasReadError || ingestion.hasMissingJob || ingestion.hasUnscheduledJob || ingestion.needsImageRefresh ? (
+        <div className="mb-3 space-y-2 rounded-[var(--radius-token-md)] border border-border bg-muted/40 px-3 py-3 text-sm" role="status">
+          <p className="font-medium text-foreground">{t(ingestion.hasMissingJob ? "images.jobMissing"
+            : ingestion.hasUnscheduledJob ? "images.jobNotScheduled" : ingestion.hasReadError ? "images.jobReadError"
+              : ingestion.hasFailedJob ? "images.jobFailed" : jobActive ? "images.jobActive" : "images.jobReconciling")}</p>
+          {ingestion.hasMissingJob || ingestion.hasUnscheduledJob || ingestion.hasReadError || ingestion.hasFailedJob || ingestion.needsImageRefresh ? <Button disabled={ingestion.isRefreshing} onClick={() => void ingestion.refresh()} size="sm" type="button" variant="secondary">{t("images.refreshProcessing")}</Button> : null}
         </div>
       ) : null}
+      <CaseImagesList canAdd ingestion={ingestion} query={imagesQuery} onAdd={openUpload} onSelect={setSelectedImageId} onDeleted={id => setSelectedImageId(current => current === id ? null : current)} selectedId={selectedImage?.id ?? null} />
     </div>
-  )
+  </>
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--case-editor-canvas)] text-foreground lg:h-dvh lg:min-h-0" data-case-workspace>
@@ -138,24 +114,28 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
           </button>
           <span className={`whitespace-nowrap transition-colors motion-reduce:transition-none ${resolvedTheme === "dark" ? "text-foreground" : "text-description"}`}>{t("theme.dark")}</span>
         </div>
-        <h1 className="col-span-2 row-start-3 w-full max-w-[22rem] justify-self-center truncate rounded-[var(--radius-token-md)] border border-border bg-transparent px-4 py-2 text-center text-[13px] font-semibold lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:max-w-48 xl:max-w-[22rem]" title={caseSummary.title}>{caseSummary.title}</h1>
+        <h1 className="col-span-2 row-start-3 w-full max-w-[22rem] justify-self-center truncate rounded-[var(--radius-token-md)] border border-border bg-transparent px-4 py-2 text-center text-[13px] font-semibold lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:max-w-48 xl:max-w-[22rem]" title={caseDetail.title}>{caseDetail.title}</h1>
         <div className="col-start-2 row-start-1 hidden items-center justify-end lg:col-start-3 lg:flex">
-          <span className="rounded-full border border-border px-3 py-1 font-data text-[10px] font-medium text-description">{tCaseStatus(caseSummary.status)}</span>
+          <span className="rounded-full border border-border px-3 py-1 font-data text-[10px] font-medium text-description">{tCaseStatus(caseDetail.status)}</span>
         </div>
       </header>
 
       <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 px-3 py-3 sm:px-4 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-3 lg:px-5">
-        <input accept={CASE_FILE_ACCEPT_ATTRIBUTE} className="sr-only" disabled={isImporting} multiple onChange={(event) => void handleAddFiles(event)} ref={fileInputRef} tabIndex={-1} type="file" />
-        {selectedImage ? (
-          <CaseWorkspaceImage caseContext={<CaseContextDetails caseSummary={caseSummary} />} caseId={caseId} image={selectedImage} imageActions={imageActions} imageList={imageList} key={selectedImage.file.id} />
-        ) : (
-          <>
-            <CaseWorkspacePanel activeSection={emptySection} calibrationAvailable={false} caseContext={<CaseContextDetails caseSummary={caseSummary} />} imageActions={imageActions} imageList={imageList} onSectionChange={setEmptySection} />
-            <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">
-              <div className="max-w-xs"><FileImage aria-hidden="true" className="mx-auto size-9 text-white/40" /><h2 className="mt-4 text-base font-semibold">{t("noImage.title")}</h2><p className="mt-2 text-[13px] leading-5 text-white/60">{t("noImage.description")}</p><Button className="mt-5" onClick={() => fileInputRef.current?.click()} size="sm" type="button">{t("upload.add")}</Button></div>
-            </section>
-          </>
-        )}
+        <CaseWorkspacePanel
+          activeSection={activeSection}
+          calibrationAvailable={false}
+          caseContext={<CaseContextDetails caseSummary={caseDetail} />}
+          imageList={imageList}
+          imageActions={<Button disabled={uploadBusy} onClick={() => uploadOpen ? closeUpload() : openUpload()} size="sm" type="button" variant="secondary">{t(uploadOpen ? "images.backToList" : "images.addRadiograph")}</Button>}
+          onSectionChange={setActiveSection}
+        />
+        {canShowPreview ? <CasePreviewPanel image={selectedImage} key={selectedImage.id} /> : <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">
+          <div className="max-w-xs">
+            <FileImage aria-hidden="true" className="mx-auto size-9 text-white/40" />
+            <h2 className="mt-4 text-base font-semibold">{t(viewerTitle)}</h2>
+            <p className="mt-2 text-[13px] leading-5 text-white/60">{t(viewerDescription)}</p>
+          </div>
+        </section>}
       </main>
     </div>
   )

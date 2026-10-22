@@ -28,6 +28,8 @@ function middleware(request: NextRequest) {
       allowGoogleIdentity: GOOGLE_IDENTITY_PATHS.has(request.nextUrl.pathname),
       isDevelopment: process.env.NODE_ENV === "development",
       nonce,
+      uploadStorageOrigins: process.env.UPLOAD_STORAGE_ORIGINS?.split(",").map((value) => value.trim()).filter(Boolean),
+      previewStorageOrigins: process.env.PREVIEW_STORAGE_ORIGINS?.split(",").map((value) => value.trim()).filter(Boolean),
     })
     requestHeaders = new Headers(request.headers)
 

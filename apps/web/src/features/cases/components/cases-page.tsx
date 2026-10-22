@@ -2,13 +2,15 @@
 
 import { Plus, RefreshCw } from "lucide-react"
 import Link from "next/link"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { useCases } from "../hooks/use-cases"
+import type { CaseListStatus } from "../services/case-list-api"
 import { CasesContentMotion } from "./cases-content-motion"
 import { CasesEmptyState } from "./cases-empty-state"
 import { CasesList } from "./cases-list"
@@ -16,7 +18,6 @@ import { CasesPageMotion } from "./cases-page-motion"
 
 function CasesPage() {
   const t = useTranslations("cases")
-  const { cases, isLoading, loadError, retry } = useCases()
 
   return (
     <CasesPageMotion>
@@ -37,41 +38,99 @@ function CasesPage() {
           </div>
         </header>
 
-        <main
-          className={cn(
-            "mt-8 flex min-h-72 flex-1",
-            cases.length > 0 ? "items-start" : "items-center justify-center py-12 sm:py-16",
-          )}
-          data-case-count={cases.length}
-        >
-          {isLoading ? (
-            <CasesPageSkeleton label={t("states.loading")} />
-          ) : loadError ? (
-            <CasesContentMotion className="max-w-md" variant="error">
-              <EmptyState
-                action={
-                  <Button onClick={() => void retry()} size="sm" type="button" variant="secondary">
-                    <RefreshCw aria-hidden="true" />
-                    {t("actions.retry")}
-                  </Button>
-                }
-                description={t("states.loadErrorDescription")}
-                descriptionClassName="text-[13px] text-description"
-                title={t("states.loadErrorTitle")}
-                titleClassName="font-bold text-[var(--color-obsidian)] dark:text-foreground"
-              />
-            </CasesContentMotion>
-          ) : cases.length === 0 ? (
-            <CasesEmptyState />
-          ) : (
-            <Suspense fallback={<CasesPageSkeleton label={t("states.loading")} />}>
-              <CasesList cases={cases} />
-            </Suspense>
-          )}
-        </main>
+        <Suspense fallback={<main className="mt-8 flex min-h-72 flex-1"><CasesPageSkeleton label={t("states.loading")} /></main>}>
+          <CasesPageContent />
+        </Suspense>
       </div>
     </CasesPageMotion>
   )
+}
+
+function CasesPageContent() {
+  const t = useTranslations("cases")
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlSearch = searchParams.get("search") ?? ""
+  const [searchInput, setSearchInput] = useState(urlSearch)
+  const status = parseStatus(searchParams.get("status"))
+  const { cases, statusCounts, isLoading, isRefreshing, isLoadingMore, hasMore, loadMoreError, loadMore, loadError, retry } = useCases(status, urlSearch)
+
+  useEffect(() => setSearchInput(urlSearch), [urlSearch])
+
+  useEffect(() => {
+    if (searchInput.trim() === urlSearch) return
+    const timeout = window.setTimeout(() => {
+      const nextParams = new URLSearchParams(searchParams.toString())
+      if (searchInput.trim()) nextParams.set("search", searchInput.trim())
+      else nextParams.delete("search")
+      const query = nextParams.toString()
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+    }, 350)
+    return () => window.clearTimeout(timeout)
+  }, [pathname, router, searchInput, searchParams, urlSearch])
+
+  function handleFilterChange(nextStatus: CaseListStatus | null) {
+    const nextParams = new URLSearchParams(searchParams.toString())
+    if (nextStatus) nextParams.set("status", nextStatus)
+    else nextParams.delete("status")
+    if (searchInput.trim()) nextParams.set("search", searchInput.trim())
+    else nextParams.delete("search")
+    const query = nextParams.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }
+
+  const globalEmpty = !isLoading && !loadError && cases.length === 0 && !status && !urlSearch &&
+    Object.values(statusCounts ?? {}).every((count) => count === 0)
+
+  return (
+    <main
+      className={cn(
+        "mt-8 flex min-h-72 flex-1",
+        globalEmpty || loadError ? "items-center justify-center py-12 sm:py-16" : "items-start",
+      )}
+      data-case-count={cases.length}
+    >
+      {loadError ? (
+        <CasesContentMotion className="max-w-md" variant="error">
+          <EmptyState
+            action={
+              <Button onClick={() => void retry()} size="sm" type="button" variant="secondary">
+                <RefreshCw aria-hidden="true" />
+                {t("actions.retry")}
+              </Button>
+            }
+            description={t("states.loadErrorDescription")}
+            descriptionClassName="text-[13px] text-description"
+            title={t("states.loadErrorTitle")}
+            titleClassName="font-bold text-[var(--color-obsidian)] dark:text-foreground"
+          />
+        </CasesContentMotion>
+      ) : globalEmpty ? (
+        <CasesEmptyState />
+      ) : (
+        <CasesList
+          cases={cases}
+          counts={statusCounts}
+          filter={status}
+          hasMore={hasMore}
+          isLoading={isLoading}
+          isLoadingMore={isLoadingMore}
+          isRefreshing={isRefreshing}
+          loadMoreError={loadMoreError}
+          onFilterChange={handleFilterChange}
+          onLoadMore={() => void loadMore()}
+          onSearchChange={setSearchInput}
+          search={searchInput}
+        />
+      )}
+    </main>
+  )
+}
+
+function parseStatus(value: string | null): CaseListStatus | null {
+  return value === "DRAFT" || value === "IN_PLANNING" || value === "READY" || value === "ARCHIVED"
+    ? value : null
 }
 
 function CasesPageSkeleton({ label }: { label: string }) {

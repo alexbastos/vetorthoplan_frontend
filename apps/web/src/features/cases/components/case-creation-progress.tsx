@@ -25,8 +25,10 @@ function CaseCreationProgress({ caseCompletion, currentStep, fileCompletion }: C
         {STEPS.map((step, index) => {
           const isComplete = index < currentStepIndex
           const isCurrent = step === currentStep
-          const measuredProgress = step === "case-details" ? caseCompletion : fileCompletion
-          const progress = isComplete ? 100 : Math.max(0, Math.min(measuredProgress, 100))
+          const isOptionalStep = step === "file-import"
+          const progress = isComplete ? 100 : Math.max(0, Math.min(
+            isOptionalStep ? fileCompletion : caseCompletion, 100,
+          ))
           const label = t(step)
 
           return (
@@ -47,12 +49,12 @@ function CaseCreationProgress({ caseCompletion, currentStep, fileCompletion }: C
                 />
               </div>
               <span
-                aria-label={t("progressValue", { progress, step: label })}
-                aria-valuemax={100}
-                aria-valuemin={0}
-                aria-valuenow={progress}
+                aria-label={isOptionalStep ? t("optionalStep", { step: label }) : t("progressValue", { progress, step: label })}
+                aria-valuemax={isOptionalStep ? undefined : 100}
+                aria-valuemin={isOptionalStep ? undefined : 0}
+                aria-valuenow={isOptionalStep ? undefined : progress}
                 className="relative mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--case-progress-track)]"
-                role="progressbar"
+                role={isOptionalStep ? "status" : "progressbar"}
               >
                 <span
                   aria-hidden="true"

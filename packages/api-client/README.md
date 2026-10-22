@@ -1,6 +1,6 @@
 # @vetorthoplan/api-client
 
-Tipos TypeScript gerados a partir do snapshot versionado da Authentication API.
+Tipos TypeScript gerados a partir dos snapshots versionados da Authentication API e da API clínica VetOrthoPlan.
 
 ## Geração
 
@@ -8,11 +8,21 @@ Tipos TypeScript gerados a partir do snapshot versionado da Authentication API.
 pnpm generate:api-types
 ```
 
-O comando lê exclusivamente `docs/openapi/authentication-api.openapi.json` e atualiza `src/generated/authentication-api.ts`. Não edite o arquivo gerado manualmente.
+O comando lê `docs/openapi/authentication-api.openapi.json` e `docs/openapi/clinical-api.openapi.json` e atualiza os respectivos arquivos em `src/generated/`. Não edite arquivos gerados manualmente. Para atualizar só um contrato, use `pnpm --filter @vetorthoplan/api-client generate:authentication` ou `pnpm --filter @vetorthoplan/api-client generate:clinical`.
+
+O snapshot canônico usado para gerar os tipos clínicos é a versão **0.9.0**, consultada em 20/10/2026; sua proveniência e checksum estão em `docs/openapi/clinical-api.snapshot.json`. O gateway verificado em 21/10/2026 também publica 0.9.0 e declara Bearer nas operações clínicas; veja a [comparação do gateway](../../docs/clinical-api-gateway-review-2026-10-21.md) e o [estado da integração remota](../../docs/clinical-remote-integration-status.md). O export anterior permanece em `docs/openapi/openapi (1).json`, com metadados em `clinical-api.0.8.0.snapshot.json`. Os tipos gerados seguem o snapshot canônico, não definem as respostas públicas do BFF e não implementam a autenticação.
+
+Os nomes curtos de requisições, parâmetros e respostas estão em `@vetorthoplan/api-client/clinical-contract`. Cada tipo é derivado de uma operação em `@vetorthoplan/api-client/clinical`, sem copiar os campos do schema. `ClinicalResponse<Operacao, Status>` preserva o corpo declarado para cada status. Na criação de caso, `CreateCaseHeaders`, `CreateCaseIdempotencyConflict` e `CreateCaseValidationError` representam o cabeçalho e as respostas do contrato clínico atual.
+
+Na 0.9.0, `ReadyHealthResponse`, `CreateImageUploadHeaders`, `GetImageIngestionJobResponse` e `RetryIngestionJobResponse` representam prontidão, cabeçalho obrigatório de sessão, consulta por imagem e retry. Cancelamento/exclusão têm aliases dos parâmetros de caminho; sucesso 204 não possui corpo JSON. Os fluxos estão integrados no BFF; aceite real e pendências por tarefa estão no [plano 0.9.0](../../docs/clinical-api-0.9.0-execution-plan.md).
+
+Após atualizar o snapshot e regenerar os tipos, atualize os checksums em `docs/openapi/clinical-api.snapshot.json` e execute `corepack pnpm --filter @vetorthoplan/api-client verify:clinical`. A verificação confere versão, contagens, referências locais, hashes, `status_counts`, sexo obrigatório, idade com origem/referência, vínculo de job, novos estados, idempotência de sessão e operações novas. O BFF valida dados recebidos em runtime; os tipos TypeScript não fazem essa validação.
 
 ## Transporte HTTP
 
-`ApiHttpClient` é um transporte sem estado, destinado apenas a chamadas servidor-servidor. A URL base e o token Bearer, quando necessário, são sempre injetados pelo chamador; o pacote não lê cookies, não persiste tokens e não depende de React ou Next.js.
+`ApiHttpClient` é um transporte sem estado, destinado apenas a chamadas servidor-servidor. O parâmetro genérico escolhe os paths do OpenAPI; sem ele, o cliente mantém os tipos da Authentication API. O BFF instancia `ApiHttpClient<ClinicalPaths>` a partir de `@vetorthoplan/api-client/http-client` para a API clínica. A URL base e o token Bearer, quando necessário, são sempre injetados pelo chamador; o pacote não lê cookies, não persiste tokens e não depende de React ou Next.js.
+
+No modo remoto `jwt`, o BFF resolve a organização e obtém dela um token clínico separado; o [contrato suplementar](../../docs/organization-token-contract.md) e o [status remoto](../../docs/clinical-remote-integration-status.md) registram esse fluxo e seu aceite real pendente. O modo explícito `local`/`test` não envia token nem IDs de tenant/ator: o backend resolve ambos por configuração própria. O BFF só permite esse modo em `development`/`test`; ele não exercita AUTH-01.
 
 Corpos JSON usam `request`; uploads `multipart/form-data` usam `requestFormData`, que preserva o `FormData` sem serialização e deixa o runtime definir corretamente o boundary do `Content-Type`.
 

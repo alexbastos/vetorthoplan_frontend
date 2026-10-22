@@ -92,6 +92,7 @@ test("production report-only CSP trusts nonced scripts without unsafe script dir
   assert.equal(getDirective(policy, "script-src-attr"), "script-src-attr 'none'")
   assert.equal(getDirective(policy, "style-src-attr"), "style-src-attr 'unsafe-inline'")
   assert.equal(getDirective(policy, "img-src"), "img-src 'self' blob: data:")
+  assert.equal(getDirective(policy, "worker-src"), "worker-src 'self'")
   assert.equal(getDirective(policy, "media-src"), "media-src 'self'")
 })
 
@@ -131,6 +132,27 @@ test("rejects a nonce that could alter the CSP header", () => {
       }),
     /Invalid CSP nonce/,
   )
+})
+
+test("report-only CSP permits only configured storage origins for direct upload", () => {
+  const base = { allowGoogleIdentity: false, isDevelopment: false, nonce: "C".repeat(22) }
+  const policy = createReportOnlyContentSecurityPolicy({ ...base,
+    uploadStorageOrigins: ["https://storage.example"] })
+  assert.match(getDirective(policy, "connect-src"), /https:\/\/storage\.example/)
+  assert.throws(() => createReportOnlyContentSecurityPolicy({ ...base,
+    uploadStorageOrigins: ["https://storage.example/path"] }), /Invalid upload storage origin/)
+  assert.throws(() => createReportOnlyContentSecurityPolicy({ ...base,
+    uploadStorageOrigins: ["http://storage.example"] }), /Invalid upload storage origin/)
+})
+
+test("report-only CSP limits signed previews to configured image origins", () => {
+  const base = { allowGoogleIdentity: false, isDevelopment: false, nonce: "D".repeat(22) }
+  const policy = createReportOnlyContentSecurityPolicy({ ...base,
+    previewStorageOrigins: ["https://preview.example"] })
+  assert.match(getDirective(policy, "img-src"), /https:\/\/preview\.example/)
+  assert.doesNotMatch(getDirective(policy, "connect-src"), /preview\.example/)
+  assert.throws(() => createReportOnlyContentSecurityPolicy({ ...base,
+    previewStorageOrigins: ["https://preview.example/path"] }), /Invalid upload storage origin/)
 })
 
 function getDirective(policy, name) {

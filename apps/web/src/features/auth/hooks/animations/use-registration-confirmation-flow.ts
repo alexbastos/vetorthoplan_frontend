@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
 import { useAuthTransition } from "../../components/shell/auth-transition-provider"
-import {
-  REGISTRATION_CONFIRMATION_EXIT_DURATION,
-  REGISTRATION_CONFIRMATION_LOADING_DURATION,
-} from "../../lib/registration-confirmation"
+import { REGISTRATION_CONFIRMATION_LOADING_DURATION } from "../../lib/registration-confirmation"
 
 function useRegistrationConfirmationFlow() {
   const router = useRouter()
@@ -37,9 +34,8 @@ function useRegistrationConfirmationFlow() {
       timelineRef.current = gsap
         .timeline()
         .to({}, { duration: REGISTRATION_CONFIRMATION_LOADING_DURATION })
-        .call(completeRegistrationConfirmation)
-        .to({}, { duration: REGISTRATION_CONFIRMATION_EXIT_DURATION })
         .call(() => {
+          completeRegistrationConfirmation()
           unregisterMotionRef.current?.()
           unregisterMotionRef.current = null
           timelineRef.current = null

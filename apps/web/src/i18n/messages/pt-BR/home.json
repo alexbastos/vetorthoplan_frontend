@@ -41,5 +41,10 @@
     "comingSoon": "Em breve",
     "openCases": "Acessar casos",
     "preparing": "Conteúdo em preparação"
+  },
+  "nextCase": {
+    "title": "Seu próximo caso começa aqui",
+    "description": "Crie um caso e reúna as imagens para iniciar o planejamento.",
+    "action": "Criar caso"
   }
 }

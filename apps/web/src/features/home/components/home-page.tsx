@@ -1,5 +1,6 @@
 import { HomeGreeting } from "./home-greeting"
 import { HomePageMotion } from "./home-page-motion"
+import { HomeNextCaseCard } from "./home-next-case-card"
 import { HomeShortcutGrid } from "./home-shortcut-grid"
 import { HomeSpotlightBanners } from "./home-spotlight-banners"
 
@@ -10,6 +11,7 @@ function HomePage() {
       <HomeGreeting />
       <HomeSpotlightBanners />
       <HomeShortcutGrid />
+      <HomeNextCaseCard />
     </HomePageMotion>
   )
 }

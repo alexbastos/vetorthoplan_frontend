@@ -41,5 +41,10 @@
     "comingSoon": "Coming soon",
     "openCases": "Open cases",
     "preparing": "Content in preparation"
+  },
+  "nextCase": {
+    "title": "Your next case starts here",
+    "description": "Create a case and bring the images together to start planning.",
+    "action": "Create case"
   }
 }

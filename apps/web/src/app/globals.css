@@ -801,39 +801,6 @@
 }
 
 @layer components {
-  @keyframes slide-menu-forward {
-    from {
-      opacity: 0;
-      transform: translate3d(60%, 0.5rem, 0);
-    }
-
-    to {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
-  }
-
-  @keyframes slide-menu-backward {
-    from {
-      opacity: 0;
-      transform: translate3d(-60%, 0.5rem, 0);
-    }
-
-    to {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
-  }
-
-  .slide-menu-panel {
-    animation-duration: var(--slide-menu-duration, 0.28s);
-    animation-fill-mode: both;
-    animation-timing-function: var(--slide-menu-ease, var(--motion-ease-enter));
-  }
-
-  .slide-menu-panel-forward { animation-name: slide-menu-forward; }
-  .slide-menu-panel-backward { animation-name: slide-menu-backward; }
-
   .motion-interactive {
     transition-duration: var(--motion-duration-fast);
     transition-timing-function: var(--motion-ease-standard);

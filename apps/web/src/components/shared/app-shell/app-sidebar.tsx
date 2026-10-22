@@ -7,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
-import { appVersion } from "@/lib/app-version"
 import { cn } from "@/lib/utils"
 
 import { homeNavigationItem, primaryNavigationItems, settingsNavigationItem } from "./app-navigation"
@@ -131,12 +130,6 @@ function SidebarFooter({ onNavigate, state }: { onNavigate?: () => void; state: 
         <HelpNavigationIcon aria-hidden="true" className="size-5 shrink-0 text-sidebar-icon" />
         {!isCollapsed ? <span>{t("helpCenter")}</span> : null}
       </button>
-      {!isCollapsed ? (
-        <div className="mx-3 mt-2 flex items-center justify-between border-t border-border pt-3 text-[0.625rem] leading-none text-content-secondary">
-          <span className="uppercase tracking-wide">Orthovet</span>
-          <span>{t("version", { version: appVersion })}</span>
-        </div>
-      ) : null}
     </div>
   )
 }

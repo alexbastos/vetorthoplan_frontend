@@ -1,9 +1,13 @@
-import type { paths } from "./generated/authentication-api"
+import type { paths as AuthenticationPaths } from "./generated/authentication-api"
 
 type HttpMethod = "delete" | "get" | "patch" | "post" | "put"
-type ApiPath = keyof paths
-type ApiMethod<Path extends ApiPath> = Extract<keyof paths[Path], HttpMethod>
-type ApiOperation<Path extends ApiPath, Method extends ApiMethod<Path>> = paths[Path][Method]
+type ApiPath<PathMap> = Extract<keyof PathMap, string>
+type ApiMethod<PathMap, Path extends ApiPath<PathMap>> = Extract<keyof PathMap[Path], HttpMethod>
+type ApiOperation<
+  PathMap,
+  Path extends ApiPath<PathMap>,
+  Method extends ApiMethod<PathMap, Path>,
+> = PathMap[Path][Method]
 
 type JsonContent<Value> = Value extends {
   content: { "application/json": infer Data }
@@ -13,12 +17,6 @@ type JsonContent<Value> = Value extends {
 
 type RequestBody<Operation> = Operation extends { requestBody?: infer Body }
   ? JsonContent<Body>
-  : never
-
-type QueryParameters<Operation> = Operation extends {
-  parameters: { query: infer Query extends object }
-}
-  ? Query
   : never
 
 type ResponseBody<Operation> = Operation extends { responses: infer Responses }
@@ -31,24 +29,46 @@ type BodyProperty<Operation> = [RequestBody<Operation>] extends [never]
   ? { body?: never }
   : { body: RequestBody<Operation> }
 
-type QueryProperty<Operation> = [QueryParameters<Operation>] extends [never]
-  ? { query?: never }
-  : { query: QueryParameters<Operation> }
+type QueryProperty<Operation> = Operation extends { parameters: { query: infer Query extends object } }
+  ? { query: Query }
+  : Operation extends { parameters: { query?: infer Query } }
+    ? [NonNullable<Query>] extends [never]
+      ? { query?: never }
+      : { query?: NonNullable<Query> }
+    : { query?: never }
 
-type ApiRequestMetadata<Path extends ApiPath, Method extends ApiMethod<Path>> = {
+type ApiRequestMetadata<Path extends string, Method extends HttpMethod, Operation> = {
   path: Path
   method: Method
   headers?: HeadersInit
   pathParams?: Record<string, string>
   signal?: AbortSignal
-} & QueryProperty<ApiOperation<Path, Method>>
+} & QueryProperty<Operation>
 
-type TypedApiRequest<Path extends ApiPath, Method extends ApiMethod<Path>> = ApiRequestMetadata<Path, Method> &
-  BodyProperty<ApiOperation<Path, Method>>
+type ApiRequestFor<
+  PathMap,
+  Path extends ApiPath<PathMap>,
+  Method extends ApiMethod<PathMap, Path>,
+> = ApiRequestMetadata<Path, Method, ApiOperation<PathMap, Path, Method>> &
+  BodyProperty<ApiOperation<PathMap, Path, Method>>
 
-type TypedFormDataRequest<Path extends ApiPath, Method extends ApiMethod<Path>> = ApiRequestMetadata<Path, Method> & {
+type FormDataRequestFor<
+  PathMap,
+  Path extends ApiPath<PathMap>,
+  Method extends ApiMethod<PathMap, Path>,
+> = ApiRequestMetadata<Path, Method, ApiOperation<PathMap, Path, Method>> & {
   body: FormData
 }
+
+type TypedApiRequest<
+  Path extends ApiPath<AuthenticationPaths>,
+  Method extends ApiMethod<AuthenticationPaths, Path>,
+> = ApiRequestFor<AuthenticationPaths, Path, Method>
+
+type TypedFormDataRequest<
+  Path extends ApiPath<AuthenticationPaths>,
+  Method extends ApiMethod<AuthenticationPaths, Path>,
+> = FormDataRequestFor<AuthenticationPaths, Path, Method>
 
 type HttpResult<Data> = {
   data: Data | undefined
@@ -65,7 +85,7 @@ type ApiHttpClientOptions = {
 
 const DEFAULT_TIMEOUT_MS = 10_000
 
-class ApiHttpClient {
+class ApiHttpClient<PathMap = AuthenticationPaths> {
   private readonly baseUrl: URL
   private readonly fetchImplementation: typeof fetch
   private readonly timeoutMs: number
@@ -80,9 +100,9 @@ class ApiHttpClient {
     this.timeoutMs = timeoutMs
   }
 
-  async request<Path extends ApiPath, Method extends ApiMethod<Path>>(
-    request: TypedApiRequest<Path, Method>
-  ): Promise<HttpResult<ResponseBody<ApiOperation<Path, Method>>>> {
+  async request<Path extends ApiPath<PathMap>, Method extends ApiMethod<PathMap, Path>>(
+    request: ApiRequestFor<PathMap, Path, Method>
+  ): Promise<HttpResult<ResponseBody<ApiOperation<PathMap, Path, Method>>>> {
     return this.send(
       request,
       request.body === undefined ? undefined : JSON.stringify(request.body),
@@ -90,17 +110,17 @@ class ApiHttpClient {
     )
   }
 
-  async requestFormData<Path extends ApiPath, Method extends ApiMethod<Path>>(
-    request: TypedFormDataRequest<Path, Method>
-  ): Promise<HttpResult<ResponseBody<ApiOperation<Path, Method>>>> {
+  async requestFormData<Path extends ApiPath<PathMap>, Method extends ApiMethod<PathMap, Path>>(
+    request: FormDataRequestFor<PathMap, Path, Method>
+  ): Promise<HttpResult<ResponseBody<ApiOperation<PathMap, Path, Method>>>> {
     return this.send(request, request.body)
   }
 
-  private async send<Path extends ApiPath, Method extends ApiMethod<Path>>(
-    request: ApiRequestMetadata<Path, Method>,
+  private async send<Path extends ApiPath<PathMap>, Method extends ApiMethod<PathMap, Path>>(
+    request: ApiRequestMetadata<Path, Method, ApiOperation<PathMap, Path, Method>>,
     body: BodyInit | undefined,
     contentType?: string
-  ): Promise<HttpResult<ResponseBody<ApiOperation<Path, Method>>>> {
+  ): Promise<HttpResult<ResponseBody<ApiOperation<PathMap, Path, Method>>>> {
     const timeoutController = new AbortController()
     const timeout = setTimeout(() => timeoutController.abort(), this.timeoutMs)
     const signal = request.signal
@@ -128,7 +148,7 @@ class ApiHttpClient {
       )
 
       return {
-        data: (await readJsonBody(response)) as ResponseBody<ApiOperation<Path, Method>> | undefined,
+        data: (await readJsonBody(response)) as ResponseBody<ApiOperation<PathMap, Path, Method>> | undefined,
         headers: response.headers,
         response,
         status: response.status,

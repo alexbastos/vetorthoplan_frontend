@@ -9,7 +9,7 @@ import { mapClientPointToImage } from "../lib/image-coordinate-map"
 import { hitTestLineMarker, moveLineMarker, resizeLineMarker, type LineHit, type LineMarker } from "../lib/line-marker-interaction"
 import type { CalibrationMarker, ImagePoint, ImageRendering } from "../types/case-workspace"
 
-type ReadyRendering = Extract<ImageRendering, { status: "ready" }>
+type ReadyRendering = Pick<Extract<ImageRendering, { status: "ready" }>, "url" | "widthPx" | "heightPx">
 type ViewerTool = "mark" | "pan"
 type ViewerDrag =
   | { kind: "create"; markerKind: CalibrationMarker["kind"]; start: ImagePoint }
@@ -28,12 +28,15 @@ type CaseImageViewerProps = {
   name: string
   onMarkerChange: (marker: CalibrationMarker) => void
   onToolChange: (tool: ViewerTool) => void
+  onImageError?: () => void
+  readOnly?: boolean
   rendering: ReadyRendering
   tool: ViewerTool
 }
 
-function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, name, onMarkerChange, onToolChange, rendering, tool }: CaseImageViewerProps) {
+function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, name, onMarkerChange, onToolChange, onImageError, readOnly = false, rendering, tool }: CaseImageViewerProps) {
   const t = useTranslations("cases.workspace.viewer")
+  const activeTool = readOnly ? "pan" : tool
   const viewportRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
@@ -75,7 +78,7 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
   }
 
   function markerPartFromPointer(event: PointerEvent<HTMLDivElement>): LineHit | CircleHit {
-    if (tool !== "mark" || marker?.kind !== markerKind) return null
+    if (activeTool !== "mark" || marker?.kind !== markerKind) return null
     const rect = imageRef.current?.getBoundingClientRect()
     if (!rect) return null
     const pointer = { x: event.clientX, y: event.clientY }
@@ -96,7 +99,7 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     if (event.button !== 0) return
-    if (tool === "pan") {
+    if (activeTool === "pan") {
       dragRef.current = { kind: "pan", x: pan.x, y: pan.y, startX: event.clientX, startY: event.clientY }
     } else {
       const rect = imageRef.current?.getBoundingClientRect()
@@ -176,8 +179,8 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
     <section aria-label={t("region")} className="order-2 flex min-h-[32rem] min-w-0 flex-col overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none fullscreen:rounded-none fullscreen:border-0" ref={sectionRef}>
       <div className="flex min-h-14 items-center justify-center border-b border-white/10 px-4 py-2">
         <div aria-label={t("tools")} className="flex max-w-full items-center gap-1 overflow-x-auto" role="toolbar">
-          <ViewerButton active={tool === "mark"} label={t("mark")} onClick={() => onToolChange("mark")}><Crosshair aria-hidden="true" /></ViewerButton>
-          <ViewerButton active={tool === "pan"} label={t("pan")} onClick={() => onToolChange("pan")}><Hand aria-hidden="true" /></ViewerButton>
+          {!readOnly ? <ViewerButton active={activeTool === "mark"} label={t("mark")} onClick={() => onToolChange("mark")}><Crosshair aria-hidden="true" /></ViewerButton> : null}
+          <ViewerButton active={activeTool === "pan"} label={t("pan")} onClick={() => onToolChange("pan")}><Hand aria-hidden="true" /></ViewerButton>
           <span aria-hidden="true" className="mx-1 h-5 w-px bg-white/15" />
           <ViewerButton label={t("zoomOut")} onClick={() => setZoom((value) => Math.max(0.5, Number((value - 0.25).toFixed(2))))}><ZoomOut aria-hidden="true" /></ViewerButton>
           <span className="min-w-9 text-center font-data text-[10px] tabular-nums text-white/70">{Math.round(zoom * 100)}%</span>
@@ -187,7 +190,7 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
         </div>
       </div>
       <div
-        className={`relative min-h-[26rem] flex-1 overflow-hidden bg-[var(--case-viewer-canvas)] touch-none lg:min-h-0 ${tool === "pan" ? "cursor-grab active:cursor-grabbing" : hoveredMarkerPart && hoveredMarkerPart !== "body" ? "cursor-grab active:cursor-grabbing" : "cursor-crosshair"}`}
+        className={`relative min-h-[26rem] flex-1 overflow-hidden bg-[var(--case-viewer-canvas)] touch-none lg:min-h-0 ${activeTool === "pan" ? "cursor-grab active:cursor-grabbing" : hoveredMarkerPart && hoveredMarkerPart !== "body" ? "cursor-grab active:cursor-grabbing" : "cursor-crosshair"}`}
         onPointerCancel={handlePointerCancel}
         onPointerDown={handlePointerDown}
         onPointerLeave={() => { if (!dragRef.current) setHoveredMarkerPart(null) }}
@@ -201,13 +204,13 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
             ref={imageRef}
             style={{ width: displayWidth, height: displayHeight, transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
           >
-            <img alt={t("imageAlt", { name })} className="size-full object-fill select-none" draggable={false} src={rendering.url} style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)${inverted ? " invert(1)" : ""}` }} />
+            <img alt={t("imageAlt", { name })} className="size-full object-fill select-none" draggable={false} onError={onImageError} referrerPolicy="no-referrer" src={rendering.url} style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)${inverted ? " invert(1)" : ""}` }} />
             <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full overflow-visible" viewBox={`0 0 ${rendering.widthPx} ${rendering.heightPx}`}>
-              <MarkerShape handleRadius={fitScale * zoom > 0 ? 4 / (fitScale * zoom) : 4} marker={draftMarker ?? marker} />
+              <MarkerShape handleRadius={fitScale * zoom > 0 ? 4 / (fitScale * zoom) : 4} marker={readOnly ? null : draftMarker ?? marker} />
             </svg>
           </div>
         ) : null}
-        <div className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/65 px-3 py-1.5 font-data text-[10px] text-white/75">{t(tool === "pan" ? "panHint" : marker?.kind === "line" && markerKind === "line" ? "lineEditHint" : marker?.kind === "circle" && markerKind === "circle" ? "circleEditHint" : "markHint")}</div>
+        <div className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/65 px-3 py-1.5 font-data text-[10px] text-white/75">{t(activeTool === "pan" ? "panHint" : marker?.kind === "line" && markerKind === "line" ? "lineEditHint" : marker?.kind === "circle" && markerKind === "circle" ? "circleEditHint" : "markHint")}</div>
       </div>
     </section>
   )

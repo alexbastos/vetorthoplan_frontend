@@ -5,18 +5,18 @@ import Link from "next/link"
 import { useState } from "react"
 
 import { getCaseWorkspaceHref } from "../lib/case-workspace-route"
-import type { CaseStatus, CaseSummary } from "../types/cases"
+import type { CaseListItem, CaseListStatus } from "../services/case-list-api"
 
 type CaseCardProps = {
-  caseSummary: CaseSummary
+  caseSummary: CaseListItem
   dateFormatter: Intl.DateTimeFormat
 }
 
-const statusClassNames: Record<CaseStatus, string> = {
-  archived: "border-border bg-background/90 text-description",
-  completed: "border-success/25 bg-success/90 text-white",
-  draft: "border-border bg-background/90 text-content-secondary",
-  "in-progress": "border-info/25 bg-info/90 text-white",
+const statusClassNames: Record<CaseListStatus, string> = {
+  ARCHIVED: "border-border bg-background/90 text-description",
+  READY: "border-success/25 bg-success/90 text-white",
+  DRAFT: "border-border bg-background/90 text-content-secondary",
+  IN_PLANNING: "border-info/25 bg-info/90 text-white",
 }
 
 const columnLabelClassName =
@@ -33,9 +33,8 @@ function CaseCard({ caseSummary, dateFormatter }: CaseCardProps) {
     >
       <CasePreview
         alt={t("thumbnailAlt", { title: caseSummary.title })}
-        key={caseSummary.thumbnailUrl ?? "preview-unavailable"}
+        key="preview-unavailable"
         label={t("previewUnavailable")}
-        thumbnailUrl={caseSummary.thumbnailUrl}
       />
 
       <div className="grid min-w-0 flex-1 grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1.1fr)_6.5rem_7.5rem] sm:items-center sm:gap-5">
@@ -126,7 +125,7 @@ function CasePreviewFallback({ label }: { label: string }) {
   )
 }
 
-function CaseStatusBadge({ label, status }: { label: string; status: CaseStatus }) {
+function CaseStatusBadge({ label, status }: { label: string; status: CaseListStatus }) {
   return (
     <span
       className={`inline-flex w-fit items-center rounded-full border px-2.5 py-1 text-[11px] leading-none font-bold ${statusClassNames[status]}`}
