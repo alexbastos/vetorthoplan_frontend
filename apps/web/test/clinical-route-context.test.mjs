@@ -54,13 +54,13 @@ function setup() {
   return { calls, close }
 }
 
-test("browser context POST reaches the Next route without a body or Content-Type; only selection PUT sends JSON", async () => {
+test("browser context declares JSON for POST and PUT while only selection PUT sends a body", async () => {
   const s = setup()
   try {
     for (const organizationId of [undefined, organization.id]) {
       const context = await fetchClinicalContext({ organizationId, fetchImpl: async (url, init) => {
         const headers = new Headers(init.headers)
-        assert.equal(headers.get("content-type"), organizationId === undefined ? null : "application/json")
+        assert.equal(headers.get("content-type"), "application/json")
         // Origin is supplied by the browser for same-origin mutations.
         headers.set("origin", app)
         const request = new NextRequest(new URL(url, app), { ...init, headers })

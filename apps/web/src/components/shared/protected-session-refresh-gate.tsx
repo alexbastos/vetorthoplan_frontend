@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 
 import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
 import handoffStyles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
+import { authBffClient } from "@/features/auth/services/auth-bff-client"
 
 type RefreshState = "checking" | "unavailable"
 
@@ -20,10 +21,7 @@ function ProtectedSessionRefreshGate() {
 
     async function refreshSession() {
       try {
-        const response = await fetch("/api/auth/session", {
-          credentials: "same-origin",
-          method: "POST",
-        })
+        const response = await authBffClient.session()
 
         if (response.ok) {
           router.refresh()

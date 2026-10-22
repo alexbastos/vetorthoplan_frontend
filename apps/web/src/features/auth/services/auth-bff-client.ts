@@ -97,7 +97,7 @@ async function request<Data>(path: string, body?: object): Promise<AuthBffResult
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
       credentials: "same-origin",
-      headers: body === undefined ? undefined : { "content-type": "application/json" },
+      headers: { "content-type": "application/json" },
       method: "POST",
     })
     const payload = await readJson(response)

@@ -102,12 +102,17 @@ continham tokens em texto puro não são aceitos; login e logout removem seus no
 As mutações do BFF validam obrigatoriamente o header `Origin` contra `APP_ORIGIN`. Destinos de retorno pós-login ou pós-logout também aceitam somente paths internos seguros.
 
 Nas rotas com política `body: "none"`, o cliente envia a requisição sem corpo e
-sem `Content-Type`. Para compatibilidade com proxies, o BFF também aceita
+com `Content-Type: application/json` explícito para evitar que intermediários
+escolham outro tipo de conteúdo. A renovação de sessão usa o mesmo cliente de
+autenticação. Para compatibilidade, o BFF aceita ausência de `Content-Type` ou
 `Content-Type: application/json` (com parâmetros, como `charset=utf-8`) se o
 corpo estiver realmente vazio. O tamanho declarado deve ser ausente ou zero;
 o stream também é verificado. Qualquer conteúdo, inclusive `{}` ou espaços,
 continua rejeitado. Outros tipos de conteúdo e encodings não permitidos
 continuam retornando 415; as validações de origem, método e sessão são mantidas.
+Uploads multipart não recebem esse cabeçalho manualmente: o navegador gera
+`multipart/form-data` com o boundary. A regra de JSON explícito pertence às
+chamadas navegador → BFF e não altera a troca de token upstream sem corpo.
 
 As rotas públicas `POST /api/auth/register`, `POST /api/auth/login` e `POST /api/auth/verify-email` não expõem tokens nem encaminham mensagens técnicas da API. O login grava os cookies de sessão somente na resposta do BFF.
 

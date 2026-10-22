@@ -71,7 +71,7 @@ async function request<Data>(path: string, method: "DELETE" | "POST" | "PUT", bo
       body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
       cache: "no-store",
       credentials: "same-origin",
-      headers: body === undefined || isFormData ? undefined : { "content-type": "application/json" },
+      headers: isFormData ? undefined : { "content-type": "application/json" },
       method,
       signal: controller.signal,
     })

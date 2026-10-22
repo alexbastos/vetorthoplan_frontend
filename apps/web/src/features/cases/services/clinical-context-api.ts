@@ -15,7 +15,8 @@ async function fetchClinicalContext(options: { organizationId?: string; signal?:
   let response: Response
   try {
     response = await (options.fetchImpl ?? fetch)("/api/cases/context", { method: options.organizationId === undefined ? "POST" : "PUT",
-      ...(options.organizationId === undefined ? {} : { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ organizationId: options.organizationId }) }),
+      headers: { "Content-Type": "application/json" },
+      ...(options.organizationId === undefined ? {} : { body: JSON.stringify({ organizationId: options.organizationId }) }),
       credentials: "same-origin", cache: "no-store", signal: options.signal })
   } catch { throw new ClinicalContextError("SERVICE_UNAVAILABLE") }
   let body: unknown

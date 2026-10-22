@@ -6,6 +6,12 @@ function createCaseFetch(fetchImpl: typeof fetch, organization: () => string | u
     if (typeof input !== "string" || !/^\/api\/cases(?:\/|\?|$)/.test(input)) throw new Error("Invalid case BFF destination")
     const headers = new Headers(init?.headers)
     headers.delete("authorization")
+    const method = init?.method?.toUpperCase()
+    // Explicit JSON metadata keeps intermediaries from choosing a default
+    // media type. The request remains bodyless; no placeholder JSON is added.
+    if ((method === "POST" || method === "DELETE") && init?.body == null && !headers.has("content-type")) {
+      headers.set("content-type", "application/json")
+    }
     const expected = organization()
     if (expected) headers.set("x-clinical-organization", encodeURIComponent(expected))
     const response = await fetchImpl(input, { ...init, headers, credentials: "same-origin" })
