@@ -2,6 +2,7 @@
 
 ## Integração clínica atual
 
+- [Auditoria do BFF contra o Swagger em 22/10/2026](./bff-swagger-contract-audit-2026-10-22.md): cobertura verificada, snapshots atuais, erros reproduzidos e premissas ainda abertas.
 - [Plano de execução para a API clínica 0.9.0](./clinical-api-0.9.0-execution-plan.md): status por tarefa, decisões de implementação e trabalho ainda pendente.
 - [Checklist manual da API clínica 0.9.0](./clinical-api-0.9.0-manual-test-checklist.md): roteiro de aceite para a jornada integrada, JWT e storage.
 - [Estado da integração remota](./clinical-remote-integration-status.md): verificações públicas, integração JWT entregue e aceite real ainda pendente.

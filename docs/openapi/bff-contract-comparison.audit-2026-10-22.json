@@ -1,0 +1,387 @@
+{
+  "checkedAtUtc": "2026-10-22T18:12:58.691527+00:00",
+  "methodology": {
+    "annotationFieldsExcluded": [
+      "description",
+      "example",
+      "examples",
+      "externalDocs",
+      "operationId",
+      "summary",
+      "tags"
+    ],
+    "schemaPropertyNamesPreserved": true,
+    "scope": "published paths, components and root security vs local canonical schemas; code validation is documented separately"
+  },
+  "apis": {
+    "clinical": {
+      "local": "docs\\openapi\\clinical-api.openapi.json",
+      "published": "docs\\openapi\\clinical-api.audit-2026-10-22.openapi.json",
+      "sourceUrl": "https://bwtp7pm5pc.execute-api.us-east-1.amazonaws.com/openapi.json",
+      "publishedSha256": "a1e2e615368fd55e95dd3dc51dab6a36cecb01a248514120b2128514437f4fde",
+      "publishedBytes": 39809,
+      "publishedInfo": {
+        "title": "VetOrthoPlan Backend API",
+        "summary": "API clínica para planejamento ortopédico veterinário",
+        "description": "Vertical slices do MVP TPLO: casos, upload e processamento inicial de radiografias. Use apenas dados sintéticos ou formalmente desidentificados neste estágio. A identidade é configurada por ambiente; o modo JWT valida tokens da authentication_api e mantém isolamento clínico por tenant.",
+        "contact": {
+          "name": "VetOrthoPlan"
+        },
+        "license": {
+          "name": "Proprietary"
+        },
+        "version": "0.9.0"
+      },
+      "localOperations": 17,
+      "publishedOperations": 17,
+      "publishedSchemas": 38,
+      "addedOperations": [],
+      "removedOperations": [],
+      "wireChanges": [
+        {
+          "pointer": "/components/securitySchemes",
+          "kind": "added",
+          "published": {
+            "HTTPBearer": {
+              "type": "http",
+              "scheme": "bearer"
+            }
+          }
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1cases/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1cases/post/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1cases~1{case_id}/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1cases~1{case_id}~1image-uploads/post/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1cases~1{case_id}~1images/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1image-uploads~1{upload_id}/delete/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1image-uploads~1{upload_id}~1complete/post/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1images~1{image_id}/delete/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1images~1{image_id}/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1images~1{image_id}~1job/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1images~1{image_id}~1plan/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1images~1{image_id}~1plan/put/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1images~1{image_id}~1preview/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1jobs~1{job_id}/get/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        },
+        {
+          "pointer": "/paths/~1api~1v1~1jobs~1{job_id}~1retry/post/security",
+          "kind": "added",
+          "published": [
+            {
+              "HTTPBearer": []
+            }
+          ]
+        }
+      ]
+    },
+    "authentication": {
+      "local": "docs\\openapi\\authentication-api.openapi.json",
+      "published": "docs\\openapi\\authentication-api.audit-2026-10-22.openapi.json",
+      "sourceUrl": "https://bwtp7pm5pc.execute-api.us-east-1.amazonaws.com/docs/authentication_api/json",
+      "publishedSha256": "6a605edf8511186b78a496248ce65c4913ac5f72f078d128e7aad05352261686",
+      "publishedBytes": 120420,
+      "publishedInfo": {
+        "title": "Authentication API — Identity Provider",
+        "description": "**🚀 Versão Atual da API:**\n- **Branch:** `vet_auth_01`\n- **Commit:** `8755814`\n- **Data do Build:** `22/10/2026 11:19:20`\n\n---\n\n## Overview\nCentralized Identity Provider (IdP) microservice built with **Clean Architecture**.\n\nSupports:\n- **Email/Password** authentication\n- **Social Login** (Google, Apple, Facebook, GitHub)\n- **JWT RS256** tokens with JWKS endpoint\n- **Refresh Token Rotation** with reuse detection\n- **Token Blocklist** via Redis\n- **RBAC** (Role-Based Access Control)\n\n## Authentication\nAll protected endpoints require a Bearer token in the Authorization header:\n```\nAuthorization: Bearer <access_token>\n```\n\n## Token Strategy\n- **Access Token**: JWT RS256, 15-minute TTL\n- **Refresh Token**: Opaque token, 7-day TTL with rotation\n- **JWKS**: Public key available at `/authentication_api/api/v1/auth/.well-known/jwks.json`",
+        "version": "1.0.0",
+        "contact": {
+          "name": "API Support"
+        }
+      },
+      "localOperations": 64,
+      "publishedOperations": 65,
+      "publishedSchemas": 0,
+      "addedOperations": [
+        "POST /authentication_api/api/v1/auth/organizations/{orgId}/token"
+      ],
+      "removedOperations": [],
+      "wireChanges": [
+        {
+          "pointer": "/paths/~1authentication_api~1api~1v1~1auth~1organizations~1{orgId}~1token",
+          "kind": "added",
+          "published": {
+            "post": {
+              "parameters": [
+                {
+                  "schema": {
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  "in": "path",
+                  "name": "orgId",
+                  "required": true
+                }
+              ],
+              "security": [
+                {
+                  "bearerAuth": []
+                }
+              ],
+              "responses": {
+                "200": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "accessToken",
+                          "refreshToken",
+                          "organizationId",
+                          "expiresIn"
+                        ],
+                        "properties": {
+                          "accessToken": {
+                            "type": "string"
+                          },
+                          "refreshToken": {
+                            "type": "string"
+                          },
+                          "organizationId": {
+                            "type": "string"
+                          },
+                          "expiresIn": {
+                            "minimum": 1,
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "401": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "statusCode",
+                          "error",
+                          "code",
+                          "message"
+                        ],
+                        "properties": {
+                          "statusCode": {
+                            "type": "number"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "403": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "statusCode",
+                          "error",
+                          "code",
+                          "message"
+                        ],
+                        "properties": {
+                          "statusCode": {
+                            "type": "number"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "statusCode",
+                          "error",
+                          "code",
+                          "message"
+                        ],
+                        "properties": {
+                          "statusCode": {
+                            "type": "number"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "429": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "statusCode",
+                          "error",
+                          "code",
+                          "message"
+                        ],
+                        "properties": {
+                          "statusCode": {
+                            "type": "number"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

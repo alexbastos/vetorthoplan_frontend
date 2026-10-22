@@ -1,7 +1,7 @@
 import type { paths } from "./generated/authentication-api"
 
-// Supplemental contract supplied by the backend on 2026-10-21. This operation
-// is implemented upstream but is still missing from its public OpenAPI.
+// Supplemental contract supplied by the backend on 2026-10-21 and matched to
+// its public OpenAPI on 2026-10-22. The canonical generated snapshot predates it.
 export type OrganizationTokenResponse = {
   accessToken: string
   refreshToken: string

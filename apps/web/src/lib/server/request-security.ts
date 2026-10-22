@@ -89,7 +89,9 @@ async function assertTrustedMutationRequest(
   const contentType = getRequestMediaType(request.headers.get("content-type"))
 
   if (policy.body === "none") {
-    if (contentType !== undefined) {
+    // A proxy may label an empty request as JSON. Accept that metadata only;
+    // declared length and the actual stream must still contain zero bytes.
+    if (contentType !== undefined && contentType !== "application/json") {
       throw new RequestSecurityError("content_type_not_allowed", 415)
     }
 

@@ -1,0 +1,79 @@
+{
+  "checkedAtUtc": "2026-10-22T18:14:26.392Z",
+  "synthetic": true,
+  "remoteAuthenticatedCalls": false,
+  "results": [
+    {
+      "action": "mfa-setup",
+      "upstreamStatus": 409,
+      "upstreamCode": "MFA_ALREADY_ENABLED",
+      "bffStatus": 503,
+      "bffBody": {
+        "error": {
+          "code": "AUTHENTICATION_REQUEST_FAILED",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "action": "mfa-verify-setup",
+      "upstreamStatus": 409,
+      "upstreamCode": "MFA_ALREADY_ENABLED",
+      "bffStatus": 503,
+      "bffBody": {
+        "error": {
+          "code": "AUTHENTICATION_REQUEST_FAILED",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "action": "social-login",
+      "upstreamStatus": 401,
+      "upstreamCode": "INVALID_TOKEN",
+      "bffStatus": 503,
+      "bffBody": {
+        "error": {
+          "code": "AUTHENTICATION_REQUEST_FAILED",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "action": "social-login",
+      "upstreamStatus": 403,
+      "upstreamCode": "USER_INACTIVE",
+      "bffStatus": 503,
+      "bffBody": {
+        "error": {
+          "code": "AUTHENTICATION_REQUEST_FAILED",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "action": "login",
+      "upstreamStatus": 401,
+      "upstreamCode": "INVALID_TOKEN",
+      "bffStatus": 401,
+      "bffBody": {
+        "error": {
+          "code": "INVALID_CREDENTIALS",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "action": "login",
+      "upstreamStatus": 403,
+      "upstreamCode": "USER_INACTIVE",
+      "bffStatus": 403,
+      "bffBody": {
+        "error": {
+          "code": "ACCOUNT_REQUIRES_ACTION",
+          "retryable": false
+        }
+      }
+    }
+  ]
+}

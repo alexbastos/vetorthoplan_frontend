@@ -1,5 +1,7 @@
 # Nova origem oficial da API clínica
 
+**Consulta atualizada:** a [auditoria de 22/10/2026](./bff-swagger-contract-audit-2026-10-22.md) confirma que o export clínico segue idêntico a este e que a troca de token por organização passou a constar no Swagger de autenticação. Este documento preserva a comparação histórica de 21/10.
+
 Consulta em **21/10/2026**, somente leitura:
 
 - Base do BFF: `https://bwtp7pm5pc.execute-api.us-east-1.amazonaws.com`.

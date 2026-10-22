@@ -6,10 +6,13 @@ registerHooks({ resolve(specifier, context, nextResolve) {
   if (specifier === "server-only") return { shortCircuit: true, url: "data:text/javascript," }
   if (specifier === "next/server") return nextResolve("next/server.js", context)
   if (context.parentURL?.includes("/node_modules/")) return nextResolve(specifier, context)
-  if (context.parentURL?.endsWith("/cases-bff-route.ts")) {
+  if (specifier === "@vetorthoplan/api-client" && context.parentURL?.endsWith("/auth-bff-route.ts")) {
+    return nextResolve(new URL("../../../packages/api-client/src/error-normalizer.ts", import.meta.url).href, context)
+  }
+  if (context.parentURL?.endsWith("/cases-bff-route.ts") || context.parentURL?.endsWith("/settings-bff-route.ts") || context.parentURL?.endsWith("/auth-bff-route.ts")) {
     if (specifier === "./session") return { shortCircuit: true, url: "data:text/javascript,export const resolveServerSession = options => globalThis.clinicalTestSession(options)" }
     if (specifier === "./authentication-api") return { shortCircuit: true, url: "data:text/javascript,export const createAuthenticationApiClient = () => ({})" }
-    if (specifier === "./auth-bff-route") return { shortCircuit: true, url: "data:text/javascript,export const getForwardedClientMetadata = () => ({}); export const createUnauthenticatedResponse = () => globalThis.clinicalTestAnonymous()" }
+    if (specifier === "./auth-bff-route" && context.parentURL.endsWith("/cases-bff-route.ts")) return { shortCircuit: true, url: "data:text/javascript,export const getForwardedClientMetadata = () => ({}); export const createUnauthenticatedResponse = () => globalThis.clinicalTestAnonymous()" }
   }
   if (specifier.startsWith("@/")) return nextResolve(new URL(`../src/${specifier.slice(2)}.ts`, import.meta.url).href, context)
   return nextResolve(specifier.startsWith(".") && !/\.[cm]?[jt]s$/.test(specifier) ? `${specifier}.ts` : specifier, context)
@@ -17,6 +20,8 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 const { NextRequest, NextResponse } = await import("next/server.js")
 const { withAuthenticatedCasesRoute, createCasesResponse } = await import("../src/lib/server/cases-bff-route.ts")
 const contextRoute = await import("../src/app/api/cases/context/route.ts")
+const profileRoute = await import("../src/app/api/settings/profile/route.ts")
+const { fetchClinicalContext } = await import("../src/features/cases/services/clinical-context-api.ts")
 const { clearSessionCookies } = await import("../src/lib/server/session-cookies.ts")
 const base = "https://gateway.example"
 const app = "http://localhost:3000"
@@ -48,6 +53,102 @@ function setup() {
   }
   return { calls, close }
 }
+
+test("browser context POST reaches the Next route without a body or Content-Type; only selection PUT sends JSON", async () => {
+  const s = setup()
+  try {
+    for (const organizationId of [undefined, organization.id]) {
+      const context = await fetchClinicalContext({ organizationId, fetchImpl: async (url, init) => {
+        const headers = new Headers(init.headers)
+        assert.equal(headers.get("content-type"), organizationId === undefined ? null : "application/json")
+        // Origin is supplied by the browser for same-origin mutations.
+        headers.set("origin", app)
+        const request = new NextRequest(new URL(url, app), { ...init, headers })
+        if (organizationId === undefined) {
+          assert.equal(request.body, null)
+          return contextRoute.POST(request)
+        }
+        return contextRoute.PUT(request)
+      } })
+      assert.equal(context.state, "ready")
+      assert.equal(context.organization.id, organization.id)
+    }
+    assert.equal(s.calls.filter(call => call.url.endsWith("/token")).length, 2)
+    assert.ok(s.calls.every(call => !call.init.headers.has("content-type")))
+  } finally { s.close() }
+})
+
+test("context POST accepts empty proxy JSON headers but distinguishes missing session, forbidden media and unavailable session", async () => {
+  const s = setup()
+  try {
+    let sessionChecks = 0
+    globalThis.clinicalTestSession = async () => { sessionChecks++; return { state: "anonymous", reason: "missing" } }
+    const request = headers => new NextRequest(`${app}/api/cases/context`, { method: "POST", headers: { origin: app, ...headers } })
+    const anonymous = await contextRoute.POST(request({}))
+    assert.equal(anonymous.status, 401)
+    assert.equal((await anonymous.json()).error.code, "SESSION_UNAVAILABLE")
+    assert.equal(sessionChecks, 1)
+
+    const proxyAnonymous = await contextRoute.POST(request({ "content-type": "application/json" }))
+    assert.equal(proxyAnonymous.status, 401)
+    assert.equal((await proxyAnonymous.json()).error.code, "SESSION_UNAVAILABLE")
+    assert.equal(sessionChecks, 2)
+
+    const unsupported = await contextRoute.POST(request({ "content-type": "text/plain" }))
+    assert.equal(unsupported.status, 415)
+    assert.equal((await unsupported.json()).error.code, "REQUEST_NOT_ALLOWED")
+    assert.equal(sessionChecks, 2, "invalid media type is rejected before checking the session")
+
+    globalThis.clinicalTestSession = async () => { sessionChecks++; return { state: "unavailable" } }
+    const unavailable = await contextRoute.POST(request({}))
+    assert.equal(unavailable.status, 503)
+    assert.equal((await unavailable.json()).error.code, "SERVICE_UNAVAILABLE")
+    assert.equal(sessionChecks, 3)
+    assert.equal(s.calls.length, 0, "these failures never reach organization lookup, exchange or clinical API")
+  } finally { s.close() }
+})
+
+test("context POST with proxy JSON metadata resolves access but refuses actual bodies before session lookup", async () => {
+  const s = setup()
+  try {
+    const headers = { origin: app, "content-type": "application/json", "content-length": "0" }
+    const resolved = await contextRoute.POST(new NextRequest(`${app}/api/cases/context`, { method: "POST", headers }))
+    assert.equal(resolved.status, 200)
+    assert.equal((await resolved.json()).state, "ready")
+    const callsBefore = s.calls.length
+    globalThis.clinicalTestSession = () => assert.fail("nonempty body must be rejected before session lookup")
+    const rejected = await contextRoute.POST(new NextRequest(`${app}/api/cases/context`, { method: "POST", headers, body: "{}" }))
+    assert.equal(rejected.status, 400)
+    assert.equal(s.calls.length, callsBefore)
+  } finally { s.close() }
+})
+
+test("profile POST accepts empty proxy JSON metadata, still authenticates, and rejects bodies or untrusted origins", async () => {
+  const s = setup()
+  const previousLog = console.error
+  try {
+    // The production error mapper is used; expected rejections log no raw request.
+    console.error = () => {}
+    const user = { id: "synthetic-user", name: "Synthetic profile", email: "synthetic@example.com", emailVerified: true, role: "USER",
+      profile: { avatarUrl: null, phone: null, birthDate: null, bio: null, locale: null, timezone: null,
+        address: { city: null, country: null, state: null, street: null, zipCode: null } } }
+    let sessionChecks = 0
+    globalThis.clinicalTestSession = async () => { sessionChecks++; return { state: "authenticated", accessToken: general, user } }
+    const headers = { origin: app, "content-type": "application/json; charset=utf-8", "content-length": "0" }
+    const request = (overrides = {}) => new NextRequest(`${app}/api/settings/profile`, { method: "POST", headers, ...overrides })
+    const resolved = await profileRoute.POST(request())
+    assert.equal(resolved.status, 200)
+    assert.deepEqual(await resolved.json(), { user })
+    assert.equal(sessionChecks, 1)
+    assert.equal((await profileRoute.POST(request({ body: "{}" }))).status, 400)
+    assert.equal((await profileRoute.POST(request({ headers: { ...headers, origin: "https://untrusted.example" } }))).status, 403)
+    assert.equal(sessionChecks, 1)
+    globalThis.clinicalTestSession = async () => { sessionChecks++; return { state: "anonymous", reason: "missing" } }
+    assert.equal((await profileRoute.POST(request())).status, 401)
+    assert.equal(sessionChecks, 2)
+    assert.equal(s.calls.length, 0)
+  } finally { console.error = previousLog; s.close() }
+})
 
 test("context POST and protected clinical route roundtrip use encrypted cookies and a scoped Bearer without exposing either token", async () => {
   const s = setup()

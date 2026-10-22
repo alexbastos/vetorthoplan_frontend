@@ -1,6 +1,6 @@
 # Troca de token por organização — contrato suplementar
 
-Fonte: confirmação da implementação fornecida pela equipe de backend ao frontend em **21/10/2026**. A operação continua ausente do OpenAPI público consultado; este registro não é apresentado como export oficial.
+Fonte original: confirmação da implementação fornecida pela equipe de backend ao frontend em **21/10/2026**. Em **22/10/2026**, a operação foi encontrada no OpenAPI público e comparada com o suplemento: método, path, ausência de corpo e resposta estão alinhados. Veja a [auditoria atual](./bff-swagger-contract-audit-2026-10-22.md) e o [export oficial preservado](./openapi/authentication-api.audit-2026-10-22.openapi.json). As decisões de armazenamento e renovação abaixo continuam sendo decisões do BFF.
 
 ## HTTP
 
@@ -13,7 +13,7 @@ Fonte: confirmação da implementação fornecida pela equipe de backend ao fron
 - O access token é emitido para `vetorthoplan-api`; o refresh token é vinculado à organização.
 - Erros: 400 de parâmetro, 401 de credencial, 403 de associação, 404 de organização ausente/inativa e 429 de limite. Envelope: `statusCode`, `error`, `code`, `message`.
 
-Tipos locais: [organization-token-contract.ts](../packages/api-client/src/organization-token-contract.ts). A extensão cobre somente a rota faltante e reaproveita a lista de organizações dos tipos gerados. Não alterar o snapshot nem os tipos gerados para fingir publicação upstream.
+Tipos locais: [organization-token-contract.ts](../packages/api-client/src/organization-token-contract.ts). A extensão cobre a rota ausente do snapshot canônico anterior e reaproveita a lista de organizações dos tipos gerados. A publicação agora está comprovada; uma futura promoção do novo snapshot e regeneração pode substituir o suplemento, preservando a proveniência.
 
 ## Decisões do frontend
 

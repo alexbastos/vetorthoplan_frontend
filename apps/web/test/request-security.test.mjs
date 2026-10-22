@@ -167,6 +167,61 @@ test("enforces method, media type, encoding and empty-body contracts", async () 
   )
 })
 
+test("bodyless mutations accept proxy JSON metadata only when declared and actual bodies are empty", async () => {
+  for (const contentType of [undefined, "application/json", "application/json; charset=utf-8", "Application/JSON"]) {
+    for (const contentLength of [undefined, "0"]) {
+      const headers = { origin: APP_ORIGIN,
+        ...(contentType ? { "content-type": contentType } : {}),
+        ...(contentLength ? { "content-length": contentLength } : {}),
+      }
+      await assert.doesNotReject(() => assertTrustedMutationRequest(createRequest({ headers }), APP_ORIGIN, { body: "none", method: "POST" }))
+      const stream = new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array()); controller.close() } })
+      await assert.doesNotReject(() => assertTrustedMutationRequest(new Request(`${APP_ORIGIN}/api/example`, {
+        method: "POST", body: stream, duplex: "half", headers,
+      }), APP_ORIGIN, { body: "none", method: "POST" }))
+    }
+  }
+})
+
+test("bodyless JSON requests reject all actual content, including a stream with a false zero length", async () => {
+  for (const body of ["{}", "null", " ", "\n", "\u0000"]) {
+    for (const contentLength of [undefined, "0", String(Buffer.byteLength(body))]) {
+      await assertSecurityError(() => assertTrustedMutationRequest(createRequest({ body, headers: {
+        origin: APP_ORIGIN, "content-type": "application/json",
+        ...(contentLength ? { "content-length": contentLength } : {}),
+      } }), APP_ORIGIN, { body: "none", method: "POST" }), 400, "body_not_allowed")
+    }
+  }
+  for (const contentType of [undefined, "application/json"]) {
+    const streamed = new Request(`${APP_ORIGIN}/api/example`, {
+      method: "POST", duplex: "half", headers: { origin: APP_ORIGIN, "content-length": "0", ...(contentType ? { "content-type": contentType } : {}) },
+      body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array()); controller.enqueue(new Uint8Array([32])); controller.close() } }),
+    })
+    await assertSecurityError(() => assertTrustedMutationRequest(streamed, APP_ORIGIN, { body: "none", method: "POST" }), 400, "body_not_allowed")
+  }
+})
+
+test("empty JSON metadata does not bypass origin, method, encoding, length or media-type restrictions", async () => {
+  const policy = { body: "none", method: "POST" }
+  for (const [headers, status, reason] of [
+    [{ origin: "https://untrusted.example" }, 403, "origin_not_trusted"],
+    [{ "sec-fetch-site": "cross-site" }, 403, "origin_not_trusted"],
+    [{ "content-encoding": "gzip" }, 415, "content_encoding_not_allowed"],
+    [{ "content-length": "1" }, 400, "body_not_allowed"],
+    [{ "content-length": "-1" }, 400, "content_length_invalid"],
+    [{ "content-length": "NaN" }, 400, "content_length_invalid"],
+    [{ "content-type": "text/plain" }, 415, "content_type_not_allowed"],
+    [{ "content-type": "application/x-www-form-urlencoded" }, 415, "content_type_not_allowed"],
+  ]) {
+    await assertSecurityError(() => assertTrustedMutationRequest(createRequest({ headers: {
+      origin: APP_ORIGIN, "content-type": "application/json", ...headers,
+    } }), APP_ORIGIN, policy), status, reason)
+  }
+  await assertSecurityError(() => assertTrustedMutationRequest(createRequest({ method: "PUT", headers: {
+    origin: APP_ORIGIN, "content-type": "application/json",
+  } }), APP_ORIGIN, policy), 405, "method_not_allowed")
+})
+
 test("limits both declared and streamed body bytes", async () => {
   const accepted = createRequest({
     body: "1234",
