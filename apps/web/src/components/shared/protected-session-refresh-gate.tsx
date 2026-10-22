@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl"
 import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
 import handoffStyles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
 import { authBffClient } from "@/features/auth/services/auth-bff-client"
+import { AppVersion } from "@/components/shared/app-version"
 
 type RefreshState = "checking" | "unavailable"
 
@@ -90,6 +91,7 @@ function ProtectedAreaUnavailable() {
         <p className="text-ui text-content-secondary">
           {t("unavailableDescription")}
         </p>
+        <p className="text-xs text-content-secondary"><AppVersion /></p>
       </section>
     </main>
   )

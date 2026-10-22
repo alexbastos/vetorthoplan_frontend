@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { appVersion } from "./src/lib/app-version";
 
 import {
   copySecurityHeaders,
@@ -21,7 +22,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        headers: createGlobalSecurityHeaders(isProduction),
+        headers: [...createGlobalSecurityHeaders(isProduction), { key: "X-App-Version", value: appVersion }],
       },
       {
         source: "/login",

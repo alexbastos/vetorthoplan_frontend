@@ -1,4 +1,5 @@
 {
+  "version": "Versão {version}",
   "metadata": {"description": "Planejamento ortopédico veterinário digital."},
   "actions": {"cancel": "Cancelar", "close": "Fechar", "continue": "Continuar", "retry": "Tentar novamente", "save": "Salvar", "saveChanges": "Salvar alterações", "signOut": "Sair", "signingOut": "Saindo..."},
   "status": {"loading": "Carregando...", "comingSoon": "Em breve", "comingSoonDescription": "Esta área ainda está sendo preparada.", "noInformation": "Sem informação"},

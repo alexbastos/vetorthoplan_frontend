@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
+import { AppVersion } from "@/components/shared/app-version"
 
 import { homeNavigationItem, primaryNavigationItems, settingsNavigationItem } from "./app-navigation"
 import { HelpNavigationIcon } from "./app-navigation-icons"
@@ -130,6 +131,7 @@ function SidebarFooter({ onNavigate, state }: { onNavigate?: () => void; state: 
         <HelpNavigationIcon aria-hidden="true" className="size-5 shrink-0 text-sidebar-icon" />
         {!isCollapsed ? <span>{t("helpCenter")}</span> : null}
       </button>
+      {!isCollapsed ? <p className="mt-2 px-3 text-xs text-content-secondary"><AppVersion /></p> : null}
     </div>
   )
 }

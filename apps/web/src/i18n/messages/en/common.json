@@ -1,4 +1,5 @@
 {
+  "version": "Version {version}",
   "metadata": {"description": "Digital veterinary orthopedic planning."},
   "actions": {"cancel": "Cancel", "close": "Close", "continue": "Continue", "retry": "Try again", "save": "Save", "saveChanges": "Save changes", "signOut": "Sign out", "signingOut": "Signing out..."},
   "status": {"loading": "Loading...", "comingSoon": "Coming soon", "comingSoonDescription": "This area is still being prepared.", "noInformation": "No information"},
