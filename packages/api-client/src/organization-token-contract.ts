@@ -12,6 +12,7 @@ export type OrganizationIdentityPaths = Pick<paths, "/authentication_api/api/v1/
   "/authentication_api/api/v1/auth/organizations/{orgId}/token": {
     post: {
       parameters: { path: { orgId: string } }
+      requestBody: { content: { "application/json": Record<string, never> } }
       responses: { 200: { content: { "application/json": OrganizationTokenResponse } } }
     }
   }

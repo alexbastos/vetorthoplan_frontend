@@ -56,7 +56,7 @@ async function resolveClinicalIdentity(options: IdentityRequest): Promise<Identi
       const key = createHash("sha256").update(JSON.stringify([options.authOrigin, ownerId, selected, binding])).digest("hex")
       let exchange = exchanges.get(key)
       if (!exchange) {
-        exchange = client.request({ method: "post", path: "/authentication_api/api/v1/auth/organizations/{orgId}/token", pathParams: { orgId: selected }, headers })
+        exchange = client.request({ method: "post", path: "/authentication_api/api/v1/auth/organizations/{orgId}/token", pathParams: { orgId: selected }, headers, body: {} })
           .finally(() => exchanges.delete(key))
         exchanges.set(key, exchange)
       }
