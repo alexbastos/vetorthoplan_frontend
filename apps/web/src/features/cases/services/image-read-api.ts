@@ -10,6 +10,7 @@ const UUID = z.string().uuid()
 const DateTime = z.iso.datetime({ offset: true })
 const CaseImageSchema: z.ZodType<CaseImage> = z.object({
   id: UUID, uploadId: UUID, jobId: UUID.nullable(), caseId: UUID, originalFilename: z.string(),
+  displayName: z.string().nullable().default(null),
   kind: z.enum(["DICOM", "PNG", "JPEG"]), mediaType: z.string(),
   detectedMediaType: z.string().nullable(), sizeBytes: z.number().int().positive(),
   status: ImageStatusSchema,

@@ -48,7 +48,7 @@ const ResponseSchema = z.object({
 
 type FieldError = { field: string; type: string }
 type ErrorCode = "ACCESS_DENIED" | "CASE_NOT_FOUND" | "IMAGE_UPLOAD_LIMIT_EXCEEDED" |
-  "IMAGE_UPLOAD_SESSION_CONFLICT" |
+  "IMAGE_UPLOAD_SESSION_CONFLICT" | "IMAGE_UPLOAD_DUPLICATE" |
   "IMAGE_UPLOAD_VALIDATION_ERROR" | "INVALID_RESPONSE" | "REQUEST_VALIDATION_ERROR" |
   "SERVICE_UNAVAILABLE" | "VALIDATION_ERROR"
 type Failure = { body: { error: { code: ErrorCode; retryable: boolean; fieldErrors?: FieldError[] } }; status: 400 | 403 | 404 | 409 | 422 | 502 | 503 }
@@ -87,6 +87,7 @@ async function createImageUploadSessionForBff(
   if (upstream.status === 409) {
     const error = z.object({ code: z.string().min(1) }).safeParse(upstream.data)
     if (!error.success) return failure(502, "INVALID_RESPONSE", false)
+    if (error.data.code === "IMAGE_UPLOAD_DUPLICATE") return failure(409, "IMAGE_UPLOAD_DUPLICATE", false)
     return failure(409, error.data.code === "IMAGE_UPLOAD_LIMIT_EXCEEDED"
       ? "IMAGE_UPLOAD_LIMIT_EXCEEDED" : "IMAGE_UPLOAD_SESSION_CONFLICT", false)
   }

@@ -35,7 +35,7 @@ function request(cookies, fetchImpl, overrides = {}) {
 }
 const okFetch = (organizations = [organization], response = token) => async (url, init) => Response.json(init.method === "GET" ? organizations : response)
 
-test("single active organization automatically exchanges bodyless POST and only the scoped Bearer reaches clinical HTTP", async () => {
+test("single active organization exchanges an empty JSON object and only the scoped Bearer reaches clinical HTTP", async () => {
   const j = jar(), calls = []
   const identity = await request(j.cookies(), async (url, init) => {
     calls.push({ url: String(url), init })
@@ -43,7 +43,7 @@ test("single active organization automatically exchanges bodyless POST and only 
     assert.equal(init.headers.has("x-tenant-id"), false)
     if (init.method === "POST") {
       assert.equal(String(url), `${authOrigin}/authentication_api/api/v1/auth/organizations/org-one/token`)
-      assert.equal(init.body, undefined); assert.equal(init.headers.has("content-type"), false)
+      assert.equal(init.body, "{}"); assert.equal(init.headers.get("content-type"), "application/json")
     }
     return Response.json(init.method === "GET" ? [organization] : token)
   })
@@ -74,12 +74,13 @@ test("none/multiple active organizations do not issue a token; inactive and unau
   await assert.rejects(request(jar().cookies(), () => assert.fail("invalid parameter must not call upstream"), { chosenOrganizationId: "x".repeat(256) }), error => error.status === 400)
 })
 
-test("organization IDs are opaque 1–255 strings and encoded in the path, without inventing an audience/body", async () => {
+test("organization IDs are opaque 1–255 strings and encoded in the path, with only the required empty JSON object", async () => {
   const item = { ...organization, id: "org /?# ç" }
   const result = await request(jar().cookies(), async (url, init) => {
     if (init.method === "GET") return Response.json([item, second])
     assert.equal(new URL(url).pathname, `/authentication_api/api/v1/auth/organizations/${encodeURIComponent(item.id)}/token`)
-    assert.equal(init.body, undefined)
+    assert.equal(init.body, "{}")
+    assert.equal(init.headers.get("content-type"), "application/json")
     return Response.json({ ...token, organizationId: item.id })
   }, { chosenOrganizationId: item.id })
   assert.equal(result.organization.id, item.id)

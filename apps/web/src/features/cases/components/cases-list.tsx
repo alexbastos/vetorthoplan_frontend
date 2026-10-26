@@ -1,16 +1,16 @@
 "use client"
 
-import { FolderOpen, Search } from "lucide-react"
+import { FolderOpen } from "lucide-react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { Tabs } from "radix-ui"
 import { useMemo } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import type { CaseListItem, CaseListStatus } from "../services/case-list-api"
 import { CaseCard } from "./case-card"
 import { CasesContentMotion } from "./cases-content-motion"
+import { CasesSearch } from "./cases-search"
 
 type CasesListProps = {
   cases: readonly CaseListItem[]
@@ -46,26 +46,12 @@ function CasesList({
       <section aria-labelledby="cases-list-title" className="w-full">
         <h2 className="sr-only" id="cases-list-title">{t("title")}</h2>
 
-        <div className="mb-5 max-w-sm">
-          <label className="sr-only" htmlFor="cases-search">{t("search.label")}</label>
-          <Input
-            autoComplete="off"
-            id="cases-search"
-            leadingIcon={<Search aria-hidden="true" />}
-            maxLength={200}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder={t("search.placeholder")}
-            type="search"
-            value={search}
-          />
-        </div>
-
         <Tabs.Root onValueChange={(value) => onFilterChange(value === "all" ? null : value as CaseListStatus)} value={filter ?? "all"}>
-          <div className="border-b border-border" data-cases-filters>
-            <Tabs.List aria-label={t("filters.label")} className="flex max-w-full gap-6 overflow-x-auto">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 border-b border-border [--input-border-focus:var(--case-editor-input-border-focus)] [--ring:var(--case-editor-input-border-focus)] xl:grid-cols-[minmax(0,1fr)_auto_auto]" data-cases-filters>
+            <Tabs.List aria-label={t("filters.label")} className="col-start-1 row-start-1 flex min-w-0 max-w-full gap-6 overflow-x-auto">
               {caseFilters.map((item) => (
                 <Tabs.Trigger
-                  className="group/tab relative flex shrink-0 items-center gap-2 border-b-2 border-transparent px-0 pt-1 pb-3 text-[13px] leading-[1.4] font-medium text-description outline-none transition-colors hover:text-foreground focus-visible:text-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                  className="group/tab relative flex h-9 shrink-0 items-center gap-2 px-0 pb-1 text-[13px] leading-[1.4] font-medium text-description outline-none transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-transparent hover:text-foreground focus-visible:text-foreground data-[state=active]:text-foreground data-[state=active]:after:bg-foreground"
                   key={item}
                   value={item}
                 >
@@ -76,6 +62,7 @@ function CasesList({
                 </Tabs.Trigger>
               ))}
             </Tabs.List>
+            <CasesSearch onChange={onSearchChange} value={search} />
           </div>
 
           <Tabs.Content className="mt-5 outline-none" data-cases-panel value={filter ?? "all"}>

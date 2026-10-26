@@ -18,6 +18,7 @@ type QueuedFile = {
   identity: ImageUploadIdentity | null; completed: CompletedImageUpload | null
   persisted: ImageIngestionIdentity | null; progress: number | null; transportFailed: boolean
   sessionAttempt: ImageUploadAttempt | null; cancelRequested: boolean
+  sha256: string | null
   retryMode: "confirm" | "restart"; cancellation?: UploadCancellationState
   restartAfterCancellation?: boolean
 }
@@ -27,7 +28,7 @@ type QueueDependencies = {
   cancel: (identity: ImageIngestionIdentity) => Promise<UploadCancellationState>
 }
 const NO_CREATED_SESSION = new Set(["CASE_NOT_FOUND", "IMAGE_UPLOAD_LIMIT_EXCEEDED", "IMAGE_UPLOAD_SESSION_CONFLICT",
-  "REQUEST_VALIDATION_ERROR", "IMAGE_UPLOAD_VALIDATION_ERROR", "VALIDATION_ERROR", "ACCESS_DENIED", "REQUEST_NOT_ALLOWED"])
+  "IMAGE_UPLOAD_DUPLICATE", "REQUEST_VALIDATION_ERROR", "IMAGE_UPLOAD_VALIDATION_ERROR", "VALIDATION_ERROR", "ACCESS_DENIED", "REQUEST_NOT_ALLOWED"])
 
 function createCaseFileUploadQueue(caseId: string, client: QueryClient, overrides: Partial<QueueDependencies> = {}) {
   const deps: QueueDependencies = { hash: hashImageFile, createSession: createImageUploadSession,
@@ -81,6 +82,15 @@ function createCaseFileUploadQueue(caseId: string, client: QueryClient, override
       patch(id, { phase: "hashing", error: null })
       const sha256 = item.sessionAttempt?.input.sha256 ?? await deps.hash(item.file, signal)
       if (stopped(id, signal)) return
+      // Serial processing reserves a checksum before the next file is examined.
+      // Keep uncertain sessions reserved until cancellation is confirmed.
+      const duplicate = items.some(candidate => candidate.id !== id && candidate.sha256 === sha256
+        && (candidate.phase !== "error" || candidate.identity || candidate.sessionAttempt || candidate.persisted))
+      if (duplicate) {
+        patch(id, { phase: "error", error: "DUPLICATE_FILE", sha256, progress: null })
+        return
+      }
+      patch(id, { sha256 })
       const attempt = prepareImageUploadAttempt(item.sessionAttempt, caseId, { original_filename: item.file.name,
         media_type: validation.mediaType, size_bytes: item.file.size, sha256 })
       // Keep creation alive when cancelled: its response supplies the ID we must cancel.
@@ -115,7 +125,10 @@ function createCaseFileUploadQueue(caseId: string, client: QueryClient, override
       const transportError = caught instanceof ImageUploadTransportError ? caught.code : null
       if (sessionError && NO_CREATED_SESSION.has(sessionError)) patch(id, { sessionAttempt: null })
       if (stopped(id, signal)) return
-      patch(id, { phase: "error", retryMode: "restart", error: sessionError ?? transportError ?? (find(id)?.phase === "creating" ? "NETWORK_ERROR" : "checksum"),
+      // The backend can detect persisted content that is absent from this queue
+      // after a refresh. Reuse local duplicate feedback without claiming its image.
+      patch(id, { phase: "error", retryMode: "restart", error: sessionError === "IMAGE_UPLOAD_DUPLICATE" ? "DUPLICATE_FILE"
+        : sessionError ?? transportError ?? (find(id)?.phase === "creating" ? "NETWORK_ERROR" : "checksum"),
         ...(sessionError && NO_CREATED_SESSION.has(sessionError) ? { sessionAttempt: null } : {}) })
     }
   }
@@ -139,7 +152,7 @@ function createCaseFileUploadQueue(caseId: string, client: QueryClient, override
     if (disposed || !files.length) return []
     const added = files.map((file): QueuedFile => ({ id: crypto.randomUUID(), file, phase: "queued", error: null,
       identity: null, completed: null, persisted: null, progress: null, transportFailed: false,
-      sessionAttempt: null, cancelRequested: false, retryMode: "restart" }))
+      sessionAttempt: null, cancelRequested: false, sha256: null, retryMode: "restart" }))
     update(current => [...current, ...added]); pending.push(...added.map(item => item.id)); void pump()
     return added.map(item => item.id)
   }
@@ -202,7 +215,7 @@ function createCaseFileUploadQueue(caseId: string, client: QueryClient, override
     const item = find(id)
     if (!item || item.completed || item.phase === "stored") return Promise.resolve()
     if (item.phase === "cancel-error") return removeFile(id)
-    if (item.phase !== "error" || item.error === "IMAGE_UPLOAD_SESSION_CONFLICT") return Promise.resolve()
+    if (item.phase !== "error" || item.error === "IMAGE_UPLOAD_SESSION_CONFLICT" || item.error === "DUPLICATE_FILE") return Promise.resolve()
     if (item.retryMode === "restart" && (item.identity || item.error === "EXPIRED" && item.sessionAttempt)) return removeFile(id, true)
     patch(id, { phase: "queued", error: null, progress: null, transportFailed: Boolean(item.identity) && item.transportFailed })
     pending.push(id); void pump(); return Promise.resolve()

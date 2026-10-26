@@ -31,14 +31,8 @@
 }
 
 .statusLabel {
-  animation: login-handoff-status-shimmer 1.8s linear infinite;
-  background: linear-gradient(100deg, #6f7478 30%, #202326 50%, #6f7478 70%);
-  background-position: 180% 0;
-  background-size: 220% 100%;
-  background-clip: text;
-  color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  --shimmer-base: #6f7478;
+  --shimmer-highlight: #202326;
 }
 
 .statusDots {
@@ -66,16 +60,6 @@
   animation-delay: 0.28s;
 }
 
-@keyframes login-handoff-status-shimmer {
-  from {
-    background-position: 180% 0;
-  }
-
-  to {
-    background-position: -80% 0;
-  }
-}
-
 @keyframes login-handoff-status-dot {
   0%,
   58%,
@@ -96,13 +80,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .statusLabel {
-    animation: none;
-    background: none;
-    color: currentcolor;
-    -webkit-text-fill-color: currentcolor;
-  }
-
   .statusDot {
     animation: none;
     opacity: 0.58;

@@ -2,39 +2,21 @@
 
 import { FileWarning, RefreshCw } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 
-import { useImagePreview } from "../hooks/use-image-preview"
-import { canPreviewCaseImage } from "../lib/case-image-state"
+import type { CaseImagePreviewState } from "../hooks/use-case-image-preview"
 import { ImagePreviewError } from "../services/image-preview-api"
 import type { CaseImage } from "../types/case-image"
-import { CaseImageViewer } from "./case-image-viewer"
+import type { CalibrationMarker } from "../types/case-workspace"
+import { CaseImageViewer, type ViewerTool } from "./case-image-viewer"
 
-function CasePreviewPanel({ image }: { image: CaseImage }) {
+type CalibrationView = { marker: CalibrationMarker | null; markerKind: CalibrationMarker["kind"]; tool: ViewerTool;
+  editable: boolean; onMarkerChange: (marker: CalibrationMarker) => void; onToolChange: (tool: ViewerTool) => void }
+
+function CasePreviewPanel({ image, preview, calibration }: { image: CaseImage; preview: CaseImagePreviewState; calibration: CalibrationView }) {
   const t = useTranslations("cases.workspace.preview")
-  const eligible = canPreviewCaseImage(image)
-  const query = useImagePreview(image.caseId, image.id, eligible)
-  const [failedUrl, setFailedUrl] = useState<string | null>(null)
-  const renewalAttempted = useRef(false)
-  const url = query.data?.url
-  const displayFailed = Boolean(url && failedUrl === url)
-
-  function refresh() {
-    renewalAttempted.current = false
-    setFailedUrl(null)
-    void query.refetch()
-  }
-
-  function handleImageError() {
-    if (!url) return
-    setFailedUrl(url)
-    if (!renewalAttempted.current) {
-      renewalAttempted.current = true
-      void query.refetch()
-    }
-  }
+  const { eligible, query, displayFailed, refresh } = preview
 
   if (!eligible) return <PreviewMessage title={t("unavailable")} description={t("unavailableDescription")} />
   if (query.isPending) {
@@ -55,19 +37,23 @@ function CasePreviewPanel({ image }: { image: CaseImage }) {
       brightness={100}
       contrast={100}
       inverted={false}
-      marker={null}
-      markerKind="line"
-      name={image.originalFilename}
-      onImageError={handleImageError}
-      onMarkerChange={() => undefined}
-      onToolChange={() => undefined}
-      readOnly
+      coordinateSpace="image-edges"
+      marker={calibration.marker}
+      markerKind={calibration.markerKind}
+      name={image.displayName ?? image.originalFilename}
+      onImageError={preview.onImageError}
+      onImageLoad={preview.onImageLoad}
+      onMarkerChange={calibration.onMarkerChange}
+      onToolChange={calibration.onToolChange}
+      readOnly={!calibration.editable}
       rendering={{
         url: query.data.url,
-        widthPx: query.data.widthPx,
-        heightPx: query.data.heightPx,
+        // Restore the original aspect ratio even when the thumbnail dimensions
+        // were rounded. Overlay coordinates always belong to the original matrix.
+        widthPx: image.widthPx ?? query.data.widthPx,
+        heightPx: image.heightPx ?? query.data.heightPx,
       }}
-      tool="pan"
+      tool={calibration.tool}
     />
   )
 }

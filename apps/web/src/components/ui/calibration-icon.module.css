@@ -1,0 +1,8 @@
+.icon {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: currentColor;
+  -webkit-mask: url("/icons/calibration-ruler-filled.svg") center / contain no-repeat;
+  mask: url("/icons/calibration-ruler-filled.svg") center / contain no-repeat;
+}

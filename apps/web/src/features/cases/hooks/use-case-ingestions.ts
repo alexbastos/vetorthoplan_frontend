@@ -14,10 +14,10 @@ import { useCaseImages } from "./use-case-images"
 
 function useCaseIngestions(caseId: string, enabled = true) {
   const client = useQueryClient()
-  const imagesQuery = useCaseImages(caseId, enabled)
   const remembered = useQuery<IngestionReference[]>({
     queryKey: casesQueryKeys.activeIngestions(caseId), queryFn: async () => [], enabled: false,
   })
+  const imagesQuery = useCaseImages(caseId, enabled, remembered.data)
   const targets = caseIngestionTargets(caseId, imagesQuery.data ?? [], remembered.data ?? [])
   const lookupTargets = targets.filter((target) => target.jobId === null)
   const lookups = useQueries({ queries: lookupTargets.map((target) => ({ ...imageIngestionQueryOptions(target), enabled })) })
@@ -93,7 +93,7 @@ function useCaseIngestions(caseId: string, enabled = true) {
     imagesQuery, entries, jobActive, refresh, retryForImage,
     hasMissingJob: entries.some(missing),
     hasUnscheduledJob: entries.some((entry) => entry.job === null),
-    hasReadError: entries.some((entry) => Boolean(entry.error) && !missing(entry)),
+    hasReadError: Boolean(imagesQuery.error) || entries.some((entry) => Boolean(entry.error) && !missing(entry)),
     hasFailedJob: entries.some((entry) => entry.job?.status === "FAILED" || entry.imageStatus === "FAILED" && !entry.retryAcknowledged),
     needsImageRefresh: entries.some((entry) => entry.job?.status === "SUCCEEDED" && !terminal(entry)),
     isRefreshing: imagesQuery.isFetching || lookups.some((query) => query.isFetching) || jobs.some((query) => query.isFetching)

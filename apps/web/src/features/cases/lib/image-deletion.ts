@@ -5,6 +5,8 @@ import { deleteCaseImage, ImageDeleteError } from "../services/image-delete-api"
 import { fetchCaseImages, ImageReadError } from "../services/image-read-api"
 import type { CaseImage } from "../types/case-image"
 import type { ImageIngestionIdentity, IngestionReference } from "../types/ingestion-reference"
+import { isCaseDeletionLocked } from "./case-deletion"
+import { isCalibrationSaveLocked } from "./calibration-save-state"
 
 type ImageDeletionState = { phase: "idle" | "deleting" | "checking" | "deleted" | "error" | "uncertain"; message?: "blocked" | "unavailable" | "unconfirmed" | "stillPresent" | "accessDenied" | "invalidResponse" }
 const IDLE_DELETION: ImageDeletionState = { phase: "idle" }
@@ -12,10 +14,10 @@ const requests = new WeakMap<QueryClient, Map<string, Promise<ImageDeletionState
 // A pending session may have expired. Only the backend knows its validity;
 // allow an explicit DELETE to decide, while local active transfers stay in cancellation.
 const eligible = new Set<CaseImage["status"]>(["PENDING_UPLOAD", "QUARANTINED", "READY", "REJECTED", "FAILED", "CANCELLED"])
-const activePhase = (phase?: string) => phase === "checking" || phase === "requesting" || phase === "cancelling" || phase === "deleting" || phase === "uncertain"
+const activePhase = (phase?: string) => phase === "checking" || phase === "requesting" || phase === "cancelling" || phase === "deleting" || phase === "renaming" || phase === "saving" || phase === "uncertain"
 function isImageDeletionLocked(client: QueryClient, caseId: string, imageId: string): boolean {
   const state = client.getQueryData<ImageDeletionState>(keys.imageDeletion(caseId, imageId))
-  return activePhase(state?.phase) || state?.phase === "deleted"
+  return isCaseDeletionLocked(client, caseId) || isCalibrationSaveLocked(client, caseId, imageId) || activePhase(state?.phase) || state?.phase === "deleted"
 }
 function canDeleteCaseImage(image: CaseImage): boolean { return eligible.has(image.status) }
 
@@ -47,7 +49,10 @@ async function remove(client: QueryClient, identity: ImageIngestionIdentity, opt
   if (cachedImage?.jobId) jobIds.add(cachedImage.jobId)
   const discovered = client.getQueryData<{ id: string } | null>(keys.imageIngestionJob(caseId, imageId))
   if (discovered?.id) jobIds.add(discovered.id)
-  if (activePhase(client.getQueryData<{ phase: string }>(keys.uploadCancellation(caseId, uploadId))?.phase)
+  if (isCaseDeletionLocked(client, caseId)
+    || isCalibrationSaveLocked(client, caseId, imageId)
+    || activePhase(client.getQueryData<{ phase: string }>(keys.imageRename(caseId, imageId))?.phase)
+    || activePhase(client.getQueryData<{ phase: string }>(keys.uploadCancellation(caseId, uploadId))?.phase)
     || [...jobIds].some(id => activePhase(client.getQueryData<{ phase: string }>(keys.ingestionRetry(caseId, id))?.phase))) return publish({ phase: "error", message: "blocked" })
   publish({ phase: checkOnly ? "checking" : "deleting" })
   const read = async () => {
@@ -62,7 +67,7 @@ async function remove(client: QueryClient, identity: ImageIngestionIdentity, opt
     // Cancel stale reads before removing data; an in-flight preview/job must not restore deleted content.
     const related = (query: { queryKey: readonly unknown[] }) => {
       const [scope, kind, owner, id] = query.queryKey
-      return scope === "cases" && owner === caseId && (kind === "images" || ((kind === "preview" || kind === "image-ingestion-job") && id === imageId)
+      return scope === "cases" && owner === caseId && (kind === "images" || ((kind === "preview" || kind === "image-ingestion-job" || kind === "image-plan" || kind === "image-plan-save") && id === imageId)
         || ((kind === "ingestion-job" || kind === "ingestion-retry") && jobIds.has(String(id))))
     }
     await client.cancelQueries({ predicate: related })

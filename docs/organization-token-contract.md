@@ -4,10 +4,15 @@ Fonte original: confirmação da implementação fornecida pela equipe de backen
 
 ## HTTP
 
+Atualização de implementação: o commit `38f0334` de 22/10/2026 ajustou o
+contrato suplementar e o BFF para enviar `Content-Type: application/json`
+com o corpo `{}` na troca de token. Essa decisão substitui a instrução
+original de ausência de corpo registrada abaixo; não adiciona audience/escopo.
+
 `POST /authentication_api/api/v1/auth/organizations/{orgId}/token`
 
 - `Authorization: Bearer <accessToken geral>`.
-- Sem corpo; não enviar `{}` ou inventar parâmetros de audiência/escopo.
+- JSON `{}`, conforme o ajuste de integração `38f0334`; sem parâmetros de audiência/escopo.
 - `orgId`: string de 1 a 255 caracteres, obtida do `id` de `GET /authentication_api/api/v1/organizations`. Não pressupor UUID.
 - 200: `{ accessToken, refreshToken, organizationId, expiresIn }`.
 - O access token é emitido para `vetorthoplan-api`; o refresh token é vinculado à organização.

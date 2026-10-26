@@ -11,6 +11,7 @@ const DateTime = z.iso.datetime({ offset: true })
 const ImageSchema = z.object({
   id: UUID, upload_id: UUID, job_id: UUID.nullable(), case_id: UUID,
   original_filename: z.string(), kind: z.enum(["DICOM", "PNG", "JPEG"]),
+  display_name: z.string().nullable().default(null),
   media_type: z.string(), detected_media_type: z.string().nullable(),
   size_bytes: z.number().int().min(1).max(100 * 1024 * 1024),
   sha256: z.string().regex(/^[a-f0-9]{64}$/),
@@ -51,9 +52,13 @@ async function listCaseImagesForBff(caseId: string, read: Reader, signal?: Abort
   if (!parsed.success || parsed.data.items.some((item) => item.case_id.toLowerCase() !== caseId.toLowerCase())) {
     return failure(502, "INVALID_RESPONSE", false)
   }
-  return { status: 200, body: { items: parsed.data.items.map((item): CaseImage => ({
+  return { status: 200, body: { items: parsed.data.items.map(projectCaseImage) } }
+}
+
+function projectCaseImage(item: z.infer<typeof ImageSchema>): CaseImage {
+  return {
     id: item.id, uploadId: item.upload_id, jobId: item.job_id, caseId: item.case_id,
-    originalFilename: item.original_filename, kind: item.kind,
+    originalFilename: item.original_filename, displayName: item.display_name, kind: item.kind,
     mediaType: item.media_type, detectedMediaType: item.detected_media_type,
     sizeBytes: item.size_bytes, status: item.status,
     widthPx: item.width_px, heightPx: item.height_px,
@@ -63,11 +68,11 @@ async function listCaseImagesForBff(caseId: string, read: Reader, signal?: Abort
     previewWidthPx: item.preview_width_px, previewHeightPx: item.preview_height_px,
     pixelSpacingMm: item.pixel_spacing_mm, imagerPixelSpacingMm: item.imager_pixel_spacing_mm,
     imageOrientationPatient: item.image_orientation_patient,
-  })) } }
+  }
 }
 
 function failure(status: Failure["status"], code: ErrorCode, retryable: boolean): Failure {
   return { status, body: { error: { code, retryable } } }
 }
 
-export { ImageSchema, listCaseImagesForBff }
+export { ImageSchema, listCaseImagesForBff, projectCaseImage }

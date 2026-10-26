@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+const CLINICAL_CONTEXT_QUERY_KEY = ["clinical-context"] as const
+
 const OrganizationSchema = z.object({ id: z.string().min(1).max(255), name: z.string().min(1), memberRole: z.string() })
 const ContextSchema = z.discriminatedUnion("state", [
   z.object({ state: z.literal("ready"), mode: z.enum(["local", "jwt"]), organization: OrganizationSchema.nullable(), organizations: z.array(OrganizationSchema) }),
@@ -31,5 +33,5 @@ async function fetchClinicalContext(options: { organizationId?: string; signal?:
   if (value.state === "ready" && (value.mode === "jwt" ? !value.organization || !value.organizations.some(item => item.id === value.organization!.id) : value.organization !== null)) throw new ClinicalContextError("INVALID_RESPONSE")
   return value
 }
-export { ClinicalContextError, fetchClinicalContext }
+export { CLINICAL_CONTEXT_QUERY_KEY, ClinicalContextError, fetchClinicalContext }
 export type { ClinicalContext }

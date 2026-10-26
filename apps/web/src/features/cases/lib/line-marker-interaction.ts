@@ -51,11 +51,12 @@ function moveLineMarker(
   point: ImagePoint,
   imageWidth: number,
   imageHeight: number,
+  edgeInset = 1,
 ): LineMarker {
   const dx = Math.max(-Math.min(marker.start.x, marker.end.x), Math.min(
-    imageWidth - 1 - Math.max(marker.start.x, marker.end.x), point.x - origin.x))
+    imageWidth - edgeInset - Math.max(marker.start.x, marker.end.x), point.x - origin.x))
   const dy = Math.max(-Math.min(marker.start.y, marker.end.y), Math.min(
-    imageHeight - 1 - Math.max(marker.start.y, marker.end.y), point.y - origin.y))
+    imageHeight - edgeInset - Math.max(marker.start.y, marker.end.y), point.y - origin.y))
   return {
     kind: "line",
     start: { x: marker.start.x + dx, y: marker.start.y + dy },

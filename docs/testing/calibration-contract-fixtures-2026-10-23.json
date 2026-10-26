@@ -1,0 +1,439 @@
+{
+  "capturedAtUtc": "2026-10-23T18:45:28.003099+00:00",
+  "backendRevision": "279139d4c1ea795bd26578e3595f5e38b14b4712",
+  "backendSourceFile": "src/vetorthoplan/domain/planning/measurements.py",
+  "backendSourceSha256": "e38eb2cfd957de5057bbf2fafd717fb6760880c33476c6bf10c8a7a8544a5487",
+  "openApiSha256": "b40fe463c29b4d2d41332c5565e9fc02a0c9f6e9f7e81b9c416894a21f0f004e",
+  "matchingSchemas": [
+    "PlanPoint",
+    "PlanReferenceLineCalibration",
+    "PlanReferenceCircleCalibration",
+    "PlanCalibrationResult",
+    "PlanDocument",
+    "ImagePlanResponse",
+    "SaveImagePlanRequest"
+  ],
+  "verification": "Executed actual pinned backend pure geometry code; no HTTP, database or deployment validation.",
+  "cases": [
+    {
+      "id": "horizontal",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "5febe1a5c5de3967d6490f293bdbf60634cac8fe1777240e7ab06382152c1704",
+            "reference_length_px": 1000.0,
+            "mm_per_pixel": 0.05
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "vertical",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.25,
+            "y": 0.125
+          },
+          "end": {
+            "x": 0.25,
+            "y": 0.625
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.25,
+            "y": 0.125
+          },
+          "end": {
+            "x": 0.25,
+            "y": 0.625
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "1293270c70f195a0ead8819b0b4c2f431feca1ef3ebc969515baa9addbe04917",
+            "reference_length_px": 500.0,
+            "mm_per_pixel": 0.1
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "diagonal",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.125
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.625
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.125
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.625
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "c515b1bfd019717234496c91f05e3456227c6d48350ebc6ea234734f08c4bebf",
+            "reference_length_px": 1118.033988749895,
+            "mm_per_pixel": 0.044721359549995794
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "full-width-edges",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0,
+            "y": 0.5
+          },
+          "end": {
+            "x": 1,
+            "y": 0.5
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0,
+            "y": 0.5
+          },
+          "end": {
+            "x": 1,
+            "y": 0.5
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "6149b38a90b536b3d2374e76bf076a41bab8b32f0a1b74b727bc373551d004cf",
+            "reference_length_px": 2000.0,
+            "mm_per_pixel": 0.025
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "circle-horizontal",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_CIRCLE",
+          "center": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "edge": {
+            "x": 0.5625,
+            "y": 0.5
+          },
+          "known_diameter_mm": 20
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_CIRCLE",
+          "center": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "edge": {
+            "x": 0.5625,
+            "y": 0.5
+          },
+          "known_diameter_mm": 20,
+          "result": {
+            "calibration_id": "28cfa7d7ca97d4548e11b6df8899072029c635feec799ac3a6e38ea23ffe9cee",
+            "reference_length_px": 250.0,
+            "mm_per_pixel": 0.08
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "circle-vertical",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_CIRCLE",
+          "center": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "edge": {
+            "x": 0.5,
+            "y": 0.625
+          },
+          "known_diameter_mm": 20
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_CIRCLE",
+          "center": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "edge": {
+            "x": 0.5,
+            "y": 0.625
+          },
+          "known_diameter_mm": 20,
+          "result": {
+            "calibration_id": "9be77a03cbf13d5fa37fb089da06f5264319e9e9dbaf49bcaef080ea7c6555c1",
+            "reference_length_px": 250.0,
+            "mm_per_pixel": 0.08
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "changed-reference",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 100
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 100,
+          "result": {
+            "calibration_id": "65794d4b6b417a946adac74502937f12e6aa88d4a5d9008e36e512d3f6def752",
+            "reference_length_px": 1000.0,
+            "mm_per_pixel": 0.1
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "changed-source-dimensions",
+      "widthPx": 4000,
+      "heightPx": 2000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "dd1703f8812c6585ac446e61f82d16985b89442540f0df63ed7bd59ddcc67b8c",
+            "reference_length_px": 2000.0,
+            "mm_per_pixel": 0.025
+          }
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "missing-dimensions",
+      "widthPx": null,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50
+        },
+        "objects": []
+      }
+    },
+    {
+      "id": "forged-client-result",
+      "widthPx": 2000,
+      "heightPx": 1000,
+      "input": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "reference_length_px": 1,
+            "mm_per_pixel": 999
+          }
+        },
+        "objects": []
+      },
+      "output": {
+        "schema_version": 1,
+        "calibration": {
+          "kind": "REFERENCE_LINE",
+          "start": {
+            "x": 0.125,
+            "y": 0.25
+          },
+          "end": {
+            "x": 0.625,
+            "y": 0.25
+          },
+          "known_length_mm": 50,
+          "result": {
+            "calibration_id": "5febe1a5c5de3967d6490f293bdbf60634cac8fe1777240e7ab06382152c1704",
+            "reference_length_px": 1000.0,
+            "mm_per_pixel": 0.05
+          }
+        },
+        "objects": []
+      }
+    }
+  ]
+}

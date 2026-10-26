@@ -43,6 +43,7 @@ export type CreateCaseValidationError = ClinicalResponse<"create_case_api_v1_cas
 
 export type GetCasePath = ClinicalPath<"get_case_api_v1_cases__case_id__get">
 export type GetCaseResponse = ClinicalResponse<"get_case_api_v1_cases__case_id__get", 200>
+export type DeleteCasePath = ClinicalPath<"delete_case_api_v1_cases__case_id__delete">
 
 export type CreateImageUploadPath = ClinicalPath<
   "create_image_upload_api_v1_cases__case_id__image_uploads_post"
@@ -81,6 +82,9 @@ export type ListCaseImagesResponse = ClinicalResponse<"list_case_images_api_v1_c
 export type GetImagePath = ClinicalPath<"get_image_api_v1_images__image_id__get">
 export type GetImageResponse = ClinicalResponse<"get_image_api_v1_images__image_id__get", 200>
 export type DeleteImagePath = ClinicalPath<"delete_image_api_v1_images__image_id__delete">
+export type RenameImagePath = ClinicalPath<"rename_image_api_v1_images__image_id__patch">
+export type RenameImageRequest = ClinicalRequest<"rename_image_api_v1_images__image_id__patch">
+export type RenameImageResponse = ClinicalResponse<"rename_image_api_v1_images__image_id__patch", 200>
 
 export type GetImagePreviewPath = ClinicalPath<"get_image_preview_api_v1_images__image_id__preview_get">
 export type GetImagePreviewResponse = ClinicalResponse<"get_image_preview_api_v1_images__image_id__preview_get", 200>

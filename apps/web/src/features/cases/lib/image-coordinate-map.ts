@@ -9,14 +9,15 @@ function mapClientPointToImage(
   rect: ImageRect,
   widthPx: number,
   heightPx: number,
+  edgeInset = 1,
 ): ImagePoint | null {
   if (!Number.isFinite(clientX) || !Number.isFinite(clientY)
     || !Number.isFinite(rect.width) || !Number.isFinite(rect.height)
     || rect.width <= 0 || rect.height <= 0 || widthPx <= 0 || heightPx <= 0) return null
 
   return {
-    x: Math.max(0, Math.min(widthPx - 1, (clientX - rect.left) / rect.width * widthPx)),
-    y: Math.max(0, Math.min(heightPx - 1, (clientY - rect.top) / rect.height * heightPx)),
+    x: Math.max(0, Math.min(widthPx - edgeInset, (clientX - rect.left) / rect.width * widthPx)),
+    y: Math.max(0, Math.min(heightPx - edgeInset, (clientY - rect.top) / rect.height * heightPx)),
   }
 }
 

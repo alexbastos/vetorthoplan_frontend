@@ -34,7 +34,15 @@ function StandaloneFilesImport(props: CaseFilesImportProps) {
   return <CaseFilesImportContent {...props} ingestion={ingestion} />
 }
 
-function CaseFilesImportContent({ caseId, caseTitle, onBusyChange, onConfirmed, onClose, mode = "new", ingestion }: CaseFilesImportProps & { ingestion: CaseIngestionMonitor }) {
+function CaseFilesImportContent(props: CaseFilesImportProps & { ingestion: CaseIngestionMonitor }) {
+  const queue = useCaseFileUploadQueue(props.caseId)
+  return <CaseFilesImportForm {...props} queue={queue} />
+}
+
+function CaseFilesImportForm({ caseTitle, onBusyChange, onConfirmed, onClose, mode = "new", ingestion, queue }: CaseFilesImportProps & {
+  ingestion: CaseIngestionMonitor
+  queue: ReturnType<typeof useCaseFileUploadQueue>
+}) {
   const locale = useLocale()
   const t = useTranslations("cases.newCase.fileImport")
   const tRetry = useTranslations("cases.ingestionRetry")
@@ -42,7 +50,6 @@ function CaseFilesImportContent({ caseId, caseTitle, onBusyChange, onConfirmed, 
   const tDelete = useTranslations("cases.imageDeletion")
   const [deleteTarget, setDeleteTarget] = useState<CaseImage | null>(null)
   const sectionRef = useRef<HTMLElement>(null)
-  const queue = useCaseFileUploadQueue(caseId)
   const completions = queue.items.filter((item) => item.completed).map((item) => item.completed!)
   const { imagesQuery } = ingestion
   const confirmed = completions.length > 0 || queue.items.some(item => item.phase === "stored")
@@ -58,6 +65,7 @@ function CaseFilesImportContent({ caseId, caseTitle, onBusyChange, onConfirmed, 
     retryFile: (fileName) => t("retryFile", { fileName }),
     transferSize: (uploaded, total) => t("transferSize", { uploaded, total }),
     title: t("title"),
+    finishing: t("finishing"),
   }
   const files: UploadCardFile[] = []
   for (const item of queue.items) {
@@ -74,7 +82,7 @@ function CaseFilesImportContent({ caseId, caseTitle, onBusyChange, onConfirmed, 
       removeKind: persistent ? "delete" : "cancel",
       state: busy ? "processing" : presentation.state,
       canRetry: busy || item.phase === "cancelling" ? false : presentation.canRetry || Boolean(entry && canRetryIngestion(entry)),
-      removeLabel: persistent ? tDelete(deletable ? "namedAction" : "blockedAction", { name: item.file.name })
+      removeLabel: persistent ? tDelete(deletable ? "namedAction" : "blockedAction", { name: image?.displayName ?? item.file.name })
         : item.phase !== "cancel-error" && (item.identity || item.sessionAttempt) ? tCancel("cancelFile", { fileName: item.file.name }) : undefined,
       retryLabel: item.phase === "cancel-error" ? `${tCancel(item.cancellation?.phase === "uncertain" ? "check" : "action")}: ${item.file.name}`
         : item.completed || item.phase === "stored" ? `${tRetry(state?.phase === "uncertain" || state?.phase === "error" ? "check" : "action")}: ${item.file.name}` : undefined,
@@ -87,7 +95,7 @@ function CaseFilesImportContent({ caseId, caseTitle, onBusyChange, onConfirmed, 
   useEffect(() => { onBusyChange?.(queue.busy) }, [onBusyChange, queue.busy])
   useEffect(() => { if (confirmed) onConfirmed?.() }, [confirmed, onConfirmed])
   return (
-    <section aria-label={t("title")} className="mx-auto mt-4 w-full max-w-[42.5rem] outline-none" ref={sectionRef} tabIndex={-1}>
+    <section aria-label={t("title")} className={`mx-auto w-full max-w-[42.5rem] outline-none ${mode === "new" ? "mt-4" : ""}`} ref={sectionRef} tabIndex={-1}>
       <FileUploadCard
         accept={IMAGE_UPLOAD_ACCEPT}
         aria-busy={queue.busy}
@@ -126,11 +134,8 @@ function CaseFilesImportContent({ caseId, caseTitle, onBusyChange, onConfirmed, 
           <Button disabled={ingestion.isRefreshing} onClick={() => void ingestion.refresh()} size="sm" type="button" variant="secondary">{t("refreshProcessing")}</Button>
         </div>
       ) : null}
-      {ingestion.needsImageRefresh ? (
-        <Button className="mt-4" disabled={ingestion.isRefreshing} onClick={() => void ingestion.refresh()} size="sm" type="button" variant="secondary">{t("refreshImage")}</Button>
-      ) : null}
     </section>
   )
 }
 
-export { CaseFilesImport }
+export { CaseFilesImport, CaseFilesImportForm }

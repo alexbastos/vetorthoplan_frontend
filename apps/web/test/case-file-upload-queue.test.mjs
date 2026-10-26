@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { registerHooks } from "node:module"
+import { createHash } from "node:crypto"
 import test from "node:test"
 import { QueryClient } from "@tanstack/react-query"
 import { clinicalUpload } from "./fixtures/clinical-upload.mjs"
@@ -8,13 +9,15 @@ registerHooks({ resolve(specifier, context, nextResolve) {
   return nextResolve(specifier.startsWith(".") && !/\.[cm]?[jt]s$/.test(specifier) ? `${specifier}.ts` : specifier, context)
 } })
 const { createCaseFileUploadQueue } = await import("../src/features/cases/lib/case-file-upload-queue.ts")
+const { observeUploadSelectionFeedback } = await import("../src/features/cases/lib/upload-selection-feedback.ts")
 const { ImageUploadSessionError, createImageUploadSession } = await import("../src/features/cases/services/image-upload-session-api.ts")
 const { ImageUploadTransportError } = await import("../src/features/cases/services/image-upload-transport.ts")
 const { ImageUploadCompleteError } = await import("../src/features/cases/services/image-upload-complete-api.ts")
 const { imageUploadPresentation } = await import("../src/features/cases/lib/image-upload-presentation.ts")
 const { casesQueryKeys: keys } = await import("../src/features/cases/hooks/cases-query-keys.ts")
 const fixture = clinicalUpload()
-const file = (index = 0) => new File(["png"], `synthetic-${index}.png`, { type: "image/png" })
+const file = (index = 0) => new File([index === 0 ? "png" : String(index).padStart(3, "0")], `synthetic-${index}.png`, { type: "image/png" })
+const hashContents = async file => createHash("sha256").update(Buffer.from(await file.arrayBuffer())).digest("hex")
 const deferred = () => { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no }); return { promise, resolve, reject } }
 function abortable(signal) {
   return new Promise((_, reject) => {
@@ -32,12 +35,200 @@ function until(queue, predicate) {
 function setup(overrides = {}) {
   const client = new QueryClient()
   const queue = createCaseFileUploadQueue(fixture.caseId, client, {
-    hash: async () => fixture.session.sha256,
+    hash: hashContents,
     createSession: async () => structuredClone(fixture.session), transport: async () => {},
     complete: async () => fixture.completed, cancel: async () => ({ phase: "cancelled" }), ...overrides,
   })
   return { client, queue, close: () => { queue.dispose(); client.clear() } }
 }
+
+test("identical bytes with different names are blocked in the same batch before creating or uploading a second session", async () => {
+  let creates = 0, sends = 0
+  const s = setup({ createSession: async () => { creates++; return structuredClone(fixture.session) },
+    transport: async () => { sends++ } })
+  try {
+    const original = file()
+    const copy = new File([original], "renamed.png", { type: original.type })
+    s.queue.addFiles([original, copy, original])
+    await until(s.queue, items => items.length === 3 && items[0].completed && items.slice(1).every(item => item.error === "DUPLICATE_FILE"))
+    assert.equal(creates, 1); assert.equal(sends, 1)
+    const duplicate = s.queue.getSnapshot()[1]
+    assert.equal(duplicate.identity, null); assert.equal(duplicate.sessionAttempt, null)
+    const presentation = imageUploadPresentation(duplicate)
+    assert.equal(presentation.label, "duplicateFile")
+    assert.equal(presentation.detail, undefined, "the longer explanation belongs in the toast")
+    assert.equal(presentation.canRetry, false); assert.equal(presentation.canRemove, true)
+    await s.queue.retry(duplicate.id)
+    await s.queue.removeFile(duplicate.id)
+    assert.equal(s.queue.getSnapshot().length, 2)
+    assert.equal(creates, 1); assert.equal(sends, 1)
+  } finally { s.close() }
+})
+
+test("selecting the same content later is blocked, while different content with the same filename is accepted", async () => {
+  let creates = 0
+  const s = setup({ createSession: async () => structuredClone(clinicalUpload(creates++).session),
+    complete: async identity => ({ ...fixture.completed, ...identity }) })
+  try {
+    s.queue.addFiles([file()])
+    await until(s.queue, items => items[0]?.completed)
+    s.queue.addFiles([new File(["png"], "another-name.png", { type: "image/png" }),
+      new File(["different"], file().name, { type: "image/png" })])
+    await until(s.queue, items => items[1]?.error === "DUPLICATE_FILE" && items[2]?.completed)
+    assert.equal(creates, 2)
+  } finally { s.close() }
+})
+
+test("duplicate feedback announces once and dismisses only the copy after four seconds, without timer resets or backend deletion", async t => {
+  let creates = 0, sends = 0, deletes = 0
+  const s = setup({ createSession: async () => structuredClone(clinicalUpload(creates++).session),
+    hash: async currentFile => { if (currentFile.name === file(2).name) throw new Error("HASH_FAILED"); return hashContents(currentFile) },
+    transport: async () => { sends++ },
+    cancel: async () => { deletes++; return { phase: "cancelled" } } })
+  let stop = () => {}
+  try {
+    const [, duplicate, invalid] = s.queue.addFiles([file(), file(), file(2)])
+    await until(s.queue, items => items[0]?.completed && items[1]?.error === "DUPLICATE_FILE" && items[2]?.phase === "error")
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+    const notices = []
+    stop = observeUploadSelectionFeedback(s.queue, item => notices.push(item.id))
+    assert.deepEqual(notices, [duplicate])
+    t.mock.timers.tick(1000)
+    s.queue.addFiles([file(1)])
+    await until(s.queue, items => items[3]?.completed)
+    assert.deepEqual(notices, [duplicate], "other uploads must not repeat the toast")
+    t.mock.timers.tick(2999)
+    assert.ok(s.queue.getSnapshot().some(item => item.id === duplicate))
+    t.mock.timers.tick(1)
+    assert.equal(s.queue.getSnapshot().some(item => item.id === duplicate), false)
+    assert.ok(s.queue.getSnapshot().some(item => item.id === invalid), "other errors must stay visible")
+    assert.equal(s.queue.getSnapshot().filter(item => item.completed).length, 2)
+    assert.equal(creates, 2); assert.equal(sends, 2); assert.equal(deletes, 0)
+  } finally { stop(); s.close() }
+})
+
+test("duplicate feedback clears pending dismissal on cleanup or manual removal", async t => {
+  const s = setup()
+  let stop = () => {}
+  try {
+    const [, duplicate] = s.queue.addFiles([file(), file()])
+    await until(s.queue, items => items[0]?.completed && items[1]?.error === "DUPLICATE_FILE")
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+    let notices = 0
+    stop = observeUploadSelectionFeedback(s.queue, () => { notices++ })
+    stop()
+    t.mock.timers.tick(5000)
+    assert.ok(s.queue.getSnapshot().some(item => item.id === duplicate))
+    stop = observeUploadSelectionFeedback(s.queue, () => { notices++ })
+    await s.queue.removeFile(duplicate)
+    t.mock.timers.tick(5000)
+    assert.equal(s.queue.getSnapshot().length, 1)
+    assert.ok(s.queue.getSnapshot()[0].completed)
+    assert.equal(notices, 2)
+  } finally { stop(); s.close() }
+})
+
+test("invalid selections have compact rows, one notice each and local dismissal without hashing or uploading", async t => {
+  let hashes = 0, creates = 0, sends = 0, cancels = 0
+  const s = setup({
+    hash: async () => { hashes++; return fixture.session.sha256 },
+    createSession: async () => { creates++; return structuredClone(fixture.session) },
+    transport: async () => { sends++ }, cancel: async () => { cancels++; return { phase: "cancelled" } },
+  })
+  let stop = () => {}
+  try {
+    const oversized = new File(["png"], "large.png", { type: "image/png" })
+    Object.defineProperty(oversized, "size", { value: 100 * 1024 * 1024 + 1 })
+    const invalidFiles = [
+      new File(["avif"], "scan.avif", { type: "image/avif" }),
+      new File([], "empty.png", { type: "image/png" }),
+      oversized,
+      new File(["png"], "invalid/name.png", { type: "image/png" }),
+      new File(["jpeg"], "scan.png", { type: "image/jpeg" }),
+    ]
+    s.queue.addFiles([file(), ...invalidFiles])
+    await until(s.queue, items => items[0]?.completed && items.slice(1).length === 5 && items.slice(1).every(item => item.phase === "error"))
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+    const notices = []
+    stop = observeUploadSelectionFeedback(s.queue, item => notices.push({ id: item.id, error: item.error }))
+    assert.deepEqual(notices.map(item => item.error), ["unsupported-type", "empty", "too-large", "invalid-name", "type-mismatch"])
+    for (const item of s.queue.getSnapshot().slice(1)) {
+      const presentation = imageUploadPresentation(item)
+      assert.equal(presentation.label, "uploadFailed")
+      assert.equal(presentation.detail, undefined, "the explanation is shown by Sonner")
+      assert.equal(presentation.canRetry, false, "an unchanged invalid file cannot succeed on retry")
+      assert.equal(presentation.canRemove, true)
+    }
+    t.mock.timers.tick(3999)
+    assert.equal(s.queue.getSnapshot().length, 6)
+    t.mock.timers.tick(1)
+    assert.equal(s.queue.getSnapshot().length, 1)
+    assert.ok(s.queue.getSnapshot()[0].completed)
+    assert.equal(notices.length, 5)
+    assert.equal(hashes, 1); assert.equal(creates, 1); assert.equal(sends, 1); assert.equal(cancels, 0)
+  } finally { stop(); s.close() }
+})
+
+test("a confirmed deletion releases the checksum for a new selection without blocked copies reserving it", async () => {
+  let creates = 0
+  const s = setup({ createSession: async () => { creates++; return structuredClone(fixture.session) } })
+  try {
+    s.queue.addFiles([file(), file()])
+    await until(s.queue, items => items[0]?.completed && items[1]?.error === "DUPLICATE_FILE")
+    s.queue.forgetDeletedImages([fixture.identity.imageId])
+    s.queue.addFiles([file()])
+    await until(s.queue, items => items.length === 2 && items[1]?.completed)
+    assert.equal(creates, 2)
+  } finally { s.close() }
+})
+
+test("an uncertain creation reserves its checksum but retrying that original uses its own idempotent request", async () => {
+  let creates = 0
+  const attempts = []
+  const s = setup({ createSession: async (_, input, key) => {
+    attempts.push({ input, key })
+    if (++creates === 1) throw new ImageUploadSessionError("NETWORK_ERROR", true)
+    return structuredClone(fixture.session)
+  } })
+  try {
+    const [original] = s.queue.addFiles([file(), file()])
+    await until(s.queue, items => items[0]?.error === "NETWORK_ERROR" && items[1]?.error === "DUPLICATE_FILE")
+    assert.equal(creates, 1)
+    await s.queue.retry(original)
+    await until(s.queue, items => items[0]?.completed)
+    assert.deepEqual(attempts[0], attempts[1])
+    assert.equal(creates, 2)
+  } finally { s.close() }
+})
+
+test("a definitive creation refusal does not reserve content that was never accepted", async () => {
+  let creates = 0
+  const s = setup({ createSession: async () => {
+    if (++creates === 1) throw new ImageUploadSessionError("IMAGE_UPLOAD_LIMIT_EXCEEDED", false)
+    return structuredClone(fixture.session)
+  } })
+  try {
+    s.queue.addFiles([file(), file()])
+    await until(s.queue, items => items[0]?.error === "IMAGE_UPLOAD_LIMIT_EXCEEDED" && items[1]?.completed)
+    assert.equal(creates, 2)
+  } finally { s.close() }
+})
+
+test("the same content is allowed in independent case queues", async () => {
+  const client = new QueryClient()
+  let creates = 0
+  const dependencies = { hash: hashContents,
+    createSession: async caseId => { creates++; return { ...structuredClone(fixture.session), caseId } },
+    transport: async () => {}, complete: async identity => ({ ...fixture.completed, ...identity }),
+    cancel: async () => ({ phase: "cancelled" }) }
+  const first = createCaseFileUploadQueue(fixture.caseId, client, dependencies)
+  const second = createCaseFileUploadQueue("00000000-0000-4000-8000-000000000065", client, dependencies)
+  try {
+    first.addFiles([file()]); second.addFiles([file()])
+    await Promise.all([until(first, items => items[0]?.completed), until(second, items => items[0]?.completed)])
+    assert.equal(creates, 2)
+  } finally { first.dispose(); second.dispose(); client.clear() }
+})
 
 test("persistent deletion receipts remove only the confirmed row, preserving other completed and active files", async () => {
   const second = clinicalUpload(1)
@@ -216,7 +407,8 @@ test("expired replay can recover IDs for cancellation only; the signed form neve
   const requests = []
   let sends = 0, cancels = 0
   const expired = { ...fixture.session, upload: { ...fixture.session.upload, expiresAt: "2020-01-01T00:00:00Z" } }
-  const s = setup({ createSession: (caseId, input, key, options) => createImageUploadSession(caseId, input, key, { ...options,
+  const s = setup({ hash: async () => fixture.session.sha256,
+    createSession: (caseId, input, key, options) => createImageUploadSession(caseId, input, key, { ...options,
     fetchImpl: async (_, init) => { requests.push(init); return Response.json(expired, { status: 201 }) } }),
     transport: async () => { sends++ }, cancel: async () => { cancels++; return { phase: "cancelled" } } })
   try {

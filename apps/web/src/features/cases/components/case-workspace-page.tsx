@@ -1,10 +1,12 @@
 "use client"
 
-import { ArrowLeft, FileImage, RefreshCw } from "lucide-react"
+import { ArrowLeft, FileImage, RefreshCw, Upload } from "lucide-react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
 import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 import { useAppTheme } from "@/components/shared/app-shell/app-theme-provider"
@@ -14,26 +16,35 @@ import { useCaseDetail } from "../hooks/use-case-detail"
 import { useCaseIngestions } from "../hooks/use-case-ingestions"
 import { canPreviewCaseImage, caseImageViewerMessage } from "../lib/case-image-state"
 import { CaseDetailRequestError } from "../services/case-detail-api"
+import { casesQueryKeys } from "../hooks/cases-query-keys"
+import { IDLE_CASE_DELETION, type CaseDeletionState } from "../lib/case-deletion"
+import { isCalibrationSaveLocked } from "../lib/calibration-save-state"
 import { CaseContextDetails } from "./case-context-details"
-import { CaseFilesImport } from "./case-files-import"
+import { CaseFilesImportDialog } from "./case-files-import-dialog"
 import { CaseImagesList } from "./case-images-list"
-import { CasePreviewPanel } from "./case-preview-panel"
+import { CaseImageWorkspace } from "./case-image-workspace"
 import { CaseWorkspacePanel, type WorkspacePanelSection } from "./case-workspace-panel"
 
 type CaseWorkspacePageProps = { caseId: string }
+
+const imageToolbarButtonClassName = "motion-interactive flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
 
 function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
   const t = useTranslations("cases.workspace")
   const tCaseStatus = useTranslations("cases.list.status")
   const router = useRouter()
+  const client = useQueryClient()
   const { requestNavigation } = useUnsavedChangesGuard()
   const { resolvedTheme, setPreference } = useAppTheme()
   const query = useCaseDetail(caseId)
   const ingestion = useCaseIngestions(caseId, Boolean(query.data))
+  const { data: deletion } = useQuery<CaseDeletionState>({ queryKey: casesQueryKeys.caseDeletion(caseId),
+    queryFn: async () => IDLE_CASE_DELETION, enabled: false, initialData: IDLE_CASE_DELETION, gcTime: Infinity })
+  const caseLocked = ["deleting", "checking", "uncertain", "deleted"].includes(deletion.phase)
   const { imagesQuery, jobActive } = ingestion
   const [activeSection, setActiveSection] = useState<WorkspacePanelSection>("case")
   const [uploadOpen, setUploadOpen] = useState(false)
-  const [uploadBusy, setUploadBusy] = useState(false)
+  const uploadButtonRef = useRef<HTMLButtonElement>(null)
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null)
   useEffect(() => {
     if (selectedImageId && imagesQuery.data && !imagesQuery.data.some(image => image.id === selectedImageId)) setSelectedImageId(null)
@@ -68,34 +79,52 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
     : `${imageMessage}.title` as const
   const viewerDescription = imagesQuery.isPending ? "imagesLoading.description" : imagesQuery.isError ? "imagesReadError.description"
     : `${imageMessage}.description` as const
-  const closeUpload = () => {
-    setUploadOpen(false)
-  }
   const openUpload = () => {
+    if (caseLocked) return
     setUploadOpen(true)
   }
-  const imageList = <>
-    <div className={uploadOpen ? "" : "hidden"}>
-      <CaseFilesImport caseId={caseId} caseTitle={caseDetail.title} ingestion={ingestion} mode="existing" onBusyChange={setUploadBusy} onClose={closeUpload} />
-    </div>
-    <div className={uploadOpen ? "hidden" : ""}>
+  const navigate = (action: () => void) => {
+    if (selectedImage && isCalibrationSaveLocked(client, caseId, selectedImage.id)) {
+      setActiveSection("calibration")
+      toast.message(t("calibration.remote.navigationBlocked"))
+      return
+    }
+    requestNavigation(action)
+  }
+  const imageList = (
+    <div className="flex flex-1 flex-col">
       {jobActive || ingestion.hasFailedJob || ingestion.hasReadError || ingestion.hasMissingJob || ingestion.hasUnscheduledJob || ingestion.needsImageRefresh ? (
         <div className="mb-3 space-y-2 rounded-[var(--radius-token-md)] border border-border bg-muted/40 px-3 py-3 text-sm" role="status">
           <p className="font-medium text-foreground">{t(ingestion.hasMissingJob ? "images.jobMissing"
             : ingestion.hasUnscheduledJob ? "images.jobNotScheduled" : ingestion.hasReadError ? "images.jobReadError"
               : ingestion.hasFailedJob ? "images.jobFailed" : jobActive ? "images.jobActive" : "images.jobReconciling")}</p>
-          {ingestion.hasMissingJob || ingestion.hasUnscheduledJob || ingestion.hasReadError || ingestion.hasFailedJob || ingestion.needsImageRefresh ? <Button disabled={ingestion.isRefreshing} onClick={() => void ingestion.refresh()} size="sm" type="button" variant="secondary">{t("images.refreshProcessing")}</Button> : null}
+          {ingestion.hasMissingJob || ingestion.hasUnscheduledJob || ingestion.hasReadError || ingestion.hasFailedJob ? <Button disabled={ingestion.isRefreshing} onClick={() => void ingestion.refresh()} size="sm" type="button" variant="secondary">{t("images.refreshProcessing")}</Button> : null}
         </div>
       ) : null}
-      <CaseImagesList canAdd ingestion={ingestion} query={imagesQuery} onAdd={openUpload} onSelect={setSelectedImageId} onDeleted={id => setSelectedImageId(current => current === id ? null : current)} selectedId={selectedImage?.id ?? null} />
+      <CaseImagesList canAdd={!caseLocked} ingestion={ingestion} query={imagesQuery} onAdd={openUpload} onSelect={id => { if (id !== selectedImage?.id) navigate(() => setSelectedImageId(id)) }} onDeleted={id => setSelectedImageId(current => current === id ? null : current)} selectedId={selectedImage?.id ?? null} />
     </div>
-  </>
+  )
+  const panelProps = {
+    activeSection, onSectionChange: setActiveSection,
+    caseContext: <CaseContextDetails caseSummary={caseDetail} deletionBlocked={jobActive || uploadOpen} />,
+    imageList,
+    imageActions: <div className="flex items-center gap-1">
+      <button aria-busy={imagesQuery.isFetching} aria-label={t("images.refresh")} className={imageToolbarButtonClassName}
+        disabled={imagesQuery.isFetching} onClick={() => void imagesQuery.refetch()} title={t("images.refresh")} type="button">
+        <RefreshCw aria-hidden="true" className={`size-4 ${imagesQuery.isFetching ? "animate-spin motion-reduce:animate-none" : ""}`} strokeWidth={1.5} />
+      </button>
+      <button aria-haspopup="dialog" aria-label={t("images.addRadiograph")} className={imageToolbarButtonClassName}
+        disabled={caseLocked} onClick={openUpload} ref={uploadButtonRef} title={t("images.addRadiograph")} type="button">
+        <Upload aria-hidden="true" className="size-4" strokeWidth={1.5} />
+      </button>
+    </div>,
+  }
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--case-editor-canvas)] text-foreground lg:h-dvh lg:min-h-0" data-case-workspace>
       <header className="grid shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-b border-border bg-card px-4 py-3 sm:px-5 lg:min-h-16 lg:grid-cols-[20rem_minmax(0,1fr)_auto] lg:px-5">
         <div className="col-start-1 row-start-1 flex min-w-0 items-center">
-          <Button className="shrink-0 !px-3" onClick={() => requestNavigation(() => router.push("/app/cases"))} size="sm" type="button" variant="ghost">
+          <Button className="shrink-0 !px-3" onClick={() => navigate(() => router.push("/app/cases"))} size="sm" type="button" variant="ghost">
             <ArrowLeft aria-hidden="true" />
             {t("back")}
           </Button>
@@ -121,22 +150,24 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
       </header>
 
       <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 px-3 py-3 sm:px-4 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-3 lg:px-5">
-        <CaseWorkspacePanel
-          activeSection={activeSection}
-          calibrationAvailable={false}
-          caseContext={<CaseContextDetails caseSummary={caseDetail} />}
-          imageList={imageList}
-          imageActions={<Button disabled={uploadBusy} onClick={() => uploadOpen ? closeUpload() : openUpload()} size="sm" type="button" variant="secondary">{t(uploadOpen ? "images.backToList" : "images.addRadiograph")}</Button>}
-          onSectionChange={setActiveSection}
-        />
-        {canShowPreview ? <CasePreviewPanel image={selectedImage} key={selectedImage.id} /> : <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">
+        {canShowPreview ? <CaseImageWorkspace {...panelProps} caseLocked={caseLocked} image={selectedImage} key={selectedImage.id} /> : <>
+          <CaseWorkspacePanel {...panelProps} activeSection={activeSection === "calibration" ? "images" : activeSection} calibrationAvailable={false} />
+          <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">
           <div className="max-w-xs">
             <FileImage aria-hidden="true" className="mx-auto size-9 text-white/40" />
             <h2 className="mt-4 text-base font-semibold">{t(viewerTitle)}</h2>
             <p className="mt-2 text-[13px] leading-5 text-white/60">{t(viewerDescription)}</p>
           </div>
-        </section>}
+        </section></>}
       </main>
+      <CaseFilesImportDialog
+        caseId={caseId}
+        caseTitle={caseDetail.title}
+        ingestion={ingestion}
+        onOpenChange={setUploadOpen}
+        onRestoreFocus={() => uploadButtonRef.current?.focus({ preventScroll: true })}
+        open={uploadOpen}
+      />
     </div>
   )
 }

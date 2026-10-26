@@ -2,7 +2,7 @@
 
 import { Crosshair, Hand, Maximize2, Minimize2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useEffect, useRef, useState, type PointerEvent } from "react"
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
 
 import { hitTestCircleMarker, moveCircleMarker, resizeCircleMarker, type CircleHit, type CircleMarker } from "../lib/circle-marker-interaction"
 import { mapClientPointToImage } from "../lib/image-coordinate-map"
@@ -29,24 +29,36 @@ type CaseImageViewerProps = {
   onMarkerChange: (marker: CalibrationMarker) => void
   onToolChange: (tool: ViewerTool) => void
   onImageError?: () => void
+  onImageLoad?: () => void
+  /** Remote plans use inclusive image edges, rather than legacy pixel centres. */
+  coordinateSpace?: "legacy" | "image-edges"
   readOnly?: boolean
   rendering: ReadyRendering
   tool: ViewerTool
 }
 
-function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, name, onMarkerChange, onToolChange, onImageError, readOnly = false, rendering, tool }: CaseImageViewerProps) {
+function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, name, onMarkerChange, onToolChange, onImageError, onImageLoad, coordinateSpace = "legacy", readOnly = false, rendering, tool }: CaseImageViewerProps) {
   const t = useTranslations("cases.workspace.viewer")
   const activeTool = readOnly ? "pan" : tool
+  const edgeInset = coordinateSpace === "image-edges" ? 0 : 1
   const viewportRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<ViewerDrag | null>(null)
+  const activePointerRef = useRef<number | null>(null)
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 })
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [draftMarker, setDraftMarker] = useState<CalibrationMarker | null>(null)
   const [hoveredMarkerPart, setHoveredMarkerPart] = useState<LineHit | CircleHit>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+
+  useEffect(() => {
+    dragRef.current = null
+    activePointerRef.current = null
+    setDraftMarker(null)
+    setHoveredMarkerPart(null)
+  }, [readOnly, tool, markerKind, rendering.widthPx, rendering.heightPx])
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -74,7 +86,7 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
 
   function pointFromPointer(event: PointerEvent<HTMLDivElement>): ImagePoint | null {
     const rect = imageRef.current?.getBoundingClientRect()
-    return rect ? mapClientPointToImage(event.clientX, event.clientY, rect, rendering.widthPx, rendering.heightPx) : null
+    return rect ? mapClientPointToImage(event.clientX, event.clientY, rect, rendering.widthPx, rendering.heightPx, edgeInset) : null
   }
 
   function markerPartFromPointer(event: PointerEvent<HTMLDivElement>): LineHit | CircleHit {
@@ -89,16 +101,17 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
 
   function markerFromDrag(drag: Exclude<ViewerDrag, { kind: "pan" }>, point: ImagePoint): CalibrationMarker {
     if (drag.kind === "resize-line") return resizeLineMarker(drag.marker, drag.endpoint, point)
-    if (drag.kind === "move-line") return moveLineMarker(drag.marker, drag.origin, point, rendering.widthPx, rendering.heightPx)
-    if (drag.kind === "resize-circle") return resizeCircleMarker(drag.marker, point, rendering.widthPx, rendering.heightPx)
-    if (drag.kind === "move-circle") return moveCircleMarker(drag.marker, drag.origin, point, rendering.widthPx, rendering.heightPx)
+    if (drag.kind === "move-line") return moveLineMarker(drag.marker, drag.origin, point, rendering.widthPx, rendering.heightPx, edgeInset)
+    if (drag.kind === "resize-circle") return resizeCircleMarker(drag.marker, point, rendering.widthPx, rendering.heightPx, edgeInset)
+    if (drag.kind === "move-circle") return moveCircleMarker(drag.marker, drag.origin, point, rendering.widthPx, rendering.heightPx, edgeInset)
     return drag.markerKind === "line"
       ? { kind: "line", start: drag.start, end: point }
-      : resizeCircleMarker({ kind: "circle", center: drag.start, radiusPx: 0 }, point, rendering.widthPx, rendering.heightPx)
+      : resizeCircleMarker({ kind: "circle", center: drag.start, radiusPx: 0, ...(coordinateSpace === "image-edges" ? { edge: drag.start } : {}) }, point, rendering.widthPx, rendering.heightPx, edgeInset)
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0) return
+    if (event.button !== 0 || event.isPrimary === false || dragRef.current) return
+    event.currentTarget.focus({ preventScroll: true })
     if (activeTool === "pan") {
       dragRef.current = { kind: "pan", x: pan.x, y: pan.y, startX: event.clientX, startY: event.clientY }
     } else {
@@ -119,6 +132,7 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
         dragRef.current = { kind: "create", markerKind, start }
       }
     }
+    activePointerRef.current = event.pointerId
     event.currentTarget.setPointerCapture(event.pointerId)
     event.preventDefault()
   }
@@ -129,6 +143,8 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
       setHoveredMarkerPart(markerPartFromPointer(event))
       return
     }
+    if (activePointerRef.current !== event.pointerId) return
+    if ((readOnly || activeTool !== "mark") && drag.kind !== "pan") { handlePointerCancel(event); return }
     if (drag.kind === "pan") {
       setPan({ x: drag.x + event.clientX - drag.startX, y: drag.y + event.clientY - drag.startY })
       return
@@ -140,8 +156,8 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
 
   function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current
-    if (!drag) return
-    if (drag.kind !== "pan") {
+    if (!drag || activePointerRef.current !== event.pointerId) return
+    if (drag.kind !== "pan" && !readOnly && activeTool === "mark") {
       const end = pointFromPointer(event)
       if (end) {
         const next = markerFromDrag(drag, end)
@@ -151,13 +167,16 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
       }
     }
     dragRef.current = null
+    activePointerRef.current = null
     setDraftMarker(null)
     setHoveredMarkerPart(markerPartFromPointer(event))
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
   }
 
   function handlePointerCancel(event: PointerEvent<HTMLDivElement>) {
+    if (activePointerRef.current !== event.pointerId) return
     dragRef.current = null
+    activePointerRef.current = null
     setDraftMarker(null)
     setHoveredMarkerPart(null)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
@@ -166,6 +185,35 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
   function resetView() {
     setZoom(1)
     setPan({ x: 0, y: 0 })
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") { dragRef.current = null; activePointerRef.current = null; setDraftMarker(null); onToolChange("pan"); return }
+    if (readOnly || activeTool !== "mark" || !marker || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return
+    event.preventDefault()
+    const step = event.shiftKey ? 10 : 1
+    const delta = { x: event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0,
+      y: event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0 }
+    const w = rendering.widthPx, h = rendering.heightPx
+    if (event.altKey) {
+      let next: CalibrationMarker
+      if (marker.kind === "line") {
+        next = resizeLineMarker(marker, "end", {
+          x: Math.max(0, Math.min(w - edgeInset, marker.end.x + delta.x)), y: Math.max(0, Math.min(h - edgeInset, marker.end.y + delta.y)),
+        })
+      } else {
+        const radius = Math.max(1, marker.radiusPx + delta.x - delta.y)
+        const edge = marker.edge && marker.radiusPx > 0
+          ? { x: marker.center.x + (marker.edge.x - marker.center.x) / marker.radiusPx * radius,
+            y: marker.center.y + (marker.edge.y - marker.center.y) / marker.radiusPx * radius }
+          : { x: marker.center.x + radius, y: marker.center.y }
+        next = resizeCircleMarker(marker, edge, w, h, edgeInset)
+      }
+      if (next.kind === "circle" ? next.radiusPx >= 1 : Math.hypot(next.end.x - next.start.x, next.end.y - next.start.y) >= 2) onMarkerChange(next)
+    } else {
+      onMarkerChange(marker.kind === "line" ? moveLineMarker(marker, { x: 0, y: 0 }, delta, w, h, edgeInset)
+        : moveCircleMarker(marker, { x: 0, y: 0 }, delta, w, h, edgeInset))
+    }
   }
 
   async function toggleFullscreen() {
@@ -190,13 +238,19 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
         </div>
       </div>
       <div
-        className={`relative min-h-[26rem] flex-1 overflow-hidden bg-[var(--case-viewer-canvas)] touch-none lg:min-h-0 ${activeTool === "pan" ? "cursor-grab active:cursor-grabbing" : hoveredMarkerPart && hoveredMarkerPart !== "body" ? "cursor-grab active:cursor-grabbing" : "cursor-crosshair"}`}
+        aria-label={t(readOnly ? "region" : "keyboardHint")}
+        className={`relative min-h-[26rem] flex-1 overflow-hidden bg-[var(--case-viewer-canvas)] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/50 touch-none lg:min-h-0 ${activeTool === "pan" ? "cursor-grab active:cursor-grabbing" : hoveredMarkerPart && hoveredMarkerPart !== "body" ? "cursor-grab active:cursor-grabbing" : "cursor-crosshair"}`}
+        data-calibration-viewport
+        onKeyDown={handleKeyDown}
+        onLostPointerCapture={handlePointerCancel}
         onPointerCancel={handlePointerCancel}
         onPointerDown={handlePointerDown}
         onPointerLeave={() => { if (!dragRef.current) setHoveredMarkerPart(null) }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         ref={viewportRef}
+        role="group"
+        tabIndex={0}
       >
         {displayWidth > 0 ? (
           <div
@@ -204,9 +258,9 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
             ref={imageRef}
             style={{ width: displayWidth, height: displayHeight, transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
           >
-            <img alt={t("imageAlt", { name })} className="size-full object-fill select-none" draggable={false} onError={onImageError} referrerPolicy="no-referrer" src={rendering.url} style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)${inverted ? " invert(1)" : ""}` }} />
+            <img alt={t("imageAlt", { name })} className="size-full object-fill select-none" draggable={false} onError={onImageError} onLoad={onImageLoad} referrerPolicy="no-referrer" src={rendering.url} style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)${inverted ? " invert(1)" : ""}` }} />
             <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full overflow-visible" viewBox={`0 0 ${rendering.widthPx} ${rendering.heightPx}`}>
-              <MarkerShape handleRadius={fitScale * zoom > 0 ? 4 / (fitScale * zoom) : 4} marker={readOnly ? null : draftMarker ?? marker} />
+              <MarkerShape editable={!readOnly} handleRadius={fitScale * zoom > 0 ? 4 / (fitScale * zoom) : 4} marker={readOnly ? marker : draftMarker ?? marker} />
             </svg>
           </div>
         ) : null}
@@ -216,13 +270,13 @@ function CaseImageViewer({ brightness, contrast, inverted, marker, markerKind, n
   )
 }
 
-function MarkerShape({ handleRadius, marker }: { handleRadius: number; marker: CalibrationMarker | null }) {
+function MarkerShape({ editable, handleRadius, marker }: { editable: boolean; handleRadius: number; marker: CalibrationMarker | null }) {
   if (!marker) return null
   return marker.kind === "line" ? (
     <g fill="none" stroke="var(--case-editor-radio-active)" strokeWidth="2" vectorEffect="non-scaling-stroke">
-      <line x1={marker.start.x} x2={marker.end.x} y1={marker.start.y} y2={marker.end.y} />
-      <circle cx={marker.start.x} cy={marker.start.y} fill="var(--case-editor-radio-active)" r={handleRadius} />
-      <circle cx={marker.end.x} cy={marker.end.y} fill="var(--case-editor-radio-active)" r={handleRadius} />
+      <line vectorEffect="non-scaling-stroke" x1={marker.start.x} x2={marker.end.x} y1={marker.start.y} y2={marker.end.y} />
+      {editable ? <><circle cx={marker.start.x} cy={marker.start.y} fill="var(--case-editor-radio-active)" r={handleRadius} vectorEffect="non-scaling-stroke" />
+      <circle cx={marker.end.x} cy={marker.end.y} fill="var(--case-editor-radio-active)" r={handleRadius} vectorEffect="non-scaling-stroke" /></> : null}
     </g>
   ) : <circle cx={marker.center.x} cy={marker.center.y} fill="none" r={marker.radiusPx} stroke="var(--case-editor-radio-active)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
 }

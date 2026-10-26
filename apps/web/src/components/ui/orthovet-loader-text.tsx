@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 import styles from "./orthovet-loader-text.module.css"
+import { ShimmerText } from "./shimmer-text"
 
 export interface OrthoVetLoaderTextProps {
   children: ReactNode
@@ -26,8 +27,8 @@ export function OrthoVetLoaderText({
   const label = loading ? normalizeLoadingLabel(children) : children
 
   return (
-    <span className={cn(styles.root, loading && styles.loading, className)}>
-      <span className={styles.label}>{label}</span>
+    <span className={cn(styles.root, className)}>
+      <ShimmerText active={loading} className={styles.label}>{label}</ShimmerText>
       {loading ? <OrthoVetLoadingDots /> : null}
     </span>
   )

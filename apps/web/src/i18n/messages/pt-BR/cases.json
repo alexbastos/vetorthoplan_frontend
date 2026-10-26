@@ -17,6 +17,38 @@
     "changedDescription": "A organização ativa foi alterada em outra aba. Atualize o acesso para continuar no contexto correto.",
     "retry": "Atualizar acesso"
   },
+  "caseDeletion": {
+    "action": "Excluir caso",
+    "title": "Excluir este caso?",
+    "description": "O caso “{title}” e todas as imagens, prévias e planejamentos associados serão excluídos permanentemente. Essa ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "deleting": "Excluindo...",
+    "checking": "Verificando...",
+    "check": "Verificar exclusão",
+    "success": "Caso excluído",
+    "messages": {
+      "blocked": "Conclua os envios, processamentos ou alterações em andamento antes de excluir o caso.",
+      "accessDenied": "Você não tem acesso para excluir este caso. Atualize sua sessão e tente novamente.",
+      "unavailable": "Não foi possível verificar o caso. Tente novamente em instantes.",
+      "unconfirmed": "Não foi possível confirmar a exclusão. Verifique o resultado antes de tentar novamente.",
+      "stillPresent": "O caso ainda existe. Você pode tentar excluí-lo novamente."
+    }
+  },
+  "imageRename": {
+    "action": "Renomear imagem",
+    "namedAction": "Renomear {name}",
+    "title": "Renomear imagem",
+    "description": "Altere o nome de exibição da imagem. O arquivo original e sua extensão serão preservados.",
+    "name": "Nome da imagem",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "invalidName": "Informe um nome de 1 a 255 caracteres, sem caminhos ou caracteres de controle.",
+    "messages": {
+      "blocked": "Aguarde a operação em andamento antes de renomear a imagem.",
+      "saveFailed": "Não foi possível salvar o nome da imagem. Tente novamente."
+    }
+  },
   "imageDeletion": {
     "action": "Excluir imagem",
     "namedAction": "Excluir {name}",
@@ -84,7 +116,11 @@
     },
     "search": {
       "label": "Buscar casos",
-      "placeholder": "Buscar por caso, animal, espécie ou raça"
+      "placeholder": "Buscar casos…",
+      "description": "Busque pelo nome do caso, animal, espécie ou raça.",
+      "open": "Abrir busca de casos",
+      "close": "Fechar busca",
+      "clear": "Limpar e fechar busca"
     },
     "loading": "Carregando casos...",
     "results": "{count, plural, one {# caso exibido} other {# casos exibidos}}",
@@ -298,10 +334,14 @@
       "uploadFile": "Enviar radiografia",
       "uploadingFile": "Enviando radiografia...",
       "uploadFailed": "Envio não concluído",
+      "duplicateFile": "Arquivo duplicado",
+      "loading": "Carregando...",
+      "finishing": "Concluindo...",
       "uploadExpired": "Envio expirado",
       "prepareNewUpload": "Preparar novo envio",
       "sessionExpired": "A assinatura expirou. Para continuar com este arquivo, crie uma nova sessão.",
       "sessionErrors": {
+        "DUPLICATE_FILE": "Este arquivo já foi adicionado a este caso. A cópia não será enviada.",
         "one-file": "Selecione apenas uma radiografia por vez.",
         "empty": "O arquivo selecionado está vazio.",
         "too-large": "O arquivo deve ter no máximo 100 MiB.",
@@ -462,7 +502,8 @@
         "CANCELLED": "Envio cancelado"
       },
       "count": "{count, plural, one {# imagem} other {# imagens}}",
-      "empty": "Nenhuma radiografia neste caso. Adicione um DICOM, JPEG ou PNG para começar.",
+      "emptyTitle": "Nenhuma radiografia ainda",
+      "emptyDescription": "Adicione um DICOM, PNG ou JPEG para começar.",
       "pendingIntegration": "A consulta de radiografias ainda não está disponível nesta área.",
       "uploadedOn": "Enviada em {date}",
       "uploadDateUnavailable": "Data de envio indisponível",
@@ -512,7 +553,7 @@
     "imagesUnavailable": { "title": "Radiografias indisponíveis", "description": "Você pode consultar os dados do caso. A visualização das radiografias ficará disponível em breve." },
     "upload": { "add": "Adicionar arquivos", "invalid": "Selecione DICOM, JPEG, PNG, PDF ou MP4 de até 50 MB por arquivo.", "success": "Arquivos adicionados ao caso", "unavailable": "O envio estará disponível após a integração com o servidor.", "error": "Não foi possível adicionar os arquivos." },
     "imageState": { "processingTitle": "Preparando radiografia", "processingDescription": "A imagem está sendo processada. A calibração ficará disponível quando a visualização estiver pronta.", "unavailableTitle": "Não foi possível visualizar esta radiografia", "dicomDescription": "O visualizador DICOM ainda não está disponível nesta versão. O arquivo original permanece associado ao caso.", "invalidDescription": "Este arquivo não pôde ser decodificado como imagem. Confira o arquivo e tente enviar novamente." },
-    "viewer": { "region": "Visualizador da radiografia", "tools": "Ferramentas de visualização", "mark": "Marcar referência", "pan": "Mover imagem", "zoomOut": "Reduzir zoom", "zoomIn": "Aumentar zoom", "fit": "Ajustar à tela", "fullscreen": "Tela cheia", "exitFullscreen": "Sair da tela cheia", "imageAlt": "Radiografia {name}", "panHint": "Arraste para mover a imagem", "markHint": "Arraste sobre o marcador para definir a referência", "lineEditHint": "Arraste as pontas para ajustar ou a linha para mover", "circleEditHint": "Arraste a borda para ajustar ou o interior para mover" },
+    "viewer": { "keyboardHint": "Referência de calibração. Setas movem; Alt e setas ajustam o tamanho; Shift amplia o passo.", "region": "Visualizador da radiografia", "tools": "Ferramentas de visualização", "mark": "Marcar referência", "pan": "Mover imagem", "zoomOut": "Reduzir zoom", "zoomIn": "Aumentar zoom", "fit": "Ajustar à tela", "fullscreen": "Tela cheia", "exitFullscreen": "Sair da tela cheia", "imageAlt": "Radiografia {name}", "panHint": "Arraste para mover a imagem", "markHint": "Arraste sobre o marcador para definir a referência", "lineEditHint": "Arraste as pontas para ajustar ou a linha para mover", "circleEditHint": "Arraste a borda para ajustar ou o interior para mover" },
     "calibration": {
       "step": "Etapa 03 · Imagem",
         "title": "Calibrar imagem", "backToImage": "Voltar às opções da imagem",
@@ -527,6 +568,22 @@
         "referenceTitle": "Tamanho real", "referenceLabel": "Outra medida", "referencePlaceholder": "Ex.: 2,5", "referenceHelp": "Informe o tamanho real da linha ou o diâmetro do círculo em milímetros.", "invalidScale": "Revise a marcação e a medida informada.",
       "scaleTitle": "Escala da imagem", "scalePreview": "Prévia calculada", "savedScale": "Escala salva", "pendingScale": "Marque e informe o tamanho para calcular", "rowScale": "Vertical: {value} mm/px", "dicomEvidence": "Este DICOM contém dados de escala que exigem revisão antes de uso clínico.",
       "save": "Validar calibração", "update": "Atualizar calibração", "reset": "Descartar ajustes", "unsavedMarker": "Marcação alterada", "saved": "Calibração salva para esta radiografia", "conflict": "A calibração foi alterada em outra sessão. Reabra o caso antes de salvar.", "unavailable": "A gravação estará disponível após a integração com o servidor.", "saveError": "Não foi possível salvar a calibração.",
+      "remote": {
+        "loading": "Carregando calibração...", "length": "Comprimento real", "diameter": "Diâmetro real", "unit": "Unidade de medida",
+        "limit": "Use uma medida maior que zero, até 1.000 cm (10.000 mm).", "help": "Como ajustar",
+        "about": "Sobre a calibração", "sizeHelpLabel": "Sobre a medida real", "sizeHelp": "Selecione na régua o comprimento ou diâmetro conhecido da referência. Para uma medida exata ou fora de 0 a 10 cm, use Outro valor e escolha mm ou cm.",
+        "place": "Posicionar referência", "reposition": "Reposicionar referência", "save": "Salvar calibração",
+        "keyboard": "No visualizador: setas movem; Alt + setas ajustam o tamanho; Shift amplia o passo. Esc volta a mover a imagem.",
+        "saving": "Salvando calibração...", "checking": "Verificando calibração...", "check": "Verificar salvamento", "retry": "Tentar novamente",
+        "readError": "Não foi possível carregar a calibração. Tente novamente.",
+        "reviewBlocked": "A revisão clínica deste plano impede essa alteração. Seu ajuste foi mantido.",
+        "conflict": "O plano foi alterado em outra sessão. Seu ajuste foi mantido. Descarte os ajustes para carregar a versão salva antes de tentar novamente.",
+        "loadSaved": "Descartar ajustes e carregar versão salva",
+        "uncertain": "Ainda não foi possível confirmar o salvamento. Verifique antes de continuar; seu ajuste foi mantido.",
+        "navigationBlocked": "Aguarde ou verifique o salvamento da calibração antes de continuar.",
+        "dimensions": "A calibração precisa das dimensões originais desta imagem.",
+        "anisotropy": "A calibração ainda não está disponível para este DICOM: seus pixels têm proporções diferentes."
+      },
       "displayTitle": "Visualização", "displayHelp": "Brilho e contraste alteram apenas a exibição, sem modificar a escala.", "brightness": "Brilho", "contrast": "Contraste"
     }
   }

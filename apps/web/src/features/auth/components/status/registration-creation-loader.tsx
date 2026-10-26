@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl"
 
 import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
 import styles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
+import { ShimmerText } from "@/components/ui/shimmer-text"
 
 import type { RegistrationConfirmationState } from "../shell/auth-transition-provider"
 
@@ -21,11 +22,11 @@ function RegistrationCreationLoader({ state }: { state: RegistrationConfirmation
         <LoginHandoffPawLoader settle={state === "exiting"} size={104} />
         <div className={styles.status}>
           <p className={styles.message} data-auth-registration-status-creating>
-            <span className={styles.statusLabel}>{t("created")}</span>
+            <ShimmerText className={styles.statusLabel}>{t("created")}</ShimmerText>
             <StatusDots />
           </p>
           <p className={`${styles.message} opacity-0`} data-auth-registration-status-sent>
-            <span className={styles.statusLabel}>{t("confirmationSent")}</span>
+            <ShimmerText className={styles.statusLabel}>{t("confirmationSent")}</ShimmerText>
             <StatusDots />
           </p>
         </div>

@@ -84,6 +84,14 @@ assert(
 )
 
 const schemas = document.components.schemas
+assert(
+  document.paths["/api/v1/cases/{case_id}/image-uploads"]?.post?.responses?.[409]?.description?.toLowerCase().includes("duplicado"),
+  "Upload session creation must document duplicate conflicts",
+)
+assert(
+  schemas.ErrorResponse.properties?.details?.description?.includes("IMAGE_UPLOAD_DUPLICATE"),
+  "Clinical errors must document IMAGE_UPLOAD_DUPLICATE",
+)
 assert(schemas.CreateCaseRequest.required?.includes("sex"), "Case creation must require sex")
 assert(
   schemas.CreateCaseRequest.properties?.sex?.$ref === "#/components/schemas/BiologicalSex",

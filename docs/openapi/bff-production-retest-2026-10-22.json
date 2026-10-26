@@ -1,0 +1,356 @@
+{
+  "origin": "https://bwtp7pm5pc.execute-api.us-east-1.amazonaws.com",
+  "checkedAtUtc": "2026-10-22T22:18:29.068Z",
+  "credentialsUsed": false,
+  "authenticatedClinicalFlowVerified": false,
+  "results": [
+    {
+      "name": "published-version",
+      "path": "/api/version",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        200
+      ],
+      "status": 404,
+      "ok": false,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "responseContentType": "text/html; charset=utf-8",
+      "gatewayRequestId": "FqrEVg22oAMEYzg=",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "clinical-live",
+      "path": "/health/live",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        200
+      ],
+      "status": 200,
+      "ok": true,
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVgk5oAMEMWQ=",
+      "gatewayUnavailable": false,
+      "health": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "clinical-ready",
+      "path": "/health/ready",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        200
+      ],
+      "status": 200,
+      "ok": true,
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVhzQIAMEMEw=",
+      "gatewayUnavailable": false,
+      "health": {
+        "status": "ready",
+        "database": "ok"
+      }
+    },
+    {
+      "name": "authentication-health",
+      "path": "/health/authentication_api",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        200
+      ],
+      "status": 200,
+      "ok": true,
+      "responseContentType": "application/json; charset=utf-8",
+      "gatewayRequestId": "FqrEViHsIAMEM-A=",
+      "gatewayUnavailable": false,
+      "health": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "clinical-contract",
+      "path": "/openapi.json",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        200
+      ],
+      "status": 200,
+      "ok": true,
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVg47oAMEMJw=",
+      "gatewayUnavailable": false,
+      "apiVersion": "0.9.0",
+      "operationCount": 17,
+      "organizationTokenDocumented": false
+    },
+    {
+      "name": "authentication-contract",
+      "path": "/docs/authentication_api/json",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        200
+      ],
+      "status": 200,
+      "ok": true,
+      "responseContentType": "application/json; charset=utf-8",
+      "gatewayRequestId": "FqrEVgdwIAMEMBA=",
+      "gatewayUnavailable": false,
+      "apiVersion": "1.0.0",
+      "operationCount": 65,
+      "organizationTokenDocumented": true
+    },
+    {
+      "name": "clinical-requires-auth",
+      "path": "/api/v1/cases",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401,
+        403
+      ],
+      "status": 401,
+      "ok": true,
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVgPvoAMEYuQ=",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "organizations-require-auth",
+      "path": "/authentication_api/api/v1/organizations",
+      "method": "GET",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401,
+        403
+      ],
+      "status": 401,
+      "ok": true,
+      "responseContentType": "application/json; charset=utf-8",
+      "gatewayRequestId": "FqrEVgmVIAMEMig=",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "empty-json-reaches-auth",
+      "path": "/api/auth/session",
+      "method": "POST",
+      "sentContentType": "application/json",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401
+      ],
+      "status": 401,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVgK6IAMEYKg=",
+      "authenticated": false,
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "empty-json-charset-reaches-auth",
+      "path": "/api/auth/session",
+      "method": "POST",
+      "sentContentType": "application/json; charset=utf-8",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401
+      ],
+      "status": 401,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVjvMIAMEMtw=",
+      "authenticated": false,
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "headerless-control",
+      "path": "/api/auth/session",
+      "method": "POST",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": true,
+      "expectedStatuses": [
+        401,
+        415
+      ],
+      "status": 415,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVj06IAMEYRQ=",
+      "errorCode": "REQUEST_NOT_ALLOWED",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "empty-json-reaches-auth",
+      "path": "/api/cases/context",
+      "method": "POST",
+      "sentContentType": "application/json",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401
+      ],
+      "status": 401,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVh04oAMEYRA=",
+      "errorCode": "SESSION_UNAVAILABLE",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "empty-json-charset-reaches-auth",
+      "path": "/api/cases/context",
+      "method": "POST",
+      "sentContentType": "application/json; charset=utf-8",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401
+      ],
+      "status": 401,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEViaMIAMEY_g=",
+      "errorCode": "SESSION_UNAVAILABLE",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "headerless-control",
+      "path": "/api/cases/context",
+      "method": "POST",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": true,
+      "expectedStatuses": [
+        401,
+        415
+      ],
+      "status": 415,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVjzlIAMEM9g=",
+      "errorCode": "REQUEST_NOT_ALLOWED",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "empty-json-reaches-auth",
+      "path": "/api/settings/profile",
+      "method": "POST",
+      "sentContentType": "application/json",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401
+      ],
+      "status": 401,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVgqDIAMEMNw=",
+      "errorCode": "SESSION_UNAVAILABLE",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "empty-json-charset-reaches-auth",
+      "path": "/api/settings/profile",
+      "method": "POST",
+      "sentContentType": "application/json; charset=utf-8",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        401
+      ],
+      "status": 401,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVjVloAMEYZg=",
+      "errorCode": "SESSION_UNAVAILABLE",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "headerless-control",
+      "path": "/api/settings/profile",
+      "method": "POST",
+      "sentContentType": null,
+      "sentBodyBytes": 0,
+      "control": true,
+      "expectedStatuses": [
+        401,
+        415
+      ],
+      "status": 415,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVjY7IAMEY8w=",
+      "errorCode": "REQUEST_NOT_ALLOWED",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "nonempty-context-rejected",
+      "path": "/api/cases/context",
+      "method": "POST",
+      "sentContentType": "application/json",
+      "sentBodyBytes": 2,
+      "control": false,
+      "expectedStatuses": [
+        400
+      ],
+      "status": 400,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVjeYIAMEYJA=",
+      "errorCode": "REQUEST_NOT_ALLOWED",
+      "gatewayUnavailable": false
+    },
+    {
+      "name": "cross-origin-context-rejected",
+      "path": "/api/cases/context",
+      "method": "POST",
+      "sentContentType": "application/json",
+      "sentBodyBytes": 0,
+      "control": false,
+      "expectedStatuses": [
+        403
+      ],
+      "status": 403,
+      "ok": true,
+      "cacheControl": "no-store",
+      "responseContentType": "application/json",
+      "gatewayRequestId": "FqrEVgUIoAMEMtA=",
+      "errorCode": "REQUEST_NOT_ALLOWED",
+      "gatewayUnavailable": false
+    }
+  ]
+}

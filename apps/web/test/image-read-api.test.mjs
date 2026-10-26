@@ -15,7 +15,7 @@ const imageId = "00000000-0000-4000-8000-000000000125"
 const uploadId = "00000000-0000-4000-8000-000000000124"
 const jobId = "00000000-0000-4000-8000-000000000126"
 const completed = { caseId, imageId, uploadId, jobId }
-const image = { id: imageId, uploadId, jobId, caseId, originalFilename: "synthetic.png", kind: "PNG",
+const image = { id: imageId, uploadId, jobId, caseId, originalFilename: "synthetic.png", displayName: null, kind: "PNG",
   mediaType: "image/png", detectedMediaType: "image/png", sizeBytes: 3,
   status: "READY", widthPx: 2, heightPx: 2, rejectionCode: null,
   createdAt: "2026-10-18T12:00:00Z", completedAt: "2026-10-18T12:00:01Z",

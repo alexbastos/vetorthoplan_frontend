@@ -8,6 +8,8 @@ type FileUploadStatus = {
   label: string
   state: "waiting" | "uploading" | "processing" | "success" | "error"
   progress?: number
+  /** Actual bytes sent, separate from overall progress through upload stages. */
+  transferProgress?: number
   detail?: string
   canRemove: boolean
   canRetry: boolean
@@ -23,6 +25,7 @@ type FileUploadCardLabels = {
   dropTitle: string
   formats: string
   title: string
+  finishing: string
   deleteUnavailable: string
   cancelFile: (fileName: string) => string
   removeFile: (fileName: string) => string

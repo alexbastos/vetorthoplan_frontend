@@ -80,6 +80,15 @@ function CasesPageContent() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
   }
 
+  function handleSearchChange(value: string) {
+    setSearchInput(value)
+    if (value !== "" || !searchParams.has("search")) return
+    const nextParams = new URLSearchParams(searchParams.toString())
+    nextParams.delete("search")
+    const query = nextParams.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }
+
   const globalEmpty = !isLoading && !loadError && cases.length === 0 && !status && !urlSearch &&
     Object.values(statusCounts ?? {}).every((count) => count === 0)
 
@@ -120,7 +129,7 @@ function CasesPageContent() {
           loadMoreError={loadMoreError}
           onFilterChange={handleFilterChange}
           onLoadMore={() => void loadMore()}
-          onSearchChange={setSearchInput}
+          onSearchChange={handleSearchChange}
           search={searchInput}
         />
       )}

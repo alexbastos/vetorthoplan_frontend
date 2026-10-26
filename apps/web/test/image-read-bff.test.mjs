@@ -27,6 +27,17 @@ const image = {
   preview_available: true, preview_width_px: 2, preview_height_px: 2,
   pixel_spacing_mm: null, imager_pixel_spacing_mm: null, image_orientation_patient: null,
 }
+
+test("display names cross the BFF and browser while the original filename and private metadata stay protected", async () => {
+  const result = await listCaseImagesForBff(caseId, async () => ({ status: 200, data: { items: [{ ...image, display_name: "Lateral direita.png" }] } }))
+  assert.equal(result.status, 200)
+  assert.equal(result.body.items[0].displayName, "Lateral direita.png")
+  assert.equal(result.body.items[0].originalFilename, image.original_filename)
+  assert.equal("sha256" in result.body.items[0], false)
+  assert.equal("metadata" in result.body.items[0], false)
+  const images = await fetchCaseImages(caseId, { fetchImpl: async () => Response.json(result.body) })
+  assert.equal(images[0].displayName, "Lateral direita.png")
+})
 const job = {
   id: jobId, case_id: caseId, image_id: imageId, upload_id: uploadId,
   status: "SUCCEEDED", attempts: 1, error_code: null,

@@ -133,7 +133,7 @@ como conteúdo aprovado quando a lista devolve `READY`. Para uma imagem `READY`
 com `preview_available`, o quadro consulta a prévia temporária pelo BFF e exibe
 o PNG em um viewer de leitura com zoom, pan e tela cheia. A assinatura é renovada
 antes de vencer e não é persistida. As ferramentas de marcação e calibração
-aguardam alinhamentos de geometria; renomear e duplicar dependem de contrato.
+aguardam alinhamentos de geometria; duplicar depende de contrato.
 Os campos de geometria DICOM e `job_id` agora chegam ao navegador; valores
 nulos são preservados e não viram escala clínica. `FAILED` e `CANCELLED` são
 estados terminais sem prévia, sem bloquear a leitura das demais imagens.
@@ -173,6 +173,14 @@ não garante entrega dessas requisições. A URL não é revogável, e uploads
 tardios dependem da limpeza do backend após expiração. A lista persistida
 também permite cancelar `PENDING_UPLOAD` após refresh.
 
+A fila bloqueia conteúdo repetido localmente por SHA-256. Após recarregar ou
+em outra aba, a criação da sessão pode retornar `409 IMAGE_UPLOAD_DUPLICATE`;
+o BFF preserva esse código sem expor detalhes. A fila aplica a mesma mensagem
+curta, aviso Sonner e remoção local após quatro segundos, tanto na criação
+quanto no modal do painel. Não envia os bytes nem cancela/exclui o upload ou a
+imagem existentes. Conflitos de idempotência e limite de uploads mantêm seu
+tratamento próprio; a proteção concorrente definitiva é responsabilidade da API.
+
 Exclusão persistida usa `DELETE /api/cases/{caseId}/images/{imageId}`. O BFF
 valida a imagem e seu caso antes de encaminhar a operação. Quadro e fila de
 arquivos confirmados pedem confirmação; seleção local e cancelamento de sessão
@@ -184,6 +192,34 @@ a imagem afetada. Recibos em memória impedem que uma consulta antiga restaure o
 conteúdo; refresh consulta novamente o backend. Isso não comprova limpeza física
 de original/prévia/plano/job, reservada ao teste integrado.
 As rotas BFF não expõem tokens ao navegador.
+
+Renomear usa `PATCH /api/cases/{caseId}/images/{imageId}`, após validação do
+vínculo com o caso. O modal altera `display_name`, preserva a extensão e
+atualiza o nome exibido na lista e no viewer sem substituir o arquivo.
+Excluir o caso usa `DELETE /api/cases/{caseId}` pelo botão no rodapé dos
+detalhes, com confirmação. Bloqueios 409 preservam os dados; falhas ambíguas
+exigem consulta do caso antes de qualquer nova tentativa. A exclusão confirmada
+limpa o cache daquele caso e retorna à lista. Veja o
+[registro de integração e aceite](../../../../../docs/case-delete-image-rename-integration-2026-10-23.md).
+
+A persistência remota de calibração está disponível por GET/PUT em
+`/api/cases/{caseId}/images/{imageId}/plan`. O navegador envia somente
+`baseRevision` e `calibration`; o BFF valida imagem/organização e lê o plano
+atual antes de alterar a referência, preservando seus demais campos. Mudança
+de revisão exige conciliação explícita. Resposta perdida leva à consulta do
+plano e não a um segundo PUT automático; um resultado ainda indefinido mantém
+o recibo em memória e bloqueia operações destrutivas concorrentes. Leituras
+antigas não devem restaurar plano excluído nem substituir confirmação mais nova.
+O terceiro acesso lateral (régua) agora conecta `CaseImageWorkspace` ao plano
+remoto, com controles por linha/círculo e medida em mm/cm. A prévia precisa estar
+decodificada e a imagem deve ter dimensões originais e geometria suportada.
+O visualizador usa coordenadas da matriz original e bordas inclusivas; os
+helpers legados preservam sua convenção anterior por padrão. A referência salva
+continua visível nos outros painéis, somente para consulta. O editor não é
+reiniciado ao renovar a URL temporária da prévia. Controles por teclado e
+descarte estão disponíveis; os refinamentos de rascunho/navegação e o aceite
+visual/autenticado seguem nas tarefas 4–5 do
+[plano de calibração](../../../../../docs/calibration-integration-plan-2026-10-23.md).
 
 Dados clínicos temporários não devem ser persistidos em `localStorage` ou em
 outro armazenamento do navegador. O adapter de desenvolvimento mantém seus

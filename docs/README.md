@@ -2,7 +2,10 @@
 
 ## Integração clínica atual
 
+- [Plano de integração da calibração](./calibration-integration-plan-2026-10-23.md): etapas e estado da entrega; [contrato e evidências da tarefa 1](./calibration-contract-2026-10-23.md).
+- [Exclusão de caso e renomeação de imagem em 23/10/2026](./case-delete-image-rename-integration-2026-10-23.md): integração das novas operações, estados de falha e verificações realizadas.
 - [Auditoria do BFF contra o Swagger em 22/10/2026](./bff-swagger-contract-audit-2026-10-22.md): cobertura verificada, snapshots atuais, erros reproduzidos e premissas ainda abertas.
+- [Reteste de produção após reinício em 22/10/2026](./bff-production-retest-2026-10-22.md): matriz HTTP e evidência do cliente antigo ainda servido pelo ambiente.
 - [Plano de execução para a API clínica 0.9.0](./clinical-api-0.9.0-execution-plan.md): status por tarefa, decisões de implementação e trabalho ainda pendente.
 - [Checklist manual da API clínica 0.9.0](./clinical-api-0.9.0-manual-test-checklist.md): roteiro de aceite para a jornada integrada, JWT e storage.
 - [Estado da integração remota](./clinical-remote-integration-status.md): verificações públicas, integração JWT entregue e aceite real ainda pendente.
@@ -11,6 +14,7 @@
 
 ## Registros de implementação e contrato
 
+- [Bloqueio de arquivos duplicados](./backend-image-duplicate-request-2026-10-23.md): pedido original, contrato publicado, integração do frontend e aceite operacional pendente.
 - [Revisão da API clínica 0.9.0](./backend-api-0.9.0-review.md): comparação registrada em 20/10/2026; o plano 0.9.0 contém o status de implementação atual.
 - [Pedidos originais ao backend](./backend-adjustments-request.md): registro dos pedidos enviados antes da publicação 0.9.0; atendimento e pendências estão nos documentos atuais acima.
 - [Plano anterior de integração de casos e BFF](./cases-bff-execution-plan.md): registro da integração baseada em 0.8.0; use o plano 0.9.0 para status atual.

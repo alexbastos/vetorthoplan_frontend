@@ -74,7 +74,11 @@ test("browser context declares JSON for POST and PUT while only selection PUT se
       assert.equal(context.organization.id, organization.id)
     }
     assert.equal(s.calls.filter(call => call.url.endsWith("/token")).length, 2)
-    assert.ok(s.calls.every(call => !call.init.headers.has("content-type")))
+    for (const call of s.calls) {
+      const exchange = call.url.endsWith("/token")
+      assert.equal(call.init.headers.get("content-type"), exchange ? "application/json" : null)
+      assert.equal(call.init.body, exchange ? "{}" : undefined)
+    }
   } finally { s.close() }
 })
 

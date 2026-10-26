@@ -140,6 +140,54 @@ test("the file row only completes when the clinical image is READY", () => {
   assert.equal(failed.canRetry, false) // Refreshing must not claim to restart the worker.
 })
 
+test("normal loading keeps one simple label and reserves 100 percent for READY", () => {
+  const item = { phase: "queued", progress: 100, error: null, completed: null, transportFailed: false }
+  for (const [phase, expectedProgress] of [["queued", 0], ["hashing", 3], ["creating", 8], ["transporting", 80],
+    ["confirming", 85], ["quarantined", 98], ["stored", 98]]) {
+    const row = imageUploadPresentation({ ...item, phase }, "QUARANTINED", "SUCCEEDED")
+    assert.equal(row.label, "loading")
+    assert.equal(row.detail, undefined)
+    assert.notEqual(row.state, "success")
+    assert.equal(row.progress, expectedProgress)
+  }
+  const transferring = imageUploadPresentation({ ...item, phase: "transporting", progress: 50 })
+  assert.equal(transferring.progress, 45)
+  assert.equal(transferring.transferProgress, 50, "byte counters must not use the overall stage percentage")
+  const ready = imageUploadPresentation({ ...item, phase: "quarantined", completed }, "READY", "SUCCEEDED")
+  assert.equal(ready.progress, 100)
+  assert.equal(ready.label, "ready")
+})
+
+test("upload stages advance continuously to READY and never invent timed worker progress", () => {
+  const item = { phase: "queued", progress: null, error: null, completed: null, transportFailed: false }
+  const stages = [
+    ["queued"], ["hashing"], ["creating"],
+    ...[0, 10, 25, 50, 75, 100].map(bytes => ["transporting", undefined, undefined, bytes]),
+    ["confirming"], ["quarantined", "QUARANTINED", "QUEUED"],
+    ["quarantined", "PROCESSING", "PROCESSING"], ["quarantined", "PROCESSING", "SUCCEEDED"],
+    ["quarantined", "READY", "SUCCEEDED"],
+  ]
+  let previous = 0
+  for (const [phase, imageStatus, jobStatus, progress = null] of stages) {
+    const row = imageUploadPresentation({ ...item, phase, progress }, imageStatus, jobStatus)
+    assert.equal(Number.isFinite(row.progress), true)
+    assert.ok(row.progress >= previous)
+    assert.ok(row.progress <= 100)
+    assert.equal(row.progress === 100, imageStatus === "READY")
+    previous = row.progress
+  }
+  const processing = { ...item, phase: "quarantined", progress: 100 }
+  const waiting = imageUploadPresentation(processing, "PROCESSING", "PROCESSING")
+  assert.equal(waiting.progress, 95)
+  assert.deepEqual(imageUploadPresentation(processing, "PROCESSING", "PROCESSING"), waiting,
+    "waiting for the same stage keeps its position rather than animating a loop or guessing elapsed progress")
+  for (const [progress, expected] of [[null, 0], [Number.NaN, 0], [-20, 0], [150, 100]]) {
+    const row = imageUploadPresentation({ ...item, phase: "transporting", progress })
+    assert.equal(row.transferProgress, expected)
+    assert.equal(row.progress, 10 + expected * 0.7)
+  }
+})
+
 test("persisted FAILED and CANCELLED stop the file row even with an outdated active job", () => {
   const item = { phase: "quarantined", progress: 100, error: null, completed, transportFailed: false }
   for (const [status, label] of [["FAILED", "jobStatus.FAILED"], ["CANCELLED", "imageCancelled"]]) {

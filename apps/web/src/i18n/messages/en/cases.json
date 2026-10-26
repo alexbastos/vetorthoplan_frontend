@@ -17,6 +17,38 @@
     "changedDescription": "The active organization changed in another tab. Refresh access to continue in the correct context.",
     "retry": "Refresh access"
   },
+  "caseDeletion": {
+    "action": "Delete case",
+    "title": "Delete this case?",
+    "description": "The case “{title}” and all associated images, previews, and plans will be permanently deleted. This cannot be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
+    "checking": "Checking...",
+    "check": "Check deletion",
+    "success": "Case deleted",
+    "messages": {
+      "blocked": "Finish any uploads, processing, or changes in progress before deleting the case.",
+      "accessDenied": "You do not have access to delete this case. Refresh your session and try again.",
+      "unavailable": "Could not check the case. Try again shortly.",
+      "unconfirmed": "Could not confirm deletion. Check the result before trying again.",
+      "stillPresent": "The case still exists. You can try deleting it again."
+    }
+  },
+  "imageRename": {
+    "action": "Rename image",
+    "namedAction": "Rename {name}",
+    "title": "Rename image",
+    "description": "Change the image display name. The original file and its extension will be preserved.",
+    "name": "Image name",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "invalidName": "Enter a name of 1 to 255 characters without paths or control characters.",
+    "messages": {
+      "blocked": "Wait for the current operation to finish before renaming the image.",
+      "saveFailed": "Could not save the image name. Try again."
+    }
+  },
   "imageDeletion": {
     "action": "Delete image",
     "namedAction": "Delete {name}",
@@ -84,7 +116,11 @@
     },
     "search": {
       "label": "Search cases",
-      "placeholder": "Search by case, animal, species or breed"
+      "placeholder": "Search cases…",
+      "description": "Search by case name, animal, species or breed.",
+      "open": "Open case search",
+      "close": "Close search",
+      "clear": "Clear and close search"
     },
     "loading": "Loading cases...",
     "results": "{count, plural, one {# case shown} other {# cases shown}}",
@@ -298,10 +334,14 @@
       "uploadFile": "Upload radiograph",
       "uploadingFile": "Uploading radiograph...",
       "uploadFailed": "Upload not completed",
+      "duplicateFile": "Duplicate file",
+      "loading": "Loading...",
+      "finishing": "Finishing...",
       "uploadExpired": "Upload expired",
       "prepareNewUpload": "Prepare a new upload",
       "sessionExpired": "The signature expired. Create a new session to continue with this file.",
       "sessionErrors": {
+        "DUPLICATE_FILE": "This file has already been added to this case. The copy will not be uploaded.",
         "one-file": "Select one radiograph at a time.",
         "empty": "The selected file is empty.",
         "too-large": "The file must be no larger than 100 MiB.",
@@ -462,7 +502,8 @@
         "CANCELLED": "Upload cancelled"
       },
       "count": "{count, plural, one {# image} other {# images}}",
-      "empty": "No radiographs in this case. Add a DICOM, JPEG, or PNG to begin.",
+      "emptyTitle": "No radiographs yet",
+      "emptyDescription": "Add a DICOM, PNG or JPEG to get started.",
       "pendingIntegration": "Radiographs cannot be viewed in this area yet.",
       "uploadedOn": "Uploaded {date}",
       "uploadDateUnavailable": "Upload date unavailable",
@@ -512,7 +553,7 @@
     "imagesUnavailable": { "title": "Radiographs unavailable", "description": "You can review the case details. Radiograph viewing will be available soon." },
     "upload": { "add": "Add files", "invalid": "Select DICOM, JPEG, PNG, PDF, or MP4 files up to 50 MB each.", "success": "Files added to the case", "unavailable": "Upload will be available after server integration.", "error": "Unable to add the files." },
     "imageState": { "processingTitle": "Preparing radiograph", "processingDescription": "The image is being processed. Calibration will be available once the preview is ready.", "unavailableTitle": "Unable to view this radiograph", "dicomDescription": "The DICOM viewer is not available in this version yet. The original file remains linked to the case.", "invalidDescription": "This file could not be decoded as an image. Check the file and try uploading it again." },
-    "viewer": { "region": "Radiograph viewer", "tools": "Viewing tools", "mark": "Mark reference", "pan": "Move image", "zoomOut": "Zoom out", "zoomIn": "Zoom in", "fit": "Fit to screen", "fullscreen": "Full screen", "exitFullscreen": "Exit full screen", "imageAlt": "Radiograph {name}", "panHint": "Drag to move the image", "markHint": "Drag over the marker to define the reference", "lineEditHint": "Drag an endpoint to adjust or the line to move", "circleEditHint": "Drag the edge to resize or inside to move" },
+    "viewer": { "keyboardHint": "Calibration reference. Arrow keys move; Alt and arrows resize; Shift increases the step.", "region": "Radiograph viewer", "tools": "Viewing tools", "mark": "Mark reference", "pan": "Move image", "zoomOut": "Zoom out", "zoomIn": "Zoom in", "fit": "Fit to screen", "fullscreen": "Full screen", "exitFullscreen": "Exit full screen", "imageAlt": "Radiograph {name}", "panHint": "Drag to move the image", "markHint": "Drag over the marker to define the reference", "lineEditHint": "Drag an endpoint to adjust or the line to move", "circleEditHint": "Drag the edge to resize or inside to move" },
     "calibration": {
       "step": "Step 03 · Image",
         "title": "Calibrate image", "backToImage": "Back to image options",
@@ -527,6 +568,22 @@
         "referenceTitle": "Actual size", "referenceLabel": "Other size", "referencePlaceholder": "E.g. 2.5", "referenceHelp": "Enter the actual line length or circle diameter in millimeters.", "invalidScale": "Review the marker and the entered measurement.",
       "scaleTitle": "Image scale", "scalePreview": "Calculated preview", "savedScale": "Saved scale", "pendingScale": "Mark and enter the size to calculate", "rowScale": "Vertical: {value} mm/px", "dicomEvidence": "This DICOM contains scale data that requires review before clinical use.",
       "save": "Validate calibration", "update": "Update calibration", "reset": "Discard edits", "unsavedMarker": "Marker changed", "saved": "Calibration saved for this radiograph", "conflict": "The calibration changed in another session. Reopen the case before saving.", "unavailable": "Saving will be available after server integration.", "saveError": "Unable to save the calibration.",
+      "remote": {
+        "loading": "Loading calibration...", "length": "Actual length", "diameter": "Actual diameter", "unit": "Measurement unit",
+        "limit": "Use a measurement greater than zero, up to 1,000 cm (10,000 mm).", "help": "How to adjust",
+        "about": "About calibration", "sizeHelpLabel": "About the actual size", "sizeHelp": "Select the known reference length or diameter on the ruler. For an exact size or a value outside 0 to 10 cm, use Other value and choose mm or cm.",
+        "place": "Place reference", "reposition": "Reposition reference", "save": "Save calibration",
+        "keyboard": "In the viewer: arrow keys move; Alt + arrows resize; Shift increases the step. Esc switches to moving the image.",
+        "saving": "Saving calibration...", "checking": "Checking calibration...", "check": "Check save", "retry": "Try again",
+        "readError": "Unable to load calibration. Try again.",
+        "reviewBlocked": "The clinical review of this plan prevents this change. Your edits have been kept.",
+        "conflict": "The plan changed in another session. Your edits have been kept. Discard your edits to load the saved version before trying again.",
+        "loadSaved": "Discard edits and load saved version",
+        "uncertain": "The save could not be confirmed yet. Check before continuing; your edits have been kept.",
+        "navigationBlocked": "Wait for or check the calibration save before continuing.",
+        "dimensions": "Calibration requires this image's original dimensions.",
+        "anisotropy": "Calibration is not available for this DICOM yet: its pixels have different proportions."
+      },
       "displayTitle": "Display", "displayHelp": "Brightness and contrast only affect the view; they do not change the scale.", "brightness": "Brightness", "contrast": "Contrast"
     }
   }

@@ -67,7 +67,7 @@ test("double clicks and another view share one command, reuse the existing job/i
     assert.equal(polling.refetchInterval({ state: { data: cached(client), error: null } }), 2000)
     assert.equal(client.getQueryData(keys.images(caseId))[0].status, "FAILED")
     assert.equal(caseImageViewerMessage({ status: "FAILED" }, "QUEUED", true), "ingestionPending")
-    assert.equal(imageUploadPresentation({ phase: "quarantined", completed: {}, error: null, progress: 100 }, "FAILED", "QUEUED", false, true).label, "jobStatus.QUEUED")
+    assert.equal(imageUploadPresentation({ phase: "quarantined", completed: {}, error: null, progress: 100 }, "FAILED", "QUEUED", false, true).label, "loading")
   } finally { release(); client.clear() }
 })
 

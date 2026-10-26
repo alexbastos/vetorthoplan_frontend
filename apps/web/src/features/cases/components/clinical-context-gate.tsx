@@ -6,9 +6,7 @@ import { useTranslations } from "next-intl"
 import { useEffect, useState, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { CLINICAL_CONTEXT_CHANGED_EVENT, setCaseBrowserOrganization } from "../services/case-fetch"
-import { ClinicalContextError, fetchClinicalContext, type ClinicalContext } from "../services/clinical-context-api"
-
-const CONTEXT_KEY = ["clinical-context"] as const
+import { CLINICAL_CONTEXT_QUERY_KEY as CONTEXT_KEY, ClinicalContextError, fetchClinicalContext, type ClinicalContext } from "../services/clinical-context-api"
 
 function ClinicalContextGate({ children }: { children: ReactNode }) {
   const t = useTranslations("cases.organization")
@@ -60,9 +58,8 @@ function ClinicalContextGate({ children }: { children: ReactNode }) {
     </section>
   )
   return <>
-    {value.organization ? <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-xs text-description">
-      <span>{t("active", { name: value.organization.name })}</span>
-      {value.organizations.length > 1 && pathname === "/app/cases" ? <Button onClick={() => { selection.reset(); setChoosing(true) }} size="sm" type="button" variant="ghost">{t("change")}</Button> : null}
+    {value.organization && value.organizations.length > 1 && pathname === "/app/cases" ? <div className="mb-4 flex justify-end">
+      <Button onClick={() => { selection.reset(); setChoosing(true) }} size="sm" type="button" variant="ghost">{t("change")}</Button>
     </div> : null}
     <ClinicalCaseScope context={value} key={value.organization?.id ?? "local"}>{children}</ClinicalCaseScope>
   </>

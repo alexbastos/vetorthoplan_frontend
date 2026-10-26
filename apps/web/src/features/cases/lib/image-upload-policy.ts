@@ -4,7 +4,8 @@ const IMAGE_UPLOAD_MAX_BYTES = 100 * 1024 * 1024
 const IMAGE_UPLOAD_ACCEPT = ".dcm,.dicom,.png,.jpg,.jpeg,application/dicom,image/dicom,image/png,image/jpeg"
 const SIMPLE_FILENAME = /^[^/\\\x00-\x1f\x7f]+$/
 
-type ImageUploadFileError = "empty" | "too-large" | "invalid-name" | "unsupported-type" | "type-mismatch"
+const IMAGE_UPLOAD_FILE_ERRORS = ["empty", "too-large", "invalid-name", "unsupported-type", "type-mismatch"] as const
+type ImageUploadFileError = (typeof IMAGE_UPLOAD_FILE_ERRORS)[number]
 type ImageUploadFileResult =
   | { ok: true; mediaType: CreateImageUploadRequest["media_type"] }
   | { ok: false; error: ImageUploadFileError }
@@ -30,5 +31,5 @@ function validateImageUploadFile(file: Pick<File, "name" | "size" | "type">): Im
   return { ok: true, mediaType: declared === "image/dicom" ? declared : expected }
 }
 
-export { IMAGE_UPLOAD_ACCEPT, IMAGE_UPLOAD_MAX_BYTES, validateImageUploadFile }
+export { IMAGE_UPLOAD_ACCEPT, IMAGE_UPLOAD_MAX_BYTES, IMAGE_UPLOAD_FILE_ERRORS, validateImageUploadFile }
 export type { ImageUploadFileError, ImageUploadFileResult }

@@ -6,6 +6,7 @@ type CaseImage = Readonly<{
   jobId: GetImageResponse["job_id"]
   caseId: string
   originalFilename: string
+  displayName: string | null
   kind: "DICOM" | "PNG" | "JPEG"
   mediaType: string
   detectedMediaType: string | null

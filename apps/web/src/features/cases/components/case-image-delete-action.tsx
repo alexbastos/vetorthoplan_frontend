@@ -17,7 +17,15 @@ function CaseImageDeleteAction({ image, onDeleted }: { image: CaseImage; onDelet
   const trigger = useRef<HTMLButtonElement>(null)
   if (!canDeleteCaseImage(image) && !open) return null
   return <>
-    <Button aria-label={t("namedAction", { name: image.originalFilename })} className="mt-2" disabled={!canDeleteCaseImage(image)} onClick={() => setOpen(true)} ref={trigger} size="sm" type="button" variant="ghost"><Trash2 aria-hidden="true" />{t("action")}</Button>
+    <button
+      aria-label={t("namedAction", { name: image.displayName ?? image.originalFilename })}
+      className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-token-sm)] text-icon-muted outline-none hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+      disabled={!canDeleteCaseImage(image)}
+      onClick={() => setOpen(true)}
+      ref={trigger}
+      title={t("action")}
+      type="button"
+    ><Trash2 aria-hidden="true" className="size-3.5" strokeWidth={1.5} /></button>
     {open ? <CaseImageDeleteDialog image={image} onClose={(deleted) => {
       setOpen(false)
       if (deleted) onDeleted()
@@ -45,7 +53,7 @@ function CaseImageDeleteDialog({ image, onClose }: { image: CaseImage; onClose: 
       <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-[var(--card-composite-radius)] border border-border bg-card p-6 shadow-lg outline-none"
         onCloseAutoFocus={event => event.preventDefault()} onEscapeKeyDown={event => { if (pending) event.preventDefault() }}>
         <AlertDialog.Title className="text-ui-semibold text-foreground">{t("title")}</AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 break-words text-caption leading-5 text-description">{t("description", { name: image.originalFilename })}</AlertDialog.Description>
+        <AlertDialog.Description className="mt-2 break-words text-caption leading-5 text-description">{t("description", { name: image.displayName ?? image.originalFilename })}</AlertDialog.Description>
         {state.message ? <p className="mt-3 text-caption text-destructive" role="alert">{t(`messages.${state.message}`)}</p> : null}
         <div className="mt-6 flex justify-end gap-2">
           <AlertDialog.Cancel asChild><Button disabled={pending} size="sm" variant="secondary">{t("cancel")}</Button></AlertDialog.Cancel>

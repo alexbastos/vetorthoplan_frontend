@@ -4,7 +4,9 @@ type ImagePoint = Readonly<{ x: number; y: number }>
 
 type CalibrationMarker =
   | Readonly<{ kind: "line"; start: ImagePoint; end: ImagePoint }>
-  | Readonly<{ kind: "circle"; center: ImagePoint; radiusPx: number }>
+  | Readonly<{ kind: "circle"; center: ImagePoint; radiusPx: number;
+      /** Remote plans retain the source-pixel edge, including partially visible circles. */
+      edge?: ImagePoint }>
 
 type PixelSpacing = Readonly<{ rowMm: number; columnMm: number }>
 

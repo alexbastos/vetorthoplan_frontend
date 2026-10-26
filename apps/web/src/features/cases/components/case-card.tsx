@@ -135,4 +135,4 @@ function CaseStatusBadge({ label, status }: { label: string; status: CaseListSta
   )
 }
 
-export { CaseCard }
+export { CaseCard, CasePreview }

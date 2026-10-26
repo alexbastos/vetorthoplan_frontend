@@ -3,7 +3,10 @@ import type { QueryClient } from "@tanstack/react-query"
 import { casesQueryKeys } from "../hooks/cases-query-keys"
 import { fetchImageIngestionJob, fetchIngestionJob } from "../services/image-read-api"
 import type { IngestionJob } from "../types/ingestion-job"
-import type { CaseIngestionTarget } from "./case-ingestion"
+import type { CaseImage } from "../types/case-image"
+import type { IngestionReference } from "../types/ingestion-reference"
+import { caseIngestionTargets, type CaseIngestionTarget } from "./case-ingestion"
+import { isTerminalCaseImageStatus } from "./case-image-state"
 import { ingestionJobPollInterval } from "./ingestion-job-polling"
 
 function imageIngestionQueryOptions(target: CaseIngestionTarget, fetchImpl?: typeof fetch) {
@@ -40,4 +43,14 @@ async function refreshIngestionImages(client: QueryClient, caseId: string): Prom
   await client.invalidateQueries(filter)
 }
 
-export { imageIngestionQueryOptions, ingestionJobQueryOptions, refreshIngestionImages }
+function caseImagesPollInterval(caseId: string, images: readonly CaseImage[], remembered: readonly IngestionReference[], hasError: boolean,
+  isRetryAwaitingImage: (jobId: string) => boolean = () => false,
+): number | false {
+  if (hasError) return false
+  // A finished job can precede the image projection. Keep reading until the
+  // image itself is terminal, including confirmations not listed yet.
+  return caseIngestionTargets(caseId, images, remembered).some(target => !isTerminalCaseImageStatus(target.imageStatus)
+    || target.imageStatus === "FAILED" && target.jobId && isRetryAwaitingImage(target.jobId)) ? 2_000 : false
+}
+
+export { imageIngestionQueryOptions, ingestionJobQueryOptions, refreshIngestionImages, caseImagesPollInterval }

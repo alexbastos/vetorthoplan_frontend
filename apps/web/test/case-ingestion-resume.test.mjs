@@ -9,7 +9,7 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 
 const { caseIngestionTargets, matchesIngestionIdentity, terminalIngestionRefreshKey, uniqueIngestionJobs } =
   await import("../src/features/cases/lib/case-ingestion.ts")
-const { imageIngestionQueryOptions, ingestionJobQueryOptions, refreshIngestionImages } = await import("../src/features/cases/lib/ingestion-query-options.ts")
+const { imageIngestionQueryOptions, ingestionJobQueryOptions, refreshIngestionImages, caseImagesPollInterval } = await import("../src/features/cases/lib/ingestion-query-options.ts")
 const { fetchCaseImages, ImageReadError } = await import("../src/features/cases/services/image-read-api.ts")
 
 const caseId = "00000000-0000-4000-8000-000000000064"
@@ -24,6 +24,35 @@ const image = { id: imageId, caseId, uploadId, jobId, originalFilename: "synthet
 const job = { id: jobId, caseId, imageId, uploadId, status: "QUEUED", attempts: 0, errorCode: null,
   createdAt: "2026-10-18T12:00:00Z", updatedAt: "2026-10-18T12:00:01Z", startedAt: null, finishedAt: null }
 const confirmation = { caseId, imageId, uploadId, jobId, jobStatus: "QUEUED" }
+
+test("image reconciliation keeps polling through projection lag and stops only on a terminal image or read error", async () => {
+  const client = new QueryClient()
+  let reads = 0
+  const responses = [[], [{ ...image, status: "QUARANTINED" }], [{ ...image, status: "PROCESSING" }], [{ ...image, status: "READY" }]]
+  const options = {
+    queryKey: ["cases", "images", caseId], staleTime: 0,
+    queryFn: () => Promise.resolve(responses[reads++]),
+  }
+  try {
+    client.setQueryData(["cases", "ingestion-job", caseId, jobId], { ...job, status: "SUCCEEDED" })
+    for (let i = 0; i < responses.length; i++) {
+      const images = await client.fetchQuery(options)
+      assert.equal(caseImagesPollInterval(caseId, images, [confirmation], false), i === 3 ? false : 2000)
+    }
+    assert.equal(reads, 4)
+    assert.equal(caseImagesPollInterval(caseId, [image], [confirmation], true), false)
+    for (const status of ["FAILED", "REJECTED", "CANCELLED"]) {
+      assert.equal(caseImagesPollInterval(caseId, [{ ...image, status }], [confirmation], false), false)
+    }
+    assert.equal(caseImagesPollInterval(caseId, [], [{ ...confirmation, caseId: uploadId }], false), false)
+    assert.equal(caseImagesPollInterval(caseId, [{ ...image, status: "PENDING_UPLOAD", jobId: null }], [], false), false)
+    const failedImage = { ...image, status: "FAILED" }
+    assert.equal(caseImagesPollInterval(caseId, [failedImage], [confirmation], false, id => id === jobId), 2000,
+      "a confirmed retry must reconcile even when the image still projects the previous FAILED status")
+    assert.equal(caseImagesPollInterval(caseId, [failedImage], [confirmation], false, () => false), false)
+    assert.equal(caseImagesPollInterval(caseId, [failedImage], [confirmation], true, () => true), false)
+  } finally { client.clear() }
+})
 
 test("fresh reads rebuild monitoring without an in-memory confirmation and stop after completion", async () => {
   const client = new QueryClient()

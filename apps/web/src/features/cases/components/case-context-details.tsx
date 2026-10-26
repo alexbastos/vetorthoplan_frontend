@@ -6,11 +6,12 @@ import type { ReactNode } from "react"
 
 import { splitAgeMonths } from "../lib/case-age"
 import type { CaseDetail } from "../types/case-detail"
+import { CaseDeleteAction } from "./case-delete-action"
 
 const detailLabelClassName = "font-data text-[0.6875rem] leading-4 font-medium text-foreground"
 const detailValueClassName = "mt-1 whitespace-pre-wrap break-words text-[0.75rem] leading-5 font-normal text-description"
 
-function CaseContextDetails({ caseSummary }: { caseSummary: CaseDetail }) {
+function CaseContextDetails({ caseSummary, deletionBlocked = false }: { caseSummary: CaseDetail; deletionBlocked?: boolean }) {
   const t = useTranslations("cases.workspace.caseDetails")
   const tStatus = useTranslations("cases.list.status")
   const locale = useLocale()
@@ -24,16 +25,12 @@ function CaseContextDetails({ caseSummary }: { caseSummary: CaseDetail }) {
   const age = ageParts === null ? t("notInformed") : ageParts.years === 0 ? t("ageMonths", { count: ageParts.months })
     : ageParts.months === 0 ? t("ageYears", { count: ageParts.years })
       : t("ageYearsMonths", { years: ageParts.years, months: ageParts.months })
-  const ageSource = patient.ageSource === "BIRTH_DATE" ? t("ageFromBirthDate")
-    : patient.ageSource === "DECLARED" ? t("ageDeclared") : null
-  const ageReference = patient.ageReferenceDate
-    ? dateFormatter.format(new Date(`${patient.ageReferenceDate}T00:00:00Z`)) : null
   const weight = patient.weightKg === null
     ? t("notInformed")
     : `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(Number(patient.weightKg))} kg`
 
   return (
-    <section aria-label={t("heading")} className="min-w-0">
+    <section aria-label={t("heading")} className="flex min-w-0 flex-1 flex-col">
       <div>
         <h3 className={detailLabelClassName}>{t("identification")}</h3>
         <p className={detailValueClassName}>{caseSummary.title}</p>
@@ -51,11 +48,7 @@ function CaseContextDetails({ caseSummary }: { caseSummary: CaseDetail }) {
           <DetailField label={t("species")} value={patient.species} />
           <DetailField label={t("breed")} value={patient.breed || t("notInformed")} />
           <DetailField label={t("sexLabel")} value={t(`sex.${sex}`)} />
-          <DetailField label={t("age")} value={<>
-            {age}
-            {ageParts && ageSource ? <span className="block text-caption">{ageSource}</span> : null}
-            {ageParts && ageReference ? <span className="block text-caption">{t("ageReference", { date: ageReference })}</span> : null}
-          </>} />
+          <DetailField label={t("age")} value={age} />
           {birthDate ? <DetailField label={t("birthDate")} value={birthDate} /> : null}
           <DetailField label={t("weight")} value={weight} />
         </dl>
@@ -79,6 +72,11 @@ function CaseContextDetails({ caseSummary }: { caseSummary: CaseDetail }) {
             <dd className="mt-1 truncate font-data text-[10px] leading-5 font-normal text-description" title={caseSummary.id}>{caseSummary.id}</dd>
           </div>
         </dl>
+      </div>
+      <div className="mt-auto pt-6">
+        <div className="pt-4">
+          <CaseDeleteAction caseId={caseSummary.id} title={caseSummary.title} blocked={deletionBlocked} />
+        </div>
       </div>
     </section>
   )
