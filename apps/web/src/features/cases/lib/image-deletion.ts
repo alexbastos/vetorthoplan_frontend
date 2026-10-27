@@ -7,6 +7,7 @@ import type { CaseImage } from "../types/case-image"
 import type { ImageIngestionIdentity, IngestionReference } from "../types/ingestion-reference"
 import { isCaseDeletionLocked } from "./case-deletion"
 import { isCalibrationSaveLocked } from "./calibration-save-state"
+import { hasImagePlanDraft } from "./image-quality-draft"
 
 type ImageDeletionState = { phase: "idle" | "deleting" | "checking" | "deleted" | "error" | "uncertain"; message?: "blocked" | "unavailable" | "unconfirmed" | "stillPresent" | "accessDenied" | "invalidResponse" }
 const IDLE_DELETION: ImageDeletionState = { phase: "idle" }
@@ -50,6 +51,7 @@ async function remove(client: QueryClient, identity: ImageIngestionIdentity, opt
   const discovered = client.getQueryData<{ id: string } | null>(keys.imageIngestionJob(caseId, imageId))
   if (discovered?.id) jobIds.add(discovered.id)
   if (isCaseDeletionLocked(client, caseId)
+    || hasImagePlanDraft(client, caseId, imageId)
     || isCalibrationSaveLocked(client, caseId, imageId)
     || activePhase(client.getQueryData<{ phase: string }>(keys.imageRename(caseId, imageId))?.phase)
     || activePhase(client.getQueryData<{ phase: string }>(keys.uploadCancellation(caseId, uploadId))?.phase)
@@ -67,7 +69,7 @@ async function remove(client: QueryClient, identity: ImageIngestionIdentity, opt
     // Cancel stale reads before removing data; an in-flight preview/job must not restore deleted content.
     const related = (query: { queryKey: readonly unknown[] }) => {
       const [scope, kind, owner, id] = query.queryKey
-      return scope === "cases" && owner === caseId && (kind === "images" || ((kind === "preview" || kind === "image-ingestion-job" || kind === "image-plan" || kind === "image-plan-save") && id === imageId)
+      return scope === "cases" && owner === caseId && (kind === "images" || ((kind === "preview" || kind === "image-ingestion-job" || kind === "image-plan" || kind === "image-plan-save" || kind === "image-calibration-draft" || kind === "image-quality-draft" || kind === "image-display-settings" || kind === "image-calibration-introduction") && id === imageId)
         || ((kind === "ingestion-job" || kind === "ingestion-retry") && jobIds.has(String(id))))
     }
     await client.cancelQueries({ predicate: related })

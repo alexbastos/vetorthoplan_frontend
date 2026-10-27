@@ -1,6 +1,7 @@
 import { CalibrationInputSchema, calibrationInputOf, type CalibrationInput, type ImagePlan } from "../schemas/image-plan.schema"
 import type { CaseImage } from "../types/case-image"
 import type { CalibrationMarker, ImagePoint } from "../types/case-workspace"
+import { circleDiameter, circleFromDiameter } from "./circle-marker-interaction"
 
 type Dimensions = { widthPx: number; heightPx: number }
 type Geometry = Omit<Extract<CalibrationInput, { kind: "REFERENCE_LINE" }>, "known_length_mm">
@@ -89,6 +90,21 @@ function defaultReferenceMarker(kind: CalibrationMarker["kind"], { widthPx: w, h
     : { kind, center: { x: w * 0.5, y: h * 0.5 }, radiusPx: Math.min(w, h) * 0.1 }
 }
 
+function changeEditorMarkerKind(editor: CalibrationEditor, kind: CalibrationMarker["kind"], dimensions: Dimensions): CalibrationEditor {
+  if (editor.kind === kind) return editor
+  const marker = geometryToMarker(editor.geometry, dimensions)
+  let geometry: Geometry | null = null
+  if (marker?.kind === "line") geometry = markerToGeometry(circleFromDiameter(marker.start, marker.end), dimensions)
+  else if (marker?.kind === "circle") {
+    const diameter = circleDiameter(marker)
+    // A circular reference can legitimately cross the image boundary. A line
+    // needs both endpoints in the original matrix; otherwise placement is needed.
+    if ([diameter.start, diameter.end].every(point => point.x >= 0 && point.y >= 0 && point.x <= dimensions.widthPx && point.y <= dimensions.heightPx))
+      geometry = markerToGeometry({ kind: "line", ...diameter }, dimensions)
+  }
+  return { ...editor, kind, geometry }
+}
+
 export { calibrationGeometryIssue, editorFromCalibration, editorFromPlan, referenceInMillimetres, convertReferenceUnit, calibrationFromEditor,
-  editorHasChanges, geometryToMarker, markerToGeometry, defaultReferenceMarker }
+  editorHasChanges, geometryToMarker, markerToGeometry, defaultReferenceMarker, changeEditorMarkerKind }
 export type { CalibrationEditor, Dimensions, Geometry }

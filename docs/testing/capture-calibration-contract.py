@@ -29,6 +29,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend-repo", type=Path, default=ROOT.parent / "vetorthoplan_backend")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--openapi", type=Path, default=ROOT / "docs/openapi/clinical-api.duplicate-2026-10-23.openapi.json",
+                        help="Preserved contract matching the pinned backend; defaults to the original calibration capture")
     options = parser.parse_args()
     backend = options.backend_repo.resolve()
 
@@ -38,13 +40,15 @@ def main():
             "show", f"{REVISION}:{path}",
         ])
 
-    canonical_bytes = (ROOT / "docs/openapi/clinical-api.openapi.json").read_bytes()
-    canonical = json.loads(canonical_bytes)
+    # The current API can evolve independently. Reproduce this historical
+    # geometry capture against its original contract, not a relabelled hash.
+    reference_bytes = options.openapi.read_bytes()
+    reference = json.loads(reference_bytes)
     backend_contract = json.loads(read_git("docs/openapi.json"))
     for name in SCHEMAS:
-        assert canonical["components"]["schemas"][name] == backend_contract["components"]["schemas"][name], name
+        assert reference["components"]["schemas"][name] == backend_contract["components"]["schemas"][name], name
     path = "/api/v1/images/{image_id}/plan"
-    assert canonical["paths"][path] == backend_contract["paths"][path]
+    assert reference["paths"][path] == backend_contract["paths"][path]
 
     source = read_git(MODULE)
     namespace = {"__name__": "calibration_source_audit"}
@@ -100,7 +104,7 @@ def main():
         "backendRevision": REVISION,
         "backendSourceFile": MODULE,
         "backendSourceSha256": hashlib.sha256(source).hexdigest(),
-        "openApiSha256": hashlib.sha256(canonical_bytes).hexdigest(),
+        "openApiSha256": hashlib.sha256(reference_bytes).hexdigest(),
         "matchingSchemas": SCHEMAS,
         "verification": "Executed actual pinned backend pure geometry code; no HTTP, database or deployment validation.",
         "cases": records,

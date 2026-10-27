@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { FileWarning } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useCallback, useEffect, useState, type ReactNode } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 
@@ -48,13 +48,13 @@ function CaseWorkspaceImage({ caseContext, caseId, image, imageList, imageAction
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: casesQueryKeys.all })
-      toast.success(t("calibration.saved"))
+      toast.success(t("calibration.savedTitle"), { description: t("calibration.savedDescription") })
     },
     onError: (error) => {
       const code = error instanceof CasesRepositoryError ? error.code : undefined
-      toast.error(code === "CALIBRATION_CONFLICT" ? t("calibration.conflict")
-        : code === "CALIBRATION_UNAVAILABLE" ? t("calibration.unavailable")
-          : t("calibration.saveError"))
+      const key = code === "CALIBRATION_CONFLICT" ? "conflict"
+        : code === "CALIBRATION_UNAVAILABLE" ? "unavailable" : "saveError"
+      toast.error(t(`calibration.${key}Title`), { description: t(`calibration.${key}Description`) })
     },
   })
 

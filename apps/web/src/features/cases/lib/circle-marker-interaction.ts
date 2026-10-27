@@ -1,8 +1,29 @@
 import type { CalibrationMarker, ImagePoint } from "../types/case-workspace"
 
 type CircleMarker = Extract<CalibrationMarker, { kind: "circle" }>
-type CircleHit = "edge" | "body" | null
+type CircleHit = "start" | "end" | "edge" | "body" | null
 type ImageRect = Readonly<{ left: number; top: number; width: number; height: number }>
+
+function circleDiameter(marker: CircleMarker) {
+  const end = marker.edge ?? { x: marker.center.x + marker.radiusPx, y: marker.center.y }
+  return { start: { x: 2 * marker.center.x - end.x, y: 2 * marker.center.y - end.y }, end }
+}
+
+function circleFromDiameter(start: ImagePoint, end: ImagePoint): CircleMarker {
+  return { kind: "circle", center: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, edge: end,
+    radiusPx: Math.hypot(end.x - start.x, end.y - start.y) / 2 }
+}
+
+function resizeCircleDiameter(marker: CircleMarker, endpoint: "start" | "end", point: ImagePoint,
+  imageWidth: number, imageHeight: number, edgeInset = 1): CircleMarker {
+  const diameter = circleDiameter(marker), fixed = endpoint === "start" ? diameter.end : diameter.start
+  // The opposite diameter point may be outside the image in a valid saved
+  // circle. Keep that point fixed while bounding the API's center and edge.
+  const clamp = (value: number, anchor: number, maximum: number) =>
+    Math.max(Math.max(0, -anchor), Math.min(Math.min(maximum, 2 * maximum - anchor), value))
+  const moving = { x: clamp(point.x, fixed.x, imageWidth - edgeInset), y: clamp(point.y, fixed.y, imageHeight - edgeInset) }
+  return endpoint === "start" ? circleFromDiameter(moving, fixed) : circleFromDiameter(fixed, moving)
+}
 
 function hitTestCircleMarker(
   pointer: ImagePoint,
@@ -10,10 +31,19 @@ function hitTestCircleMarker(
   rect: ImageRect,
   imageWidth: number,
   imageHeight: number,
+  options: { diameterHandles?: boolean } = {},
 ): CircleHit {
   if (rect.width <= 0 || rect.height <= 0 || imageWidth <= 0 || imageHeight <= 0) return null
   if (pointer.x < rect.left || pointer.x > rect.left + rect.width
     || pointer.y < rect.top || pointer.y > rect.top + rect.height) return null
+
+  if (options.diameterHandles) {
+    const diameter = circleDiameter(marker)
+    const distanceTo = (point: ImagePoint) => Math.hypot(pointer.x - rect.left - point.x / imageWidth * rect.width,
+      pointer.y - rect.top - point.y / imageHeight * rect.height)
+    const startDistance = distanceTo(diameter.start), endDistance = distanceTo(diameter.end)
+    if (startDistance <= 12 || endDistance <= 12) return startDistance <= endDistance ? "start" : "end"
+  }
 
   const centerX = rect.left + marker.center.x / imageWidth * rect.width
   const centerY = rect.top + marker.center.y / imageHeight * rect.height
@@ -64,5 +94,5 @@ function moveCircleMarker(
   return { ...marker, center: { x: center.x + dx, y: center.y + dy } }
 }
 
-export { hitTestCircleMarker, moveCircleMarker, resizeCircleMarker }
+export { circleDiameter, circleFromDiameter, resizeCircleDiameter, hitTestCircleMarker, moveCircleMarker, resizeCircleMarker }
 export type { CircleHit, CircleMarker }

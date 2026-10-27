@@ -23,15 +23,15 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Identificação da versão publicada
 
 A versão do frontend é definida somente no campo `version` de
-[`package.json`](./package.json). A primeira identificação é `0.9.0-web.1`:
-`0.9.0` acompanha o contrato clínico de referência e `web.1` identifica a revisão
-do frontend. Antes de cada nova publicação, incremente a revisão (`web.2`,
-`web.3` etc.), mesmo que a API não mude. Ao alinhar uma nova versão do contrato
+[`package.json`](./package.json). A identificação atual é `0.9.0-web.2`:
+`0.9.0` acompanha o contrato clínico de referência e `web.2` identifica a revisão
+do frontend. Antes de cada nova publicação, incremente a revisão (`web.3`,
+`web.4` etc.), mesmo que a API não mude. Ao alinhar uma nova versão do contrato
 clínico, atualize a base e inicie novamente a revisão do frontend.
 
 O valor é incorporado no build, aparece no rodapé do menu lateral expandido
 e na tela de falha de verificação da sessão. Também pode ser consultado sem
-autenticação em `GET /api/version`, com resposta `{ "version": "0.9.0-web.1" }`
+autenticação em `GET /api/version`, com resposta `{ "version": "0.9.0-web.2" }`
 e `Cache-Control: no-store`. O header `X-App-Version` identifica as respostas do
 Next.js. Estes locais usam a mesma fonte; a API clínica não é consultada para
 determinar a versão do frontend.

@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { registerHooks } from "node:module"
 import test from "node:test"
 import { QueryClient, QueryObserver } from "@tanstack/react-query"
-import { imagePlanFixture } from "./fixtures/image-plan.mjs"
+import { imagePlanFixture, publishedEmptyDocument, publishedPopulatedDocument } from "./fixtures/image-plan.mjs"
 
 registerHooks({ resolve(specifier, context, nextResolve) {
   return nextResolve(specifier.startsWith(".") && !/\.[cm]?[jt]s$/.test(specifier) ? `${specifier}.ts` : specifier, context)
@@ -23,6 +23,20 @@ const saved = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initia
 const json = data => Response.json(data)
 const error = (code, status = 503, uncertain) => Response.json({ error: { code, retryable: false, ...(uncertain === undefined ? {} : { uncertain }) } }, { status })
 const deferred = () => { let resolve; const promise = new Promise(yes => { resolve = yes }); return { promise, resolve } }
+
+test("browser accepts old and published plans, including revision zero and the official new result fields", async () => {
+  const published = { ...initial, document: publishedEmptyDocument(f) }
+  const populated = { ...saved, document: { ...publishedPopulatedDocument(f), calibration: saved.document.calibration } }
+  for (const plan of [initial, published, saved, populated]) {
+    assert.deepEqual(await fetchImagePlan(caseId, imageId, { fetchImpl: async () => json(plan) }), plan)
+  }
+  const queryClient = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } })
+  try {
+    const result = await requestCalibrationSave(queryClient, identity, command, { fetchImpl: async () => json(populated) })
+    assert.equal(result.phase, "saved")
+    assert.deepEqual(queryClient.getQueryData(keys.imagePlan(caseId, imageId)), populated)
+  } finally { queryClient.clear() }
+})
 
 test("browser GET/PUT use same-origin no-store transport and send only the validated calibration and revision", async () => {
   const calls = [], signal = new AbortController().signal
@@ -199,6 +213,7 @@ test("confirmed image deletion clears its cached plan and command receipt while 
   try {
     client.setQueryData(keys.imagePlan(caseId, imageId), saved)
     client.setQueryData(keys.imagePlanSave(caseId, imageId), { phase: "saved", draft: command })
+    client.setQueryData(keys.imageDisplaySettings(caseId, imageId), { brightness: 130, contrast: 110, inverted: true, showReference: true })
     client.setQueryData(keys.imagePlan(caseId, "other"), { retained: true })
     const state = await requestImageDeletion(client, f.identity, { fetchImpl: async (_url, init) => {
       assert.equal(init.method ?? "GET", "GET"); return Response.json({ items: [] })
@@ -206,6 +221,7 @@ test("confirmed image deletion clears its cached plan and command receipt while 
     assert.equal(state.phase, "deleted")
     assert.equal(client.getQueryData(keys.imagePlan(caseId, imageId)), undefined)
     assert.equal(client.getQueryData(keys.imagePlanSave(caseId, imageId)), undefined)
+    assert.equal(client.getQueryData(keys.imageDisplaySettings(caseId, imageId)), undefined)
     assert.deepEqual(client.getQueryData(keys.imagePlan(caseId, "other")), { retained: true })
   } finally { client.clear() }
 })

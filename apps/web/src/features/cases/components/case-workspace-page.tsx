@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useEffect, useRef, useState } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 import { useAppTheme } from "@/components/shared/app-shell/app-theme-provider"
@@ -86,7 +86,7 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
   const navigate = (action: () => void) => {
     if (selectedImage && isCalibrationSaveLocked(client, caseId, selectedImage.id)) {
       setActiveSection("calibration")
-      toast.message(t("calibration.remote.navigationBlocked"))
+      toast.info(t("calibration.remote.navigationBlockedTitle"), { description: t("calibration.remote.navigationBlockedDescription") })
       return
     }
     requestNavigation(action)
@@ -151,7 +151,7 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
 
       <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 px-3 py-3 sm:px-4 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-3 lg:px-5">
         {canShowPreview ? <CaseImageWorkspace {...panelProps} caseLocked={caseLocked} image={selectedImage} key={selectedImage.id} /> : <>
-          <CaseWorkspacePanel {...panelProps} activeSection={activeSection === "calibration" ? "images" : activeSection} calibrationAvailable={false} />
+          <CaseWorkspacePanel {...panelProps} activeSection={activeSection === "calibration" || activeSection === "tools" ? "images" : activeSection} calibrationAvailable={false} />
           <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">
           <div className="max-w-xs">
             <FileImage aria-hidden="true" className="mx-auto size-9 text-white/40" />

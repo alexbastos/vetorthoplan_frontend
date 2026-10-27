@@ -6,7 +6,7 @@ import { useLocale, useTimeZone, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { useAppUser } from "@/components/shared/app-shell/app-user-context"
 import { formatBrazilianPhone, formatBrazilianPostalCode } from "@/lib/brazilian-input"
@@ -158,7 +158,7 @@ function useProfileSettings() {
     }
 
     applyAvatarUrl(result.data.avatarUrl)
-    toast.success(t("avatarUploaded"))
+    toast.success(t("avatarUploaded"), { description: t("avatarUploadedDescription") })
     return true
   }, [applyAvatarUrl, getSettingsErrorMessage, t, uploadAvatarRequest])
 
@@ -171,7 +171,7 @@ function useProfileSettings() {
     }
 
     applyAvatarUrl(null)
-    toast.success(t("avatarDeleted"))
+    toast.success(t("avatarDeleted"), { description: t("avatarDeletedDescription") })
     return true
   }, [applyAvatarUrl, deleteAvatarRequest, getSettingsErrorMessage, t])
 

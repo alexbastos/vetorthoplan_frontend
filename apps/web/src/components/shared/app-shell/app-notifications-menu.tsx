@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from "react"
 import { useTranslations } from "next-intl"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 

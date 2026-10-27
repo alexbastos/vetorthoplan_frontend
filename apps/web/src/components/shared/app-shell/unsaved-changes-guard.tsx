@@ -8,9 +8,11 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 
 type UnsavedChangesHandler = {
-  discardChanges: () => void
+  discardChanges: () => void | boolean
   getUnsavedChanges: () => UnsavedChange[]
   hasUnsavedChanges: () => boolean
+  isNavigationBlocked?: () => boolean
+  onNavigationBlocked?: () => void
 }
 
 type UnsavedChange = {
@@ -46,7 +48,6 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
   const t = useTranslations("common.unsavedChanges")
   const tStatus = useTranslations("common.status")
   const handlersRef = useRef(new Set<UnsavedChangesHandler>())
-  const pendingHandlerRef = useRef<UnsavedChangesHandler | null>(null)
   const pendingNavigationRef = useRef<(() => void) | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isChangesExpanded, setIsChangesExpanded] = useState(false)
@@ -60,10 +61,14 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
   }, [])
 
   const requestNavigation = useCallback((navigate: () => void) => {
+    const blocked = Array.from(handlersRef.current).find(handler => handler.isNavigationBlocked?.())
+    if (blocked) {
+      blocked.onNavigationBlocked?.()
+      return false
+    }
     const handler = Array.from(handlersRef.current).find((registeredHandler) => registeredHandler.hasUnsavedChanges())
 
     if (handler) {
-      pendingHandlerRef.current = handler
       pendingNavigationRef.current = navigate
       setIsChangesExpanded(false)
       setIsDialogOpen(true)
@@ -75,22 +80,34 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
   }, [])
 
   function cancelNavigation() {
-    pendingHandlerRef.current = null
     pendingNavigationRef.current = null
     setIsDialogOpen(false)
   }
 
   function discardChangesAndNavigate() {
     const navigate = pendingNavigationRef.current
-
-    pendingHandlerRef.current?.discardChanges()
-    pendingHandlerRef.current = null
+    // Re-read the live registrations: a save may have started, or a form may
+    // have remounted, since the user opened this confirmation.
+    const handlers = Array.from(handlersRef.current)
+    const blocked = handlers.find(handler => handler.isNavigationBlocked?.())
+    if (blocked) {
+      cancelNavigation()
+      blocked.onNavigationBlocked?.()
+      return
+    }
+    for (const handler of handlers.filter(handler => handler.hasUnsavedChanges())) {
+      if (handler.discardChanges() === false) {
+        cancelNavigation()
+        handler.onNavigationBlocked?.()
+        return
+      }
+    }
     pendingNavigationRef.current = null
     setIsDialogOpen(false)
     navigate?.()
   }
 
-  const changes = pendingHandlerRef.current?.getUnsavedChanges() ?? []
+  const changes = isDialogOpen ? Array.from(handlersRef.current).filter(handler => handler.hasUnsavedChanges()).flatMap(handler => handler.getUnsavedChanges()) : []
   const hiddenChangesCount = Math.max(changes.length - MAX_VISIBLE_CHANGES, 0)
   const visibleChanges = isChangesExpanded ? changes : changes.slice(0, MAX_VISIBLE_CHANGES)
 
@@ -159,11 +176,9 @@ function UnsavedChangesGuard({ children }: { children: ReactNode }) {
                   {t("continueEditing")}
                 </Button>
               </AlertDialog.Cancel>
-              <AlertDialog.Action asChild>
-                <Button onClick={discardChangesAndNavigate} size="sm" type="button" variant="danger">
-                  {t("discard")}
-                </Button>
-              </AlertDialog.Action>
+              <Button onClick={discardChangesAndNavigate} size="sm" type="button" variant="danger">
+                {t("discard")}
+              </Button>
             </footer>
           </AlertDialog.Content>
         </AlertDialog.Portal>

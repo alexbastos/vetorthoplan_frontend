@@ -1,6 +1,7 @@
 import { z } from "zod"
 
-import { ImagePlanSchema, SaveCalibrationSchema, calibrationMatches, type ImagePlan, type SaveCalibrationInput } from "../schemas/image-plan.schema"
+import { ImagePlanSchema, SaveCalibrationSchema, type ImagePlan, type SaveCalibrationInput } from "../schemas/image-plan.schema"
+import { planCommandMatches, SavePlanEditSchema, type PlanSaveCommand, type SavePlanEditInput } from "../schemas/image-plan-command.schema"
 import { caseFetch } from "./case-fetch"
 
 const uuid = z.string().uuid()
@@ -24,13 +25,14 @@ class ImagePlanError extends Error {
   }
 }
 
-async function requestPlan(caseId: string, imageId: string, input: SaveCalibrationInput | undefined, options: Options): Promise<ImagePlan> {
+async function requestPlan(caseId: string, imageId: string, input: PlanSaveCommand | undefined, options: Options): Promise<ImagePlan> {
   if (!uuid.safeParse(caseId).success || !uuid.safeParse(imageId).success) throw new ImagePlanError("VALIDATION_ERROR")
   const writing = input !== undefined
+  const editing = input !== undefined && "kind" in input
   let response: Response
   try {
-    response = await (options.fetchImpl ?? caseFetch)(`/api/cases/${encodeURIComponent(caseId)}/images/${encodeURIComponent(imageId)}/plan`, {
-      method: writing ? "PUT" : "GET", cache: "no-store", credentials: "same-origin", signal: options.signal,
+    response = await (options.fetchImpl ?? caseFetch)(`/api/cases/${encodeURIComponent(caseId)}/images/${encodeURIComponent(imageId)}/plan${editing ? "/edits" : ""}`, {
+      method: editing ? "PATCH" : writing ? "PUT" : "GET", cache: "no-store", credentials: "same-origin", signal: options.signal,
       ...(writing ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) } : {}),
     })
   } catch (error) {
@@ -47,8 +49,7 @@ async function requestPlan(caseId: string, imageId: string, input: SaveCalibrati
   }
   const parsed = ImagePlanSchema.safeParse(body)
   if (!parsed.success || parsed.data.imageId.toLowerCase() !== imageId.toLowerCase()
-    || writing && (parsed.data.revision !== input.baseRevision + 1 || !calibrationMatches(parsed.data.document.calibration, input.calibration)
-      || input.calibration !== null && !parsed.data.document.calibration?.result)) throw new ImagePlanError("INVALID_RESPONSE", writing)
+    || writing && (parsed.data.revision !== input.baseRevision + 1 || !planCommandMatches(parsed.data, input))) throw new ImagePlanError("INVALID_RESPONSE", writing)
   return parsed.data
 }
 
@@ -62,4 +63,10 @@ function saveImageCalibration(caseId: string, imageId: string, value: SaveCalibr
   return requestPlan(caseId, imageId, input.data, options)
 }
 
-export { fetchImagePlan, saveImageCalibration, ImagePlanError }
+function saveImagePlanEdit(caseId: string, imageId: string, value: SavePlanEditInput, options: Options = {}): Promise<ImagePlan> {
+  const input = SavePlanEditSchema.safeParse(value)
+  if (!input.success) return Promise.reject(new ImagePlanError("VALIDATION_ERROR"))
+  return requestPlan(caseId, imageId, input.data, options)
+}
+
+export { fetchImagePlan, saveImageCalibration, saveImagePlanEdit, ImagePlanError }

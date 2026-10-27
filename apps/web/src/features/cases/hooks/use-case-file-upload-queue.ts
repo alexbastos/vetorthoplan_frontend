@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { useEffect, useMemo, useSyncExternalStore } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { createCaseFileUploadQueue } from "../lib/case-file-upload-queue"
 import { observeUploadSelectionFeedback, isUploadSelectionError } from "../lib/upload-selection-feedback"

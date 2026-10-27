@@ -15,7 +15,7 @@ function imagePlanQueryOptions(client: QueryClient, identity: PlanIdentity, opti
     },
     enabled: () => options.enabled !== false && Boolean(identity.caseId && identity.imageId)
       && !isPlanImageDeleted(client, identity) && !isCalibrationSaveLocked(client, identity.caseId, identity.imageId),
-    retry: false, refetchOnWindowFocus: false, staleTime: 0,
+    retry: false, refetchOnWindowFocus: false, staleTime: 0, gcTime: Infinity,
   })
 }
 

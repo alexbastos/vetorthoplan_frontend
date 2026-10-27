@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useTranslations } from "next-intl"
 import { useMemo } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { createForgotPasswordSchema, type ForgotPasswordValues } from "../schemas/forgot-password.schema"
 import { authBffClient } from "../services/auth-bff-client"

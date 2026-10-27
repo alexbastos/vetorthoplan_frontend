@@ -7,9 +7,9 @@ A rota `/app/cases` hospeda os estados de listagem e vazio, enquanto
 As rotas importam somente a interface pública exposta por `index.ts`.
 
 O quadro mantém o shell focado, o painel de dados e o espaço do visualizador.
-Dados do caso, lista de radiografias, upload e prévia usam os contratos
-clínicos integrados. Calibração e planejamento aguardam suas definições;
-dados provisórios não substituem dados clínicos persistidos.
+Dados do caso, lista de radiografias, upload, prévia, calibração e qualidade
+radiográfica usam os contratos clínicos integrados. O planejamento segue a
+integração por etapas; dados provisórios não substituem dados persistidos.
 
 O quadro apresenta estados separados para carregamento, caso ausente e falha
 de leitura. Um caso `DRAFT` sem imagem pode ser aberto e consultado;
@@ -210,16 +210,147 @@ de revisão exige conciliação explícita. Resposta perdida leva à consulta do
 plano e não a um segundo PUT automático; um resultado ainda indefinido mantém
 o recibo em memória e bloqueia operações destrutivas concorrentes. Leituras
 antigas não devem restaurar plano excluído nem substituir confirmação mais nova.
-O terceiro acesso lateral (régua) agora conecta `CaseImageWorkspace` ao plano
-remoto, com controles por linha/círculo e medida em mm/cm. A prévia precisa estar
+O acesso Imagem conecta `CaseImageWorkspace` ao plano remoto, com controles de
+calibração por linha/círculo e medida em mm/cm. A prévia precisa estar
 decodificada e a imagem deve ter dimensões originais e geometria suportada.
 O visualizador usa coordenadas da matriz original e bordas inclusivas; os
 helpers legados preservam sua convenção anterior por padrão. A referência salva
-continua visível nos outros painéis, somente para consulta. O editor não é
+aparece somente ao abrir a calibração. O editor não é
 reiniciado ao renovar a URL temporária da prévia. Controles por teclado e
-descarte estão disponíveis; os refinamentos de rascunho/navegação e o aceite
-visual/autenticado seguem nas tarefas 4–5 do
+descarte estão disponíveis. Rascunhos, bloqueios e recuperação foram integrados;
+o aceite visual/autenticado segue pendente, conforme o
 [plano de calibração](../../../../../docs/calibration-integration-plan-2026-10-23.md).
+
+## Integração TPLO — 27/10/2026
+
+A tarefa 1 alinhou SDK, schemas e BFF ao OpenAPI publicado, incluindo protocolo,
+tabela de rotação, qualidade, resultados e elegibilidade. O plano preserva os
+campos clínicos devolvidos pela API; valores derivados não são inputs do editor.
+Veja o [estudo de implementação](../../../../../docs/tplo-frontend-implementation-study-2026-10-27.md).
+
+Na tarefa 2, calibração e qualidade passaram a compartilhar `ImagePlanSaveState`
+e `requestPlanEditSave`. Comandos em curso idênticos compartilham a promessa;
+intenções diferentes não são enfileiradas nem reaplicadas com revisão alterada.
+Resposta perdida mantém o comando e permite conferência por leitura; conflitos
+preservam a intenção até uma decisão explícita. `discardPlanEditSave` não
+descarta gravações incertas. O PUT restrito de calibração mantém seu contrato.
+
+O comando adicional `PATCH /api/cases/{caseId}/images/{imageId}/plan/edits` aceita
+`{ kind: "radiographic-quality", baseRevision, quality }`. O BFF valida revisão,
+imagem/caso e faz merge somente desse campo. Resultados, revisão clínica,
+auditoria e elegibilidade não são inputs permitidos nesse comando.
+
+Consultas autenticadas estão disponíveis em
+`GET /api/cases/tplo/clinical-protocol` e
+`GET /api/cases/tplo/rotation-table`, com serviços, schemas e query options em
+`tplo-reference-*`. A tabela aceita `tpa_degrees` de 0 a 90 e
+`blade_diameter_mm` maior que zero. Ausência de configuração ou correspondência
+é dado, não falha de transporte; não há interpolação ou recomendação local.
+O cache usa o QueryClient isolado por organização; essas leituras não ativam
+ferramentas nem autosave.
+
+Após confirmação da equipe de backend em 27/10/2026, qualidade radiográfica
+é um processo interno. O painel manual, o quarto acesso lateral e o hook
+de edição foram removidos. Os acessos permanentes são Detalhes do caso,
+Arquivos e Imagem; não se solicitam critérios, notas ou aprovação de qualidade.
+`radiographic_quality` e `tplo.eligibility` continuam presentes no contrato
+e são preservados ao calibrar, sem preenchimento ou aprovação local.
+O transporte restrito de comandos da tarefa 2 e suas proteções permanecem
+na camada de integração; não são acionados por um formulário do produto.
+
+## Painéis Arquivos e Imagem — 27/10/2026
+
+Arquivos reúne uploads e seleção da radiografia. Imagem abre espelhamento,
+brilho, contraste e inversão desde que a prévia esteja pronta, mesmo antes da calibração.
+Calibrar imagem abre o formulário existente; Recalibrar imagem reabre a
+referência persistida. Cancelar descarta somente a edição e preserva a escala
+salva. Após salvar, o retorno às opções depende da confirmação da API; erros,
+conflitos e resultados incertos mantêm a recuperação no editor.
+
+A referência fica visível somente durante a calibração, sem opção de exibição
+no painel Imagem. Os filtros afetam
+apenas a prévia, preservando arquivo, coordenadas e escala. Restaurar ajustes
+visuais repõe brilho/contraste a 100% e desliga inversão e espelhamento,
+sem remover a calibração nem alterar o zoom.
+
+`useImageDisplaySettings` mantém preferências em memória por organização, caso
+e imagem. Remounts e renovação da URL preservam os ajustes na mesma sessão;
+não há gravação no plano nem armazenamento persistente no navegador. A exclusão
+confirmada remove esse cache. Medidas ficam para etapas futuras.
+O aceite visual/autenticado permanece no teste geral combinado.
+
+### Ferramentas: estrutura e acesso — 27/10/2026
+
+O painel Ferramentas usa o mesmo shell, cabeçalho, rolagem e foco dos demais
+painéis. O quarto acesso, após Imagem, utiliza uma chave inglesa contornada;
+o cabeçalho usa a versão preenchida, com os tokens de tamanho e cor existentes.
+Nesta primeira entrega, há somente a seção Medidas e seu texto de apoio;
+desenho, cálculo e gravação de medidas ficam para a próxima tarefa.
+
+O acesso depende de `measurementEligible` e de não haver uma calibração aberta.
+Só aparece com escala persistida, plano atual, prévia decodificada e geometria
+suportada, sem exclusão, conflito, erro, gravação ou confirmação incerta.
+Entrar na recalibração oculta o acesso, mesmo sem modificar a referência;
+cancelar restaura a escala anterior e permite abrir Ferramentas novamente.
+
+Trocar de imagem ou perder a escala/prévia fecha imediatamente o painel e
+retorna a Imagem, sincronizando a seleção para evitar reabertura automática.
+Se a imagem não permite prévia, a página usa o fallback de Arquivos já
+existente. Abrir o painel não cria rascunho, não escreve na API e mantém o visualizador em navegação.
+Brilho, contraste, inversão, espelhamento e zoom continuam independentes.
+Essa disponibilidade inicial não substitui as validações clínicas da API.
+
+### Espelhamento
+
+Espelhar imagem é uma ação de alternância abaixo de Calibrar, com `aria-pressed`
+e fundo ativo. A transformação horizontal ocorre no contêiner comum da prévia
+e das sobreposições; barra de ferramentas, textos e popup mantêm a orientação.
+O visualizador reflete o cursor de volta antes de mapear coordenadas e detectar
+alças/corpos. Movimento e ajuste das pontas pelo teclado seguem os eixos da
+tela; o ajuste radial do círculo mantém os atalhos de aumentar/diminuir.
+Zoom e pan permanecem independentes. A escala, a matriz e as coordenadas
+originais enviadas à API não são alteradas por essa preferência visual.
+
+A orientação inicial de calibração aparece dentro do visualizador, no canto
+inferior direito, sem portal global nem desfoque. Enquanto aguarda Ok, somente
+os controles e gestos do visualizador ficam inativos. Confirmar restaura o foco
+ao quadro e habilita a referência; Escape ou trocar de painel cancela essa
+entrada sem registrar aceite. A confirmação continua isolada por imagem na
+memória da sessão da organização, inclusive em tela cheia.
+
+A cada nova recalibração explícita, o mesmo popup explica a substituição da
+escala e a revisão das medidas/resultados dependentes. Ok libera os controles
+sem alterar a calibração existente; a escrita continua restrita ao salvamento.
+Cancelar mantém a escala anterior, e retomar um rascunho não reinicia a orientação.
+O aviso não promete apagar todas as edições: o BFF preserva os demais campos
+enviados, e a API controla os resultados derivados. Os status fixos e a escala
+duplicada foram removidos do editor; o valor permanece nas opções de Imagem.
+
+No editor circular, a linha usa `--case-calibration-circle`, em amarelo claro
+(`#F6D86B`), sem contorno adicional. A linha azul representa o diâmetro, com duas alças ligadas
+ao mesmo círculo. Hover amplia apenas a alça; arrastar uma ponta mantém a outra
+fixa, enquanto arrastar o interior move o conjunto. As áreas de detecção usam
+pixels de tela, e o tamanho das alças acompanha o zoom sem alterar a escala.
+
+O posicionamento pelo painel aparece somente quando não há referência; com
+marcação existente, o ajuste acontece diretamente no visualizador. Cancelar
+e Salvar/Atualizar ficam lado a lado no rodapé, com rótulos visíveis curtos e
+nomes acessíveis completos para a ação principal.
+
+`circle-marker-interaction` concentra diâmetro, reconstrução centro/borda e
+limites dos gestos. A detecção de alças é habilitada pelo visualizador, mantendo
+a detecção anterior de borda para os demais consumidores.
+`changeEditorMarkerKind` converte o segmento entre os dois formatos preservando
+a medida real quando os pontos cabem na matriz. Uma linha não pode receber
+extremidades fora da imagem: nesse caso, é necessário novo posicionamento, sem
+truncar silenciosamente o diâmetro de um círculo salvo. O desenho circular novo
+parte de uma extremidade à oposta do diâmetro.
+
+A API continua recebendo uma única referência: `REFERENCE_LINE` ou
+`REFERENCE_CIRCLE`. No modo circular, a linha auxiliar é somente apresentação;
+o payload contém centro, borda e `known_diameter_mm`. A verificação compara o
+comprimento original com duas vezes a distância centro/borda para evitar
+confundir raio com diâmetro. Os resultados continuam sob responsabilidade da API.
 
 Dados clínicos temporários não devem ser persistidos em `localStorage` ou em
 outro armazenamento do navegador. O adapter de desenvolvimento mantém seus

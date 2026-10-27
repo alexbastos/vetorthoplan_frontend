@@ -7,16 +7,26 @@ import test from "node:test"
 const fixture = JSON.parse(readFileSync(new URL("../../../docs/testing/calibration-contract-fixtures-2026-10-23.json", import.meta.url), "utf8"))
 const contractBytes = readFileSync(new URL("../../../docs/openapi/clinical-api.openapi.json", import.meta.url))
 const contract = JSON.parse(contractBytes)
+const capturedContractBytes = readFileSync(new URL("../../../docs/openapi/clinical-api.duplicate-2026-10-23.openapi.json", import.meta.url))
+const capturedContract = JSON.parse(capturedContractBytes)
 const cases = new Map(fixture.cases.map(item => [item.id, item]))
 const result = id => cases.get(id).output.calibration.result
 const close = (actual, expected) => assert.ok(Math.abs(actual - expected) <= 1e-10 * Math.max(1, Math.abs(expected)))
 
-test("calibration evidence is bound to the canonical OpenAPI and a pinned backend revision", () => {
-  assert.equal(fixture.openApiSha256, createHash("sha256").update(contractBytes).digest("hex"))
+test("calibration evidence retains its original contract and pinned source while current calibration schemas remain compatible", () => {
+  // Do not rewrite a historical capture's hash to claim it executed new backend
+  // code. Its preserved contract stays the source of the recorded results.
+  assert.equal(fixture.openApiSha256, createHash("sha256").update(capturedContractBytes).digest("hex"))
   assert.equal(fixture.backendRevision, "279139d4c1ea795bd26578e3595f5e38b14b4712")
   assert.match(fixture.backendSourceSha256, /^[0-9a-f]{64}$/)
   assert.equal(fixture.matchingSchemas.length, 7)
-  for (const name of fixture.matchingSchemas) assert.ok(contract.components.schemas[name])
+  for (const name of fixture.matchingSchemas) {
+    if (name === "PlanDocument") {
+      const { radiographic_quality: _quality, additional_measurements_input: _input, additional_measurements: _results, ...properties } = contract.components.schemas[name].properties
+      assert.deepEqual(properties, capturedContract.components.schemas[name].properties)
+    } else assert.deepEqual(contract.components.schemas[name], capturedContract.components.schemas[name], name)
+  }
+  assert.deepEqual(contract.paths["/api/v1/images/{image_id}/plan"], capturedContract.paths["/api/v1/images/{image_id}/plan"])
   assert.equal(cases.size, 10)
 })
 

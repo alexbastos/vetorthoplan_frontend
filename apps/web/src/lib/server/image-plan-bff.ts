@@ -3,7 +3,8 @@ import "server-only"
 import type { GetImagePath, GetImagePlanPath, SaveImagePlanPath, SaveImagePlanRequest } from "@vetorthoplan/api-client/clinical-contract"
 import { z } from "zod"
 
-import { calibrationMatches, ImagePlanSchema, SaveCalibrationSchema, UpstreamImagePlanSchema, type ImagePlan } from "../../features/cases/schemas/image-plan.schema"
+import { ImagePlanSchema, SaveCalibrationSchema, UpstreamImagePlanSchema, type ImagePlan } from "../../features/cases/schemas/image-plan.schema"
+import { applyPlanCommand, planCommandMatches, SavePlanEditSchema, type PlanSaveCommand } from "../../features/cases/schemas/image-plan-command.schema"
 import { ImageSchema } from "./case-images-bff"
 
 type Reader<Path> = (path: Path, signal?: AbortSignal) => Promise<{ status: number; data: unknown }>
@@ -56,31 +57,42 @@ async function saveImageCalibrationForBff(caseId: string, imageId: string, value
   readImage: Reader<GetImagePath>, readPlan: Reader<GetImagePlanPath>, write: Writer, signal?: AbortSignal): Promise<Result> {
   const input = SaveCalibrationSchema.safeParse(value)
   if (!uuid.safeParse(caseId).success || !uuid.safeParse(imageId).success || !input.success) return failure(400, "VALIDATION_ERROR")
+  return savePlanCommand(caseId, imageId, input.data, readImage, readPlan, write, signal)
+}
+
+async function saveImagePlanEditForBff(caseId: string, imageId: string, value: unknown,
+  readImage: Reader<GetImagePath>, readPlan: Reader<GetImagePlanPath>, write: Writer, signal?: AbortSignal): Promise<Result> {
+  const input = SavePlanEditSchema.safeParse(value)
+  if (!uuid.safeParse(caseId).success || !uuid.safeParse(imageId).success || !input.success) return failure(400, "VALIDATION_ERROR")
+  return savePlanCommand(caseId, imageId, input.data, readImage, readPlan, write, signal)
+}
+
+async function savePlanCommand(caseId: string, imageId: string, input: PlanSaveCommand,
+  readImage: Reader<GetImagePath>, readPlan: Reader<GetImagePlanPath>, write: Writer, signal?: AbortSignal): Promise<Result> {
   let attempted = false
   try {
     if (signal?.aborted) return failure(503, "SERVICE_UNAVAILABLE")
     const checked = await imageForPlan(caseId, imageId, readImage, signal)
     if (checked.error) return checked.error
     const image = checked.image!
-    if (!image.width_px || !image.height_px) return failure(409, "IMAGE_DIMENSIONS_REQUIRED")
-    if (image.kind === "DICOM" && [image.pixel_spacing_mm, image.imager_pixel_spacing_mm].some(spacing =>
+    if (!("kind" in input) && (!image.width_px || !image.height_px)) return failure(409, "IMAGE_DIMENSIONS_REQUIRED")
+    if (!("kind" in input) && image.kind === "DICOM" && [image.pixel_spacing_mm, image.imager_pixel_spacing_mm].some(spacing =>
       spacing && Math.abs(spacing[0] / spacing[1] - 1) > 1e-6)) return failure(409, "CALIBRATION_GEOMETRY_UNSUPPORTED")
     const response = await readPlan({ image_id: imageId }, signal)
     if (response.status !== 200) return mapStatus(response.status, response.data)
     const current = projectPlan(response.data, imageId)
     if (!current) return failure(502, "INVALID_RESPONSE")
-    if (current.revision !== input.data.baseRevision) return failure(409, "PLAN_REVISION_CONFLICT", false, current.revision)
+    if (current.revision !== input.baseRevision) return failure(409, "PLAN_REVISION_CONFLICT", false, current.revision)
     if (signal?.aborted) return failure(503, "SERVICE_UNAVAILABLE")
-    // Only calibration is editable through this BFF endpoint. All other stored
-    // fields survive; the backend alone recomputes derived measurements.
+    // Merge only the command's allowed field into the latest confirmed document.
+    // The backend alone recomputes derived measurements and validates transitions.
     const payload: SaveImagePlanRequest = { base_revision: current.revision,
-      document: { ...current.document, calibration: input.data.calibration } }
+      document: applyPlanCommand(current.document, input) }
     attempted = true
     const saved = await write({ image_id: imageId }, payload, signal)
     if (saved.status !== 200) return mapStatus(saved.status, saved.data, true)
     const plan = projectPlan(saved.data, imageId)
-    if (!plan || plan.revision !== current.revision + 1 || !calibrationMatches(plan.document.calibration, input.data.calibration)
-      || input.data.calibration !== null && !plan.document.calibration?.result) return failure(502, "INVALID_RESPONSE", true)
+    if (!plan || plan.revision !== current.revision + 1 || !planCommandMatches(plan, input)) return failure(502, "INVALID_RESPONSE", true)
     return { status: 200, body: plan }
   } catch (error) {
     return failure(error instanceof SyntaxError ? 502 : 503, error instanceof SyntaxError ? "INVALID_RESPONSE" : "SERVICE_UNAVAILABLE", attempted)
@@ -110,4 +122,4 @@ function failure(status: Failure["status"], code: ErrorCode, uncertain = false, 
     ...(currentRevision === undefined ? {} : { currentRevision }) } } }
 }
 
-export { getImagePlanForBff, saveImageCalibrationForBff }
+export { getImagePlanForBff, saveImageCalibrationForBff, saveImagePlanEditForBff }

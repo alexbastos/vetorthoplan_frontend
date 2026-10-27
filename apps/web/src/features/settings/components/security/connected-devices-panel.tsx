@@ -3,7 +3,7 @@
 import { AlertCircle, MonitorSmartphone } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useCallback, useRef, useState } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { Button } from "@/components/ui/button"
 import { ConnectedDeviceRow } from "./connected-device-row"
@@ -57,15 +57,17 @@ function ConnectedDevicesPanel({ isActive }: ConnectedDevicesPanelProps) {
     try {
       if (session.id === PREVIEW_SESSION_ID) {
         setExitingSessionId(PREVIEW_SESSION_ID)
-        toast.success(t("revoked"))
+        toast.success(t("revoked"), { description: t("revokedDescription") })
         return
       }
 
       await revokeSession(session.id)
       setExitingSessionId(session.id)
-      toast.success(t("revoked"))
+      toast.success(t("revoked"), { description: t("revokedDescription") })
     } catch (error) {
-      toast.error(t("revokeError"), { description: error instanceof Error ? error.message : undefined })
+      toast.error(t("revokeError"), {
+        description: error instanceof Error && error.message.trim() ? error.message : t("revokeErrorDescription"),
+      })
     } finally {
       revocationLockRef.current = false
     }

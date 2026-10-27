@@ -3,6 +3,7 @@ import type { QueryClient } from "@tanstack/react-query"
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
 import { CaseDeleteError, deleteClinicalCase } from "../services/case-delete-api"
 import { CaseDetailRequestError, fetchCaseDetail } from "../services/case-detail-api"
+import { hasImagePlanDraft } from "./image-quality-draft"
 
 type CaseDeletionState = {
   phase: "idle" | "deleting" | "checking" | "deleted" | "error" | "uncertain"
@@ -37,7 +38,7 @@ async function remove(client: QueryClient, caseId: string, options: { fetchImpl?
       const phase = (query.state.data as { phase?: string } | undefined)?.phase
       return phase && ["deleting", "checking", "cancelling", "requesting", "renaming", "saving", "uncertain"].includes(phase)
     })
-  if (competing) return publish({ phase: "error", message: "blocked" })
+  if (competing || hasImagePlanDraft(client, caseId)) return publish({ phase: "error", message: "blocked" })
   const checking = before.phase === "uncertain"
   publish({ phase: checking ? "checking" : "deleting" })
   const exists = async () => {

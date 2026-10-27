@@ -1,0 +1,83 @@
+/* Outrank Sonner's unlayered attribute selectors in either stylesheet order. */
+.toast[data-sonner-toast][data-styled="true"] {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--toast-border);
+  border-radius: var(--radius-token-md);
+  background: var(--toast-surface);
+  color: var(--toast-title);
+  box-shadow: var(--toast-shadow);
+  text-align: start;
+}
+
+.toast[data-sonner-toast][data-styled="true"] .iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 20px;
+  margin: 0;
+}
+
+.toast[data-sonner-toast][data-styled="true"] .content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.toast[data-sonner-toast][data-styled="true"] .title {
+  margin: 0;
+  color: var(--toast-title);
+  font-size: var(--type-ui-size);
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.toast[data-sonner-toast][data-styled="true"] .description {
+  margin: 0;
+  color: var(--toast-description);
+  font-size: var(--type-ui-size);
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.statusIcon {
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+/* Toast surfaces stay white in both themes. */
+.iconSuccess {
+  color: var(--color-sage-700);
+}
+
+.iconWarning {
+  color: var(--color-amber-500);
+}
+
+.iconError {
+  color: var(--color-coral-700);
+}
+
+.iconInfo {
+  color: var(--color-steel-700);
+}
+
+.iconMark {
+  color: var(--toast-surface);
+}
+
+.iconWarning .iconMark {
+  color: var(--color-obsidian);
+}
+
+.iconLoading {
+  color: var(--color-pewter);
+}

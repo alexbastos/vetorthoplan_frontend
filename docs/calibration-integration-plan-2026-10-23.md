@@ -1,7 +1,8 @@
 # Plano de integração da calibração — 23/10/2026
 
-Status: tarefas 1–3 concluídas na implementação e verificação automatizada;
-tarefas 4–5 pendentes. Atualização da tarefa 3: **26/10/2026**.
+Status: tarefas 1–4 concluídas; revisão automatizada da tarefa 5 concluída.
+Aceite visual/autenticado reservado pelo usuário para o teste geral, ainda
+pendente. Atualização da tarefa 5: **26/10/2026**.
 Contrato, evidências e restrição DICOM estão no
 [registro da tarefa 1](./calibration-contract-2026-10-23.md). O painel já utiliza
 o BFF remoto. O aceite visual em navegador e o salvamento autenticado no servidor
@@ -320,7 +321,99 @@ e visual da tarefa 5 continua pendente; esta revisão não conclui a tarefa 4.
 
 Entrega: comportamento consistente entre primeira calibração, edição e reabertura.
 
+Resultado da tarefa 4 — 26/10/2026:
+
+- Rascunhos mantidos em memória por caso/imagem no `QueryClient` da organização,
+  incluindo texto inválido, unidade e geometria. Reabrir o componente recupera
+  a edição; mudança de organização, logout e recarga completa não persistem esses
+  dados. A leitura do plano ao reabrir detecta revisões concorrentes sem apagar
+  o rascunho. Renovar a prévia continua preservando a edição.
+- Entradas e gestos observam o rascunho de forma síncrona, evitando atraso entre
+  alterações consecutivas de valor, unidade e marcador.
+- Navegação pela interface e exclusão respeitam o aviso existente de alterações
+  não salvas. A confirmação consulta os bloqueios atuais: se uma gravação começou
+  com o aviso aberto, a navegação não prossegue. Fechar/recarregar a página usa o
+  aviso nativo do navegador. Uma desmontagem inesperada preserva a edição na
+  memória da organização enquanto esse cliente existir.
+- Exclusão de imagem/caso também verifica rascunhos no controlador, antes de
+  qualquer HTTP, inclusive quando o editor está desmontado. A confirmação de
+  descarte precede a confirmação destrutiva, e salvar/verificar resultado incerto
+  mantém os bloqueios já existentes.
+- Estados explícitos de carregamento, imagem sem calibração, edição, salvamento,
+  confirmação, salva, conflito, resultado incerto e falha recuperável. A escala
+  só aparece como salva com resultado persistido confirmado. Descartar um conflito
+  força nova leitura quando a revisão conhecida ainda não foi carregada; falha
+  nessa leitura não libera edição nem elegibilidade com dados antigos.
+- `measurementEligible` deriva do plano da imagem atual, com resultado oficial,
+  sem edição, leitura pendente, conflito, falha, gravação incerta ou geometria
+  indisponível. Nenhuma ferramenta de Medidas foi implementada.
+- Sonner confirma tanto o salvamento quanto a verificação de uma resposta perdida,
+  e informa falhas. Verificar faz somente GET, sem repetir PUT. Ajuda, validação
+  de campos, régua, unidades, tooltips e os ajustes visuais anteriores foram mantidos.
+- A confirmação persistida limpa apenas o rascunho correspondente, inclusive se
+  a gravação terminar depois de o editor desmontar. Uma intenção local diferente
+  não é apagada pela confirmação de um comando anterior.
+
+Verificação: **347/347 testes** na suíte web, incluindo **28 testes de interação**
+do workspace (11 novos nesta tarefa); TypeScript sem erros; lint React Hooks/Next
+em todos os 14 arquivos TypeScript alterados/criados sem apontamentos; contrato
+clínico canônico e checksums válidos. O ambiente de teste DOM também passou a
+expor `HTMLFormElement` e `DocumentFragment`, usados pelo Select e pelos diálogos.
+Não houve alteração de dependências, `.env`, contrato de API ou gravação no
+servidor publicado. O aceite visual e autenticado da tarefa 5 continua pendente.
+
+### Ajustes de orientação e notificações — 26/10/2026
+
+- Na primeira entrada em uma imagem sem calibração nem rascunho, um diálogo
+  centralizado explica o ajuste da referência. Confirmar posiciona uma linha
+  inicial; o comprimento real permanece vazio e salvar exige uma medida válida.
+  Cancelar volta ao painel anterior sem criar rascunho.
+- A confirmação do aviso fica em memória por imagem e caso, no cliente da
+  organização. Reabrir o painel na mesma sessão não repete o aviso nem recria
+  uma linha descartada. Recarregar a página reinicia essa memória; calibrações
+  salvas e rascunhos existentes são preservados e dispensam a orientação.
+- Abrir/confirmar o aviso não grava no backend. O salvamento explícito mantém
+  o fluxo de revisão e confirmação já integrado.
+- Sonner mantém ícone, título e descrição em todas as notificações. O ícone
+  acompanha a primeira linha do título e usa as cores do projeto: sucesso
+  verde, alerta âmbar, erro vermelho e informação azul. Os tons conservam
+  contraste sobre o fundo branco das notificações nos dois temas.
+
+Verificação destes ajustes: **362/362 testes** na suíte web completa,
+TypeScript sem erros e lint sem apontamentos nos seis arquivos TypeScript
+envolvidos. Os testes incluem foco/teclado, cancelamento, primeira entrada por
+imagem, preservação de plano/rascunho e Sonner nos dois temas. A conferência
+visual no navegador continua no aceite geral; não havia navegador conectado.
+
 ## 5. Validar e encerrar esta entrega
+
+Resultado da revisão automatizada — 26/10/2026:
+
+- Acrescentada disputa simultânea entre duas sessões independentes, passando
+  pelo BFF real e pela integração JWT simulada: ambas chegam à gravação clínica
+  com a mesma revisão; apenas uma é aceita e a outra preserva seu rascunho com
+  conflito. Leituras anteriores à escrita não substituem a proteção de revisão
+  na operação clínica.
+- Acrescentados seis cenários de interação de zoom/pan/redimensionamento:
+  linha/círculo em matrizes horizontal, vertical e quadrada, incluindo prévias
+  arredondadas. A visualização usa proporção e coordenadas originais, preserva
+  a geometria e confirma a escala esperada depois de salvar.
+- Verificados bloqueios do hook com um plano salvo já em cache para imagem
+  não pronta, dimensões ausentes, ambos os campos de anisotropia DICOM,
+  prévia não pronta e exclusão pendente. Nenhuma dessas situações permite
+  edição ou elegibilidade para futuras Medidas.
+- Nenhuma mudança adicional de código de produção foi necessária nesta revisão.
+  Os testes não usam credenciais reais nem fazem gravações no ambiente publicado.
+
+Verificação final: **356/356 testes** na suíte web completa, **47/47** nos testes
+focados de workspace/BFF; TypeScript sem erros; contrato OpenAPI/checksums válidos
+e `git diff --check` sem problemas. Após interrupção da primeira tentativa por
+erro de recursos do ambiente, a suíte completa passou com os mesmos arquivos
+do script `test`, executados diretamente pelo Node com `--test-concurrency=2`.
+
+O [registro de aceite](./calibration-acceptance-2026-10-26.md) reúne evidências,
+roteiro do teste geral e minuta sobre pixels DICOM para o backend. O usuário
+fará o aceite visual/autenticado ao final dos ajustes; essa parte continua aberta.
 
 Automatizar casos com linha/círculo, diferentes proporções de imagem,
 conversão de unidades/coordenadas, zoom/pan, validação de entrada, isolamento

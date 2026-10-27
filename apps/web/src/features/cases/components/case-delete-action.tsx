@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { AlertDialog } from "radix-ui"
 import { useRef, useState } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { Button } from "@/components/ui/button"
+import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 import { casesQueryKeys } from "../hooks/cases-query-keys"
 import { IDLE_CASE_DELETION, requestCaseDeletion, type CaseDeletionState } from "../lib/case-deletion"
 
@@ -17,6 +18,7 @@ function CaseDeleteAction({ caseId, title, blocked = false }: { caseId: string; 
   const router = useRouter()
   const client = useQueryClient()
   const [open, setOpen] = useState(false)
+  const { requestNavigation } = useUnsavedChangesGuard()
   const trigger = useRef<HTMLButtonElement>(null)
   const { data: state } = useQuery<CaseDeletionState>({ queryKey: casesQueryKeys.caseDeletion(caseId),
     queryFn: async () => IDLE_CASE_DELETION, enabled: false, initialData: IDLE_CASE_DELETION, gcTime: Infinity })
@@ -26,13 +28,13 @@ function CaseDeleteAction({ caseId, title, blocked = false }: { caseId: string; 
     const result = await requestCaseDeletion(client, caseId)
     if (result.phase === "deleted") {
       setOpen(false)
-      toast.success(t("success"))
+      toast.success(t("success"), { description: t("successDescription") })
       router.replace("/app/cases")
     }
   }
   return <>
     <Button aria-haspopup="dialog" className="w-full text-destructive hover:bg-destructive/5 hover:text-destructive" disabled={blocked || pending || state.phase === "deleted"}
-      onClick={() => setOpen(true)} ref={trigger} size="sm" title={blocked ? t("messages.blocked") : undefined} type="button" variant="secondary">
+      onClick={() => requestNavigation(() => setOpen(true))} ref={trigger} size="sm" title={blocked ? t("messages.blocked") : undefined} type="button" variant="secondary">
       <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.5} />{t("action")}
     </Button>
     <AlertDialog.Root open={open} onOpenChange={next => { if (!pending) setOpen(next) }}>

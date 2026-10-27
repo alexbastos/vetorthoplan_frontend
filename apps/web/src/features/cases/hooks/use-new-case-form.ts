@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useForm, useWatch, type DefaultValues } from "react-hook-form"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 

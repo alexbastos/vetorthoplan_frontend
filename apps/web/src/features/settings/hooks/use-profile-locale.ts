@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/config"
 import { settingsBffClient } from "../services/settings-bff-client"
@@ -25,7 +25,9 @@ function useProfileLocale() {
 
       return updateResult.data.user
     },
-    onError: (error) => toast.error(t("languageSaveError"), { description: error.message }),
+    onError: (error) => toast.error(t("languageSaveError"), {
+      description: error instanceof Error && error.message.trim() ? error.message : t("languageSaveErrorDescription"),
+    }),
     onSuccess: (user) => {
       queryClient.setQueryData<SettingsUser>(["settings", "profile"], user)
       router.refresh()

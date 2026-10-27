@@ -50,4 +50,28 @@ function populatedDocument(f) {
   }
 }
 
-export { imagePlanFixture, populatedDocument }
+// Synthetic payloads following the OpenAPI captured on 27/10. Geometry results
+// still come from the separately preserved, pinned backend evidence above.
+function publishedEmptyDocument(f) {
+  return { ...structuredClone(f.initial.document), radiographic_quality: null,
+    additional_measurements_input: { landmarks: {}, reference_values: {} }, additional_measurements: [] }
+}
+
+function publishedPopulatedDocument(f) {
+  const previous = populatedDocument(f)
+  return { ...previous,
+    radiographic_quality: { true_lateral: "PASS", femoral_condyles_superimposed: "PASS", stifle_and_tarsus_included: "PASS",
+      tibial_axis_centered: "PASS", tibial_plateau_visible: "PASS", notes: "Synthetic quality notes" },
+    additional_measurements_input: { landmarks: { custom_start: { x: 0.1, y: 0.2 }, custom_end: { x: 0.6, y: 0.7 } },
+      reference_values: { custom_reference: 23.5 } },
+    additional_measurements: [{ id: "CUSTOM_ANGLE", status: "CALCULATED", value: 24, units: "degrees",
+      details: { landmarks: ["custom_start", "custom_end"], accepted: true, reference: null } }],
+    tplo_measurement: { ...previous.tplo_measurement, reference_tpa_degrees: 23.5, tpa_absolute_error_degrees: 0.5,
+      tpa_max_absolute_error_degrees: 1.5, acceptance: "PASS", clinical_protocol_version: "synthetic-protocol-1" },
+    clinical_validation: { ...previous.clinical_validation, required_measurements: ["TPA", ...Array.from({ length: 11 }, (_, i) => `CUSTOM_${i}`)],
+      audit: [{ decision: "APPROVED", actor_id: "00000000-0000-4000-8000-000000000777", reviewed_at: "2026-10-27T10:00:00-03:00",
+        protocol_version: "synthetic-protocol-1", measurement_method: previous.tplo_measurement.method, calibration_id: "c".repeat(64) }] },
+  }
+}
+
+export { imagePlanFixture, populatedDocument, publishedEmptyDocument, publishedPopulatedDocument }

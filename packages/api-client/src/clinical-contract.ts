@@ -95,3 +95,13 @@ export type GetImagePlanResponse = ClinicalResponse<"get_image_plan_api_v1_image
 export type SaveImagePlanPath = ClinicalPath<"save_image_plan_api_v1_images__image_id__plan_put">
 export type SaveImagePlanRequest = ClinicalRequest<"save_image_plan_api_v1_images__image_id__plan_put">
 export type SaveImagePlanResponse = ClinicalResponse<"save_image_plan_api_v1_images__image_id__plan_put", 200>
+
+// Contract aliases only; the corresponding frontend/BFF flows are separate work.
+export type GetTploClinicalProtocolResponse = ClinicalResponse<"get_tplo_clinical_protocol_api_v1_tplo_clinical_protocol_get", 200>
+export type GetTploRotationTableQuery = NonNullable<operations["get_tplo_rotation_table_api_v1_tplo_rotation_table_get"]["parameters"]["query"]>
+export type GetTploRotationTableResponse = ClinicalResponse<"get_tplo_rotation_table_api_v1_tplo_rotation_table_get", 200>
+export type FinalizeImagePlanPath = ClinicalPath<"finalize_image_plan_api_v1_images__image_id__plan_finalize_post">
+export type FinalizeImagePlanRequest = ClinicalRequest<"finalize_image_plan_api_v1_images__image_id__plan_finalize_post">
+export type FinalizeImagePlanResponse = ClinicalResponse<"finalize_image_plan_api_v1_images__image_id__plan_finalize_post", 200>
+export type GetFinalizedImagePlanPath = ClinicalPath<"get_finalized_image_plan_api_v1_images__image_id__plan_finalization_get">
+export type GetFinalizedImagePlanResponse = ClinicalResponse<"get_finalized_image_plan_api_v1_images__image_id__plan_finalization_get", 200>

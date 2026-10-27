@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { createImageCopyName } from "../lib/case-image-name"
 import { casesRepository } from "../services/cases-repository"
@@ -34,12 +34,13 @@ function useCaseImageActions({ caseId, image, existingNames, onCompleted }: {
     onSuccess: async (_, action) => {
       onCompleted()
       await queryClient.invalidateQueries({ queryKey: casesQueryKeys.all })
-      toast.success(t(`${action.kind}Success`))
+      toast.success(t(`${action.kind}Success`), { description: t(`${action.kind}SuccessDescription`) })
     },
     onError: (error) => {
-      toast.error(error instanceof CasesRepositoryError && error.code === "FILES_UNAVAILABLE"
-        ? t("unavailable") : error instanceof CasesRepositoryError && error.code === "VALIDATION_ERROR"
-          ? t("invalidName") : t("error"))
+      const key = error instanceof CasesRepositoryError && error.code === "FILES_UNAVAILABLE"
+        ? "unavailable" : error instanceof CasesRepositoryError && error.code === "VALIDATION_ERROR"
+          ? "invalidName" : "error"
+      toast.error(t(`${key}Title`), { description: t(`${key}Description`) })
     },
   })
 }

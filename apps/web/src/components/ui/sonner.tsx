@@ -1,8 +1,11 @@
 "use client"
 
 import { Toaster as SonnerToaster } from "sonner"
+import { LoaderCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
+import { NotificationStatusIcon } from "./notification-status-icon"
+import styles from "./sonner.module.css"
 
 function Toaster() {
   const t = useTranslations("common.accessibility")
@@ -24,16 +27,22 @@ function Toaster() {
       containerAriaLabel={t("notifications")}
       duration={2800}
       gap={12}
+      icons={{
+        success: <NotificationStatusIcon kind="success" />,
+        error: <NotificationStatusIcon kind="error" />,
+        warning: <NotificationStatusIcon kind="warning" />,
+        info: <NotificationStatusIcon kind="info" />,
+        loading: <LoaderCircle aria-hidden="true" className={`${styles.statusIcon} ${styles.iconLoading} animate-spin motion-reduce:animate-none`} />,
+      }}
       position="top-right"
       theme={theme}
       toastOptions={{
         classNames: {
-          content: "gap-1",
-          description: "text-ui !text-[var(--toast-description)]",
-      icon: "mt-1 self-start !text-[var(--toast-icon)]",
-          title: "text-ui-semibold !text-[var(--toast-title)]",
-          toast:
-            "!border-[var(--toast-border)] !bg-[var(--toast-surface)] !text-[var(--toast-title)] shadow-[var(--toast-shadow)]",
+          content: styles.content,
+          description: styles.description,
+          icon: styles.iconWrapper,
+          title: styles.title,
+          toast: styles.toast,
         },
       }}
     />

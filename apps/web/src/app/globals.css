@@ -313,12 +313,14 @@
   --case-editor-input-border-focus: #d0d0d0;
   --case-editor-placeholder: #c0c0c0;
   --case-editor-radio-active: #2563eb;
+  --case-calibration-circle: #f6d86b;
   --case-progress-label: var(--color-neutral-400);
   --case-progress-label-active: var(--case-editor-radio-active);
   --case-progress-track: var(--color-neutral-200);
   --case-progress-fill: var(--case-editor-radio-active);
   --case-viewer-shell: #000;
   --case-viewer-canvas: #000;
+  --case-viewer-canvas-inverted: #fff;
 
   /* Toast — feedback flutuante neutro, independente da severidade. */
   --toast-surface: #fff;

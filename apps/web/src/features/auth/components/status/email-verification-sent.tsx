@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { useTranslations } from "next-intl"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { Button } from "@/components/ui/button"
 import { InputField } from "@/components/ui/input-field"
@@ -64,7 +64,7 @@ function EmailVerificationSent({ email }: EmailVerificationSentProps) {
         })
       }
     } catch {
-      toast.error(t("connectionError"))
+      toast.error(t("connectionErrorTitle"), { description: t("connectionError") })
     } finally {
       setIsResending(false)
     }

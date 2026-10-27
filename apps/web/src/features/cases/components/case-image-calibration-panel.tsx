@@ -1,7 +1,7 @@
 "use client"
 
 import { Check, Circle, Crosshair, RefreshCw, Ruler } from "lucide-react"
-import { useLocale, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 import type { ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,13 @@ import { ImagePlanError } from "../services/image-plan-api"
 import { CalibrationReferenceSize } from "./calibration-reference-size"
 import { CasePanelHelp } from "./case-panel-help"
 
-function CaseImageCalibrationPanel({ calibration: c, onSave, onPlace }: {
-  calibration: ImageCalibrationState; onSave: () => void; onPlace: () => void
+function CaseImageCalibrationPanel({ calibration: c, interactionBlocked = false, onSave, onPlace, onCheck, onCancel }: {
+  calibration: ImageCalibrationState; interactionBlocked?: boolean; onSave: () => void; onPlace: () => void; onCheck: () => void; onCancel?: () => void
 }) {
   const t = useTranslations("cases.workspace.calibration")
-  const locale = useLocale()
   const { editor, receipt } = c
   const pending = receipt.phase === "saving" || receipt.phase === "checking" || c.save.isPending
+  const saveLabel = t(c.plan?.document.calibration ? "update" : "remote.save")
   const conflict = receipt.phase === "conflict" || c.needsRebase
   const readError = c.planQuery.error instanceof ImagePlanError ? c.planQuery.error.code : undefined
   const code = receipt.phase === "error" ? receipt.code : readError
@@ -25,15 +25,16 @@ function CaseImageCalibrationPanel({ calibration: c, onSave, onPlace }: {
     : code === "IMAGE_NOT_READY" || code === "IMAGE_NOT_FOUND" ? "notReady" : receipt.phase === "error" ? "saveError" : "remote.readError"
 
   if (c.issue) return <p className="text-[12px] leading-5 text-description" role="status">{t(c.issue === "anisotropy" ? "remote.anisotropy" : "remote.dimensions")}</p>
-  if (!c.plan && !editor && c.planQuery.isPending) return <p aria-busy="true" className="text-[12px] text-description">{t("remote.loading")}</p>
+  if (!c.plan && !editor && c.planQuery.isPending) return <p aria-busy="true" className="text-[12px] text-description" role="status">{t("remote.loading")}</p>
 
   return <div className="flex min-w-0 flex-1 flex-col gap-4">
+    {c.state === "loading" ? <p aria-busy="true" className="text-[12px] text-description" role="status">{t("remote.loading")}</p> : null}
     {code || c.planQuery.isError ? <div className="space-y-2" role="alert">
       <p className="text-[12px] leading-5 text-destructive">{t(errorKey)}</p>
       {c.planQuery.isError ? <Button disabled={c.locked || c.deleting || c.planQuery.isFetching} onClick={c.refresh} size="sm" variant="secondary"><RefreshCw aria-hidden="true" />{t("remote.retry")}</Button> : null}
     </div> : null}
     {editor ? <>
-      <fieldset className="min-w-0" disabled={!c.canEdit}>
+      <fieldset className="min-w-0" disabled={!c.canEdit || interactionBlocked}>
         <legend className="flex w-full items-center justify-between gap-2 font-data text-[11px] font-medium text-foreground">
           <span>{t("markerTitle")}</span>
           <CasePanelHelp label={t("remote.help")}>
@@ -46,20 +47,19 @@ function CaseImageCalibrationPanel({ calibration: c, onSave, onPlace }: {
           <ShapeButton active={editor.kind === "circle"} label={t("circle")} onClick={() => c.changeKind("circle")}><Circle aria-hidden="true" /></ShapeButton>
         </div>
         <CalibrationReferenceSize disabled={!c.canEdit} editor={editor} onReferenceChange={c.changeReference} onUnitChange={c.changeUnit} />
-        <Button className="mt-3 w-full" onClick={onPlace} size="sm" type="button" variant="secondary"><Crosshair aria-hidden="true" />{t(c.marker ? "remote.reposition" : "remote.place")}</Button>
+        {!c.marker ? <Button className="mt-3 w-full" onClick={onPlace} size="sm" type="button" variant="secondary"><Crosshair aria-hidden="true" />{t("remote.place")}</Button> : null}
       </fieldset>
-      {!c.canEdit && !c.locked && !c.deleting && !c.planQuery.isError ? <p className="text-[12px] leading-5 text-description" role="status">{t("notReady")}</p> : null}
+      {!c.canEdit && !c.locked && !c.deleting && !c.planQuery.isError && c.state !== "loading" ? <p className="text-[12px] leading-5 text-description" role="status">{t(c.otherIntent ? "remote.otherEdit" : "notReady")}</p> : null}
       {c.hasChanges && editor.geometry && referenceInMillimetres(editor.reference, editor.unit) !== null && !c.command() && !conflict && !c.locked && c.canEdit ? <p className="text-[11px] leading-4 text-destructive" role="alert">{t("invalidScale")}</p> : null}
       {conflict ? <p className="text-[12px] leading-5 text-destructive" role="alert">{t("remote.conflict")}</p> : null}
       {receipt.phase === "uncertain" ? <div className="space-y-3" role="status"><p className="text-[12px] leading-5 text-description">{t("remote.uncertain")}</p>
-        <Button disabled={c.deleting || c.save.isPending} onClick={c.check} size="sm" variant="secondary"><RefreshCw aria-hidden="true" />{t("remote.check")}</Button></div> : null}
-      {!c.hasChanges && c.plan?.document.calibration?.result ? <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-border pt-4 font-data">
-        <span className="text-[10px] text-description">{t("savedScale")}</span>
-        <output className="text-[12px] font-medium tabular-nums">{new Intl.NumberFormat(locale, { maximumSignificantDigits: 6 }).format(c.plan.document.calibration.result.mm_per_pixel)} mm/px</output>
-      </div> : null}
+        <Button disabled={c.deleting || c.save.isPending} onClick={onCheck} size="sm" variant="secondary"><RefreshCw aria-hidden="true" />{t("remote.check")}</Button></div> : null}
       <div aria-live="polite" className="mt-auto pt-4">
         {pending ? <p className="mb-3 text-[12px] text-description">{t(receipt.phase === "checking" ? "remote.checking" : "remote.saving")}</p> : null}
-        <Button className="w-full" disabled={!c.canSave || pending} loading={pending} onClick={onSave} size="sm" type="button"><Check aria-hidden="true" />{t(c.plan?.document.calibration ? "update" : "remote.save")}</Button>
+        <div className={`grid gap-2 ${onCancel ? "grid-cols-2" : "grid-cols-1"}`}>
+          {onCancel ? <Button className="min-w-0 w-full px-2" disabled={c.locked || c.deleting} onClick={onCancel} size="sm" type="button" variant="ghost">{t("cancelEditing")}</Button> : null}
+          <Button aria-label={saveLabel} className="min-w-0 w-full px-2" disabled={!c.canSave || pending || interactionBlocked} loading={pending} onClick={onSave} size="sm" title={saveLabel} type="button">{!pending ? <Check aria-hidden="true" /> : null}{t(c.plan?.document.calibration ? "actions.update" : "actions.save")}</Button>
+        </div>
       </div>
     </> : null}
   </div>

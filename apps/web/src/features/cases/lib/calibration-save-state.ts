@@ -2,14 +2,19 @@ import type { QueryClient } from "@tanstack/react-query"
 
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
 import type { SaveCalibrationInput } from "../schemas/image-plan.schema"
+import type { SavePlanEditInput } from "../schemas/image-plan-command.schema"
 
 type PlanIdentity = { caseId: string; imageId: string }
-type CalibrationSaveState = {
+type ImagePlanSaveState = {
   phase: "idle" | "checking" | "saving" | "saved" | "conflict" | "uncertain" | "error"
   draft?: SaveCalibrationInput
+  edit?: SavePlanEditInput
   code?: string
   currentRevision?: number
 }
+// Compatibility name for the existing calibration UI. The receipt and its lock
+// are shared by every permitted command, including radiographic quality.
+type CalibrationSaveState = ImagePlanSaveState
 const IDLE_CALIBRATION_SAVE: CalibrationSaveState = { phase: "idle" }
 
 function isCalibrationSaveLocked(client: QueryClient, caseId: string, imageId: string): boolean {
@@ -24,4 +29,4 @@ function isPlanImageDeleted(client: QueryClient, { caseId, imageId }: PlanIdenti
 }
 
 export { IDLE_CALIBRATION_SAVE, isCalibrationSaveLocked, isPlanImageDeleted }
-export type { CalibrationSaveState, PlanIdentity }
+export type { CalibrationSaveState, ImagePlanSaveState, PlanIdentity }

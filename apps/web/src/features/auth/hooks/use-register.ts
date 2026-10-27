@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { useTranslations } from "next-intl"
 import { useMemo } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { createRegisterSchema, type RegisterValues } from "../schemas/register.schema"
 import { authBffClient } from "../services/auth-bff-client"

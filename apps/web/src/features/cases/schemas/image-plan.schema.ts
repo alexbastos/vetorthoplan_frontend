@@ -38,6 +38,22 @@ const objects = z.discriminatedUnion("type", [
 const method = z.enum(["MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1", "CONVENTIONAL_FULL_MECHANICAL_AXIS_V1"])
 const slope = number.min(0).max(90).nullable().optional()
 const note = z.string().max(2000).nullable().optional()
+const assessment = z.enum(["PASS", "FAIL", "NOT_ASSESSED"]).default("NOT_ASSESSED")
+const radiographicQuality = z.object({
+  true_lateral: assessment, femoral_condyles_superimposed: assessment, stifle_and_tarsus_included: assessment,
+  tibial_axis_centered: assessment, tibial_plateau_visible: assessment, notes: note,
+}).strict()
+const additionalMeasurementsInput = z.object({
+  landmarks: z.record(z.string(), point).refine(value => Object.keys(value).length <= 40).optional(),
+  reference_values: z.record(z.string(), number).refine(value => Object.keys(value).length <= 50).optional(),
+}).strict()
+// Only this published result collection is open-ended. Retain its complete JSON
+// so a calibration-only PUT cannot strip protocol-specific derived values.
+const additionalMeasurements = z.array(z.record(z.string(), z.json()))
+const reviewAudit = z.object({
+  decision: z.enum(["APPROVED", "REJECTED"]), actor_id: z.string().uuid(), reviewed_at: z.iso.datetime({ offset: true }),
+  protocol_version: z.string(), measurement_method: z.string().nullable().optional(), calibration_id: hash.nullable().optional(),
+}).strict()
 // Strict nested objects fail closed on an unknown future field instead of silently
 // stripping it and overwriting the stored document during a calibration-only save.
 const PlanDocumentSchema = z.object({
@@ -48,26 +64,42 @@ const PlanDocumentSchema = z.object({
     eligibility: z.enum(["PENDING", "ELIGIBLE", "INELIGIBLE"]).default("PENDING"),
     eligibility_reasons: z.array(z.string()).max(10).optional(), current_slope_degrees: slope, target_slope_degrees: slope, notes: note,
   }).strict().nullable().optional(),
+  radiographic_quality: radiographicQuality.nullable().optional(),
   tplo_landmarks: z.object({ method: method.default("MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1"), plateau_cranial: point, plateau_caudal: point,
     intercondylar_midpoint: point, talus_center: point }).strict().nullable().optional(),
+  additional_measurements_input: additionalMeasurementsInput.optional(),
+  additional_measurements: additionalMeasurements.optional(),
   tplo_measurement: z.object({ method, status: z.enum(["CALCULATED", "LANDMARKS_REQUIRED", "IMAGE_DIMENSIONS_REQUIRED"]),
     tpa_degrees: slope, plateau_length_mm: positive.nullable().optional(), tibial_axis_length_mm: positive.nullable().optional(),
     calibration_id: hash.nullable().optional(), clinically_validated: z.literal(false).default(false),
+    reference_tpa_degrees: slope, tpa_absolute_error_degrees: slope,
+    tpa_max_absolute_error_degrees: positive.max(90).nullable().optional(),
+    acceptance: z.enum(["PASS", "FAIL", "NOT_ASSESSED", "NOT_CONFIGURED"]).nullable().optional(),
+    clinical_protocol_version: z.string().nullable().optional(),
   }).strict().nullable().optional(),
   clinical_validation: z.object({ status: z.enum(["DRAFT", "READY_FOR_REVIEW", "APPROVED", "REJECTED"]).default("DRAFT"),
     orientation_confirmed: z.boolean().default(false), image_quality_confirmed: z.boolean().default(false),
     calibration_confirmed: z.boolean().default(false), anatomical_references_confirmed: z.boolean().default(false),
-    required_measurements: z.array(z.enum(["TPA", "PLATEAU_AXIS", "TIBIAL_AXIS"])).max(10).optional(),
-    reviewer_notes: note, rejection_reason: note,
+    required_measurements: z.array(z.string()).max(50).optional(),
+    reviewer_notes: note, rejection_reason: note, audit: z.array(reviewAudit).optional(),
   }).strict().nullable().optional(),
 }).strict()
+
+function isEmptyPlanDocument(document: z.infer<typeof PlanDocumentSchema>): boolean {
+  const quality = document.radiographic_quality
+  const emptyQuality = !quality || quality.notes == null && [quality.true_lateral, quality.femoral_condyles_superimposed,
+    quality.stifle_and_tarsus_included, quality.tibial_axis_centered, quality.tibial_plateau_visible].every(value => value === "NOT_ASSESSED")
+  return [document.calibration, document.tplo, document.tplo_landmarks, document.tplo_measurement, document.clinical_validation].every(value => value == null)
+    && document.objects.length === 0 && emptyQuality && (document.additional_measurements?.length ?? 0) === 0
+    && Object.keys(document.additional_measurements_input?.landmarks ?? {}).length === 0
+    && Object.keys(document.additional_measurements_input?.reference_values ?? {}).length === 0
+}
 
 const revision = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
 const timestamp = z.iso.datetime({ offset: true }).nullable()
 const UpstreamImagePlanSchema = z.object({ image_id: z.string().uuid(), revision, document: PlanDocumentSchema, updated_at: timestamp }) satisfies z.ZodType<GetImagePlanResponse>
 const ImagePlanSchema = z.object({ imageId: z.string().uuid(), revision, document: PlanDocumentSchema, updatedAt: timestamp }).strict()
-  .refine(plan => plan.revision > 0 ? plan.updatedAt !== null : plan.updatedAt === null && Object.entries(plan.document).every(([key, value]) =>
-    key === "schema_version" || key === "objects" && Array.isArray(value) && value.length === 0 || value === null || value === undefined))
+  .refine(plan => plan.revision > 0 ? plan.updatedAt !== null : plan.updatedAt === null && isEmptyPlanDocument(plan.document))
 const SaveCalibrationSchema = z.object({ baseRevision: revision.max(Number.MAX_SAFE_INTEGER - 1), calibration: CalibrationInputSchema.nullable() }).strict()
 
 type ImagePlan = z.infer<typeof ImagePlanSchema>

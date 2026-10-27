@@ -10,7 +10,7 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 const editor = await import("../src/features/cases/lib/calibration-editor.ts")
 const { mapClientPointToImage } = await import("../src/features/cases/lib/image-coordinate-map.ts")
 const { moveLineMarker } = await import("../src/features/cases/lib/line-marker-interaction.ts")
-const { moveCircleMarker, resizeCircleMarker } = await import("../src/features/cases/lib/circle-marker-interaction.ts")
+const { circleDiameter, circleFromDiameter, resizeCircleDiameter, hitTestCircleMarker, moveCircleMarker, resizeCircleMarker } = await import("../src/features/cases/lib/circle-marker-interaction.ts")
 const f = imagePlanFixture(), dimensions = { widthPx: 2000, heightPx: 1000 }
 const initial = f.publicPlan(f.initial)
 const evidence = JSON.parse(readFileSync(new URL("../../../docs/testing/calibration-contract-fixtures-2026-10-23.json", import.meta.url), "utf8"))
@@ -113,4 +113,75 @@ test("valid remote circles may cross the image border and still move without cha
     assert.ok(editor.calibrationFromEditor({ ...editor.editorFromCalibration(0, null), kind: "circle", geometry: next, reference: "20" }))
     assert.ok(Math.abs(next.edge.x - geometry.edge.x - 1 / 2000) < 1e-12)
   }
+})
+
+test("line and circle share one physical diameter when switching shapes in a non-square original matrix", () => {
+  const start = { x: 400, y: 200 }, end = { x: 1600, y: 800 }
+  const marker = circleFromDiameter(start, end)
+  assert.deepEqual(circleDiameter(marker), { start, end })
+  const line = { ...editor.editorFromCalibration(0, null), reference: "2,5", unit: "cm",
+    geometry: { kind: "REFERENCE_LINE", start: { x: 0.2, y: 0.2 }, end: { x: 0.8, y: 0.8 } } }
+  const circle = editor.changeEditorMarkerKind(line, "circle", dimensions)
+  const command = editor.calibrationFromEditor(circle)
+  assert.equal(command.kind, "REFERENCE_CIRCLE")
+  assert.equal(command.known_diameter_mm, 25)
+  assert.deepEqual(command.center, { x: 0.5, y: 0.5 })
+  assert.deepEqual(command.edge, { x: 0.8, y: 0.8 })
+  const length = 2 * Math.hypot((command.edge.x - command.center.x) * 2000, (command.edge.y - command.center.y) * 1000)
+  assert.ok(Math.abs(length - Math.hypot(end.x - start.x, end.y - start.y)) < 1e-10)
+  const roundtrip = editor.changeEditorMarkerKind(circle, "line", dimensions)
+  assert.deepEqual(editor.calibrationFromEditor(roundtrip), editor.calibrationFromEditor(line))
+})
+
+test("dragging either diameter endpoint keeps the other fixed and maps to one center-edge calibration", () => {
+  const marker = circleFromDiameter({ x: 400, y: 300 }, { x: 1200, y: 700 })
+  for (const endpoint of ["start", "end"]) {
+    const point = endpoint === "start" ? { x: 200, y: 100 } : { x: 1500, y: 900 }
+    const next = resizeCircleDiameter(marker, endpoint, point, 2000, 1000, 0)
+    const before = circleDiameter(marker), after = circleDiameter(next)
+    const fixed = endpoint === "start" ? "end" : "start"
+    assert.deepEqual(after[fixed], before[fixed])
+    assert.deepEqual(after[endpoint], point)
+    assert.equal(next.radiusPx, Math.hypot(after.end.x - after.start.x, after.end.y - after.start.y) / 2)
+    const geometry = editor.markerToGeometry(next, dimensions)
+    assert.ok(editor.calibrationFromEditor({ ...editor.editorFromCalibration(0, null), kind: "circle", geometry, reference: "20" }))
+    assert.deepEqual(editor.geometryToMarker(geometry, dimensions), next)
+  }
+})
+
+test("diameter handles win over the circle edge at any zoom and retain a screen-pixel hit target", () => {
+  const marker = circleFromDiameter({ x: 400, y: 300 }, { x: 1200, y: 700 })
+  for (const scale of [0.15, 0.5, 2]) {
+    const rect = { left: 80, top: 40, width: 2000 * scale, height: 1000 * scale }
+    const diameter = circleDiameter(marker)
+    for (const endpoint of ["start", "end"]) {
+      const point = diameter[endpoint]
+      assert.equal(hitTestCircleMarker({ x: rect.left + point.x * scale + 5, y: rect.top + point.y * scale }, marker, rect, 2000, 1000, { diameterHandles: true }), endpoint)
+    }
+    assert.equal(hitTestCircleMarker({ x: rect.left + marker.center.x * scale, y: rect.top + marker.center.y * scale }, marker, rect, 2000, 1000, { diameterHandles: true }), "body")
+  }
+})
+
+test("partially visible circles keep their opposite endpoint and valid API coordinates when resizing the diameter", () => {
+  for (const centerX of [0, 0.02, 0.25, 0.5, 0.9, 1]) for (const edgeX of [0, 0.02, 0.25, 0.5, 0.9, 1]) {
+    if (centerX === edgeX) continue
+    const marker = editor.geometryToMarker({ kind: "REFERENCE_CIRCLE", center: { x: centerX, y: 0.5 }, edge: { x: edgeX, y: 0.5 } }, dimensions)
+    for (const endpoint of ["start", "end"]) for (const x of [-100, 0, 500, 2000, 2100]) {
+      const next = resizeCircleDiameter(marker, endpoint, { x, y: 450 }, 2000, 1000, 0)
+      const fixed = endpoint === "start" ? "end" : "start"
+      assert.ok(Math.abs(circleDiameter(next)[fixed].x - circleDiameter(marker)[fixed].x) < 1e-9)
+      assert.ok(Math.abs(circleDiameter(next)[fixed].y - circleDiameter(marker)[fixed].y) < 1e-9)
+      assert.ok(editor.calibrationFromEditor({ ...editor.editorFromCalibration(0, null), kind: "circle",
+        geometry: editor.markerToGeometry(next, dimensions), reference: "20" }))
+    }
+  }
+})
+
+test("a circle whose full diameter is outside the matrix requires line placement instead of silently changing its scale", () => {
+  const circle = editor.editorFromCalibration(2, { kind: "REFERENCE_CIRCLE", center: { x: 0.02, y: 0.5 }, edge: { x: 0.07, y: 0.5 }, known_diameter_mm: 20 })
+  const changed = editor.changeEditorMarkerKind(circle, "line", dimensions)
+  assert.equal(changed.geometry, null)
+  assert.equal(changed.reference, "20")
+  assert.equal(editor.calibrationFromEditor(changed), null)
+  assert.deepEqual(circle.geometry.center, { x: 0.02, y: 0.5 })
 })

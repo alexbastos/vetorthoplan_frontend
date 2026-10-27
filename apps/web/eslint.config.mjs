@@ -11,6 +11,19 @@ export default defineConfig([
       ...nextPlugin.configs["core-web-vitals"].rules,
     },
   },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/lib/notifications.ts", "src/components/ui/sonner.tsx"],
+    rules: {
+      "no-restricted-imports": ["error", {
+        paths: [{
+          name: "sonner",
+          importNames: ["toast"],
+          message: "Use @/lib/notifications so every notification has a status icon, title and description.",
+        }],
+      }],
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

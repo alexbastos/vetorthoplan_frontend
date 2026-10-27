@@ -7,6 +7,7 @@ import { AlertDialog } from "radix-ui"
 import { useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { useUnsavedChangesGuard } from "@/components/shared/app-shell/unsaved-changes-guard"
 import { casesQueryKeys } from "../hooks/cases-query-keys"
 import { canDeleteCaseImage, IDLE_DELETION, requestImageDeletion, type ImageDeletionState } from "../lib/image-deletion"
 import type { CaseImage } from "../types/case-image"
@@ -14,6 +15,7 @@ import type { CaseImage } from "../types/case-image"
 function CaseImageDeleteAction({ image, onDeleted }: { image: CaseImage; onDeleted: () => void }) {
   const t = useTranslations("cases.imageDeletion")
   const [open, setOpen] = useState(false)
+  const { requestNavigation } = useUnsavedChangesGuard()
   const trigger = useRef<HTMLButtonElement>(null)
   if (!canDeleteCaseImage(image) && !open) return null
   return <>
@@ -21,7 +23,7 @@ function CaseImageDeleteAction({ image, onDeleted }: { image: CaseImage; onDelet
       aria-label={t("namedAction", { name: image.displayName ?? image.originalFilename })}
       className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-token-sm)] text-icon-muted outline-none hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
       disabled={!canDeleteCaseImage(image)}
-      onClick={() => setOpen(true)}
+      onClick={() => requestNavigation(() => setOpen(true))}
       ref={trigger}
       title={t("action")}
       type="button"

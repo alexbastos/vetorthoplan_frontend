@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { createResetPasswordSchema, type ResetPasswordValues } from "../schemas/reset-password.schema"
 import { authBffClient } from "../services/auth-bff-client"

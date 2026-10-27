@@ -116,8 +116,28 @@ for (const [path, method, status] of [
   ["/api/v1/jobs/{job_id}/retry", "post", 202],
   ["/api/v1/image-uploads/{upload_id}", "delete", 204],
   ["/api/v1/images/{image_id}", "delete", 204],
+  ["/api/v1/images/{image_id}/plan", "get", 200],
+  ["/api/v1/images/{image_id}/plan", "put", 200],
+  ["/api/v1/tplo/clinical-protocol", "get", 200],
+  ["/api/v1/tplo/rotation-table", "get", 200],
+  ["/api/v1/images/{image_id}/plan/finalize", "post", 200],
+  ["/api/v1/images/{image_id}/plan/finalization", "get", 200],
 ]) {
   assert(document.paths[path]?.[method]?.responses?.[status], `Missing clinical operation: ${method.toUpperCase()} ${path} (${status})`)
 }
+
+for (const field of ["radiographic_quality", "additional_measurements_input", "additional_measurements"]) {
+  assert(schemas.PlanDocument.properties?.[field], `Plan document must preserve ${field}`)
+}
+for (const field of ["reference_tpa_degrees", "tpa_absolute_error_degrees", "tpa_max_absolute_error_degrees", "acceptance", "clinical_protocol_version"]) {
+  assert(schemas.TploClinicalMeasurement.properties?.[field], `TPLO measurement must declare ${field}`)
+}
+assert(schemas.TploAdditionalMeasurementInput.properties?.landmarks?.maxProperties === 40, "Additional landmarks must retain their 40-property bound")
+assert(schemas.TploAdditionalMeasurementInput.properties?.reference_values?.maxProperties === 50, "Reference values must retain their 50-property bound")
+const requiredMeasurements = schemas.TploClinicalValidation.properties?.required_measurements
+assert(requiredMeasurements?.maxItems === 50 && requiredMeasurements.items?.type === "string" && !requiredMeasurements.items?.enum,
+  "Required measurements must allow configured names, up to 50 items")
+assert(schemas.TploClinicalValidation.properties?.audit?.items?.$ref === "#/components/schemas/TploClinicalReviewAudit", "Clinical review must retain its typed audit")
+assert(schemas.FinalizeImagePlanRequest.properties?.base_revision?.minimum === 1, "Finalization must require a persisted plan revision")
 
 console.log(`Clinical OpenAPI ${metadata.apiVersion}: ${metadata.pathCount} paths, ${metadata.operationCount} operations, ${metadata.schemaCount} schemas, ${referenceCount} resolved references; checksums OK.`)

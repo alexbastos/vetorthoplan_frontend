@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { cn } from "@/lib/utils"
 import { AppVersion } from "@/components/shared/app-version"

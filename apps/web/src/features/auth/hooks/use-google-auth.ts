@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { useTranslations } from "next-intl"
-import { toast } from "sonner"
+import { toast } from "@/lib/notifications"
 
 import { useMfaLoginChallengeContext } from "../components/forms/mfa-login-challenge-provider"
 import { authBffClient } from "../services/auth-bff-client"

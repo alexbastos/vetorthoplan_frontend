@@ -2,6 +2,7 @@
 
 import { FileWarning, RefreshCw } from "lucide-react"
 import { useTranslations } from "next-intl"
+import type { ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
 
@@ -9,12 +10,13 @@ import type { CaseImagePreviewState } from "../hooks/use-case-image-preview"
 import { ImagePreviewError } from "../services/image-preview-api"
 import type { CaseImage } from "../types/case-image"
 import type { CalibrationMarker } from "../types/case-workspace"
+import { DEFAULT_IMAGE_DISPLAY, type ImageDisplaySettings } from "../hooks/use-image-display-settings"
 import { CaseImageViewer, type ViewerTool } from "./case-image-viewer"
 
 type CalibrationView = { marker: CalibrationMarker | null; markerKind: CalibrationMarker["kind"]; tool: ViewerTool;
   editable: boolean; onMarkerChange: (marker: CalibrationMarker) => void; onToolChange: (tool: ViewerTool) => void }
 
-function CasePreviewPanel({ image, preview, calibration }: { image: CaseImage; preview: CaseImagePreviewState; calibration: CalibrationView }) {
+function CasePreviewPanel({ image, preview, calibration, display = DEFAULT_IMAGE_DISPLAY, interactionNotice }: { image: CaseImage; preview: CaseImagePreviewState; calibration: CalibrationView; display?: ImageDisplaySettings; interactionNotice?: ReactNode }) {
   const t = useTranslations("cases.workspace.preview")
   const { eligible, query, displayFailed, refresh } = preview
 
@@ -34,9 +36,11 @@ function CasePreviewPanel({ image, preview, calibration }: { image: CaseImage; p
   if (!query.data) return null
   return (
     <CaseImageViewer
-      brightness={100}
-      contrast={100}
-      inverted={false}
+      brightness={display.brightness}
+      contrast={display.contrast}
+      inverted={display.inverted}
+      mirrored={display.mirrored}
+      interactionNotice={interactionNotice}
       coordinateSpace="image-edges"
       marker={calibration.marker}
       markerKind={calibration.markerKind}
