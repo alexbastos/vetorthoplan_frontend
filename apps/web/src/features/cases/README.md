@@ -8,8 +8,11 @@ As rotas importam somente a interface pública exposta por `index.ts`.
 
 O quadro mantém o shell focado, o painel de dados e o espaço do visualizador.
 Dados do caso, lista de radiografias, upload e prévia usam os contratos
-clínicos integrados. Calibração e planejamento aguardam suas definições;
-dados provisórios não substituem dados clínicos persistidos.
+clínicos integrados. O editor TPLO persiste calibração manual, marcos
+anatômicos, avaliação da imagem, parâmetros geométricos e contorno da
+osteotomia pelo BFF. O backend recalcula as medidas e devolve a transformação
+da simulação; a interface não usa o espaçamento DICOM como calibração e não
+apresenta a tabela de rotação como recomendação automática.
 
 O quadro apresenta estados separados para carregamento, caso ausente e falha
 de leitura. Um caso `DRAFT` sem imagem pode ser aberto e consultado;

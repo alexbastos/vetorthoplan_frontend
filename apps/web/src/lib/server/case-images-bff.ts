@@ -10,7 +10,7 @@ const UUID = z.string().uuid()
 const DateTime = z.iso.datetime({ offset: true })
 const ImageSchema = z.object({
   id: UUID, upload_id: UUID, job_id: UUID.nullable(), case_id: UUID,
-  original_filename: z.string(), kind: z.enum(["DICOM", "PNG", "JPEG"]),
+  original_filename: z.string(), display_name: z.string().nullable(), kind: z.enum(["DICOM", "PNG", "JPEG"]),
   media_type: z.string(), detected_media_type: z.string().nullable(),
   size_bytes: z.number().int().min(1).max(100 * 1024 * 1024),
   sha256: z.string().regex(/^[a-f0-9]{64}$/),

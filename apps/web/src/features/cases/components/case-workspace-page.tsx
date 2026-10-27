@@ -19,6 +19,7 @@ import { CaseFilesImport } from "./case-files-import"
 import { CaseImagesList } from "./case-images-list"
 import { CasePreviewPanel } from "./case-preview-panel"
 import { CaseWorkspacePanel, type WorkspacePanelSection } from "./case-workspace-panel"
+import { TploPlanningPanel } from "./tplo-planning-panel"
 
 type CaseWorkspacePageProps = { caseId: string }
 
@@ -34,6 +35,7 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
   const [activeSection, setActiveSection] = useState<WorkspacePanelSection>("case")
   const [uploadOpen, setUploadOpen] = useState(false)
   const [uploadBusy, setUploadBusy] = useState(false)
+  const [planningOpen, setPlanningOpen] = useState(false)
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null)
   useEffect(() => {
     if (selectedImageId && imagesQuery.data && !imagesQuery.data.some(image => image.id === selectedImageId)) setSelectedImageId(null)
@@ -91,6 +93,10 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
     </div>
   </>
 
+  if (planningOpen && selectedImage && canPreviewCaseImage(selectedImage)) {
+    return <TploPlanningPanel caseId={caseId} caseTitle={caseDetail.title} image={selectedImage} onBack={() => setPlanningOpen(false)} />
+  }
+
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--case-editor-canvas)] text-foreground lg:h-dvh lg:min-h-0" data-case-workspace>
       <header className="grid shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-b border-border bg-card px-4 py-3 sm:px-5 lg:min-h-16 lg:grid-cols-[20rem_minmax(0,1fr)_auto] lg:px-5">
@@ -126,7 +132,7 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
           calibrationAvailable={false}
           caseContext={<CaseContextDetails caseSummary={caseDetail} />}
           imageList={imageList}
-          imageActions={<Button disabled={uploadBusy} onClick={() => uploadOpen ? closeUpload() : openUpload()} size="sm" type="button" variant="secondary">{t(uploadOpen ? "images.backToList" : "images.addRadiograph")}</Button>}
+          imageActions={<div className="flex flex-wrap gap-2"><Button disabled={uploadBusy} onClick={() => uploadOpen ? closeUpload() : openUpload()} size="sm" type="button" variant="secondary">{t(uploadOpen ? "images.backToList" : "images.addRadiograph")}</Button>{selectedImage && canPreviewCaseImage(selectedImage) && !uploadOpen ? <Button onClick={() => setPlanningOpen(true)} size="sm" type="button">Abrir planejamento TPLO</Button> : null}</div>}
           onSectionChange={setActiveSection}
         />
         {canShowPreview ? <CasePreviewPanel image={selectedImage} key={selectedImage.id} /> : <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">

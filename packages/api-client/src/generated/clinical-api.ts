@@ -82,7 +82,11 @@ export interface paths {
         get: operations["get_case_api_v1_cases__case_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Excluir caso clínico e recursos associados
+         * @description Remove o caso, imagens, prévias, planos, jobs e sessões de upload. A remoção é recusada enquanto uma URL de upload ainda for válida ou houver job QUEUED/PROCESSING. Se a remoção do storage falhar, os registros permanecem para permitir repetição segura.
+         */
+        delete: operations["delete_case_api_v1_cases__case_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -223,7 +227,11 @@ export interface paths {
         delete: operations["delete_image_api_v1_images__image_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Alterar nome de exibição da imagem
+         * @description Altera somente o nome apresentado na interface. O nome original, arquivo, prévia, checksum e processamento permanecem inalterados. A extensão original é preservada.
+         */
+        patch: operations["rename_image_api_v1_images__image_id__patch"];
         trace?: never;
     };
     "/api/v1/cases/{case_id}/images": {
@@ -271,6 +279,80 @@ export interface paths {
         get: operations["get_image_plan_api_v1_images__image_id__plan_get"];
         /** Save Image Plan */
         put: operations["save_image_plan_api_v1_images__image_id__plan_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/images/{image_id}/plan/finalize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Finalizar plano cirúrgico e gerar relatórios versionados */
+        post: operations["finalize_image_plan_api_v1_images__image_id__plan_finalize_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/images/{image_id}/plan/finalization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar finalização e obter links atualizados dos relatórios */
+        get: operations["get_finalized_image_plan_api_v1_images__image_id__plan_finalization_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tplo/rotation-table": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consultar tabela de referência de rotação TPLO
+         * @description Retorna a versão ativa persistida no banco (ou uma substituição explicitamente configurada) e permite filtrar por TPA e diâmetro da lâmina. A consulta usa correspondência exata; não interpola nem recomenda uma rotação cirúrgica.
+         */
+        get: operations["get_tplo_rotation_table_api_v1_tplo_rotation_table_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tplo/clinical-protocol": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consultar protocolo de medidas clínicas TPLO
+         * @description Retorna definições e tolerâncias versionadas configuradas pelo ambiente. A consulta não homologa o protocolo nem recomenda conduta clínica.
+         */
+        get: operations["get_tplo_clinical_protocol_api_v1_tplo_clinical_protocol_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -545,13 +627,67 @@ export interface components {
             message: string;
             /**
              * Details
-             * @description Campos dependem de code. REQUEST_VALIDATION_ERROR: errors[], cada item com field e type. CASE_VALIDATION_ERROR: field opcional. IMAGE_UPLOAD_OBJECT_INVALID: upload_id e reason.
+             * @description Campos dependem de code. REQUEST_VALIDATION_ERROR: errors[], cada item com field e type. CASE_VALIDATION_ERROR: field opcional. IMAGE_UPLOAD_OBJECT_INVALID: upload_id e reason. IMAGE_UPLOAD_DUPLICATE: existing_image_id opcional, se a sessão confirmada for visível.
              */
             details?: {
                 [key: string]: unknown;
             };
             /** Trace Id */
             trace_id?: string | null;
+        };
+        /** FinalizeImagePlanRequest */
+        FinalizeImagePlanRequest: {
+            /** Base Revision */
+            base_revision: number;
+        };
+        /** FinalizedImagePlanResponse */
+        FinalizedImagePlanResponse: {
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /** Version */
+            version: number;
+            /** Plan Revision */
+            plan_revision: number;
+            /** Snapshot */
+            snapshot: {
+                [key: string]: unknown;
+            };
+            /** Snapshot Sha256 */
+            snapshot_sha256: string;
+            /** Report Template Version */
+            report_template_version: string;
+            /**
+             * Finalized By
+             * Format: uuid
+             */
+            finalized_by: string;
+            /**
+             * Finalized At
+             * Format: date-time
+             */
+            finalized_at: string;
+            /** Reports */
+            reports: components["schemas"]["FinalizedReportFileResponse"][];
+        };
+        /** FinalizedReportFileResponse */
+        FinalizedReportFileResponse: {
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "PNG" | "PDF";
+            /** Sha256 */
+            sha256: string;
+            /** Download Url */
+            download_url: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -642,6 +778,8 @@ export interface components {
             case_id: string;
             /** Original Filename */
             original_filename: string;
+            /** Display Name */
+            display_name: string | null;
             kind: components["schemas"]["ImageKind"];
             /** Media Type */
             media_type: string;
@@ -808,6 +946,26 @@ export interface components {
             end: components["schemas"]["PlanPoint"];
             /** Label */
             label?: string | null;
+            /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
+            measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
+        };
+        /** PlanCalibrationResult */
+        PlanCalibrationResult: {
+            /**
+             * Calibration Id
+             * @description Fingerprint da referência manual e das dimensões da imagem.
+             */
+            calibration_id: string;
+            /**
+             * Reference Length Px
+             * @description Comprimento da referência na imagem original.
+             */
+            reference_length_px: number;
+            /**
+             * Mm Per Pixel
+             * @description Escala calculada a partir da medida manual informada.
+             */
+            mm_per_pixel: number;
         };
         /** PlanCircle */
         PlanCircle: {
@@ -825,6 +983,33 @@ export interface components {
             edge: components["schemas"]["PlanPoint"];
             /** Label */
             label?: string | null;
+            /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
+            measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
+        };
+        /** PlanDerivedMeasurement */
+        PlanDerivedMeasurement: {
+            /**
+             * Status
+             * @description Estado do cálculo geométrico feito pelo backend.
+             * @enum {string}
+             */
+            status: "CALCULATED" | "CALIBRATION_REQUIRED" | "IMAGE_DIMENSIONS_REQUIRED";
+            /** Calibration Id */
+            calibration_id?: string | null;
+            /**
+             * Values
+             * @description Valores geométricos derivados.
+             */
+            values?: {
+                [key: string]: number;
+            };
+            /**
+             * Units
+             * @description Unidade de cada medida.
+             */
+            units?: {
+                [key: string]: "mm" | "degrees";
+            };
         };
         /** PlanDocument */
         PlanDocument: {
@@ -837,8 +1022,24 @@ export interface components {
             /** Calibration */
             calibration?: (components["schemas"]["PlanReferenceLineCalibration"] | components["schemas"]["PlanReferenceCircleCalibration"]) | null;
             tplo?: components["schemas"]["TploPlanMetadata"] | null;
+            radiographic_quality?: components["schemas"]["TploRadiographicQuality"] | null;
+            tplo_landmarks?: components["schemas"]["TploLandmarks"] | null;
+            additional_measurements_input?: components["schemas"]["TploAdditionalMeasurementInput"];
+            /** Additional Measurements */
+            additional_measurements?: {
+                [key: string]: unknown;
+            }[];
+            tplo_measurement?: components["schemas"]["TploClinicalMeasurement"] | null;
+            clinical_validation?: components["schemas"]["TploClinicalValidation"] | null;
             /** Objects */
             objects?: (components["schemas"]["PlanLine"] | components["schemas"]["PlanAngle"] | components["schemas"]["PlanCircle"] | components["schemas"]["PlanTplo"])[];
+        };
+        /** PlanFragment */
+        PlanFragment: {
+            /** Points */
+            points: components["schemas"]["PlanPoint"][];
+            /** Label */
+            label?: string | null;
         };
         /** PlanLine */
         PlanLine: {
@@ -856,6 +1057,8 @@ export interface components {
             end: components["schemas"]["PlanPoint"];
             /** Label */
             label?: string | null;
+            /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
+            measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
         };
         /** PlanPoint */
         PlanPoint: {
@@ -875,6 +1078,8 @@ export interface components {
             edge: components["schemas"]["PlanPoint"];
             /** Known Diameter Mm */
             known_diameter_mm: number;
+            /** @description Resultado calculado pelo backend; não enviar como fonte da calibração. */
+            result?: components["schemas"]["PlanCalibrationResult"] | null;
         };
         /** PlanReferenceLineCalibration */
         PlanReferenceLineCalibration: {
@@ -887,6 +1092,8 @@ export interface components {
             end: components["schemas"]["PlanPoint"];
             /** Known Length Mm */
             known_length_mm: number;
+            /** @description Resultado calculado pelo backend; não enviar como fonte da calibração. */
+            result?: components["schemas"]["PlanCalibrationResult"] | null;
         };
         /** PlanTplo */
         PlanTplo: {
@@ -906,6 +1113,32 @@ export interface components {
             rotation_degrees: number;
             /** Label */
             label?: string | null;
+            /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
+            measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
+            /** @description Contorno do fragmento proximal no sistema normalizado da imagem. */
+            fragment?: components["schemas"]["PlanFragment"] | null;
+            /** @description Transformação geométrica calculada pelo backend. */
+            simulation?: components["schemas"]["PlanTploSimulation"] | null;
+        };
+        /** PlanTploSimulation */
+        PlanTploSimulation: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "SIMULATED" | "CALIBRATION_REQUIRED" | "IMAGE_DIMENSIONS_REQUIRED" | "FRAGMENT_REQUIRED";
+            /** Calibration Id */
+            calibration_id?: string | null;
+            /** Center Px */
+            center_px?: {
+                [key: string]: number;
+            };
+            /** Radius Mm */
+            radius_mm?: number | null;
+            /** Rotation Degrees */
+            rotation_degrees?: number | null;
+            /** Affine Matrix */
+            affine_matrix?: number[][];
         };
         /** PresignedPostResponse */
         PresignedPostResponse: {
@@ -929,6 +1162,16 @@ export interface components {
              */
             expires_at: string;
         };
+        /**
+         * RenameImageRequest
+         * @example {
+         *       "display_name": "Membro anterior direito - lateral.png"
+         *     }
+         */
+        RenameImageRequest: {
+            /** Display Name */
+            display_name: string;
+        };
         /** RequestValidationDetails */
         RequestValidationDetails: {
             /** Errors */
@@ -939,6 +1182,156 @@ export interface components {
             /** Base Revision */
             base_revision: number;
             document: components["schemas"]["PlanDocument"];
+        };
+        /**
+         * TploAdditionalMeasurementInput
+         * @description User placed named landmarks and an independent reference measurement.
+         */
+        TploAdditionalMeasurementInput: {
+            /** Landmarks */
+            landmarks?: {
+                [key: string]: components["schemas"]["PlanPoint"];
+            };
+            /** Reference Values */
+            reference_values?: {
+                [key: string]: number;
+            };
+        };
+        /** TploClinicalMeasurement */
+        TploClinicalMeasurement: {
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1" | "CONVENTIONAL_FULL_MECHANICAL_AXIS_V1";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "CALCULATED" | "LANDMARKS_REQUIRED" | "IMAGE_DIMENSIONS_REQUIRED";
+            /** Tpa Degrees */
+            tpa_degrees?: number | null;
+            /** Plateau Length Mm */
+            plateau_length_mm?: number | null;
+            /** Tibial Axis Length Mm */
+            tibial_axis_length_mm?: number | null;
+            /** Calibration Id */
+            calibration_id?: string | null;
+            /** Reference Tpa Degrees */
+            reference_tpa_degrees?: number | null;
+            /** Tpa Absolute Error Degrees */
+            tpa_absolute_error_degrees?: number | null;
+            /** Tpa Max Absolute Error Degrees */
+            tpa_max_absolute_error_degrees?: number | null;
+            /** Acceptance */
+            acceptance?: ("PASS" | "FAIL" | "NOT_ASSESSED" | "NOT_CONFIGURED") | null;
+            /** Clinical Protocol Version */
+            clinical_protocol_version?: string | null;
+            /**
+             * Clinically Validated
+             * @default false
+             * @constant
+             */
+            clinically_validated: false;
+        };
+        /** TploClinicalProtocolResponse */
+        TploClinicalProtocolResponse: {
+            /** Configured */
+            configured: boolean;
+            /** Protocol Version */
+            protocol_version?: string | null;
+            /** Source */
+            source?: string | null;
+            /** Measurements */
+            measurements?: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Acceptance Enabled
+             * @default false
+             */
+            acceptance_enabled: boolean;
+            /**
+             * Clinically Validated
+             * @default false
+             * @constant
+             */
+            clinically_validated: false;
+        };
+        /** TploClinicalReviewAudit */
+        TploClinicalReviewAudit: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "APPROVED" | "REJECTED";
+            /**
+             * Actor Id
+             * Format: uuid
+             */
+            actor_id: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+            /** Protocol Version */
+            protocol_version: string;
+            /** Measurement Method */
+            measurement_method?: string | null;
+            /** Calibration Id */
+            calibration_id?: string | null;
+        };
+        /** TploClinicalValidation */
+        TploClinicalValidation: {
+            /**
+             * Status
+             * @default DRAFT
+             * @enum {string}
+             */
+            status: "DRAFT" | "READY_FOR_REVIEW" | "APPROVED" | "REJECTED";
+            /**
+             * Orientation Confirmed
+             * @default false
+             */
+            orientation_confirmed: boolean;
+            /**
+             * Image Quality Confirmed
+             * @default false
+             */
+            image_quality_confirmed: boolean;
+            /**
+             * Calibration Confirmed
+             * @default false
+             */
+            calibration_confirmed: boolean;
+            /**
+             * Anatomical References Confirmed
+             * @default false
+             */
+            anatomical_references_confirmed: boolean;
+            /** Required Measurements */
+            required_measurements?: string[];
+            /** Reviewer Notes */
+            reviewer_notes?: string | null;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /** Audit */
+            audit?: components["schemas"]["TploClinicalReviewAudit"][];
+        };
+        /** TploLandmarks */
+        TploLandmarks: {
+            /**
+             * Method
+             * @description Método do artigo Today's Veterinary Practice: cranioproximal medial plateau junto à inserção do CrCL, caudoproximal do côndilo medial e eixo mecânico completo.
+             * @default MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1
+             * @enum {string}
+             */
+            method: "MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1" | "CONVENTIONAL_FULL_MECHANICAL_AXIS_V1";
+            plateau_cranial: components["schemas"]["PlanPoint"];
+            plateau_caudal: components["schemas"]["PlanPoint"];
+            intercondylar_midpoint: components["schemas"]["PlanPoint"];
+            talus_center: components["schemas"]["PlanPoint"];
         };
         /**
          * TploPlanMetadata
@@ -978,6 +1371,77 @@ export interface components {
             target_slope_degrees?: number | null;
             /** Notes */
             notes?: string | null;
+        };
+        /**
+         * TploRadiographicQuality
+         * @description Image quality observations recorded by the clinician for a TPLO view.
+         */
+        TploRadiographicQuality: {
+            /**
+             * True Lateral
+             * @default NOT_ASSESSED
+             * @enum {string}
+             */
+            true_lateral: "PASS" | "FAIL" | "NOT_ASSESSED";
+            /**
+             * Femoral Condyles Superimposed
+             * @default NOT_ASSESSED
+             * @enum {string}
+             */
+            femoral_condyles_superimposed: "PASS" | "FAIL" | "NOT_ASSESSED";
+            /**
+             * Stifle And Tarsus Included
+             * @default NOT_ASSESSED
+             * @enum {string}
+             */
+            stifle_and_tarsus_included: "PASS" | "FAIL" | "NOT_ASSESSED";
+            /**
+             * Tibial Axis Centered
+             * @default NOT_ASSESSED
+             * @enum {string}
+             */
+            tibial_axis_centered: "PASS" | "FAIL" | "NOT_ASSESSED";
+            /**
+             * Tibial Plateau Visible
+             * @default NOT_ASSESSED
+             * @enum {string}
+             */
+            tibial_plateau_visible: "PASS" | "FAIL" | "NOT_ASSESSED";
+            /** Notes */
+            notes?: string | null;
+        };
+        /** TploRotationTableResponse */
+        TploRotationTableResponse: {
+            /** Configured */
+            configured: boolean;
+            /** Table Version */
+            table_version: string | null;
+            /** Source */
+            source: string | null;
+            /** Source Url */
+            source_url?: string | null;
+            /** Source Asset Url */
+            source_asset_url?: string | null;
+            /** Target Slope Degrees */
+            target_slope_degrees?: number | null;
+            /** Entries Sha256 */
+            entries_sha256?: string | null;
+            /** Query */
+            query?: {
+                [key: string]: number;
+            };
+            /** Match Count */
+            match_count: number;
+            /** Entries */
+            entries: {
+                [key: string]: string | number;
+            }[];
+            /**
+             * Recommendation Enabled
+             * @default false
+             * @constant
+             */
+            recommendation_enabled: false;
         };
         /** ValidationError */
         ValidationError: {
@@ -1181,6 +1645,53 @@ export interface operations {
             };
         };
     };
+    delete_case_api_v1_cases__case_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caso não encontrado no tenant ativo */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Upload ou processamento ativo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     create_image_upload_api_v1_cases__case_id__image_uploads_post: {
         parameters: {
             query?: never;
@@ -1217,7 +1728,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Limite ativo atingido ou chave de idempotência reutilizada com outros dados */
+            /** @description Arquivo duplicado no caso, limite ativo atingido ou chave de idempotência reutilizada com outros dados */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1549,6 +2060,50 @@ export interface operations {
             };
         };
     };
+    rename_image_api_v1_images__image_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameImageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageResponse"];
+                };
+            };
+            /** @description Imagem não encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_case_images_api_v1_cases__case_id__images_get: {
         parameters: {
             query?: never;
@@ -1736,6 +2291,151 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    finalize_image_plan_api_v1_images__image_id__plan_finalize_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FinalizeImagePlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinalizedImagePlanResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_finalized_image_plan_api_v1_images__image_id__plan_finalization_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinalizedImagePlanResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tplo_rotation_table_api_v1_tplo_rotation_table_get: {
+        parameters: {
+            query?: {
+                tpa_degrees?: number | null;
+                blade_diameter_mm?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TploRotationTableResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tplo_clinical_protocol_api_v1_tplo_clinical_protocol_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TploClinicalProtocolResponse"];
                 };
             };
         };
