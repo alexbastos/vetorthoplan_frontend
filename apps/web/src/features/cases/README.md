@@ -72,7 +72,7 @@ das operações provisórias de arquivo e calibração. Seus arquivos em memóri
 não aparecem no quadro conectado à API clínica. Builds de produção usam
 `createFrontendOnlyCasesAdapter` nesses fluxos ainda provisórios.
 
-O contrato clínico **0.9.0** já está versionado. A atualização dos fluxos segue o [plano por tarefas](../../../../../docs/clinical-api-0.9.0-execution-plan.md): sexo obrigatório, idempotência da sessão, leitura dos campos/estados de imagem, retomada após refresh, nascimento/idade, retry operacional, cancelamento de sessão, exclusão persistida e validação de peso estão implementados. Testes reais integrados permanecem pendentes. A listagem usa `GET /api/cases`
+O contrato clínico **0.9.0** já está versionado. A atualização dos fluxos segue o [plano por tarefas](../../../../../docs/clinical-remote-integration-status.md): sexo obrigatório, idempotência da sessão, leitura dos campos/estados de imagem, retomada após refresh, nascimento/idade, retry operacional, cancelamento de sessão, exclusão persistida e validação de peso estão implementados. Testes reais integrados permanecem pendentes. A listagem usa `GET /api/cases`
 pela mesma origem, com busca após 350 ms, filtro por status e paginação por
 cursor. As contagens dos filtros vêm de `status_counts`, não dos itens já
 carregados. O estado `READY` aparece como “Pronto”, sem supor que o caso foi
@@ -200,7 +200,7 @@ Excluir o caso usa `DELETE /api/cases/{caseId}` pelo botão no rodapé dos
 detalhes, com confirmação. Bloqueios 409 preservam os dados; falhas ambíguas
 exigem consulta do caso antes de qualquer nova tentativa. A exclusão confirmada
 limpa o cache daquele caso e retorna à lista. Veja o
-[registro de integração e aceite](../../../../../docs/case-delete-image-rename-integration-2026-10-23.md).
+[roteiro de aceite](../../../../../docs/clinical-api-0.9.0-manual-test-checklist.md#renomeação-e-exclusão-de-caso).
 
 A persistência remota de calibração está disponível por GET/PUT em
 `/api/cases/{caseId}/images/{imageId}/plan`. O navegador envia somente
@@ -219,7 +219,7 @@ aparece somente ao abrir a calibração. O editor não é
 reiniciado ao renovar a URL temporária da prévia. Controles por teclado e
 descarte estão disponíveis. Rascunhos, bloqueios e recuperação foram integrados;
 o aceite visual/autenticado segue pendente, conforme o
-[plano de calibração](../../../../../docs/calibration-integration-plan-2026-10-23.md).
+[roteiro de aceite da calibração](../../../../../docs/calibration-acceptance-2026-10-26.md).
 
 ## Integração TPLO — 27/10/2026
 
@@ -279,18 +279,21 @@ não há gravação no plano nem armazenamento persistente no navegador. A exclu
 confirmada remove esse cache. Medidas ficam para etapas futuras.
 O aceite visual/autenticado permanece no teste geral combinado.
 
-### Ferramentas: estrutura e acesso — 27/10/2026
+### Ferramentas: estrutura e acesso — 28/10/2026
 
 O painel Ferramentas usa o mesmo shell, cabeçalho, rolagem e foco dos demais
-painéis. O quarto acesso, após Imagem, utiliza uma chave inglesa contornada;
-o cabeçalho usa a versão preenchida, com os tokens de tamanho e cor existentes.
+painéis. O quarto acesso, após Imagem, utiliza ferramentas cruzadas contornadas
+em `ToolsAccessIcon`; o cabeçalho usa `ToolsIcon`, com chave inglesa recortada
+na mesma placa preenchida dos outros cabeçalhos e os mesmos tokens de tamanho e cor.
 Nesta primeira entrega, há somente a seção Medidas e seu texto de apoio;
 desenho, cálculo e gravação de medidas ficam para a próxima tarefa.
 
-O acesso depende de `measurementEligible` e de não haver uma calibração aberta.
-Só aparece com escala persistida, plano atual, prévia decodificada e geometria
-suportada, sem exclusão, conflito, erro, gravação ou confirmação incerta.
-Entrar na recalibração oculta o acesso, mesmo sem modificar a referência;
+O quarto acesso fica sempre visível. Sem uma imagem/prévia pronta, ou durante
+a primeira leitura do plano, ele permanece desabilitado. Com escala persistida e
+confirmada, abre Ferramentas. Sem calibração, o clique direciona ao editor e à
+orientação inicial; um rascunho existente é retomado sem ser descartado.
+Conflitos, geometria incompatível, exclusão e salvamentos indefinidos continuam
+bloqueando a edição. Durante a recalibração, o acesso retorna ao editor;
 cancelar restaura a escala anterior e permite abrir Ferramentas novamente.
 
 Trocar de imagem ou perder a escala/prévia fecha imediatamente o painel e
@@ -299,6 +302,32 @@ Se a imagem não permite prévia, a página usa o fallback de Arquivos já
 existente. Abrir o painel não cria rascunho, não escreve na API e mantém o visualizador em navegação.
 Brilho, contraste, inversão, espelhamento e zoom continuam independentes.
 Essa disponibilidade inicial não substitui as validações clínicas da API.
+
+Durante a preparação do contexto clínico, a tela usa `LoginHandoffPawLoader`
+e `LoginHandoffStatusText`, com a patinha de 104 px, o texto e os pontos animados
+do login. A confirmação de e-mail, o cadastro e a renovação de sessão usam o
+mesmo padrão compartilhado.
+
+A calibração confirmada permanece no cache em memória da organização. A leitura
+inicial mostra carregamento; uma revalidação em segundo plano mantém a escala e
+o conteúdo de Ferramentas, sem redirecionar para calibração. Edições aguardam a
+consulta terminar, e uma resposta com erro, sem escala ou com revisão conflitante
+continua aplicando os bloqueios normais. Ao remontar a imagem, o plano ainda é
+consultado para detectar alterações de outras sessões; salvar usa a revisão
+confirmada e a API verifica novamente antes de escrever.
+
+A prévia mantém sua URL assinada válida ao voltar para a aba. A renovação
+automática continua na janela de dez segundos antes da expiração; retorno à aba
+e reconexão só refazem a consulta quando necessário. URLs não são persistidas e
+continuam sendo removidas do cache ao desmontar seu último observador.
+
+Falhas de leitura do plano são notificadas pelo Sonner, sem bloco de erro nem
+botão separado de nova tentativa nas opções da imagem. Calibrar fica vermelho,
+com ícone de alerta, descrição acessível e tooltip ao passar o cursor ou focar.
+Novas tentativas atualizam o mesmo aviso por imagem, que fecha após recuperação.
+Clicar na própria ação tenta carregar novamente e só inicia a calibração após
+uma resposta válida. Falhas mantêm os rascunhos; sair do painel durante essa
+consulta impede que a resposta tardia inicie uma edição.
 
 ### Espelhamento
 

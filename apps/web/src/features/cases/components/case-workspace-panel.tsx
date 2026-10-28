@@ -1,6 +1,6 @@
 "use client"
 
-import { Camera, Files, Stethoscope, Wrench } from "lucide-react"
+import { Camera, Files, Stethoscope } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useEffect, useRef, type ReactNode } from "react"
 
@@ -9,6 +9,7 @@ import { CalibrationIcon } from "@/components/ui/calibration-icon"
 import { FilesIcon } from "@/components/ui/files-icon"
 import { ImageLibraryIcon } from "@/components/ui/image-library-icon"
 import { ToolsIcon } from "@/components/ui/tools-icon"
+import { ToolsAccessIcon } from "@/components/ui/tools-access-icon"
 
 type WorkspacePanelSection = "case" | "images" | "calibration" | "tools"
 
@@ -16,7 +17,7 @@ type CaseWorkspacePanelProps = {
   activeSection: WorkspacePanelSection
   calibrationAvailable: boolean
   calibrationEditing?: boolean
-  toolsAvailable?: boolean
+  toolsDisabled?: boolean
   toolsContent?: ReactNode
   calibrationUnavailableReason?: string
   caseContext: ReactNode
@@ -27,7 +28,7 @@ type CaseWorkspacePanelProps = {
   onSectionChange: (section: WorkspacePanelSection) => void
 }
 
-function CaseWorkspacePanel({ activeSection, calibrationAvailable, calibrationEditing = true, toolsAvailable = false, toolsContent, calibrationUnavailableReason, caseContext, imageList, imageActions, calibrationActions, children, onSectionChange }: CaseWorkspacePanelProps) {
+function CaseWorkspacePanel({ activeSection, calibrationAvailable, calibrationEditing = true, toolsDisabled = false, toolsContent, calibrationUnavailableReason, caseContext, imageList, imageActions, calibrationActions, children, onSectionChange }: CaseWorkspacePanelProps) {
   const t = useTranslations("cases.workspace.panel")
   const tWorkspace = useTranslations("cases.workspace")
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -49,7 +50,7 @@ function CaseWorkspacePanel({ activeSection, calibrationAvailable, calibrationEd
         <RailButton active={activeSection === "case"} icon={<Stethoscope aria-hidden="true" strokeWidth={1.5} />} label={tWorkspace("sidebar.title")} onClick={() => onSectionChange("case")} />
         <RailButton active={activeSection === "images"} icon={<Files aria-hidden="true" strokeWidth={1.5} />} label={tWorkspace("images.title")} onClick={() => onSectionChange("images")} />
         <RailButton active={activeSection === "calibration"} disabled={!calibrationAvailable} icon={<Camera aria-hidden="true" strokeWidth={1.5} />} label={tWorkspace("image.title")} title={calibrationAvailable ? undefined : calibrationUnavailableReason} onClick={() => onSectionChange("calibration")} />
-        {toolsAvailable ? <RailButton active={activeSection === "tools"} icon={<Wrench aria-hidden="true" strokeWidth={1.5} />} label={tWorkspace("tools.title")} onClick={() => onSectionChange("tools")} /> : null}
+        <RailButton active={activeSection === "tools"} disabled={!calibrationAvailable || toolsDisabled} icon={<ToolsAccessIcon aria-hidden="true" />} label={tWorkspace("tools.title")} title={calibrationAvailable ? undefined : calibrationUnavailableReason} onClick={() => onSectionChange("tools")} />
       </nav>
       <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto rounded-[var(--radius-token-md)] border border-border bg-card">
         <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-border px-4">

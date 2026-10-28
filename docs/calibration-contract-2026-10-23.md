@@ -174,17 +174,19 @@ inventar `[1, 1]`, substituir escala manual por DICOM ou corrigir orientação
 automaticamente. A política clínica para dados ausentes/divergentes e o suporte
 físico anisotrópico devem ser alinhados antes de ampliar esse escopo.
 
-## Consequências para as tarefas seguintes
+## Regras da integração atual
 
-- Confirmado pelo usuário: entrada no terceiro ícone lateral, a régua.
-- Não ativar diretamente `CaseWorkspaceImage` nem sua persistência legada.
-- Criar conversão compatível com as bordas contínuas; o mapper atual limita a
-  `widthPx - 1` / `heightPx - 1` e não deve definir os pontos enviados à API.
-- O círculo legado guarda centro/raio em pixels. O estado remoto deve conservar
+- O terceiro acesso lateral abre Imagem; Calibrar inicia o editor. Ferramentas
+  fica visível e direciona à calibração quando ainda não existe escala salva.
+- O fluxo remoto usa `CaseImageWorkspace`; a persistência legada de
+  `CaseWorkspaceImage` não define o contrato clínico.
+- Pontos enviados à API usam bordas contínuas e a matriz original completa;
+  não usar a convenção legada `widthPx - 1` / `heightPx - 1`.
+- O círculo legado guarda centro/raio em pixels. O estado remoto conserva
   `center` e `edge`, inclusive o ponto de borda original ao reabrir sem edição;
   reconstruir outra direção pode alterar o fingerprint sem mudar o raio.
-- Mostrar referência salva mesmo fora do modo de edição. Hoje `readOnly`
-  também oculta o marcador, o que precisa ser separado na tarefa de interface.
+- A referência salva aparece somente ao abrir a calibração. Fora da edição,
+  Imagem mostra a escala e o visualizador mantém a referência oculta.
 - Considerar salva/elegível somente calibração persistida, resultado válido,
   imagem correta e ausência de rascunho alterado. Não interpretar isso como
   aprovação clínica automática.
@@ -199,8 +201,6 @@ node --test test/calibration-contract.test.mjs
 
 O primeiro comando exige o objeto Git fixado na cópia irmã do backend e executa
 seu módulo puro, sem alterar a branch ou importar o aplicativo. O segundo usa
-somente fixtures versionadas e o OpenAPI local. Foram aprovados 10 cenários de
-derivação e oito testes de contrato. A suíte completa do web também passou:
-**285/285 testes**. A verificação dos checksums do OpenAPI passou, assim como
-`git diff --check`. Testes GET/PUT autenticados, persistência real e aceite
-visual pertencem às próximas etapas.
+somente fixtures versionadas e o OpenAPI local, conferindo a origem dos dez
+cenários e a compatibilidade geométrica com o contrato atual. Persistência real
+e validação visual têm [roteiro próprio](./calibration-acceptance-2026-10-26.md).

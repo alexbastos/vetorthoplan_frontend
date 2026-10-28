@@ -1,6 +1,6 @@
 # Troca de token por organização — contrato suplementar
 
-Fonte original: confirmação da implementação fornecida pela equipe de backend ao frontend em **21/10/2026**. Em **22/10/2026**, a operação foi encontrada no OpenAPI público e comparada com o suplemento: método, path, ausência de corpo e resposta estão alinhados. Veja a [auditoria atual](./bff-swagger-contract-audit-2026-10-22.md) e o [export oficial preservado](./openapi/authentication-api.audit-2026-10-22.openapi.json). As decisões de armazenamento e renovação abaixo continuam sendo decisões do BFF.
+Fonte original: confirmação da implementação fornecida pela equipe de backend ao frontend em **21/10/2026**. Em **22/10/2026**, a operação foi encontrada no OpenAPI público e comparada com o suplemento: método, path, ausência de corpo e resposta estão alinhados. Veja o [estado da integração](./clinical-remote-integration-status.md) e o [export oficial preservado](./openapi/authentication-api.audit-2026-10-22.openapi.json). As decisões de armazenamento e renovação abaixo continuam sendo decisões do BFF.
 
 ## HTTP
 

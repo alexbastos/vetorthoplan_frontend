@@ -40,13 +40,15 @@ function useImageCalibration(image: CaseImage, ready: boolean, caseLocked: boole
   const dimensions = image.widthPx && image.heightPx ? { widthPx: image.widthPx, heightPx: image.heightPx } : null
   const issue = calibrationGeometryIssue(image)
   const otherIntent = hasQualityDraft(client, image.caseId, image.id)
-  const canEdit = image.status === "READY" && ready && !issue && !deleting && !locked && !otherIntent && Boolean(plan) && !planQuery.isError && !planQuery.isFetching
+  const interactionAvailable = image.status === "READY" && ready && !issue && !deleting && !locked && !otherIntent && !planQuery.isFetching
+  const canEdit = interactionAvailable && Boolean(plan) && !planQuery.isError
+  const canRetryRead = interactionAvailable && planQuery.isError
   const hasChanges = Boolean(editor && (plan ? editorHasChanges(editor, plan) : draft || recovery))
   const input = editor && calibrationFromEditor(editor)
   const needsRebase = Boolean(editor && plan && editor.baseRevision !== plan.revision)
   const canSave = canEdit && hasChanges && Boolean(input) && !needsRebase
   const product = calibrationProductState({ plan, imageId: image.id, receipt: planReceipt, dirty: hasChanges, needsRebase,
-    pending: planQuery.isPending || planQuery.isFetching, readError: planQuery.isError, available: image.status === "READY" && ready && !issue && !deleting && !otherIntent })
+    pending: planQuery.isPending, readError: planQuery.isError, available: image.status === "READY" && ready && !issue && !deleting && !otherIntent })
 
   function update(change: (current: CalibrationEditor) => CalibrationEditor) {
     if (canEdit && editor && !isImageDeletionLocked(client, image.caseId, image.id) && !hasQualityDraft(client, image.caseId, image.id)) {
@@ -70,7 +72,7 @@ function useImageCalibration(image: CaseImage, ready: boolean, caseLocked: boole
   function command(): SaveCalibrationInput | null { return canSave && editor && input ? { baseRevision: editor.baseRevision, calibration: input } : null }
   const marker = dimensions && editor ? geometryToMarker(editor.geometry, dimensions) : null
 
-  return { planQuery, plan, receipt, planReceipt, editor, issue, canEdit, canSave, hasChanges, locked, deleting, needsRebase, marker, save, command, discard, otherIntent,
+  return { planQuery, plan, receipt, planReceipt, editor, issue, canEdit, canRetryRead, canSave, hasChanges, locked, deleting, needsRebase, marker, save, command, discard, otherIntent,
     ...product,
     changeMarker, changeKind: (kind: CalibrationMarker["kind"]) => { if (dimensions) update(current => changeEditorMarkerKind(current, kind, dimensions)) },
     changeReference: (reference: string) => update(current => ({ ...current, reference })),

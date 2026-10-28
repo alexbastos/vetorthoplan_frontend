@@ -14,7 +14,8 @@ const { parseTploRotationQuery } = await import("../src/features/cases/schemas/t
 const { tploClinicalProtocolQueryOptions, tploRotationTableQueryOptions } = await import("../src/features/cases/lib/tplo-reference-query-options.ts")
 const unconfigured = { configured: false, table_version: null, source: null, match_count: 0, entries: [] }
 const protocol = { configured: true, protocol_version: "protocol-v1", source: "clinical configuration", acceptance_enabled: true,
-  clinically_validated: false, measurements: [{ name: "CUSTOM", landmarks: ["a", "b"], tolerance: { degrees: 2 } }] }
+  clinically_validated: false, tpa_max_absolute_error_degrees: 1.5,
+  measurements: [{ name: "CUSTOM", landmarks: ["a", "b"], tolerance: { degrees: 2 } }] }
 const table = { ...unconfigured, configured: true, table_version: "table-v1", source: "reference", query: { tpa_degrees: 24, blade_diameter_mm: 24 },
   entries: [{ tpa_degrees: 24, blade_diameter_mm: 24, rotation_mm: 8, label: "Reference only" }], match_count: 1, recommendation_enabled: false }
 const read = data => async () => ({ status: 200, data })

@@ -34,6 +34,14 @@ const objects = z.discriminatedUnion("type", [
   z.object({ ...common, type: z.literal("TPLO"), center: point, edge: point, rotation_degrees: number.min(-180).max(180),
     fragment: z.object({ points: z.array(point).min(3).max(500), label: z.string().max(120).nullable().optional() }).strict().nullable().optional(),
     simulation: simulation.nullable().optional() }).strict(),
+  z.object({ id: z.string().uuid(), type: z.literal("IMPLANT"), catalog_item_id: z.string().uuid(), position: point,
+    rotation_degrees: number.min(-180).max(180).default(0), scale: positive.max(100).default(1), opacity: number.min(0).max(1).default(1),
+    variant: z.string().max(120).nullable().optional(), view: z.string().max(120).nullable().optional(),
+    label: z.string().max(120).nullable().optional(), transform: z.object({
+      status: z.enum(["CALCULATED", "IMAGE_DIMENSIONS_REQUIRED"]).default("IMAGE_DIMENSIONS_REQUIRED"),
+      coordinate_space: z.literal("IMAGE_PIXELS").default("IMAGE_PIXELS"), affine_matrix: z.array(z.array(number)).optional(),
+    }).strict().nullable().optional(),
+  }).strict(),
 ])
 const method = z.enum(["MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1", "CONVENTIONAL_FULL_MECHANICAL_AXIS_V1"])
 const slope = number.min(0).max(90).nullable().optional()
@@ -53,6 +61,15 @@ const additionalMeasurements = z.array(z.record(z.string(), z.json()))
 const reviewAudit = z.object({
   decision: z.enum(["APPROVED", "REJECTED"]), actor_id: z.string().uuid(), reviewed_at: z.iso.datetime({ offset: true }),
   protocol_version: z.string(), measurement_method: z.string().nullable().optional(), calibration_id: hash.nullable().optional(),
+  rotation_table_version: z.string().nullable().optional(), clinical_protocol_source: z.string().nullable().optional(),
+}).strict()
+const tploCorrection = z.object({
+  status: z.enum(["CALCULATED", "LANDMARKS_REQUIRED", "BLADE_DIAMETER_REQUIRED", "ROTATION_TABLE_NOT_CONFIGURED",
+    "EXACT_TABLE_MATCH_REQUIRED", "TARGET_SLOPE_MISMATCH", "TARGET_SLOPE_REQUIRED"]),
+  preoperative_tpa_degrees: slope, current_slope_degrees: slope, target_slope_degrees: slope,
+  blade_diameter_mm: positive.nullable().optional(), rotation_mm: positive.nullable().optional(),
+  table_version: z.string().nullable().optional(), table_source: z.string().nullable().optional(), table_entries_sha256: hash.nullable().optional(),
+  acceptance: z.enum(["PASS", "NOT_ASSESSED"]).default("NOT_ASSESSED"), clinically_validated: z.literal(false).default(false),
 }).strict()
 // Strict nested objects fail closed on an unknown future field instead of silently
 // stripping it and overwriting the stored document during a calibration-only save.
@@ -63,12 +80,14 @@ const PlanDocumentSchema = z.object({
     image_quality: z.enum(["ACCEPTABLE", "LIMITED", "REJECTED"]).default("LIMITED"),
     eligibility: z.enum(["PENDING", "ELIGIBLE", "INELIGIBLE"]).default("PENDING"),
     eligibility_reasons: z.array(z.string()).max(10).optional(), current_slope_degrees: slope, target_slope_degrees: slope, notes: note,
+    blade_diameter_mm: positive.max(100).nullable().optional(),
   }).strict().nullable().optional(),
   radiographic_quality: radiographicQuality.nullable().optional(),
   tplo_landmarks: z.object({ method: method.default("MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1"), plateau_cranial: point, plateau_caudal: point,
     intercondylar_midpoint: point, talus_center: point }).strict().nullable().optional(),
   additional_measurements_input: additionalMeasurementsInput.optional(),
   additional_measurements: additionalMeasurements.optional(),
+  tplo_correction: tploCorrection.nullable().optional(),
   tplo_measurement: z.object({ method, status: z.enum(["CALCULATED", "LANDMARKS_REQUIRED", "IMAGE_DIMENSIONS_REQUIRED"]),
     tpa_degrees: slope, plateau_length_mm: positive.nullable().optional(), tibial_axis_length_mm: positive.nullable().optional(),
     calibration_id: hash.nullable().optional(), clinically_validated: z.literal(false).default(false),
@@ -89,7 +108,7 @@ function isEmptyPlanDocument(document: z.infer<typeof PlanDocumentSchema>): bool
   const quality = document.radiographic_quality
   const emptyQuality = !quality || quality.notes == null && [quality.true_lateral, quality.femoral_condyles_superimposed,
     quality.stifle_and_tarsus_included, quality.tibial_axis_centered, quality.tibial_plateau_visible].every(value => value === "NOT_ASSESSED")
-  return [document.calibration, document.tplo, document.tplo_landmarks, document.tplo_measurement, document.clinical_validation].every(value => value == null)
+  return [document.calibration, document.tplo, document.tplo_landmarks, document.tplo_measurement, document.tplo_correction, document.clinical_validation].every(value => value == null)
     && document.objects.length === 0 && emptyQuality && (document.additional_measurements?.length ?? 0) === 0
     && Object.keys(document.additional_measurements_input?.landmarks ?? {}).length === 0
     && Object.keys(document.additional_measurements_input?.reference_values ?? {}).length === 0

@@ -2,10 +2,9 @@
 
 import { useTranslations } from "next-intl"
 
-import { ShimmerText } from "@/components/ui/shimmer-text"
-
 import type { LoginHandoffLabels, LoginHandoffPhase } from "./login-handoff-provider"
 import { LoginHandoffPawLoader } from "./login-handoff-paw-loader"
+import { LoginHandoffStatusText } from "./login-handoff-status-text"
 import { useLoginHandoffAnimation } from "./use-login-handoff-animation"
 import styles from "./login-handoff-overlay.module.css"
 
@@ -60,18 +59,7 @@ function LoginHandoffOverlay({
         />
         <div className={styles.status}>
           <p ref={messageRef} className={styles.message} data-login-handoff-status>
-            <ShimmerText className={styles.statusLabel}>{messages[messageIndex]}</ShimmerText>
-            <svg
-              aria-hidden="true"
-              className={styles.statusDots}
-              fill="none"
-              viewBox="0 0 18 6"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle className={styles.statusDot} cx="3" cy="3" r="1.25" />
-              <circle className={styles.statusDot} cx="9" cy="3" r="1.25" />
-              <circle className={styles.statusDot} cx="15" cy="3" r="1.25" />
-            </svg>
+            <LoginHandoffStatusText>{messages[messageIndex]}</LoginHandoffStatusText>
           </p>
         </div>
       </div>

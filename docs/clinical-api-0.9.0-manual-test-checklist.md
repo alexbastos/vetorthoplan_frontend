@@ -1,6 +1,6 @@
 # Checklist de testes — integração clínica 0.9.0
 
-Base: [plano de implementação](./clinical-api-0.9.0-execution-plan.md). Preparado em **22/10/2026**.
+Base: [estado da integração](./clinical-remote-integration-status.md). Roteiro consolidado em **28/10/2026**; cenários não executados continuam pendentes.
 
 As tarefas 1–9 foram implementadas e verificadas com testes automatizados. A tarefa 10 e a parte de identidade da tarefa 13 também foram implementadas; a integração real ainda precisa deste aceite. **Nenhum item abaixo está marcado como aprovado antecipadamente.**
 
@@ -23,7 +23,7 @@ Login e acesso clínico têm aceites separados. Um banco clínico novo não impl
 - [ ] **AUTH.5 — Cadastro novo:** cadastre uma conta sintética e conclua a verificação de email. **Esperado:** login funciona após as etapas exigidas; sem associação ativa, os casos exibem ausência de organização. Depois de a equipe preparar a associação e o contexto clínico correspondente, repita o teste 10.2. Não pressupor criação automática de organização pelo frontend.
 - [ ] **AUTH.6 — POSTs vazios em produção:** após publicar o ajuste do BFF e dos clientes, abra casos e configurações/perfil e recarregue com access token expirado e sessão renovável. **Esperado:** `/api/auth/session`, `/api/cases/context` e `/api/settings/profile` enviam `Content-Type: application/json` explícito, sem corpo, e não falham com 415 por ausência desse cabeçalho. Sem sessão válida, a verificação chega a 401; com sessão renovável, o acesso prossegue após a renovação. O BFF continua exigindo sessão, origem válida e zero bytes no corpo. Se necessário, compare somente `Content-Type` e presença/tamanho do corpo no navegador e na entrada do container, sem registrar cookies ou tokens. A camada responsável por alterar/rejeitar o cabeçalho em produção ainda não foi identificada.
 
-**Diagnóstico do bloqueio observado em 22/10/2026:** `POST /api/cases/context` retornou `CLINICAL_ORGANIZATION_UNAVAILABLE`, conforme resposta fornecida pelo usuário. No resolvedor atual, esse código no POST sem seleção corresponde a HTTP 404 da consulta de organizações ou da troca de token na Authentication API. Não equivale ao estado normal `no_organizations`, nem comprova conta inválida. O BFF não informa qual dessas duas chamadas falhou: conferir no backend `GET /authentication_api/api/v1/organizations` e, se houver organização ativa, `POST /authentication_api/api/v1/auth/organizations/{orgId}/token`. Registrar somente etapa, status e código sanitizados; não compartilhar credenciais. O acesso clínico real permanece **bloqueado**, sem aprovação dos demais testes por esse diagnóstico.
+**Diagnóstico do bloqueio observado em 22/10/2026:** `POST /api/cases/context` retornou `CLINICAL_ORGANIZATION_UNAVAILABLE`, conforme resposta fornecida pelo usuário. No resolvedor atual, esse código no POST sem seleção corresponde a HTTP 404 da consulta de organizações ou da troca de token na Authentication API. Não equivale ao estado normal `no_organizations`, nem comprova conta inválida. O BFF não informa qual dessas duas chamadas falhou: conferir no backend `GET /authentication_api/api/v1/organizations` e, se houver organização ativa, `POST /authentication_api/api/v1/auth/organizations/{orgId}/token`. Registrar somente etapa, status e código sanitizados; não compartilhar credenciais. Esse registro histórico não define o estado atual do acesso; repetir o cenário no build publicado e registrar o resultado, sem aprovar os demais testes somente por esse diagnóstico.
 
 ## Tarefa 1 — criação e sexo obrigatório
 
@@ -150,7 +150,7 @@ Estes cenários exigem inspeção de rede, fixtures, controle de respostas ou ac
 | A7 — Cancelamento | Cancelar durante criação/confirmação; perder respostas; conferir upload tardio, expiração e cota. | Recupera a sessão original; confirmação vencedora preserva imagem/job; cleanup e liberação de cota confirmados pelo backend, sem deduzir pela linha removida. |
 | A8 — Exclusão | 404 por exclusão em outra aba, 409, perda do 204 e prévia/job com resposta atrasada. Conferir objetos e vínculos no servidor. | Reconciliação sem DELETE automático repetido; conflito preserva imagem; exclusão não reaparece. Limpeza física conferida separadamente. |
 | A9 — Peso | Inspecionar payload, resposta 201 e GET real dos valores do teste 9.1. | Entrada decimal canônica; resposta string decimal ou null, valor preservado; formato inesperado é registrado para ajuste explícito. |
-| A10 — Identidade/ambiente | Expiração/renovação, revogação, mudança de associação/papel, 401/403/404/429, isolamento entre organizações e CORS. | Troca sem corpo e token clínico aceito; sem repetir mutações automaticamente; acesso indevido recusado; tokens não aparecem no JSON para JS, armazenamento do navegador, logs ou requisições ao storage. Upload/prévia em HTTPS e worker operante. |
+| A10 — Identidade/ambiente | Expiração/renovação, revogação, mudança de associação/papel, 401/403/404/429, isolamento entre organizações e CORS. | Troca com JSON {} e token clínico aceito; sem repetir mutações automaticamente; acesso indevido recusado; tokens não aparecem no JSON para JS, armazenamento do navegador, logs ou requisições ao storage. Upload/prévia em HTTPS e worker operante. |
 
 **Regressão técnica a cargo do frontend:** executar testes automatizados, typecheck, verificador de contrato e build; corrigir/conferir cobertura do lint para TS/TSX. Isso não é uma ação necessária no seu roteiro pela interface.
 
@@ -170,4 +170,33 @@ Evidência: captura da tela e status/código do erro, se disponível
 
 Não compartilhe senhas, tokens, cookies, URLs/campos assinados ou exportações completas da rede. Use apenas dados sintéticos nas evidências.
 
-**Fora deste aceite:** planejamento/calibração/medidas clínicas da tarefa 12 continuam aguardando alinhamento. Os testes de autenticação acima cobrem a implementação entregue; o aceite real de JWT, permissões e isolamento da tarefa 13 depende também da equipe de backend.
+**Aceites específicos:** a calibração possui [roteiro próprio](./calibration-acceptance-2026-10-26.md); medidas e simulação seguem o [roadmap TPLO](./tplo-frontend-implementation-study-2026-10-27.md). O aceite real de JWT, permissões e isolamento depende também da equipe de backend.
+
+
+## Duplicidade, integridade e reserva de conteúdo
+
+Estes cenários exigem validação do backend real. O bloqueio SHA-256 da fila no
+navegador não comprova atomicidade da persistência.
+
+- [ ] Mesmo conteúdo com outro nome, no mesmo caso, após refresh: 409 IMAGE_UPLOAD_DUPLICATE.
+- [ ] Duas abas/usuários autorizados, chaves diferentes e mesmo SHA-256: somente uma sessão nova; checagem e reserva precisam ser atômicas.
+- [ ] Replay da mesma Idempotency-Key e payload recupera a sessão original, inclusive após resposta perdida; não vira erro de duplicata. Payload diferente mantém o conflito de idempotência.
+- [ ] Mesmo nome com bytes diferentes é permitido; conteúdo idêntico em casos diferentes é permitido a quem tem acesso.
+- [ ] Cancelamento confirmado, expiração sem confirmação e exclusão efetiva liberam a reserva. Cancelamento incerto e imagem confirmada continuam protegidos.
+- [ ] FAILED usa retry operacional; REJECTED exige revisão/remoção antes de reenviar o mesmo arquivo. Conferir regras publicadas dos demais estados.
+- [ ] SHA-256 declarado é verificado contra os bytes recebidos; assinatura falsa não permite confirmar outro conteúdo.
+- [ ] Recusas de autorização não revelam arquivos de outros casos/organizações; conferir código/documentação da recusa no OpenAPI.
+
+## Renomeação e exclusão de caso
+
+- [ ] Cancelar e confirmar os modais por mouse, toque e teclado. O lápis é acessível no hover/foco; a exclusão do caso está nos detalhes.
+- [ ] Nome longo/inválido é recusado com mensagem; extensão e arquivo original são preservados. Renomear e recarregar mantém display_name e prévia na mesma imagem.
+- [ ] Upload/processamento ativo impede exclusão com 409 e preserva o caso.
+- [ ] Excluir um caso de teste com imagens, voltar à lista e recarregar: caso/arquivos não reaparecem.
+- [ ] Cliques simultâneos compartilham o comando; resposta perdida é conciliada por leitura, sem outro DELETE automático. Resultado incerto oferece verificação.
+- [ ] Confirmar com o backend limpeza física de objetos, vínculos e liberação de cota; ausência na lista não prova exclusão do storage.
+
+## Publicação e cabeçalhos
+
+- [ ] Comparar /api/version e a versão visível com o build esperado; conferir que o navegador recebeu o bundle atual.
+- [ ] Repetir AUTH.6 no ambiente publicado e registrar somente headers de conteúdo, status e código sanitizado. Publicação do código-fonte não prova que o cliente com o ajuste está sendo servido.

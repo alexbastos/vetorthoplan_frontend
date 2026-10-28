@@ -1,7 +1,8 @@
 "use client"
 
-import { Contrast, FlipHorizontal2, RefreshCw, Ruler, Sun } from "lucide-react"
+import { CircleAlert, Contrast, FlipHorizontal2, Ruler, Sun } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
+import { Tooltip } from "radix-ui"
 import { useId, type ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -15,20 +16,35 @@ function CaseImageOptionsPanel({ calibration: c, display, onCalibrate }: {
   const locale = useLocale(), id = useId()
   const { settings } = display
   const result = c.plan?.document.calibration?.result
-  const reading = c.planQuery.isPending || c.planQuery.isFetching
+  const reading = c.planQuery.isPending
   const verified = !reading && !c.planQuery.isError && Boolean(result)
+  const readFailed = c.planQuery.isError
+  const readErrorDescription = c.canRetryRead ? t("calibrationReadError") : tCalibration("remote.readErrorTitle")
 
   return <div className="flex min-w-0 flex-1 flex-col gap-5">
     <section aria-label={t("calibration")} className="flex flex-col gap-1">
       <h3 className="font-data text-[11px] font-medium">{t("calibration")}</h3>
-      {reading ? <p aria-busy="true" className="text-[12px] text-content-secondary" role="status">{tCalibration("remote.loading")}</p>
-        : c.planQuery.isError ? <div className="space-y-2" role="alert"><p className="text-[12px] leading-5 text-destructive">{tCalibration("remote.readError")}</p>
-          <Button disabled={c.locked || c.deleting} onClick={c.refresh} size="sm" variant="secondary"><RefreshCw aria-hidden="true" />{tCalibration("remote.retry")}</Button></div>
-          : null}
-      <Button aria-label={t(verified ? "recalibrate" : "calibrate")} className="h-[1.875rem] w-full justify-between rounded-[var(--radius-token-md)] px-2 text-[12px] font-normal" disabled={!c.canEdit} onClick={onCalibrate} size="sm" title={t(verified ? "recalibrate" : "calibrate")} type="button" variant="ghost">
-        {verified && result ? <output aria-label={tCalibration("savedScale")} className="font-data text-[12px] tabular-nums">{new Intl.NumberFormat(locale, { maximumSignificantDigits: 6 }).format(result.mm_per_pixel)} mm/px</output> : <span>{t("calibrate")}</span>}
-        <Ruler aria-hidden="true" />
-      </Button>
+      {reading ? <p aria-busy="true" className="text-[12px] text-content-secondary" role="status">{tCalibration("remote.loading")}</p> : null}
+      <Tooltip.Provider delayDuration={200}>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Button aria-describedby={readFailed ? `${id}-calibration-error` : undefined} aria-label={t(verified ? "recalibrate" : "calibrate")}
+              aria-disabled={readFailed ? !c.canRetryRead : undefined}
+              className={`h-[1.875rem] w-full justify-between rounded-[var(--radius-token-md)] px-2 text-[12px] font-normal aria-disabled:cursor-not-allowed ${readFailed ? "text-destructive" : ""}`}
+              disabled={!readFailed && !c.canEdit} onClick={() => { if (readFailed ? c.canRetryRead : c.canEdit) onCalibrate() }} size="sm" title={readFailed ? undefined : t(verified ? "recalibrate" : "calibrate")} type="button" variant="ghost">
+              {verified && result ? <output aria-label={tCalibration("savedScale")} className="font-data text-[12px] tabular-nums">{new Intl.NumberFormat(locale, { maximumSignificantDigits: 6 }).format(result.mm_per_pixel)} mm/px</output> : <span>{t("calibrate")}</span>}
+              {readFailed ? <CircleAlert aria-hidden="true" /> : <Ruler aria-hidden="true" />}
+            </Button>
+          </Tooltip.Trigger>
+          {readFailed ? <>
+            <span className="sr-only" id={`${id}-calibration-error`}>{readErrorDescription}</span>
+            <Tooltip.Portal>
+              <Tooltip.Content className="z-50 max-w-[min(18rem,calc(100vw-2rem))] rounded-[var(--radius-token-md)] border border-border bg-card px-3 py-2 text-xs leading-relaxed text-foreground shadow-[var(--shadow-elevated)]"
+                collisionPadding={16} side="right" sideOffset={6}>{readErrorDescription}</Tooltip.Content>
+            </Tooltip.Portal>
+          </> : null}
+        </Tooltip.Root>
+      </Tooltip.Provider>
       <Button aria-pressed={settings.mirrored} className={`h-[1.875rem] w-full justify-between rounded-[var(--radius-token-md)] px-2 text-[12px] font-normal ${settings.mirrored ? "bg-[var(--color-surface-selected)]" : ""}`} disabled={c.deleting} onClick={() => display.setMirrored(!settings.mirrored)} size="sm" type="button" variant="ghost">
         <span>{t("mirror")}</span>
         <FlipHorizontal2 aria-hidden="true" />

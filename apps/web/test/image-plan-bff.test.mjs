@@ -35,6 +35,25 @@ const command = { baseRevision: 0, calibration: f.line }
 const save = (input, image = f.readyImage, plan = f.initial, write = async (_path, body) => ({ status: 200, data: f.persist(body) }), signal) =>
   saveImageCalibrationForBff(caseId, imageId, input, read(image), read(plan), write, signal)
 
+function correctionAndImplantDocument() {
+  const document = publishedPopulatedDocument(f)
+  document.tplo = { ...document.tplo, blade_diameter_mm: 24 }
+  document.tplo_correction = {
+    status: "CALCULATED", preoperative_tpa_degrees: 24, current_slope_degrees: 24, target_slope_degrees: 6,
+    blade_diameter_mm: 24, rotation_mm: 8.4, table_version: "rotation-table-2026.1", table_source: "synthetic table",
+    table_entries_sha256: "d".repeat(64), acceptance: "PASS", clinically_validated: false,
+  }
+  document.objects = [...document.objects, {
+    id: "00000000-0000-4000-8000-000000000902", type: "IMPLANT", catalog_item_id: "00000000-0000-4000-8000-000000000903",
+    position: { x: 0.55, y: 0.4 }, rotation_degrees: 12, scale: 1.25, opacity: 0.8,
+    variant: "standard", view: "medial", label: "Synthetic implant",
+    transform: { status: "CALCULATED", coordinate_space: "IMAGE_PIXELS", affine_matrix: [[1, 0, 110], [0, 1, 220], [0, 0, 1]] },
+  }]
+  document.clinical_validation.audit[0] = { ...document.clinical_validation.audit[0],
+    rotation_table_version: "rotation-table-2026.1", clinical_protocol_source: "synthetic protocol" }
+  return document
+}
+
 test("GET checks case membership and readiness, projects a real revision-zero plan, and strips operational data", async () => {
   const seen = [], signal = new AbortController().signal
   const result = await getImagePlanForBff(caseId, imageId, async (path, passed) => {
@@ -94,6 +113,40 @@ test("published revision-zero defaults can be read and calibrated without erasin
   }
 })
 
+test("revision-zero tplo_correction null is readable and survives a calibration PUT", async () => {
+  const document = { ...publishedEmptyDocument(f), tplo_correction: null }
+  const plan = { ...f.initial, document }
+  const loaded = await getImagePlanForBff(caseId, imageId, read(f.readyImage), read(plan))
+  assert.equal(loaded.status, 200)
+  assert.equal(loaded.body.revision, 0)
+  assert.equal(loaded.body.document.tplo_correction, null)
+
+  let writes = 0
+  const saved = await save(command, f.readyImage, plan, async (_path, input) => {
+    writes++
+    assert.equal(input.base_revision, 0)
+    assert.deepEqual(input.document, { ...loaded.body.document, calibration: f.line })
+    return { status: 200, data: f.persist(input) }
+  })
+  assert.equal(saved.status, 200)
+  assert.equal(saved.body.revision, 1)
+  assert.equal(saved.body.document.tplo_correction, null)
+  assert.equal(writes, 1)
+})
+
+test("revision-zero plans reject a non-null tplo_correction on GET and before calibration PUT", async () => {
+  const document = { ...publishedEmptyDocument(f), tplo_correction: { status: "LANDMARKS_REQUIRED" } }
+  const plan = { ...f.initial, document }
+  assert.equal((await getImagePlanForBff(caseId, imageId, read(f.readyImage), read(plan))).status, 502)
+  let writes = 0
+  const saved = await save(command, f.readyImage, plan, async () => {
+    writes++
+    return { status: 200, data: f.persist({ ...command, document }) }
+  })
+  assert.equal(saved.status, 502)
+  assert.equal(writes, 0)
+})
+
 test("published quality, configured measures, results and audit survive a calibration-only write", async () => {
   const document = publishedPopulatedDocument(f)
   const plan = { ...f.initial, revision: 3, updated_at: "2026-10-27T12:00:00Z", document }
@@ -114,6 +167,60 @@ test("published quality, configured measures, results and audit survive a calibr
   const { calibration: _previous, ...expected } = document
   assert.deepEqual(preserved, expected)
   assert.ok(saved.body.document.calibration.result)
+})
+
+test("published TPLO correction, implant transform, blade diameter and expanded audit survive one calibration write", async () => {
+  const document = correctionAndImplantDocument()
+  const plan = { ...f.initial, revision: 5, updated_at: "2026-10-28T12:00:00Z", document }
+  const loaded = await getImagePlanForBff(caseId, imageId, read(f.readyImage), read(plan))
+  assert.equal(loaded.status, 200)
+  assert.deepEqual(loaded.body.document, document)
+
+  let writes = 0
+  const saved = await save({ baseRevision: 5, calibration: f.circle }, f.readyImage, plan, async (_path, input) => {
+    writes++
+    assert.equal(input.base_revision, 5)
+    assert.deepEqual(input.document, { ...document, calibration: f.circle })
+    return { status: 200, data: f.persist(input) }
+  })
+  assert.equal(saved.status, 200)
+  assert.equal(saved.body.revision, 6)
+  assert.equal(writes, 1)
+  const { calibration: _savedCalibration, ...preserved } = saved.body.document
+  const { calibration: _previousCalibration, ...expected } = document
+  assert.deepEqual(preserved, expected)
+  assert.deepEqual(saved.body.document.tplo_correction, document.tplo_correction)
+  assert.deepEqual(saved.body.document.objects.at(-1), document.objects.at(-1))
+  assert.equal(saved.body.document.tplo.blade_diameter_mm, 24)
+  assert.equal(saved.body.document.clinical_validation.audit[0].rotation_table_version, "rotation-table-2026.1")
+  assert.equal(saved.body.document.clinical_validation.audit[0].clinical_protocol_source, "synthetic protocol")
+})
+
+test("malformed TPLO correction, implant, blade-diameter and expanded-audit fields fail closed before PUT", async () => {
+  const malformed = [
+    d => { d.tplo_correction.status = "BLADE_REQUIRED" },
+    d => { d.tplo_correction.blade_diameter_mm = 0 },
+    d => { d.tplo_correction.future_field = true },
+    d => { d.tplo.blade_diameter_mm = 101 },
+    d => { d.objects.at(-1).catalog_item_id = "not-a-uuid" },
+    d => { d.objects.at(-1).transform.coordinate_space = "VIEWPORT" },
+    d => { d.objects.at(-1).transform.affine_matrix[0][0] = Number.NaN },
+    d => { d.clinical_validation.audit[0].rotation_table_version = 7 },
+    d => { d.clinical_validation.audit[0].clinical_protocol_source = 7 },
+  ]
+  for (const mutate of malformed) {
+    const document = correctionAndImplantDocument()
+    mutate(document)
+    const plan = { ...f.initial, revision: 1, updated_at: "2026-10-28T12:00:00Z", document }
+    assert.equal((await getImagePlanForBff(caseId, imageId, read(f.readyImage), read(plan))).status, 502)
+    let writes = 0
+    const saved = await save({ baseRevision: 1, calibration: f.line }, f.readyImage, plan, async () => {
+      writes++
+      return { status: 200, data: f.persist({ base_revision: 1, document }) }
+    })
+    assert.equal(saved.status, 502)
+    assert.equal(writes, 0)
+  }
 })
 
 test("new published plan fields cannot be forged through the browser's calibration-only command", async () => {

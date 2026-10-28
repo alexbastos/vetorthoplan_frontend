@@ -152,6 +152,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/implant-catalog/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar importações para revisão */
+        get: operations["list_imports_api_v1_implant_catalog_imports_get"];
+        put?: never;
+        /**
+         * Abrir importação de prótese
+         * @description Cria um registro interno versionado. O item não aparece no catálogo até conversão e aprovação manual.
+         */
+        post: operations["create_import_api_v1_implant_catalog_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/implant-catalog/imports/{import_id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Enviar arquivo de origem do implante */
+        put: operations["upload_source_api_v1_implant_catalog_imports__import_id__source_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/implant-catalog/imports/{import_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Aprovar item após revisão manual */
+        post: operations["approve_import_api_v1_implant_catalog_imports__import_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/implant-catalog/imports/{import_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rejeitar item na revisão manual */
+        post: operations["reject_import_api_v1_implant_catalog_imports__import_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/implant-catalog/imports/{import_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reenfileirar uma conversão que falhou */
+        post: operations["retry_import_api_v1_implant_catalog_imports__import_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/implant-catalog/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar itens de prótese aprovados */
+        get: operations["list_approved_items_api_v1_implant_catalog_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -280,6 +386,46 @@ export interface paths {
         /** Save Image Plan */
         put: operations["save_image_plan_api_v1_images__image_id__plan_put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/images/{image_id}/plan/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pré-validar tecnicamente um plano TPLO salvo
+         * @description Executa verificações estruturais sem alterar o plano. READY_FOR_CLINICAL_REVIEW indica consistência técnica para avaliação veterinária e não representa homologação clínica.
+         */
+        post: operations["validate_image_plan_api_v1_images__image_id__plan_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/images/{image_id}/plan/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Avançar a revisão clínica do plano TPLO
+         * @description Aplica somente a decisão e o checklist clínico ao plano persistido. A geometria e as medidas não são aceitas no payload desta operação; a decisão é tomada sobre a revisão enviada para análise.
+         */
+        post: operations["review_image_plan_api_v1_images__image_id__plan_review_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -489,6 +635,53 @@ export interface components {
              */
             field?: string | null;
         };
+        /** CatalogImportResponse */
+        CatalogImportResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Status */
+            status: string;
+            /** Original Filename */
+            original_filename: string | null;
+            /** Source Sha256 */
+            source_sha256: string | null;
+            /** Source Media Type */
+            source_media_type?: string | null;
+            /** Source Size Bytes */
+            source_size_bytes: number | null;
+            /** Converter Version */
+            converter_version: string | null;
+            /** Conversion Metadata */
+            conversion_metadata: {
+                [key: string]: unknown;
+            } | null;
+            /** Svg Url */
+            svg_url?: string | null;
+            /** Editable Asset Url */
+            editable_asset_url?: string | null;
+            /** Editable Asset Media Type */
+            editable_asset_media_type?: string | null;
+            /** Preview Url */
+            preview_url?: string | null;
+            /** Reviewed At */
+            reviewed_at: string | null;
+            /** Review Note */
+            review_note: string | null;
+            /** Error Code */
+            error_code: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** CompletedImageUploadResponse */
         CompletedImageUploadResponse: {
             /**
@@ -593,6 +786,32 @@ export interface components {
             details: components["schemas"]["RequestValidationDetails"] | components["schemas"]["CaseValidationDetails"];
             /** Trace Id */
             trace_id?: string | null;
+        };
+        /** CreateCatalogImportRequest */
+        CreateCatalogImportRequest: {
+            /** Manufacturer */
+            manufacturer: string;
+            /** Product Name */
+            product_name: string;
+            /** Product Code */
+            product_code?: string | null;
+            /** Family */
+            family: string;
+            /** Catalog Version */
+            catalog_version: string;
+            /**
+             * Units
+             * @enum {string}
+             */
+            units: "MM" | "INCH" | "UNITLESS";
+            /** Source Reference */
+            source_reference?: string | null;
+            /** Clinical Indication */
+            clinical_indication?: string | null;
+            /** Variants */
+            variants?: string[];
+            /** Views */
+            views?: string[];
         };
         /**
          * CreateImageUploadRequest
@@ -737,6 +956,34 @@ export interface components {
             document: components["schemas"]["PlanDocument"];
             /** Updated At */
             updated_at: string | null;
+        };
+        /** ImagePlanValidationResponse */
+        ImagePlanValidationResponse: {
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /** Plan Revision */
+            plan_revision: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "READY_FOR_CLINICAL_REVIEW" | "INCOMPLETE";
+            /** Checks */
+            checks: {
+                [key: string]: "PASS" | "FAIL" | "NOT_APPLICABLE" | "PENDING" | "NOT_CHECKED";
+            };
+            /** Blocking Errors */
+            blocking_errors: components["schemas"]["PlanValidationIssueResponse"][];
+            /** Warnings */
+            warnings: components["schemas"]["PlanValidationIssueResponse"][];
+            /**
+             * Validated At
+             * Format: date-time
+             */
+            validated_at: string;
         };
         /** ImagePreviewResponse */
         ImagePreviewResponse: {
@@ -1030,9 +1277,10 @@ export interface components {
                 [key: string]: unknown;
             }[];
             tplo_measurement?: components["schemas"]["TploClinicalMeasurement"] | null;
+            tplo_correction?: components["schemas"]["TploCorrectionPlan"] | null;
             clinical_validation?: components["schemas"]["TploClinicalValidation"] | null;
             /** Objects */
-            objects?: (components["schemas"]["PlanLine"] | components["schemas"]["PlanAngle"] | components["schemas"]["PlanCircle"] | components["schemas"]["PlanTplo"])[];
+            objects?: (components["schemas"]["PlanLine"] | components["schemas"]["PlanAngle"] | components["schemas"]["PlanCircle"] | components["schemas"]["PlanTplo"] | components["schemas"]["PlanImplant"])[];
         };
         /** PlanFragment */
         PlanFragment: {
@@ -1040,6 +1288,68 @@ export interface components {
             points: components["schemas"]["PlanPoint"][];
             /** Label */
             label?: string | null;
+        };
+        /**
+         * PlanImplant
+         * @description Placement of an approved, tenant-scoped catalog asset in source-image coordinates.
+         */
+        PlanImplant: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "IMPLANT";
+            /**
+             * Catalog Item Id
+             * Format: uuid
+             */
+            catalog_item_id: string;
+            position: components["schemas"]["PlanPoint"];
+            /**
+             * Rotation Degrees
+             * @default 0
+             */
+            rotation_degrees: number;
+            /**
+             * Scale
+             * @default 1
+             */
+            scale: number;
+            /**
+             * Opacity
+             * @default 1
+             */
+            opacity: number;
+            /** Variant */
+            variant?: string | null;
+            /** View */
+            view?: string | null;
+            /** Label */
+            label?: string | null;
+            /** @description Transformação afim recalculada pelo backend para a imagem original. */
+            transform?: components["schemas"]["PlanImplantTransform"] | null;
+        };
+        /** PlanImplantTransform */
+        PlanImplantTransform: {
+            /**
+             * Status
+             * @default IMAGE_DIMENSIONS_REQUIRED
+             * @enum {string}
+             */
+            status: "CALCULATED" | "IMAGE_DIMENSIONS_REQUIRED";
+            /**
+             * Coordinate Space
+             * @default IMAGE_PIXELS
+             * @constant
+             */
+            coordinate_space: "IMAGE_PIXELS";
+            /** Affine Matrix */
+            affine_matrix?: number[][];
         };
         /** PlanLine */
         PlanLine: {
@@ -1140,6 +1450,15 @@ export interface components {
             /** Affine Matrix */
             affine_matrix?: number[][];
         };
+        /** PlanValidationIssueResponse */
+        PlanValidationIssueResponse: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /** Field */
+            field?: string | null;
+        };
         /** PresignedPostResponse */
         PresignedPostResponse: {
             /**
@@ -1176,6 +1495,42 @@ export interface components {
         RequestValidationDetails: {
             /** Errors */
             errors: components["schemas"]["ValidationFieldError"][];
+        };
+        /**
+         * ReviewImagePlanRequest
+         * @description Command for the server-owned clinical review transition.
+         *
+         *     Geometry is intentionally absent from this payload. The reviewer decides on the
+         *     persisted candidate that was submitted for review, preventing the decision call
+         *     from silently changing measurements or the TPLO simulation.
+         */
+        ReviewImagePlanRequest: {
+            /** Base Revision */
+            base_revision: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "READY_FOR_REVIEW" | "APPROVED" | "REJECTED";
+            /** Orientation Confirmed */
+            orientation_confirmed?: boolean | null;
+            /** Image Quality Confirmed */
+            image_quality_confirmed?: boolean | null;
+            /** Calibration Confirmed */
+            calibration_confirmed?: boolean | null;
+            /** Anatomical References Confirmed */
+            anatomical_references_confirmed?: boolean | null;
+            /** Required Measurements */
+            required_measurements?: string[] | null;
+            /** Reviewer Notes */
+            reviewer_notes?: string | null;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+        };
+        /** ReviewRequest */
+        ReviewRequest: {
+            /** Note */
+            note?: string | null;
         };
         /** SaveImagePlanRequest */
         SaveImagePlanRequest: {
@@ -1242,6 +1597,8 @@ export interface components {
             protocol_version?: string | null;
             /** Source */
             source?: string | null;
+            /** Tpa Max Absolute Error Degrees */
+            tpa_max_absolute_error_degrees?: number | null;
             /** Measurements */
             measurements?: {
                 [key: string]: unknown;
@@ -1281,6 +1638,10 @@ export interface components {
             measurement_method?: string | null;
             /** Calibration Id */
             calibration_id?: string | null;
+            /** Rotation Table Version */
+            rotation_table_version?: string | null;
+            /** Clinical Protocol Source */
+            clinical_protocol_source?: string | null;
         };
         /** TploClinicalValidation */
         TploClinicalValidation: {
@@ -1318,6 +1679,42 @@ export interface components {
             rejection_reason?: string | null;
             /** Audit */
             audit?: components["schemas"]["TploClinicalReviewAudit"][];
+        };
+        /** TploCorrectionPlan */
+        TploCorrectionPlan: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "CALCULATED" | "LANDMARKS_REQUIRED" | "BLADE_DIAMETER_REQUIRED" | "ROTATION_TABLE_NOT_CONFIGURED" | "EXACT_TABLE_MATCH_REQUIRED" | "TARGET_SLOPE_MISMATCH" | "TARGET_SLOPE_REQUIRED";
+            /** Preoperative Tpa Degrees */
+            preoperative_tpa_degrees?: number | null;
+            /** Current Slope Degrees */
+            current_slope_degrees?: number | null;
+            /** Target Slope Degrees */
+            target_slope_degrees?: number | null;
+            /** Blade Diameter Mm */
+            blade_diameter_mm?: number | null;
+            /** Rotation Mm */
+            rotation_mm?: number | null;
+            /** Table Version */
+            table_version?: string | null;
+            /** Table Source */
+            table_source?: string | null;
+            /** Table Entries Sha256 */
+            table_entries_sha256?: string | null;
+            /**
+             * Acceptance
+             * @default NOT_ASSESSED
+             * @enum {string}
+             */
+            acceptance: "PASS" | "NOT_ASSESSED";
+            /**
+             * Clinically Validated
+             * @default false
+             * @constant
+             */
+            clinically_validated: false;
         };
         /** TploLandmarks */
         TploLandmarks: {
@@ -1369,6 +1766,8 @@ export interface components {
             current_slope_degrees?: number | null;
             /** Target Slope Degrees */
             target_slope_degrees?: number | null;
+            /** Blade Diameter Mm */
+            blade_diameter_mm?: number | null;
             /** Notes */
             notes?: string | null;
         };
@@ -1442,6 +1841,11 @@ export interface components {
              * @constant
              */
             recommendation_enabled: false;
+        };
+        /** ValidateImagePlanRequest */
+        ValidateImagePlanRequest: {
+            /** Base Revision */
+            base_revision?: number | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1840,6 +2244,234 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_imports_api_v1_implant_catalog_imports_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Catalog-Admin-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_import_api_v1_implant_catalog_imports_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Catalog-Admin-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCatalogImportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_source_api_v1_implant_catalog_imports__import_id__source_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Original-Filename"?: string | null;
+                "X-Source-Media-Type"?: string | null;
+                "X-Catalog-Admin-Token"?: string | null;
+            };
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_import_api_v1_implant_catalog_imports__import_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Catalog-Admin-Token"?: string | null;
+            };
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_import_api_v1_implant_catalog_imports__import_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Catalog-Admin-Token"?: string | null;
+            };
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_import_api_v1_implant_catalog_imports__import_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Catalog-Admin-Token"?: string | null;
+            };
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_approved_items_api_v1_implant_catalog_items_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImportResponse"][];
                 };
             };
         };
@@ -2291,6 +2923,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_image_plan_api_v1_images__image_id__plan_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ValidateImagePlanRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImagePlanValidationResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_image_plan_api_v1_images__image_id__plan_review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewImagePlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImagePlanResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

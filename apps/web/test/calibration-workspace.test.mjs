@@ -47,7 +47,7 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 
 const React = await import("react")
 const { render, renderHook, fireEvent, waitFor, cleanup, act } = await import("@testing-library/react")
-const { QueryClient, QueryClientProvider } = await import("@tanstack/react-query")
+const { QueryClient, QueryClientProvider, focusManager } = await import("@tanstack/react-query")
 const { NextIntlClientProvider } = await import("next-intl")
 const { UnsavedChangesGuard, useUnsavedChangesGuard } = await import("../src/components/shared/app-shell/unsaved-changes-guard.tsx")
 const { CaseImageWorkspace } = await import("../src/features/cases/components/case-image-workspace.tsx")
@@ -258,10 +258,10 @@ test("calibration exits to Image only after acknowledgement, hides the saved lin
     await openImageOptions(view)
     fireEvent.change(view.getByRole("slider", { name: imageCopy.brightness }), { target: { value: "120" } })
     await editingWorkspace(view)
-    assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+    assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
     fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
     await entered.promise
-    assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+    assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
     assert.ok(view.getByRole("heading", { name: messages.cases.workspace.calibration.title, exact: true }))
     assert.ok(view.container.querySelector("[data-calibration-viewport] svg line"))
     await waitFor(() => assert.equal(view.getByRole("button", { name: messages.cases.workspace.calibration.cancelEditing, exact: true }).disabled, true))
@@ -514,41 +514,48 @@ test("saving calibration preserves backend quality and eligibility without askin
   assert.equal(view.queryByRole("button", { name: qualityCopy.title, exact: true }), null)
 })
 
-test("internal quality does not add a fourth access before preview decoding or bypass unsupported DICOM calibration", async () => {
+test("Tools stays in the rail before preview decoding and does not bypass unsupported DICOM calibration", async () => {
   const server = backend(), queryClient = client()
   const selected = { ...image, kind: "DICOM", pixelSpacingMm: [0.2, 0.3] }
   globalThis.fetch = server.fetch
   const view = render(h(Workspace, { queryClient, selected }))
-  assert.equal(view.container.querySelectorAll("nav button").length, 3)
+  assert.equal(view.container.querySelectorAll("nav button").length, 4)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   assert.equal(view.getByRole("button", { name: imageCopy.title, exact: true }).disabled, true)
   await openImageOptions(view)
   assert.equal(view.getByRole("button", { name: imageCopy.calibrate }).disabled, true)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null)
   assert.equal(view.queryByRole("button", { name: qualityCopy.title, exact: true }), null)
   assert.equal(view.queryByRole("combobox", { name: qualityCopy.fields.true_lateral }), null)
   view.rerender(h(Workspace, { queryClient, selected: { ...selected, status: "QUARANTINED" } }))
   await waitFor(() => assert.equal(view.getByRole("button", { name: imageCopy.title, exact: true }).disabled, true))
-  assert.equal(view.container.querySelectorAll("nav button").length, 3)
+  assert.equal(view.container.querySelectorAll("nav button").length, 4)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
 })
 
-test("Tools appears only after a confirmed calibration and opens a focused panel without enabling measurement editing or writing", async () => {
+test("Tools stays visible before decoding and opens a focused panel after a saved calibration without editing or writing", async () => {
   const server = backend(), queryClient = client()
   server.persisted = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
   const saved = structuredClone(server.persisted)
   globalThis.fetch = server.fetch
   const view = render(h(Workspace, { queryClient }))
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+  const tools = view.getByRole("button", { name: toolsCopy.title, exact: true })
+  assert.equal(view.container.querySelectorAll("nav button").length, 4)
+  assert.equal(tools.disabled, true)
   await openImageOptions(view)
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, false))
   fireEvent.change(view.getByRole("slider", { name: imageCopy.brightness }), { target: { value: "135" } })
   fireEvent.click(view.getByRole("button", { name: imageCopy.mirror }))
   const rail = [...view.container.querySelectorAll("nav button")]
   assert.equal(rail.length, 4)
   assert.equal(rail.at(-1).getAttribute("aria-label"), toolsCopy.title)
-  const tools = view.getByRole("button", { name: toolsCopy.title, exact: true })
-  tools.focus(); assert.equal(document.activeElement, tools)
-  fireEvent.click(tools)
+  const enabledTools = view.getByRole("button", { name: toolsCopy.title, exact: true })
+  enabledTools.focus(); assert.equal(document.activeElement, enabledTools)
+  fireEvent.click(enabledTools)
   const heading = view.getByRole("heading", { name: toolsCopy.title, exact: true })
   assert.equal(document.activeElement, heading)
-  assert.equal(tools.getAttribute("aria-pressed"), "true")
+  assert.equal(enabledTools.getAttribute("aria-pressed"), "true")
   assert.ok(view.getByRole("region", { name: toolsCopy.measurements }))
   assert.ok(view.getByText(toolsCopy.description))
   assert.equal(view.queryByRole("button", { name: messages.cases.workspace.viewer.mark }), null)
@@ -564,7 +571,182 @@ test("Tools appears only after a confirmed calibration and opens a focused panel
   assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
 })
 
-test("entering recalibration hides Tools even before geometry changes, while cancel restores access without losing the saved scale", async () => {
+test("Tools and its saved scale stay available while a background plan read resolves, then lose content if scale is absent", async () => {
+  const server = backend(), queryClient = client()
+  const saved = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
+  const uncalibrated = f.publicPlan(f.persist({ base_revision: saved.revision, document: { ...f.initial.document, calibration: null } }))
+  server.persisted = saved
+  let planReads = 0, pendingPlan = null
+  globalThis.fetch = (url, init) => {
+    if (url.endsWith("/plan")) {
+      planReads++
+      if (pendingPlan) { const current = pendingPlan; pendingPlan = null; return current.promise }
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await openImageOptions(view)
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, false))
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  await view.findByRole("region", { name: toolsCopy.measurements })
+
+  const stableRead = deferred()
+  pendingPlan = stableRead
+  act(() => { void queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  await waitFor(() => {
+    assert.equal(planReads, 2)
+    assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "fetching")
+  })
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.ok(view.getByRole("region", { name: toolsCopy.measurements }))
+  assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.loading), null)
+  fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
+  assert.match(view.getByLabelText(messages.cases.workspace.calibration.savedScale).textContent, /mm\/px/)
+  assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.loading), null)
+  assert.equal(view.getByRole("button", { name: imageCopy.recalibrate, exact: true }).disabled, true)
+  await act(async () => stableRead.resolve(Response.json(saved)))
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+  assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  await view.findByRole("region", { name: toolsCopy.measurements })
+
+  const losingRead = deferred()
+  server.persisted = uncalibrated
+  pendingPlan = losingRead
+  act(() => { void queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  await waitFor(() => {
+    assert.equal(planReads, 3)
+    assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "fetching")
+  })
+  assert.ok(view.getByRole("region", { name: toolsCopy.measurements }))
+  assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.loading), null)
+  await act(async () => losingRead.resolve(Response.json(uncalibrated)))
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+  await waitFor(() => assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null))
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "false")
+  assert.equal(view.queryByLabelText(messages.cases.workspace.calibration.savedScale), null)
+})
+
+test("a remounted workspace shows a cached saved scale while its fresh plan read is pending", async () => {
+  const server = backend(), queryClient = client()
+  const saved = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
+  server.persisted = saved
+  let planReads = 0, deferNextRead = false
+  const refresh = deferred()
+  globalThis.fetch = (url, init) => {
+    if (url.endsWith("/plan")) {
+      planReads++
+      if (deferNextRead) { deferNextRead = false; return refresh.promise }
+    }
+    return server.fetch(url, init)
+  }
+  let view = render(h(Workspace, { queryClient }))
+  await openImageOptions(view)
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+  assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
+  view.unmount()
+
+  deferNextRead = true
+  view = render(h(Workspace, { queryClient }))
+  await waitFor(() => {
+    assert.equal(planReads, 2)
+    assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "fetching")
+  })
+  await openImageOptions(view)
+  assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
+  assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.loading), null)
+  assert.equal(view.getByRole("button", { name: imageCopy.recalibrate, exact: true }).disabled, true)
+  await act(async () => refresh.resolve(Response.json(saved)))
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+  assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
+  assert.equal(view.getByRole("button", { name: imageCopy.recalibrate, exact: true }).disabled, false)
+})
+
+test("browser focus leaves a fresh preview and Tools alone, while near-expiry preview is renewed", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
+  let planReads = 0, previewReads = 0
+  globalThis.fetch = async (url, init) => {
+    if (url.endsWith("/plan")) planReads++
+    const response = await server.fetch(url, init)
+    if (url.endsWith("/preview")) {
+      previewReads++
+      if (previewReads > 1) return Response.json({ ...await response.json(), url: `https://storage.example/preview-${previewReads}.png` })
+    }
+    return response
+  }
+  const cycleFocus = async () => act(async () => {
+    focusManager.setFocused(false)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    focusManager.setFocused(true)
+    await new Promise(resolve => setTimeout(resolve, 0))
+  })
+  const view = render(h(Workspace, { queryClient }))
+  try {
+    await openImageOptions(view)
+    await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+    fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+    await view.findByRole("region", { name: toolsCopy.measurements })
+    const startingCounts = { planReads, previewReads }
+
+    await cycleFocus()
+    assert.deepEqual({ planReads, previewReads }, startingCounts)
+    assert.ok(view.getByRole("region", { name: toolsCopy.measurements }))
+    assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+
+    const previewKey = keys.preview(image.caseId, image.id)
+    const preview = queryClient.getQueryData(previewKey)
+    act(() => queryClient.setQueryData(previewKey, { ...preview, expiresAt: new Date(Date.now() + 8_000).toISOString() }))
+    await cycleFocus()
+    await waitFor(() => assert.equal(previewReads, startingCounts.previewReads + 1))
+    await waitFor(() => assert.ok(view.getByRole("img").src.endsWith(`preview-${previewReads}.png`)))
+    assert.equal(planReads, startingCounts.planReads)
+    fireEvent.load(view.getByRole("img"))
+    await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, false))
+    fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+    await view.findByRole("region", { name: toolsCopy.measurements })
+  } finally { focusManager.setFocused(undefined) }
+})
+
+test("Tools starts first-time calibration guidance when no scale is saved and can open Tools after calibration", async () => {
+  const server = backend(), queryClient = client()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient, introduction: true }))
+  await waitFor(() => assert.ok(view.queryByRole("img")))
+  fireEvent.load(view.getByRole("img"))
+  const tools = await view.findByRole("button", { name: toolsCopy.title, exact: true })
+  await waitFor(() => assert.equal(tools.disabled, false))
+  fireEvent.click(tools)
+
+  const copy = messages.cases.workspace.calibration.introduction
+  const dialog = await view.findByRole("dialog", { name: copy.title })
+  assert.ok(dialog.textContent.includes(copy.description))
+  assert.equal(view.getByRole("button", { name: imageCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(view.container.querySelector("[data-calibration-viewport] svg line"), null)
+  fireEvent.click(view.getByRole("button", { name: copy.confirm }))
+  await waitFor(() => assert.equal(view.queryByRole("dialog", { name: copy.title }), null))
+
+  fireEvent.change(await referenceInput(view, "Comprimento real"), { target: { value: "25" } })
+  const viewport = view.container.querySelector("[data-calibration-viewport]")
+  view.getByRole("img").parentElement.getBoundingClientRect = () => ({ left: 100, top: 50, width: 1000, height: 500, right: 1100, bottom: 550 })
+  fireEvent.pointerDown(viewport, { button: 0, clientX: 200, clientY: 150 })
+  fireEvent.pointerMove(viewport, { clientX: 600, clientY: 150 })
+  fireEvent.pointerUp(viewport, { clientX: 600, clientY: 150 })
+  assert.ok(viewport.querySelector("svg line"))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
+  await view.findByRole("button", { name: imageCopy.recalibrate })
+  assert.ok(view.getByRole("heading", { name: imageCopy.title, exact: true }))
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "false")
+  assert.equal(view.queryByRole("region", { name: toolsCopy.measurements }), null)
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  await view.findByRole("region", { name: toolsCopy.measurements })
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.ok(server.persisted.document.calibration.result)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
+})
+
+test("Tools stays visible during recalibration and its click does not discard the active calibration draft", async () => {
   const server = backend(), queryClient = client()
   server.persisted = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
   const saved = structuredClone(server.persisted)
@@ -574,21 +756,25 @@ test("entering recalibration hides Tools even before geometry changes, while can
   assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   await openCalibration(view, { confirmRecalibration: false })
   assert.ok(view.getByRole("dialog", { name: messages.cases.workspace.calibration.introduction.title }))
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   await acknowledgeRecalibration(view)
   assert.equal(view.getByRole("button", { name: "Atualizar calibração" }).disabled, true)
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
-  fireEvent.change(await referenceInput(view, "Diâmetro real"), { target: { value: "35" } })
-  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.images.title, exact: true }))
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
-  await openCalibration(view)
+  const diameter = await referenceInput(view, "Diâmetro real")
+  fireEvent.change(diameter, { target: { value: "35" } })
+  const draft = structuredClone(queryClient.getQueryData(keys.imageCalibrationDraft(image.caseId, image.id)))
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  assert.ok(view.getByRole("heading", { name: messages.cases.workspace.calibration.title, exact: true }))
+  assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null)
+  assert.equal((await referenceInput(view, "Diâmetro real")).value, "35")
+  assert.deepEqual(queryClient.getQueryData(keys.imageCalibrationDraft(image.caseId, image.id)), draft)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.cancelEditing, exact: true }))
   assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   assert.deepEqual(server.persisted, saved)
   assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
 })
 
-test("switching from Tools to an uncalibrated image closes the panel and never inherits another image's calibration", async () => {
+test("switching from Tools to an uncalibrated image closes its content and Tools starts that image's calibration", async () => {
   const server = backend(), queryClient = client(), other = { ...image, id: "00000000-0000-4000-8000-000000000994" }
   server.persisted = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
   globalThis.fetch = (url, init) => url.includes(other.id) && url.endsWith("/plan")
@@ -600,16 +786,18 @@ test("switching from Tools to an uncalibrated image closes the panel and never i
   view.rerender(h(Workspace, { queryClient, selected: other }))
   assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null)
   await openImageOptions(view)
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
-  assert.ok(view.getByRole("button", { name: imageCopy.calibrate, exact: true }))
-  view.rerender(h(Workspace, { queryClient }))
-  await openImageOptions(view)
   assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  assert.ok(view.getByRole("button", { name: imageCopy.calibrate, exact: true }))
+  assert.equal(view.queryByLabelText(messages.cases.workspace.calibration.savedScale), null)
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  assert.ok(view.getByRole("heading", { name: messages.cases.workspace.calibration.title, exact: true }))
   assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null)
-  assert.equal(view.getByRole("button", { name: imageCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.ok(view.getByRole("slider", { name: "Comprimento real" }))
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
 })
 
-test("losing the confirmed scale or the decoded preview immediately closes Tools and returns to Image", async () => {
+test("losing the confirmed scale or decoded preview closes Tools content but keeps its rail button", async () => {
   const server = backend(), queryClient = client()
   server.persisted = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
   globalThis.fetch = server.fetch
@@ -619,7 +807,7 @@ test("losing the confirmed scale or the decoded preview immediately closes Tools
   act(() => queryClient.setQueryData(keys.imagePlan(image.caseId, image.id), current => ({ ...current,
     revision: current.revision + 1, document: { ...current.document, calibration: null } })))
   await view.findByRole("button", { name: imageCopy.calibrate, exact: true })
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null)
   act(() => queryClient.setQueryData(keys.imagePlan(image.caseId, image.id), server.persisted))
   await view.findByRole("button", { name: toolsCopy.title, exact: true })
@@ -627,11 +815,11 @@ test("losing the confirmed scale or the decoded preview immediately closes Tools
   fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   fireEvent.error(view.getByRole("img"))
   await waitFor(() => assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null))
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, true)
   assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
 })
 
-test("Tools stays hidden for unsupported geometry, deletion locks, invalid drafts and unresolved calibration receipts", async () => {
+test("Tools stays in the rail when calibration is unavailable, locked or unresolved", async () => {
   const saved = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
   const scenarios = [
     { selected: { ...image, widthPx: null } },
@@ -657,7 +845,7 @@ test("Tools stays hidden for unsupported geometry, deletion locks, invalid draft
     await waitFor(() => assert.ok(view.queryByRole("img")))
     fireEvent.load(view.getByRole("img"))
     fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
-    assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+    assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
     assert.equal(view.queryByRole("heading", { name: toolsCopy.title, exact: true }), null)
     view.unmount()
   }
@@ -1176,7 +1364,7 @@ test("an uncertain save blocks leaving and discarding, then checking shows succe
   await editingWorkspace(view)
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
   await waitFor(() => assert.ok(view.queryByRole("button", { name: messages.cases.workspace.calibration.remote.check })))
-  assert.equal(view.queryByRole("button", { name: toolsCopy.title, exact: true }), null)
+  assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
   assert.equal(view.getByRole("button", { name: messages.cases.workspace.calibration.reset }).disabled, true)
   fireEvent.click(view.getByRole("button", { name: "Navigate" }))
   assert.equal(navigated, 0)
@@ -1192,25 +1380,85 @@ test("an uncertain save blocks leaving and discarding, then checking shows succe
   assert.equal(notices.filter(([kind]) => kind === "success").length, 1)
 })
 
-test("a failed initial read is recoverable through the panel and notifies once for that failed request", async () => {
-  const server = backend(), queryClient = client(), errors = []
-  toast.error = (title, options) => errors.push({ title, description: options.description })
-  let fail = true
-  globalThis.fetch = (url, init) => url.endsWith("/plan") && fail
-    ? Promise.resolve(Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 })) : server.fetch(url, init)
+test("a failed initial read shows a red Calibrate tooltip and retries from that same action without writes", async () => {
+  const server = backend(), queryClient = client(), errors = [], errorIds = []
+  toast.error = (title, options) => { errors.push({ title, description: options.description }); errorIds.push(options.id) }
+  let fail = true, planReads = 0
+  globalThis.fetch = (url, init) => {
+    if (url.endsWith("/plan")) {
+      planReads++
+      if (fail) return Promise.resolve(Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 }))
+    }
+    return server.fetch(url, init)
+  }
   const view = render(h(Workspace, { queryClient }))
   await waitFor(() => assert.ok(view.queryByRole("img")))
   fireEvent.load(view.getByRole("img"))
-  await openCalibration(view)
-  await view.findByRole("button", { name: messages.cases.workspace.calibration.remote.retry })
-  assert.deepEqual(errors, [{ title: messages.cases.workspace.calibration.remote.readErrorTitle, description: messages.cases.workspace.calibration.remote.readErrorDescription }])
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).status, "error"))
+  await openImageOptions(view)
+
+  const errorCopy = messages.cases.workspace.image.calibrationReadError
+  const calibrate = view.getByRole("button", { name: messages.cases.workspace.image.calibrate, exact: true })
+  assert.ok(calibrate.className.includes("text-destructive"))
+  const descriptionId = calibrate.getAttribute("aria-describedby")
+  assert.ok(descriptionId)
+  assert.equal(document.getElementById(descriptionId).textContent, errorCopy)
+  assert.ok(document.getElementById(descriptionId).className.includes("sr-only"))
+  assert.equal(view.queryByRole("alert"), null)
+  assert.equal(view.queryByRole("button", { name: messages.cases.workspace.calibration.remote.retry }), null)
+  assert.equal(errors.length, 1)
+  fireEvent.focus(calibrate)
+  assert.equal((await view.findByRole("tooltip")).textContent, errorCopy)
+  fireEvent.blur(calibrate)
+
+  fireEvent.click(calibrate)
+  await waitFor(() => {
+    assert.equal(planReads, 2)
+    assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle")
+  })
+  assert.ok(view.getByRole("button", { name: messages.cases.workspace.image.calibrate, exact: true }))
+  assert.equal(view.queryByRole("slider", { name: "Comprimento real" }), null)
+  assert.equal(view.queryByRole("heading", { name: messages.cases.workspace.calibration.title, exact: true }), null)
+  assert.equal(view.queryByRole("alert"), null)
+  assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
+
   fail = false
-  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.retry }))
-  await waitFor(() => assert.equal(view.getByRole("button", { name: messages.cases.workspace.image.calibrate }).disabled, false))
-  await openCalibration(view)
-  await waitFor(() => assert.equal(view.getByRole("slider", { name: "Comprimento real" }).disabled, false))
-  assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.states.uncalibrated), null)
-  assert.deepEqual(errors, [{ title: messages.cases.workspace.calibration.remote.readErrorTitle, description: messages.cases.workspace.calibration.remote.readErrorDescription }])
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.image.calibrate, exact: true }))
+  await waitFor(() => assert.equal(planReads, 3))
+  await waitFor(() => assert.ok(view.getByRole("slider", { name: "Comprimento real" })))
+  assert.equal(view.queryByRole("button", { name: messages.cases.workspace.calibration.remote.retry }), null)
+  assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
+  assert.deepEqual(errors, Array(2).fill({ title: messages.cases.workspace.calibration.remote.readErrorTitle,
+    description: messages.cases.workspace.calibration.remote.readErrorDescription }))
+  assert.deepEqual(errorIds, Array(2).fill(`calibration-read-error:${image.caseId}:${image.id}`))
+})
+
+test("leaving Image while its Calibrate retry is pending prevents a late response from opening the editor", async () => {
+  const server = backend(), queryClient = client(), recovery = deferred()
+  let planReads = 0
+  globalThis.fetch = (url, init) => {
+    if (url.endsWith("/plan")) {
+      planReads++
+      if (planReads === 1) return Promise.resolve(Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 }))
+      if (planReads === 2) return recovery.promise
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await waitFor(() => assert.ok(view.queryByRole("img")))
+  fireEvent.load(view.getByRole("img"))
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).status, "error"))
+  await openImageOptions(view)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.image.calibrate, exact: true }))
+  await waitFor(() => assert.equal(planReads, 2))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.sidebar.title, exact: true }))
+  assert.equal(view.getByRole("button", { name: messages.cases.workspace.sidebar.title, exact: true }).getAttribute("aria-pressed"), "true")
+
+  await act(async () => recovery.resolve(Response.json(server.persisted)))
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
+  assert.equal(view.queryByRole("slider", { name: "Comprimento real" }), null)
+  assert.equal(view.queryByRole("heading", { name: messages.cases.workspace.calibration.title, exact: true }), null)
+  assert.equal(server.calls.some(call => call.method === "PUT" || call.method === "PATCH"), false)
 })
 
 test("discarding a conflict reloads a known newer revision when reconciliation failed; stale saved scales stay ineligible", async () => {

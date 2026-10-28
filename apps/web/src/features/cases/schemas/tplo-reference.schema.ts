@@ -5,6 +5,7 @@ const finite = z.number().finite()
 const TploClinicalProtocolSchema = z.object({
   configured: z.boolean(), protocol_version: z.string().nullable().optional(), source: z.string().nullable().optional(),
   measurements: z.array(z.record(z.string(), z.json())).optional(),
+  tpa_max_absolute_error_degrees: finite.positive().max(90).nullable().optional(),
   acceptance_enabled: z.boolean().default(false), clinically_validated: z.literal(false).default(false),
 }) satisfies z.ZodType<GetTploClinicalProtocolResponse>
 const TploRotationQuerySchema = z.object({

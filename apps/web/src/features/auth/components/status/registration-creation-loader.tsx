@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl"
 
 import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
 import styles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
-import { ShimmerText } from "@/components/ui/shimmer-text"
+import { LoginHandoffStatusText } from "@/components/shared/login-handoff/login-handoff-status-text"
 
 import type { RegistrationConfirmationState } from "../shell/auth-transition-provider"
 
@@ -22,26 +22,14 @@ function RegistrationCreationLoader({ state }: { state: RegistrationConfirmation
         <LoginHandoffPawLoader settle={state === "exiting"} size={104} />
         <div className={styles.status}>
           <p className={styles.message} data-auth-registration-status-creating>
-            <ShimmerText className={styles.statusLabel}>{t("created")}</ShimmerText>
-            <StatusDots />
+            <LoginHandoffStatusText>{t("created")}</LoginHandoffStatusText>
           </p>
           <p className={`${styles.message} opacity-0`} data-auth-registration-status-sent>
-            <ShimmerText className={styles.statusLabel}>{t("confirmationSent")}</ShimmerText>
-            <StatusDots />
+            <LoginHandoffStatusText>{t("confirmationSent")}</LoginHandoffStatusText>
           </p>
         </div>
       </div>
     </section>
-  )
-}
-
-function StatusDots() {
-  return (
-    <svg aria-hidden="true" className={styles.statusDots} fill="none" viewBox="0 0 18 6">
-      <circle className={styles.statusDot} cx="3" cy="3" r="1.25" />
-      <circle className={styles.statusDot} cx="9" cy="3" r="1.25" />
-      <circle className={styles.statusDot} cx="15" cy="3" r="1.25" />
-    </svg>
   )
 }
 

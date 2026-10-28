@@ -10,15 +10,15 @@ pnpm generate:api-types
 
 O comando lê `docs/openapi/authentication-api.openapi.json` e `docs/openapi/clinical-api.openapi.json` e atualiza os respectivos arquivos em `src/generated/`. Não edite arquivos gerados manualmente. Para atualizar só um contrato, use `pnpm --filter @vetorthoplan/api-client generate:authentication` ou `pnpm --filter @vetorthoplan/api-client generate:clinical`.
 
-O snapshot canônico usado para gerar os tipos clínicos é a versão **0.9.0**, consultada em **27/10/2026**, com 18 caminhos, 23 operações e 54 schemas; sua proveniência e checksum estão em `docs/openapi/clinical-api.snapshot.json`. A cópia original recebida está em `clinical-api.published-2026-10-27.openapi.json`. A versão declarada permaneceu igual, embora o contrato tenha evoluído; consulte a [revisão de 27/10](../../docs/swagger-update-review-2026-10-27.md). O export anterior à 0.9.0 permanece em `docs/openapi/openapi (1).json`, com metadados em `clinical-api.0.8.0.snapshot.json`. Os tipos gerados seguem o snapshot canônico, não definem as respostas públicas do BFF e não implementam a autenticação.
+O snapshot canônico usado para gerar os tipos clínicos é a versão **0.9.0**, consultada em **28/10/2026**, com 26 caminhos, 32 operações e 64 schemas; sua proveniência e checksum estão em `docs/openapi/clinical-api.snapshot.json`. A cópia original recebida está em `clinical-api.published-2026-10-28.openapi.json`. A versão declarada permaneceu igual, embora o contrato tenha evoluído; consulte o [estado da integração](../../docs/clinical-remote-integration-status.md). Exports substituídos permanecem disponíveis no histórico do Git. Os tipos gerados seguem o snapshot canônico, não definem as respostas públicas do BFF e não implementam a autenticação.
 
 Os nomes curtos de requisições, parâmetros e respostas estão em `@vetorthoplan/api-client/clinical-contract`. Cada tipo é derivado de uma operação em `@vetorthoplan/api-client/clinical`, sem copiar os campos do schema. `ClinicalResponse<Operacao, Status>` preserva o corpo declarado para cada status. Na criação de caso, `CreateCaseHeaders`, `CreateCaseIdempotencyConflict` e `CreateCaseValidationError` representam o cabeçalho e as respostas do contrato clínico atual.
 
-Na 0.9.0, `ReadyHealthResponse`, `CreateImageUploadHeaders`, `GetImageIngestionJobResponse` e `RetryIngestionJobResponse` representam prontidão, cabeçalho obrigatório de sessão, consulta por imagem e retry. Cancelamento/exclusão têm aliases dos parâmetros de caminho; sucesso 204 não possui corpo JSON. Os fluxos estão integrados no BFF; aceite real e pendências por tarefa estão no [plano 0.9.0](../../docs/clinical-api-0.9.0-execution-plan.md).
+Na 0.9.0, `ReadyHealthResponse`, `CreateImageUploadHeaders`, `GetImageIngestionJobResponse` e `RetryIngestionJobResponse` representam prontidão, cabeçalho obrigatório de sessão, consulta por imagem e retry. Cancelamento/exclusão têm aliases dos parâmetros de caminho; sucesso 204 não possui corpo JSON. Os fluxos estão integrados no BFF; aceite real e pendências estão no [estado da integração](../../docs/clinical-remote-integration-status.md).
 
-O contrato de 27/10 também gera aliases para protocolo TPLO, parâmetros/resposta
-da tabela de rotação, finalização e consulta dos relatórios. Esses aliases
-preparam a tipagem; os novos fluxos BFF/UI ainda pertencem às etapas seguintes.
+O contrato atual também gera aliases para protocolo TPLO, parâmetros/resposta
+da tabela de rotação, finalização e consulta dos relatórios. Protocolo e tabela
+já possuem consultas BFF; finalização e relatórios seguem o roadmap de produto.
 A calibração aceita e preserva os novos campos do documento do plano sem
 permitir sua edição pelo comando público de calibração.
 

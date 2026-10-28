@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useEffect, useState, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
+import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
+import { LoginHandoffStatusText } from "@/components/shared/login-handoff/login-handoff-status-text"
+import handoffStyles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
 import { CLINICAL_CONTEXT_CHANGED_EVENT, setCaseBrowserOrganization } from "../services/case-fetch"
 import { CLINICAL_CONTEXT_QUERY_KEY as CONTEXT_KEY, ClinicalContextError, fetchClinicalContext, type ClinicalContext } from "../services/clinical-context-api"
 
@@ -31,7 +34,17 @@ function ClinicalContextGate({ children }: { children: ReactNode }) {
   const errorText = failure instanceof ClinicalContextError && failure.code === "SESSION_UNAVAILABLE" ? "sessionError"
     : failure instanceof ClinicalContextError && (failure.code === "ACCESS_DENIED" || failure.code === "CLINICAL_ORGANIZATION_UNAVAILABLE") ? "accessError"
       : failure instanceof ClinicalContextError && failure.code === "RATE_LIMITED" ? "rateLimited" : "error"
-  if (query.isPending) return <p aria-busy="true" className="mx-auto py-12 text-sm text-description">{t("loading")}</p>
+  if (query.isPending) return (
+    <section aria-atomic="true" aria-busy="true" aria-live="polite"
+      className="fixed inset-0 z-[100] flex min-h-dvh items-center justify-center bg-workspace px-6 text-center" role="status">
+      <div className={handoffStyles.content}>
+        <LoginHandoffPawLoader size={104} />
+        <div className={handoffStyles.status}>
+          <p className={handoffStyles.message}><LoginHandoffStatusText>{t("loading")}</LoginHandoffStatusText></p>
+        </div>
+      </div>
+    </section>
+  )
   if (query.isError || changed || !value) return (
     <section className="mx-auto max-w-md space-y-4 py-12" role="alert">
       <h1 className="text-lg font-semibold">{t(changed ? "changed" : "unavailable")}</h1>

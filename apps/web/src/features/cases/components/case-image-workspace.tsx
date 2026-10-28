@@ -53,6 +53,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
     enabled: false, initialData: false, gcTime: Infinity })
   const mounted = useRef(true)
   const operationPending = useRef(false)
+  const calibrationEntry = useRef(0)
   useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
   const discardCalibration = useCallback(() => {
     if (!discardCalibrationDraft()) return false
@@ -84,13 +85,18 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   }, [client, image.caseId, image.id])
   const notifiedReadError = useRef<unknown>(null)
   useEffect(() => {
+    const noticeId = `calibration-read-error:${image.caseId}:${image.id}`
     if (calibration.planQuery.error && calibration.planQuery.error !== notifiedReadError.current) {
       notifiedReadError.current = calibration.planQuery.error
       toast.error(t("remote.readErrorTitle"), {
+        id: noticeId,
         description: t("remote.readErrorDescription"),
       })
+    } else if (calibration.planQuery.isSuccess && !calibration.planQuery.isFetching && notifiedReadError.current) {
+      toast.dismiss(noticeId)
+      notifiedReadError.current = null
     }
-  }, [calibration.planQuery.error, t])
+  }, [calibration.planQuery.error, calibration.planQuery.isSuccess, calibration.planQuery.isFetching, image.caseId, image.id, t])
 
   async function save(checkOnly = false) {
     if (operationPending.current || introductionRequested) return
@@ -109,18 +115,34 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
     else toast.error(t("saveErrorTitle"), { description: t("saveErrorDescription") })
   }
   function selectSection(section: WorkspacePanelSection) {
-    if (section === "tools" && !toolsAvailable) return
+    if (section === "tools" && !toolsAvailable) {
+      onSectionChange("calibration")
+      if (!calibrationEditing) void startCalibration()
+      else if (calibration.canEdit) setTool("mark")
+      return
+    }
     if (section === activeSection) return
+    calibrationEntry.current += 1
     if (introductionRequested) cancelIntroduction()
     setIntroductionRequested(false)
     onSectionChange(section)
     setTool(section === "calibration" && calibrationEditing ? "mark" : "pan")
   }
-  function startCalibration() {
-    if (!calibration.canEdit) return
+  async function startCalibration() {
+    let hasSavedCalibration = Boolean(calibration.plan?.document.calibration)
+    if (calibration.planQuery.isError) {
+      if (operationPending.current || !calibration.canRetryRead) return
+      operationPending.current = true
+      const entry = ++calibrationEntry.current
+      try {
+        const recovered = await calibration.planQuery.refetch()
+        if (!mounted.current || entry !== calibrationEntry.current || !recovered.isSuccess) return
+        hasSavedCalibration = Boolean(recovered.data.document.calibration)
+      } finally { operationPending.current = false }
+    } else if (!calibration.canEdit) return
     introductionConfirmed.current = false
     setCalibrationRequested(true)
-    setIntroductionRequested(!calibration.hasChanges && (Boolean(calibration.plan?.document.calibration) || !introductionSeen))
+    setIntroductionRequested(!calibration.hasChanges && (hasSavedCalibration || !introductionSeen))
     setTool("mark")
   }
   const recalibrating = Boolean(calibration.plan?.document.calibration)
@@ -146,8 +168,8 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   const imageActionLabel = calibrationEditing ? discardLabel : tImage("reset")
   return <>
     <CaseWorkspacePanel activeSection={panelSection} calibrationAvailable={preview.ready && !caseLocked && !calibration.deleting}
-      calibrationEditing={calibrationEditing}
-      toolsAvailable={toolsAvailable}
+      calibrationEditing={calibrationEditing && !calibration.planQuery.isError}
+      toolsDisabled={calibration.planQuery.isPending || (calibration.planQuery.isFetching && !calibration.measurementEligible)}
       toolsContent={toolsAvailable ? <CaseImageToolsPanel /> : null}
       calibrationUnavailableReason={tImage("unavailable")}
       calibrationActions={<button aria-label={imageActionLabel}
@@ -157,10 +179,10 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
         <RotateCcw aria-hidden="true" className="size-4" strokeWidth={1.5} />
       </button>}
       caseContext={caseContext} imageList={imageList} imageActions={imageActions} onSectionChange={selectSection}>
-      {calibrationEditing ? <CaseImageCalibrationPanel calibration={calibration} interactionBlocked={introductionOpen} onSave={() => void save()} onCheck={() => void save(true)} onPlace={() => {
+      {calibrationEditing && !calibration.planQuery.isError ? <CaseImageCalibrationPanel calibration={calibration} interactionBlocked={introductionOpen} onSave={() => void save()} onCheck={() => void save(true)} onPlace={() => {
         calibration.placeMarker(); setTool("mark")
         requestAnimationFrame(() => document.querySelector<HTMLElement>("[data-calibration-viewport]")?.focus({ preventScroll: true }))
-      }} onCancel={discardCalibration} /> : <CaseImageOptionsPanel calibration={calibration} display={display} onCalibrate={startCalibration} />}
+      }} onCancel={discardCalibration} /> : <CaseImageOptionsPanel calibration={calibration} display={display} onCalibrate={() => void startCalibration()} />}
     </CaseWorkspacePanel>
     <CasePreviewPanel image={image} preview={preview} display={display.settings}
       interactionNotice={introductionOpen ? <CalibrationIntroductionDialog open recalibrating={recalibrating} onConfirm={confirmIntroduction} onCancel={cancelIntroduction}

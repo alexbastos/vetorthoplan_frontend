@@ -5,8 +5,9 @@ import { createPortal } from "react-dom"
 import { useTranslations } from "next-intl"
 
 import { Button, buttonVariants } from "@/components/ui/button"
-import { OrthoVetLoader } from "@/components/ui/vetorthoplan-loader"
-import { OrthoVetLoaderText } from "@/components/ui/orthovet-loader-text"
+import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
+import { LoginHandoffStatusText } from "@/components/shared/login-handoff/login-handoff-status-text"
+import handoffStyles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
 import { cn } from "@/lib/utils"
 
 import { useEmailVerificationHandlerEntrance } from "../../hooks/animations/use-email-verification-handler-entrance"
@@ -51,15 +52,17 @@ function EmailVerificationHandler({ token }: EmailVerificationHandlerProps) {
       aria-atomic="true"
       aria-busy="true"
       aria-live="polite"
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-workspace px-5 text-center"
+      className="fixed inset-0 z-[100] flex min-h-dvh items-center justify-center bg-workspace px-6 text-center"
       role="status"
     >
-      <div data-email-verification-handler-step>
-        <OrthoVetLoader size={48} />
+      <div className={handoffStyles.content}>
+        <div data-email-verification-handler-step>
+          <LoginHandoffPawLoader size={104} />
+        </div>
+        <div className={handoffStyles.status} data-email-verification-handler-step>
+          <p className={handoffStyles.message}><LoginHandoffStatusText>{t("resolving")}</LoginHandoffStatusText></p>
+        </div>
       </div>
-      <p data-email-verification-handler-step>
-        <OrthoVetLoaderText>{t("resolving")}</OrthoVetLoaderText>
-      </p>
     </section>
   )
 

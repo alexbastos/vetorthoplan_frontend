@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import { LoginHandoffPawLoader } from "@/components/shared/login-handoff/login-handoff-paw-loader"
+import { LoginHandoffStatusText } from "@/components/shared/login-handoff/login-handoff-status-text"
 import handoffStyles from "@/components/shared/login-handoff/login-handoff-overlay.module.css"
 import { authBffClient } from "@/features/auth/services/auth-bff-client"
 import { AppVersion } from "@/components/shared/app-version"
@@ -67,12 +68,7 @@ function ProtectedSessionRefreshGate() {
         <LoginHandoffPawLoader size={104} />
         <div className={handoffStyles.status}>
           <p className={handoffStyles.message}>
-            <span className={handoffStyles.statusLabel}>{t("checking").replace(/(?:\.{3}|…)[\s]*$/u, "")}</span>
-            <svg aria-hidden="true" className={handoffStyles.statusDots} fill="none" viewBox="0 0 18 6">
-              <circle className={handoffStyles.statusDot} cx="3" cy="3" r="1.25" />
-              <circle className={handoffStyles.statusDot} cx="9" cy="3" r="1.25" />
-              <circle className={handoffStyles.statusDot} cx="15" cy="3" r="1.25" />
-            </svg>
+            <LoginHandoffStatusText>{t("checking")}</LoginHandoffStatusText>
           </p>
         </div>
       </div>

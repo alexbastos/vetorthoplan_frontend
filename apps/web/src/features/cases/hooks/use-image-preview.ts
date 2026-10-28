@@ -12,6 +12,10 @@ function useImagePreview(caseId: string, imageId: string | null, enabled = true)
     enabled: enabled && Boolean(caseId && imageId),
     retry: false,
     gcTime: 0,
+    // A signed URL stays fresh until its renewal window. Returning to the tab
+    // should not replace an already decoded image while that URL is valid.
+    staleTime: (query) => query.state.data && !query.state.error
+      ? Math.max(0, Date.parse(query.state.data.expiresAt) - query.state.dataUpdatedAt - 10_000) : 0,
     refetchOnWindowFocus: true,
     refetchInterval: (query) => previewRefreshInterval(query.state.data?.expiresAt, Boolean(query.state.error)),
   })

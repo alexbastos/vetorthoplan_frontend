@@ -1,37 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web Orthovet
 
-## Getting Started
+Interface e BFF em Next.js. Use Node 24 e pnpm 11, conforme as versões do
+workspace. A partir da raiz do repositório, instale as dependências com
+`pnpm install`, configure o ambiente abaixo e execute `pnpm dev`.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+O frontend local usa `http://localhost:3000`. `pnpm --filter web test` executa
+todos os arquivos `test/*.test.mjs` sequencialmente; `pnpm --filter web typecheck`
+verifica TypeScript. O [índice da documentação](../../docs/README.md) explica os
+contratos, checklists e fixtures que devem ser preservados.
 
 ## Identificação da versão publicada
 
 A versão do frontend é definida somente no campo `version` de
-[`package.json`](./package.json). A identificação atual é `0.9.0-web.2`:
-`0.9.0` acompanha o contrato clínico de referência e `web.2` identifica a revisão
-do frontend. Antes de cada nova publicação, incremente a revisão (`web.3`,
-`web.4` etc.), mesmo que a API não mude. Ao alinhar uma nova versão do contrato
+[`package.json`](./package.json). A identificação atual é `0.9.0-web.3`:
+`0.9.0` acompanha o contrato clínico de referência e `web.3` identifica a revisão
+do frontend. Antes de cada nova publicação, incremente a revisão (`web.4`,
+`web.5` etc.), mesmo que a API não mude. Ao alinhar uma nova versão do contrato
 clínico, atualize a base e inicie novamente a revisão do frontend.
 
 O valor é incorporado no build, aparece no rodapé do menu lateral expandido
 e na tela de falha de verificação da sessão. Também pode ser consultado sem
-autenticação em `GET /api/version`, com resposta `{ "version": "0.9.0-web.2" }`
+autenticação em `GET /api/version`, com resposta `{ "version": "0.9.0-web.3" }`
 e `Cache-Control: no-store`. O header `X-App-Version` identifica as respostas do
 Next.js. Estes locais usam a mesma fonte; a API clínica não é consultada para
 determinar a versão do frontend.

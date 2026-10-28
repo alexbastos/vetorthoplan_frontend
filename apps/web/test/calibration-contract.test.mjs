@@ -22,8 +22,15 @@ test("calibration evidence retains its original contract and pinned source while
   assert.equal(fixture.matchingSchemas.length, 7)
   for (const name of fixture.matchingSchemas) {
     if (name === "PlanDocument") {
-      const { radiographic_quality: _quality, additional_measurements_input: _input, additional_measurements: _results, ...properties } = contract.components.schemas[name].properties
-      assert.deepEqual(properties, capturedContract.components.schemas[name].properties)
+      const { radiographic_quality: _quality, additional_measurements_input: _input, additional_measurements: _results,
+        tplo_correction: _correction, objects, ...properties } = contract.components.schemas[name].properties
+      const { objects: originalObjects, ...originalProperties } = capturedContract.components.schemas[name].properties
+      assert.deepEqual(properties, originalProperties)
+      // New object variants do not change the captured calibration geometry.
+      for (const variant of originalObjects.items.oneOf) assert.ok(objects.items.oneOf.some(item => item.$ref === variant.$ref))
+      for (const [type, ref] of Object.entries(originalObjects.items.discriminator.mapping)) assert.equal(objects.items.discriminator.mapping[type], ref)
+      assert.deepEqual({ ...objects, items: { ...objects.items, oneOf: originalObjects.items.oneOf,
+        discriminator: { ...objects.items.discriminator, mapping: originalObjects.items.discriminator.mapping } } }, originalObjects)
     } else assert.deepEqual(contract.components.schemas[name], capturedContract.components.schemas[name], name)
   }
   assert.deepEqual(contract.paths["/api/v1/images/{image_id}/plan"], capturedContract.paths["/api/v1/images/{image_id}/plan"])
