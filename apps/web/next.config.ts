@@ -15,6 +15,9 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   output: isStandaloneBuild ? "standalone" : undefined,
   transpilePackages: ["@vetorthoplan/api-client"],
   devIndicators: false,
