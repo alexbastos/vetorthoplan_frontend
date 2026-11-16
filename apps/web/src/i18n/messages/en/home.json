@@ -38,8 +38,10 @@
     "title": "Explore Orthovet",
     "viewAll": "View cases",
     "cases": "Cases",
+    "community": "Community",
     "comingSoon": "Coming soon",
     "openCases": "Open cases",
+    "openCommunity": "Open Community",
     "preparing": "Content in preparation"
   },
   "nextCase": {

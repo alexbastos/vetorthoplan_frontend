@@ -2,7 +2,6 @@
 
 import { Check, Circle, Crosshair, RefreshCw, Ruler } from "lucide-react"
 import { useTranslations } from "next-intl"
-import type { ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
 import type { ImageCalibrationState } from "../hooks/use-image-calibration"
@@ -10,6 +9,7 @@ import { referenceInMillimetres } from "../lib/calibration-editor"
 import { ImagePlanError } from "../services/image-plan-api"
 import { CalibrationReferenceSize } from "./calibration-reference-size"
 import { CasePanelHelp } from "./case-panel-help"
+import { CasePanelChoice } from "./case-panel-choice"
 
 function CaseImageCalibrationPanel({ calibration: c, interactionBlocked = false, onSave, onPlace, onCheck, onCancel }: {
   calibration: ImageCalibrationState; interactionBlocked?: boolean; onSave: () => void; onPlace: () => void; onCheck: () => void; onCancel?: () => void
@@ -43,8 +43,8 @@ function CaseImageCalibrationPanel({ calibration: c, interactionBlocked = false,
           </CasePanelHelp>
         </legend>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <ShapeButton active={editor.kind === "line"} label={t("line")} onClick={() => c.changeKind("line")}><Ruler aria-hidden="true" /></ShapeButton>
-          <ShapeButton active={editor.kind === "circle"} label={t("circle")} onClick={() => c.changeKind("circle")}><Circle aria-hidden="true" /></ShapeButton>
+          <CasePanelChoice active={editor.kind === "line"} label={t("line")} onClick={() => c.changeKind("line")}><Ruler aria-hidden="true" /></CasePanelChoice>
+          <CasePanelChoice active={editor.kind === "circle"} label={t("circle")} onClick={() => c.changeKind("circle")}><Circle aria-hidden="true" /></CasePanelChoice>
         </div>
         <CalibrationReferenceSize disabled={!c.canEdit} editor={editor} onReferenceChange={c.changeReference} onUnitChange={c.changeUnit} />
         {!c.marker ? <Button className="mt-3 w-full" onClick={onPlace} size="sm" type="button" variant="secondary"><Crosshair aria-hidden="true" />{t("remote.place")}</Button> : null}
@@ -63,11 +63,6 @@ function CaseImageCalibrationPanel({ calibration: c, interactionBlocked = false,
       </div>
     </> : null}
   </div>
-}
-
-function ShapeButton({ active, label, onClick, children }: { active: boolean; label: string; onClick: () => void; children: ReactNode }) {
-  return <button aria-pressed={active} className={`flex h-10 items-center justify-center gap-2 rounded-[var(--radius-token-md)] border text-[12px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5 ${active ? "border-[var(--case-progress-label-active)] bg-[var(--color-surface-selected)] text-foreground" : "border-border bg-background text-content-secondary hover:bg-muted"}`}
-    onClick={onClick} type="button">{children}{label}</button>
 }
 
 export { CaseImageCalibrationPanel }

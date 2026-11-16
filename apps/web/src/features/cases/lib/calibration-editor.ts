@@ -2,8 +2,9 @@ import { CalibrationInputSchema, calibrationInputOf, type CalibrationInput, type
 import type { CaseImage } from "../types/case-image"
 import type { CalibrationMarker, ImagePoint } from "../types/case-workspace"
 import { circleDiameter, circleFromDiameter } from "./circle-marker-interaction"
+import { imagePointToPixels, imagePointToNormalized, type ImageDimensions } from "./image-point-space"
 
-type Dimensions = { widthPx: number; heightPx: number }
+type Dimensions = ImageDimensions
 type Geometry = Omit<Extract<CalibrationInput, { kind: "REFERENCE_LINE" }>, "known_length_mm">
   | Omit<Extract<CalibrationInput, { kind: "REFERENCE_CIRCLE" }>, "known_diameter_mm">
 type CalibrationEditor = { baseRevision: number; kind: CalibrationMarker["kind"]; geometry: Geometry | null; reference: string; unit: "cm" | "mm" }
@@ -63,14 +64,14 @@ function editorHasChanges(editor: CalibrationEditor, plan: ImagePlan): boolean {
 
 function geometryToMarker(geometry: Geometry | null, { widthPx: w, heightPx: h }: Dimensions): CalibrationMarker | null {
   if (!geometry) return null
-  const pixel = (point: ImagePoint) => ({ x: point.x * w, y: point.y * h })
+  const pixel = (point: ImagePoint) => imagePointToPixels(point, { widthPx: w, heightPx: h })
   return geometry.kind === "REFERENCE_LINE" ? { kind: "line", start: pixel(geometry.start), end: pixel(geometry.end) }
     : { kind: "circle", center: pixel(geometry.center), edge: pixel(geometry.edge),
       radiusPx: Math.hypot((geometry.edge.x - geometry.center.x) * w, (geometry.edge.y - geometry.center.y) * h) }
 }
 
 function markerToGeometry(marker: CalibrationMarker, { widthPx: w, heightPx: h }: Dimensions, previous: Geometry | null = null): Geometry {
-  const normal = (point: ImagePoint) => ({ x: point.x / w, y: point.y / h })
+  const normal = (point: ImagePoint) => imagePointToNormalized(point, { widthPx: w, heightPx: h })
   if (marker.kind === "line") return { kind: "REFERENCE_LINE", start: normal(marker.start), end: normal(marker.end) }
   if (marker.edge) return { kind: "REFERENCE_CIRCLE", center: normal(marker.center), edge: normal(marker.edge) }
   const center = marker.center
@@ -86,8 +87,8 @@ function markerToGeometry(marker: CalibrationMarker, { widthPx: w, heightPx: h }
 }
 
 function defaultReferenceMarker(kind: CalibrationMarker["kind"], { widthPx: w, heightPx: h }: Dimensions): CalibrationMarker {
-  return kind === "line" ? { kind, start: { x: w * 0.4, y: h * 0.5 }, end: { x: w * 0.6, y: h * 0.5 } }
-    : { kind, center: { x: w * 0.5, y: h * 0.5 }, radiusPx: Math.min(w, h) * 0.1 }
+  const start = { x: w * 0.4, y: h * 0.5 }, end = { x: w * 0.6, y: h * 0.5 }
+  return kind === "line" ? { kind, start, end } : circleFromDiameter(start, end)
 }
 
 function changeEditorMarkerKind(editor: CalibrationEditor, kind: CalibrationMarker["kind"], dimensions: Dimensions): CalibrationEditor {

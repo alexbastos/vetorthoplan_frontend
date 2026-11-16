@@ -7,7 +7,7 @@ import { caseFetch } from "./case-fetch"
 const uuid = z.string().uuid()
 const errorSchema = z.object({ error: z.object({ code: z.enum([
   "ACCESS_DENIED", "SESSION_UNAVAILABLE", "REQUEST_NOT_ALLOWED", "CLINICAL_CONTEXT_CHANGED", "CLINICAL_ORGANIZATION_REQUIRED",
-  "IMAGE_NOT_FOUND", "IMAGE_NOT_READY", "IMAGE_DIMENSIONS_REQUIRED", "CALIBRATION_GEOMETRY_UNSUPPORTED",
+  "IMAGE_NOT_FOUND", "IMAGE_NOT_READY", "IMAGE_DIMENSIONS_REQUIRED", "CALIBRATION_GEOMETRY_UNSUPPORTED", "CALIBRATION_REQUIRED",
   "PLAN_REVISION_CONFLICT", "PLAN_SAVE_NOT_ALLOWED", "CLINICAL_VALIDATION_INVALID", "VALIDATION_ERROR", "INVALID_RESPONSE", "SERVICE_UNAVAILABLE",
 ]), uncertain: z.boolean().optional(), currentRevision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).optional() }) })
 type Options = { fetchImpl?: typeof fetch; signal?: AbortSignal }

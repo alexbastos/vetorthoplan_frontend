@@ -140,4 +140,14 @@ assert(requiredMeasurements?.maxItems === 50 && requiredMeasurements.items?.type
 assert(schemas.TploClinicalValidation.properties?.audit?.items?.$ref === "#/components/schemas/TploClinicalReviewAudit", "Clinical review must retain its typed audit")
 assert(schemas.FinalizeImagePlanRequest.properties?.base_revision?.minimum === 1, "Finalization must require a persisted plan revision")
 
+for (const field of ["viewport", "image_transform"]) assert(schemas.PlanDocument.properties?.[field], `Plan must preserve ${field}`)
+for (const name of ["PlanLine", "PlanAngle", "PlanCircle", "PlanTplo", "PlanImplant"]) {
+  assert(schemas[name].properties?.visible?.default === true, `${name} must declare visibility`)
+  assert(schemas[name].properties?.locked?.default === false, `${name} must declare locking`)
+}
+assert(schemas.PlanViewport.properties?.zoom?.minimum === 0.1 && schemas.PlanViewport.properties?.zoom?.maximum === 20, "Viewport must retain zoom bounds")
+assert(schemas.PlanImageTransform.properties?.result?.anyOf?.some(item => item.$ref === "#/components/schemas/PlanImageTransformResult"), "Image transform must retain its derived result")
+assert(schemas.PlanTploSimulation.properties?.transformed_fragment_points_px, "TPLO simulation must retain transformed points")
+assert(document.paths["/api/v1/images/{image_id}/plan/export"]?.post?.responses?.[200]?.content?.["image/png"], "Plan export must document its PNG response")
+
 console.log(`Clinical OpenAPI ${metadata.apiVersion}: ${metadata.pathCount} paths, ${metadata.operationCount} operations, ${metadata.schemaCount} schemas, ${referenceCount} resolved references; checksums OK.`)

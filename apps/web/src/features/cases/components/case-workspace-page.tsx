@@ -18,7 +18,7 @@ import { canPreviewCaseImage, caseImageViewerMessage } from "../lib/case-image-s
 import { CaseDetailRequestError } from "../services/case-detail-api"
 import { casesQueryKeys } from "../hooks/cases-query-keys"
 import { IDLE_CASE_DELETION, type CaseDeletionState } from "../lib/case-deletion"
-import { isCalibrationSaveLocked } from "../lib/calibration-save-state"
+import { imagePlanSaveOwner, imagePlanSaveSection, isCalibrationSaveLocked, type ImagePlanSaveState } from "../lib/calibration-save-state"
 import { CaseContextDetails } from "./case-context-details"
 import { CaseFilesImportDialog } from "./case-files-import-dialog"
 import { CaseImagesList } from "./case-images-list"
@@ -85,8 +85,14 @@ function CaseWorkspacePage({ caseId }: CaseWorkspacePageProps) {
   }
   const navigate = (action: () => void) => {
     if (selectedImage && isCalibrationSaveLocked(client, caseId, selectedImage.id)) {
-      setActiveSection("calibration")
-      toast.info(t("calibration.remote.navigationBlockedTitle"), { description: t("calibration.remote.navigationBlockedDescription") })
+      const receipt = client.getQueryData<ImagePlanSaveState>(casesQueryKeys.imagePlanSave(caseId, selectedImage.id))
+      const section = imagePlanSaveSection(receipt)
+      const owner = imagePlanSaveOwner(receipt)
+      const measurement = owner === "landmarks" ? "landmarks" : owner === "circle" ? "circle" : owner === "angle" ? "angle" : "distance"
+      setActiveSection(section)
+      toast.info(t(section === "tools" ? `${measurement}.navigationBlockedTitle` : "calibration.remote.navigationBlockedTitle"), {
+        description: t(section === "tools" ? `${measurement}.navigationBlockedDescription` : "calibration.remote.navigationBlockedDescription"),
+      })
       return
     }
     requestNavigation(action)

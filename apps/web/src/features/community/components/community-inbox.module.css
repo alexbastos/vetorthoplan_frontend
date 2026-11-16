@@ -1,0 +1,139 @@
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--community-divider);
+}
+
+.heading {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  color: var(--color-foreground);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 300ms ease;
+}
+
+.search {
+  display: flex;
+  height: 36px;
+  min-width: 0;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-token-full);
+}
+
+.searchField {
+  width: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: max-width 300ms ease-out;
+}
+
+.header[data-search-open="true"] .heading {
+  flex: 0 0 0;
+  opacity: 0;
+}
+
+.header[data-search-open="true"] .search {
+  flex: 1;
+  border-color: var(--community-divider);
+  background: var(--color-muted);
+}
+
+.header[data-search-open="true"] .searchField {
+  width: 100%;
+  max-width: 100%;
+}
+
+.searchToggle:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  background: var(--color-selected);
+  color: var(--color-foreground);
+}
+
+@media (forced-colors: active) {
+  .searchToggle:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .search:has(input:focus-visible) {
+    border-color: Highlight;
+  }
+}
+
+.row {
+  position: relative;
+}
+
+.row:hover,
+.row[data-selected="true"] {
+  background: var(--color-muted);
+}
+
+.openConversation {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-align: start;
+}
+
+.options {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 12px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: var(--radius-token-full);
+  color: var(--color-content-secondary);
+  transition: opacity 150ms ease;
+}
+
+.options:hover,
+.options[data-state="open"] {
+  background: var(--color-accent);
+}
+
+.openConversation:focus-visible,
+.options:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+
+@media (width >= 64rem) {
+  .openConversation {
+    padding-block: 12px;
+  }
+}
+
+@media (width >= 64rem) and (hover: hover) and (pointer: fine) {
+  .options {
+    opacity: 0;
+  }
+
+  .row:hover .options,
+  .row:focus-within .options,
+  .options[data-state="open"] {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading,
+  .searchField,
+  .options {
+    transition: none;
+  }
+}

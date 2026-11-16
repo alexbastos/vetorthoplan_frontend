@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="412" height="992" viewBox="160 0 412 992">
+<!-- SVG created with Arrow, by QuiverAI (https://quiver.ai) -->
+  <defs>
+    <linearGradient id="tibial-density" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e5e7e5"/>
+      <stop offset=".09" stop-color="#c7c9c7"/>
+      <stop offset=".24" stop-color="#838683"/>
+      <stop offset=".48" stop-color="#575a57"/>
+      <stop offset=".7" stop-color="#6e716e"/>
+      <stop offset=".88" stop-color="#b6b9b5"/>
+      <stop offset="1" stop-color="#f1f2ee"/>
+    </linearGradient>
+    <linearGradient id="femoral-density" x1=".42" y1="0" x2=".54" y2="1">
+      <stop stop-color="#eee" offset="0"/>
+      <stop stop-color="#b2b4b1" offset=".11"/>
+      <stop stop-color="#747773" offset=".32"/>
+      <stop stop-color="#515450" offset=".55"/>
+      <stop stop-color="#92958f" offset=".82"/>
+      <stop stop-color="#f2f3ef" offset="1"/>
+    </linearGradient>
+    <linearGradient id="slender-bone" x1="0" y1="0" x2="1" y2=".15">
+      <stop stop-color="#d4d7d1"/>
+      <stop offset=".34" stop-color="#636860"/>
+      <stop offset=".65" stop-color="#8a8e87"/>
+      <stop offset="1" stop-color="#e2e4df"/>
+    </linearGradient>
+    <radialGradient id="joint-density">
+      <stop stop-color="#646762"/>
+      <stop offset=".48" stop-color="#80847d"/>
+      <stop offset=".76" stop-color="#b2b6ae"/>
+      <stop offset="1" stop-color="#ebede6"/>
+    </radialGradient>
+    <radialGradient id="dark-joint-density">
+      <stop stop-color="#454944"/>
+      <stop offset=".63" stop-color="#858981"/>
+      <stop offset=".9" stop-color="#bcc0b8"/>
+      <stop offset="1" stop-color="#e4e7e0"/>
+    </radialGradient>
+    <pattern id="fine-trabecular-mesh" width="37" height="49" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke="#ebeee7" stroke-width=".57" opacity=".47">
+        <path d="M-3 8 3 5 8 7 11 13 8 18 3 17 0 23M8 7 8 1 15-2M11 13 17 10 22 14 20 21 14 23 8 18M22 14 28 12 32 16 31 23 25 27 20 21M28 12 25 5 29 0M31 23 39 20M3 17 5 27 1 34 4 39 10 37 12 30 14 23M12 30 19 32 23 29 25 27M19 32 18 41 13 45 10 37M18 41 25 44 31 39 29 33 23 29M31 39 37 41M25 44 27 51M13 45 14 51M4 39 2 46 6 51"/>
+        <path d="M0 1 4 2 3 5M15 0 18 5 17 10M18 5 25 5M32 0 34 7 28 12M34 7 39 8M5 27 8 25 10 21M22 14 24 20 23 24M29 33 33 29 38 31M31 39 33 46 37 49"/>
+      </g>
+      <g fill="none" stroke="#252b24" stroke-width=".65" opacity=".4">
+        <path d="m5 9 3 3-2 4-3-3zm10 5 4 1-1 5-4-2zm11 2 3 2-2 5-3-2zM7 30l2-2 1 5-3 2zM21 34l4-2 2 5-5 3zM16 2l-3 4 2 3M33 34l3 2-2 3"/>
+        <path d="m2 43 4-1 3 4-2 3M30 3l2 3-2 2M15 29l1-3 3-1"/>
+      </g>
+      <g fill="#f6f7ef" opacity=".3">
+        <ellipse cx="11" cy="13" rx=".8" ry="1.2"/>
+        <ellipse cx="19" cy="32" rx=".65" ry="1"/>
+        <ellipse cx="30" cy="39" rx=".7" ry=".9"/>
+        <ellipse cx="3" cy="17" rx=".65" ry="1"/>
+      </g>
+    </pattern>
+    <pattern id="micro-bone" width="23" height="31" patternUnits="userSpaceOnUse" patternTransform="rotate(13)">
+      <g fill="none" stroke="#e0e3da" stroke-width=".42" opacity=".44">
+        <path d="M2-2 4 5 2 11 5 18 4 24 6 33M10-2 8 4 12 10 9 15 11 22 9 31M18-3 16 6 20 12 17 18 20 24 17 34M-2 7 4 5 8 4M2 11 7 13 9 15 17 18 24 17M5 18 1 21M4 24 11 22 15 26 20 24 24 28M12 10 16 6M20 12 24 10"/>
+        <path d="m5 7 2 3-2 3M12 3l2 4-1 3M12 16l3-3 1 5-3 3M6 25l2 3-2 3"/>
+      </g>
+    </pattern>
+    <pattern id="longitudinal-fibers" width="27" height="103" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke="#e9ede2" stroke-width=".6" opacity=".34">
+        <path d="M3-3C0 12 7 18 4 34S2 58 5 74 3 92 4 108M10-3C8 14 13 22 10 40S13 64 10 80 12 99 11 106M20-5C14 15 22 29 17 44S18 68 20 80 16 94 19 108M26-3C24 16 28 32 24 48S28 78 25 103"/>
+        <path d="m4 34 6 6 7 4M5 74l5 6 10-1M10 10l7 5M19 95l6-8"/>
+      </g>
+    </pattern>
+    <filter id="soft-bone-glow" x="-20%" y="-10%" width="140%" height="120%">
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+    <path id="femur-shape" d="M574 70C541 65 513 59 481 53L447 47C435 45 427 39 421 30 415 18 407 20 395 21 374 21 350 28 336 40 321 53 314 72 308 91 303 104 301 116 306 131 310 146 319 156 332 158 345 160 357 155 363 144 369 130 379 121 394 115 420 103 452 105 477 107 511 110 544 120 574 128Z"/>
+    <path id="tibia-shape" d="M185 174C194 160 206 143 219 136 232 128 244 131 252 133 259 128 267 131 274 137 284 140 295 138 303 143 311 148 314 160 318 169 323 177 331 183 330 193 329 200 318 207 311 218 294 241 283 267 277 299 268 340 267 380 269 422 271 467 272 506 270 551L267 647 262 752C260 786 257 818 257 844 257 871 259 893 264 910 267 922 265 930 260 937 251 944 240 935 230 931 217 929 204 929 195 921 188 914 190 904 194 891 206 851 210 821 211 786L216 685C218 650 220 611 219 578 219 535 216 496 213 456 210 411 205 370 195 332 191 318 180 309 177 295 171 274 179 246 182 224 184 208 180 200 179 189 178 182 181 178 185 174Z"/>
+    <path id="fibula-shape" d="M314 181C316 175 325 170 332 170 338 166 347 169 350 173 352 178 343 184 338 187 332 191 326 196 323 206 318 232 315 263 310 293L298 375 285 457 274 527 266 582 258 583C261 546 265 509 271 472 276 432 283 394 289 356 294 319 301 280 307 245 311 222 309 202 314 181Z"/>
+    <clipPath id="clip-femur">
+      <use href="#femur-shape"/>
+    </clipPath>
+    <clipPath id="clip-tibia">
+      <use href="#tibia-shape"/>
+    </clipPath>
+    <clipPath id="clip-fibula">
+      <use href="#fibula-shape"/>
+    </clipPath>
+  </defs>
+  <g id="upper-leg-and-knee">
+    <g id="patella">
+      <path d="M293 60C288 52 294 32 302 23 311 13 329 5 340 8 350 10 358 16 360 24 349 29 338 33 327 40 313 49 301 63 293 60Z" fill="url(#joint-density)" stroke="#d8dad5" stroke-width="1.2"/>
+      <path d="M294 54C300 34 321 16 344 16 350 16 355 20 357 23 341 24 326 34 313 43Z" fill="#555953" opacity=".6"/>
+      <path d="M293 60C296 45 310 36 320 31 335 23 345 22 358 23M299 32C307 19 326 10 337 10" fill="none" stroke="#f4f5ed" stroke-width="1.5" opacity=".67"/>
+      <path d="M299 44l7-7-1-6 7-4 3 6 7-5-1-8 9-5 6 7 7-2M301 50l9-9 6 2 1-9 9 1 4-8 9 1 3-6M310 27l8-5 8 2M326 17l-1 9M333 11l4 6M344 16l2 9" fill="none" stroke="#e1e5dc" stroke-width=".8" opacity=".48"/>
+    </g>
+    <g id="femur">
+      <use href="#femur-shape" fill="url(#femoral-density)" stroke="#e1e4dd" stroke-width="1.4"/>
+      <g clip-path="url(#clip-femur)">
+        <rect x="299" y="17" width="277" height="145" fill="url(#fine-trabecular-mesh)" opacity=".85"/>
+        <rect x="298" y="20" width="275" height="143" fill="url(#micro-bone)" opacity=".63"/>
+        <path d="M317 112C318 83 335 51 362 40 387 30 407 31 424 40 442 52 480 55 508 61L580 75" fill="none" stroke="#f5f6ee" stroke-width="8" opacity=".24" filter="url(#soft-bone-glow)"/>
+        <path d="M311 89C321 83 331 96 337 107 345 120 355 126 366 124 381 118 385 108 408 105 451 99 489 106 526 113L575 125" fill="none" stroke="#fafbf2" stroke-width="4" opacity=".43"/>
+        <path d="M312 99C313 119 321 139 337 147 348 153 355 148 362 140M322 58C326 48 339 37 352 33M350 44C366 36 379 34 397 35M426 44C453 52 474 55 498 59L572 74" fill="none" stroke="#f6f7f0" stroke-width="1.8" opacity=".66"/>
+        <g fill="none" stroke="#f2f4e9" stroke-width=".85" opacity=".38">
+          <path d="M337 150C331 134 323 124 325 104S339 65 358 52M343 153C338 135 334 124 335 112 334 100 338 87 347 78M350 148C347 131 343 118 350 99 358 80 367 62 384 45"/>
+          <path d="M369 123C368 107 381 93 399 86 427 76 450 81 478 89L572 106M358 124C360 105 367 90 380 80 402 64 424 66 448 73"/>
+          <path d="M402 38C398 49 406 58 411 70L416 102M414 41C413 53 418 61 424 72L430 102M452 52C451 62 458 81 460 104M466 56C467 74 473 88 475 106"/>
+        </g>
+      </g>
+      <path d="M361 144C369 128 380 120 396 114 423 103 449 105 478 107 511 111 543 120 572 127" fill="none" stroke="#fff" stroke-width="2.2" opacity=".76"/>
+      <path d="M337 40C354 29 379 23 401 23 412 21 415 26 421 32 432 47 448 48 472 52L572 72" fill="none" stroke="#f4f6ee" stroke-width="2" opacity=".76"/>
+    </g>
+    <g id="posterior-knee-ossicles">
+      <path d="M367 143C370 133 380 122 390 119 399 117 404 126 408 132 412 138 405 141 400 143L402 154C397 160 390 160 383 158 378 163 368 158 365 152Z" fill="url(#dark-joint-density)" stroke="#d9dcd5" stroke-width="1.3"/>
+      <path d="M368 149C374 143 375 133 383 130 391 126 397 129 399 135 401 143 391 152 385 157M382 131C385 138 381 149 377 157M394 123C388 131 391 142 395 153" fill="none" stroke="#f2f4eb" stroke-width="2" opacity=".7"/>
+      <path d="m375 143 4-3 4 4 2-7 6 2 5-5M371 149l6 3 5-5 5 5M386 126l3 7 6-1" fill="none" stroke="#c4c9bf" stroke-width=".7"/>
+    </g>
+  </g>
+  <g id="lower-leg">
+    <g id="fibula">
+      <use href="#fibula-shape" fill="url(#slender-bone)" stroke="#c5c8bf" stroke-width="1" opacity=".87"/>
+      <g clip-path="url(#clip-fibula)">
+        <rect x="254" y="166" width="99" height="427" fill="url(#micro-bone)" opacity=".6"/>
+        <rect x="255" y="169" width="95" height="419" fill="url(#longitudinal-fibers)" opacity=".9"/>
+        <path d="M318 200C316 249 307 304 300 354S284 453 275 516L264 583" fill="none" stroke="#f1f3eb" stroke-width="2.2" opacity=".55"/>
+        <path d="M314 215C312 263 304 301 299 332M290 389l-8 64M275 491l-8 61" fill="none" stroke="#30372d" stroke-width="2" opacity=".45"/>
+        <path d="M318 174C325 182 330 186 335 184M331 171l3 12M341 170l-2 11" fill="none" stroke="#e8ebe0" stroke-width="1"/>
+      </g>
+    </g>
+    <g id="tibia">
+      <use href="#tibia-shape" fill="url(#tibial-density)" stroke="#e1e4dc" stroke-width="1.4"/>
+      <g clip-path="url(#clip-tibia)">
+        <path d="M227 147C242 143 269 146 281 159 296 181 280 206 266 241 249 285 250 336 250 384L254 526C255 612 247 713 242 783 237 831 234 871 244 903L217 909C221 876 228 838 230 798 235 695 238 605 234 516 230 438 226 367 211 309 201 270 202 230 211 198Z" fill="#444a43" opacity=".24"/>
+        <rect x="172" y="129" width="163" height="815" fill="url(#fine-trabecular-mesh)" opacity=".75"/>
+        <rect x="177" y="132" width="156" height="811" fill="url(#micro-bone)" opacity=".63"/>
+        <path d="M193 180C200 195 192 216 193 241 190 268 192 289 202 311 219 361 226 433 230 503 238 620 227 714 225 790 224 842 212 879 206 904M300 173C307 180 302 196 291 215 271 248 263 293 259 342 256 401 265 475 262 539L258 671C255 741 249 803 250 853 249 884 254 907 256 920" fill="none" stroke="#f7f8ef" stroke-width="4.5" opacity=".25" filter="url(#soft-bone-glow)"/>
+        <rect x="187" y="230" width="102" height="672" fill="url(#longitudinal-fibers)" opacity=".6"/>
+        <path d="M186 193C194 220 180 251 185 283 187 301 198 319 203 337 216 386 219 438 223 487 230 571 227 630 224 691L219 789C218 835 207 871 199 900" fill="none" stroke="#fafbf3" stroke-width="3.3" opacity=".61"/>
+        <path d="M309 189C298 211 280 237 272 271 259 319 260 371 263 418 265 464 267 506 264 552L261 648 257 745C255 784 251 817 251 846 250 869 253 897 259 914" fill="none" stroke="#f9faf2" stroke-width="4.2" opacity=".71"/>
+        <path d="M217 340C225 373 229 432 233 472 240 556 237 628 233 689 231 750 231 790 225 833" fill="none" stroke="#d1d5c9" stroke-width="1.2" opacity=".32"/>
+        <path d="M241 271C235 315 243 365 245 403S248 477 247 516M244 561C247 608 239 661 240 707L234 787" fill="none" stroke="#242c23" stroke-width="1.2" opacity=".28"/>
+        <g fill="none" stroke="#f3f5e9" opacity=".47">
+          <path d="M190 179C201 177 212 157 228 151 241 146 258 149 274 156 289 162 296 175 302 186" stroke-width="1.3"/>
+          <path d="M192 190C205 194 214 190 224 183 237 172 246 162 263 160M187 212C205 209 215 197 228 189 246 177 266 169 286 173M187 241C204 226 211 208 228 202 249 194 263 186 282 178" stroke-width=".8"/>
+          <path d="M190 268C196 247 213 234 225 222 246 207 262 192 286 185M201 296C207 270 226 250 246 229 265 210 281 199 303 194M215 325C214 295 228 270 246 247 266 221 279 208 299 202" stroke-width=".8"/>
+          <path d="M212 157C211 174 224 186 224 206M222 143C222 162 231 176 235 185M237 138C239 157 247 168 251 180M257 143C254 156 262 172 265 181M275 149C271 162 282 174 286 181" stroke-width=".7"/>
+        </g>
+        <g id="distal-tibial-trabeculae" fill="none" stroke="#f1f3e8" stroke-width=".8" opacity=".56">
+          <path d="M199 902C218 892 223 871 226 846L229 807M208 912C221 897 229 873 233 848L237 803M219 917C231 896 237 876 240 849L241 817M232 924C243 904 245 877 245 851M251 923C243 900 232 880 224 861L218 836"/>
+          <path d="M259 911C248 885 234 873 222 853M258 898C242 882 228 875 212 873M261 919C246 895 228 891 202 892M250 932C237 905 222 901 196 908"/>
+          <path d="m218 850 7 5 8-3 8 7 8-3M216 862l9 4 7-6 8 9 9-3M213 876l12-3 9 7 11-4 8 8M207 890l11-5 10 7 12-4 10 8M203 901l13-6 11 7 13-5 12 9"/>
+        </g>
+        <path d="M194 905C205 899 223 893 236 897 249 899 256 907 262 918" fill="none" stroke="#fff" stroke-width="3.4" opacity=".64"/>
+        <path d="M194 910C209 901 225 899 240 904 250 906 257 915 260 925" fill="none" stroke="#f1f4e9" stroke-width="1.7" opacity=".6"/>
+      </g>
+      <path d="M184 175C197 157 209 141 223 135 237 129 249 136 257 135 265 133 271 141 282 142 293 141 303 143 309 154L319 177" fill="none" stroke="#f4f6ee" stroke-width="2.4" opacity=".8"/>
+      <path d="M277 145C291 151 290 164 299 173 307 182 312 185 320 188 323 191 321 196 317 200" fill="none" stroke="#fff" stroke-width="4" opacity=".64"/>
+      <path d="M267 142C282 148 278 159 289 170L305 187 292 215" fill="none" stroke="#e4e8dd" stroke-width="2.3" opacity=".56"/>
+      <path d="M302 145C308 154 309 166 318 174 324 181 325 188 323 193" fill="none" stroke="#fff" stroke-width="1.8" opacity=".82"/>
+      <path d="M208 372C214 415 217 463 220 508 223 552 224 596 222 641L216 775C215 821 209 855 197 894" fill="none" stroke="#fff" stroke-width="2" opacity=".63"/>
+    </g>
+  </g>
+  <g id="ankle">
+    <g id="talus">
+      <path d="M200 920C210 912 220 908 232 910 245 912 254 921 257 933 260 948 252 961 242 970 234 978 215 982 200 980 186 978 178 968 182 957 184 949 197 946 196 939 190 933 191 927 200 920Z" fill="url(#joint-density)" stroke="#e2e5dc" stroke-width="1.5"/>
+      <path d="M200 920C210 912 220 908 232 910 245 912 254 921 257 933 260 948 252 961 242 970 234 978 215 982 200 980 186 978 178 968 182 957 184 949 197 946 196 939 190 933 191 927 200 920Z" fill="url(#micro-bone)" opacity=".9"/>
+      <path d="M199 928C206 921 217 917 226 919 240 922 247 932 246 944 244 954 234 961 224 967 211 972 199 974 186 967" fill="none" stroke="#f8faef" stroke-width="3" opacity=".72"/>
+      <path d="M224 913C222 922 216 931 219 940 222 948 237 951 240 961M201 939C214 939 224 928 230 920M196 950C206 955 218 956 226 950M208 975C212 964 217 954 220 942" fill="none" stroke="#dfe4d6" stroke-width="1.2" opacity=".7"/>
+      <path d="M237 924C230 927 231 936 235 942L244 942C247 935 243 928 237 924Z" fill="#3d443b" opacity=".65"/>
+      <path d="M198 935C207 931 217 928 220 919M231 962C241 956 248 949 249 939" fill="none" stroke="#fff" stroke-width="1.5" opacity=".8"/>
+    </g>
+  </g>
+</svg>

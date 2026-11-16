@@ -28,6 +28,23 @@ const makeClient = () => new QueryClient({ defaultOptions: { queries: { gcTime: 
 const error = (code, status = 409) => Response.json({ error: { code, uncertain: false } }, { status })
 const deferred = () => { let resolve; const promise = new Promise(yes => { resolve = yes }); return { promise, resolve } }
 
+test("distance commands with invalid geometry or forged fields are rejected before browser HTTP", async () => {
+  const client = makeClient()
+  const id = "00000000-0000-4000-8000-000000000abc"
+  const geometry = { start: { x: 0, y: 0 }, end: { x: 1, y: 1 } }
+  try {
+    for (const input of [
+      { kind: "distance-create", baseRevision: 1, id, ...geometry, label: "Synthetic distance", measurement: {} },
+      { kind: "distance-update", baseRevision: 1, id, ...geometry, end: geometry.start },
+      { kind: "distance-delete", baseRevision: 1, id, document: {} },
+    ]) {
+      await assert.rejects(saveImagePlanEdit(caseId, imageId, input, { fetchImpl: forbidden }), error => error.code === "VALIDATION_ERROR" && !error.uncertain)
+      assert.equal((await requestPlanEditSave(client, identity, input, { fetchImpl: forbidden })).code, "VALIDATION_ERROR")
+      assert.equal(client.getQueryData(keys.imagePlanSave(caseId, imageId)), undefined)
+    }
+  } finally { client.clear() }
+})
+
 test("quality command merges one allowed field and preserves calibration, objects, protocol results and audit", async () => {
   const current = { ...f.initial, revision: 8, updated_at: saved.updatedAt, document: publishedPopulatedDocument(f) }
   const input = { ...edit, baseRevision: 8, quality: { ...quality, tibial_plateau_visible: "NOT_ASSESSED", notes: "New observation" } }
@@ -79,7 +96,7 @@ test("quality and calibration share one in-flight receipt and deletion lock; dis
     assert.equal(first, same)
     await entered.promise
     assert.equal(isCalibrationSaveLocked(client, caseId, imageId), true)
-    assert.equal(discardPlanEditSave(client, identity), false)
+    assert.equal(discardPlanEditSave(client, identity, edit), false)
     assert.equal((await requestCalibrationSave(client, identity, { baseRevision: 0, calibration: f.line }, { fetchImpl: forbidden })).code, "OPERATION_BLOCKED")
     assert.equal((await requestPlanEditSave(client, identity, { ...edit, quality: { ...quality, true_lateral: "FAIL" } }, { fetchImpl: forbidden })).code, "OPERATION_BLOCKED")
     assert.equal((await requestImageDeletion(client, identity, { fetchImpl: forbidden })).message, "blocked")
@@ -131,11 +148,11 @@ test("lost quality responses reconcile only by reading; unchanged reads keep the
     const different = { ...edit, quality: { ...quality, notes: "New intent must not replace the unresolved one" } }
     const checked = await requestPlanEditSave(client, identity, different, options)
     assert.equal(checked.phase, "uncertain"); assert.deepEqual(checked.edit, edit)
-    assert.equal(discardPlanEditSave(client, identity), false)
+    assert.equal(discardPlanEditSave(client, identity, edit), false)
     assert.equal((await requestCalibrationSave(client, identity, { baseRevision: 0, calibration: f.line }, { fetchImpl: forbidden })).code, "OPERATION_BLOCKED")
     assert.equal(isCalibrationSaveLocked(client, caseId, imageId), true)
     persisted = true
-    assert.equal((await checkImagePlanSave(client, identity, options)).phase, "saved")
+    assert.equal((await checkImagePlanSave(client, identity, edit, options)).phase, "saved")
     assert.equal(writes, 1); assert.equal(isCalibrationSaveLocked(client, caseId, imageId), false)
   } finally { client.clear() }
 })
@@ -152,7 +169,7 @@ test("quality conflicts retain their input and refresh latest revision without a
     assert.equal(writes, 1)
     assert.equal((await requestCalibrationSave(client, identity, { baseRevision: 1, calibration: f.line }, { fetchImpl: forbidden })).code, "OPERATION_BLOCKED")
     assert.deepEqual(client.getQueryData(keys.imagePlanSave(caseId, imageId)).edit, edit)
-    assert.equal(discardPlanEditSave(client, identity), true)
+    assert.equal(discardPlanEditSave(client, identity, edit), true)
     assert.equal(client.getQueryData(keys.imagePlanSave(caseId, imageId)).phase, "idle")
     assert.equal(client.getQueryData(keys.imagePlan(caseId, imageId)).revision, 1)
   } finally { client.clear() }

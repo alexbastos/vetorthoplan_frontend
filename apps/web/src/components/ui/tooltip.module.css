@@ -1,0 +1,91 @@
+.content {
+  --tooltip-background: black;
+  --tooltip-foreground: white;
+  --tooltip-arrow-down: url("./tooltip-assets/arrow-down-on-dark.svg");
+  --tooltip-arrow-up: url("./tooltip-assets/arrow-up-on-dark.svg");
+  --tooltip-arrow-left: url("./tooltip-assets/arrow-left-on-dark.svg");
+  --tooltip-arrow-right: url("./tooltip-assets/arrow-right-on-dark.svg");
+  --tooltip-close: url("./tooltip-assets/close-on-dark.svg");
+  --tooltip-arrow-inset: 8px;
+
+  max-width: min(20rem, var(--radix-tooltip-content-available-width, var(--radix-popover-content-available-width, 100vw)));
+  overflow-wrap: anywhere;
+  background-color: var(--tooltip-background);
+  color: var(--tooltip-foreground);
+}
+
+.content[data-theme="dark"],
+:global(.dark) .content[data-theme="auto"] {
+  --tooltip-background: white;
+  --tooltip-foreground: black;
+  --tooltip-arrow-down: url("./tooltip-assets/arrow-down-on-light.svg");
+  --tooltip-arrow-up: url("./tooltip-assets/arrow-up-on-light.svg");
+  --tooltip-arrow-left: url("./tooltip-assets/arrow-left-on-light.svg");
+  --tooltip-arrow-right: url("./tooltip-assets/arrow-right-on-light.svg");
+  --tooltip-close: url("./tooltip-assets/close-on-light.svg");
+}
+
+.close {
+  background: var(--tooltip-close) center no-repeat;
+}
+
+.arrow {
+  position: absolute;
+  pointer-events: none;
+  background-repeat: no-repeat;
+}
+
+/* Radix reports the side of the body, so the arrow points the other way. */
+.content[data-side="top"] > .arrow {
+  top: 100%;
+  background-image: var(--tooltip-arrow-down);
+}
+
+.content[data-side="bottom"] > .arrow {
+  bottom: 100%;
+  background-image: var(--tooltip-arrow-up);
+}
+
+.content[data-side="left"] > .arrow {
+  left: 100%;
+  background-image: var(--tooltip-arrow-right);
+}
+
+.content[data-side="right"] > .arrow {
+  right: 100%;
+  background-image: var(--tooltip-arrow-left);
+}
+
+.content:is([data-side="top"], [data-side="bottom"]) > .arrow {
+  width: 10px;
+  height: 6px;
+}
+
+.content:is([data-side="top"], [data-side="bottom"])[data-align="start"] > .arrow {
+  inset-inline-start: var(--tooltip-arrow-inset);
+}
+
+.content:is([data-side="top"], [data-side="bottom"])[data-align="center"] > .arrow {
+  left: calc(50% - 5px);
+}
+
+.content:is([data-side="top"], [data-side="bottom"])[data-align="end"] > .arrow {
+  inset-inline-end: var(--tooltip-arrow-inset);
+}
+
+.content:is([data-side="left"], [data-side="right"]) > .arrow {
+  width: 6px;
+  height: 10px;
+}
+
+.content:is([data-side="left"], [data-side="right"])[data-align="start"] > .arrow {
+  top: var(--tooltip-arrow-inset);
+}
+
+.content:is([data-side="left"], [data-side="right"])[data-align="center"] > .arrow {
+  top: calc(50% - 5px);
+}
+
+.content:is([data-side="left"], [data-side="right"])[data-align="end"] > .arrow {
+  bottom: var(--tooltip-arrow-inset);
+}

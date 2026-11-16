@@ -17,7 +17,9 @@ function imagePlanFixture() {
     initial,
     line: horizontal.input.calibration,
     circle: example("circle-horizontal").input.calibration,
-    publicPlan: raw => ({ imageId: raw.image_id, revision: raw.revision, document: raw.document, updatedAt: raw.updated_at }),
+    // Public fixtures model BFF normalization; legacy omission/default behavior has its own tests.
+    publicPlan: raw => ({ imageId: raw.image_id, revision: raw.revision,
+      document: { ...raw.document, objects: raw.document.objects.map(object => ({ visible: true, locked: false, ...object })) }, updatedAt: raw.updated_at }),
     persist: input => {
       const calibration = input.document.calibration
       const recorded = calibration === null ? null : evidence.cases.find(item => item.widthPx === 2000 && item.heightPx === 1000
@@ -41,9 +43,9 @@ function populatedDocument(f) {
       calibration_confirmed: false, anatomical_references_confirmed: true, required_measurements: ["TPA"],
       reviewer_notes: "Keep this review", rejection_reason: null },
     objects: [
-      { id: "00000000-0000-4000-8000-000000000900", type: "LINE", start: { x: 0.2, y: 0.3 }, end: { x: 0.4, y: 0.3 },
+      { id: "00000000-0000-4000-8000-000000000900", type: "LINE", visible: true, locked: false, start: { x: 0.2, y: 0.3 }, end: { x: 0.4, y: 0.3 },
         label: "Existing line", measurement: { status: "CALIBRATION_REQUIRED", values: {}, units: {} } },
-      { id: "00000000-0000-4000-8000-000000000901", type: "TPLO", center: { x: 0.5, y: 0.5 }, edge: { x: 0.5625, y: 0.5 },
+      { id: "00000000-0000-4000-8000-000000000901", type: "TPLO", visible: true, locked: false, center: { x: 0.5, y: 0.5 }, edge: { x: 0.5625, y: 0.5 },
         rotation_degrees: 10, label: "Existing fragment", fragment: { points: [{ x: 0.2, y: 0.2 }, { x: 0.8, y: 0.2 }, { x: 0.5, y: 0.6 }], label: "Contour" },
         measurement: { status: "CALIBRATION_REQUIRED", values: {}, units: {} }, simulation: { status: "CALIBRATION_REQUIRED" } },
     ],

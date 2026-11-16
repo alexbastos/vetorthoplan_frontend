@@ -2,7 +2,7 @@ import type { QueryClient } from "@tanstack/react-query"
 
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
 import type { SaveCalibrationInput } from "../schemas/image-plan.schema"
-import type { SavePlanEditInput } from "../schemas/image-plan-command.schema"
+import { planCommandOwner, type PlanSaveCommand, type SavePlanEditInput } from "../schemas/image-plan-command.schema"
 
 type PlanIdentity = { caseId: string; imageId: string }
 type ImagePlanSaveState = {
@@ -13,7 +13,7 @@ type ImagePlanSaveState = {
   currentRevision?: number
 }
 // Compatibility name for the existing calibration UI. The receipt and its lock
-// are shared by every permitted command, including radiographic quality.
+// are shared by calibration, quality and all measurement commands.
 type CalibrationSaveState = ImagePlanSaveState
 const IDLE_CALIBRATION_SAVE: CalibrationSaveState = { phase: "idle" }
 
@@ -28,5 +28,19 @@ function isPlanImageDeleted(client: QueryClient, { caseId, imageId }: PlanIdenti
     || Boolean(client.getQueryData<string[]>(keys.deletedImages(caseId))?.includes(imageId))
 }
 
-export { IDLE_CALIBRATION_SAVE, isCalibrationSaveLocked, isPlanImageDeleted }
+function imagePlanSaveCommand(receipt?: ImagePlanSaveState): PlanSaveCommand | undefined {
+  return receipt?.edit ?? receipt?.draft
+}
+
+function imagePlanSaveOwner(receipt?: ImagePlanSaveState) {
+  const command = imagePlanSaveCommand(receipt)
+  return command ? planCommandOwner(command) : null
+}
+
+function imagePlanSaveSection(receipt?: ImagePlanSaveState): "tools" | "calibration" {
+  const owner = imagePlanSaveOwner(receipt)
+  return owner === "distance" || owner === "angle" || owner === "circle" || owner === "landmarks" ? "tools" : "calibration"
+}
+
+export { IDLE_CALIBRATION_SAVE, isCalibrationSaveLocked, isPlanImageDeleted, imagePlanSaveCommand, imagePlanSaveOwner, imagePlanSaveSection }
 export type { CalibrationSaveState, ImagePlanSaveState, PlanIdentity }

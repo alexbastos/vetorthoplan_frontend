@@ -10,7 +10,7 @@ pnpm generate:api-types
 
 O comando lê `docs/openapi/authentication-api.openapi.json` e `docs/openapi/clinical-api.openapi.json` e atualiza os respectivos arquivos em `src/generated/`. Não edite arquivos gerados manualmente. Para atualizar só um contrato, use `pnpm --filter @vetorthoplan/api-client generate:authentication` ou `pnpm --filter @vetorthoplan/api-client generate:clinical`.
 
-O snapshot canônico usado para gerar os tipos clínicos é a versão **0.9.0**, consultada em **28/10/2026**, com 26 caminhos, 32 operações e 64 schemas; sua proveniência e checksum estão em `docs/openapi/clinical-api.snapshot.json`. A cópia original recebida está em `clinical-api.published-2026-10-28.openapi.json`. A versão declarada permaneceu igual, embora o contrato tenha evoluído; consulte o [estado da integração](../../docs/clinical-remote-integration-status.md). Exports substituídos permanecem disponíveis no histórico do Git. Os tipos gerados seguem o snapshot canônico, não definem as respostas públicas do BFF e não implementam a autenticação.
+O snapshot canônico usado para gerar os tipos clínicos é a versão **0.9.0**, consultada em **29/10/2026**, com 27 caminhos, 33 operações e 68 schemas; sua proveniência e checksum estão em `docs/openapi/clinical-api.snapshot.json`. A cópia original recebida está em `clinical-api.published-2026-10-29.openapi.json`; o Swagger informa branch `protese` e revisão `ea242ce`. A versão declarada permaneceu igual, embora o contrato tenha evoluído; consulte o [estado da integração](../../docs/clinical-remote-integration-status.md). A captura de 28/10 permanece como referência dos testes de evolução do plano. Os tipos gerados seguem o snapshot canônico, não definem as respostas públicas do BFF e não implementam a autenticação.
 
 Os nomes curtos de requisições, parâmetros e respostas estão em `@vetorthoplan/api-client/clinical-contract`. Cada tipo é derivado de uma operação em `@vetorthoplan/api-client/clinical`, sem copiar os campos do schema. `ClinicalResponse<Operacao, Status>` preserva o corpo declarado para cada status. Na criação de caso, `CreateCaseHeaders`, `CreateCaseIdempotencyConflict` e `CreateCaseValidationError` representam o cabeçalho e as respostas do contrato clínico atual.
 
@@ -21,6 +21,13 @@ da tabela de rotação, finalização e consulta dos relatórios. Protocolo e ta
 já possuem consultas BFF; finalização e relatórios seguem o roadmap de produto.
 A calibração aceita e preserva os novos campos do documento do plano sem
 permitir sua edição pelo comando público de calibração.
+
+A atualização de 29/10 inclui `viewport`, `image_transform`, os estados
+`visible`/`locked` dos objetos e `transformed_fragment_points_px`. Os validadores
+do plano aceitam e preservam esses dados no PUT completo. Ausência das flags
+em respostas antigas recebe os defaults publicados (`true`/`false`); contêineres
+de apresentação ausentes não são inventados. O tipo da nova exportação PNG
+também foi gerado, mas o fluxo de exportação ainda não possui UI/BFF.
 
 A evidência geométrica de 23/10 mantém seu hash, contrato e código de backend
 originais. O teste verifica a compatibilidade dos schemas de calibração com o

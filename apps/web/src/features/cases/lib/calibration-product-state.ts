@@ -3,6 +3,10 @@ import type { ImagePlan } from "../schemas/image-plan.schema"
 
 type CalibrationProductState = "loading" | "unavailable" | "uncalibrated" | "editing" | "saving" | "checking" | "saved" | "conflict" | "uncertain" | "error"
 
+function hasConfirmedImageScale(plan: ImagePlan | undefined, imageId: string): boolean {
+  return Boolean(plan && plan.imageId === imageId && plan.revision > 0 && plan.document.calibration?.result)
+}
+
 function calibrationProductState({ plan, imageId, receipt, dirty, needsRebase, pending, readError, available }: {
   plan?: ImagePlan; imageId: string; receipt: CalibrationSaveState; dirty: boolean; needsRebase: boolean;
   pending: boolean; readError: boolean; available: boolean
@@ -15,9 +19,9 @@ function calibrationProductState({ plan, imageId, receipt, dirty, needsRebase, p
   else if (pending) state = "loading"
   else if (!plan || plan.imageId !== imageId) state = "error"
   else if (dirty) state = "editing"
-  else state = plan.revision > 0 && plan.document.calibration?.result ? "saved" : "uncalibrated"
+  else state = hasConfirmedImageScale(plan, imageId) ? "saved" : "uncalibrated"
   return { state, measurementEligible: state === "saved" }
 }
 
-export { calibrationProductState }
+export { calibrationProductState, hasConfirmedImageScale }
 export type { CalibrationProductState }

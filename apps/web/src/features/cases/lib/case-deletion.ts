@@ -3,7 +3,7 @@ import type { QueryClient } from "@tanstack/react-query"
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
 import { CaseDeleteError, deleteClinicalCase } from "../services/case-delete-api"
 import { CaseDetailRequestError, fetchCaseDetail } from "../services/case-detail-api"
-import { hasImagePlanDraft } from "./image-quality-draft"
+import { hasImagePlanDraft } from "./image-plan-draft"
 
 type CaseDeletionState = {
   phase: "idle" | "deleting" | "checking" | "deleted" | "error" | "uncertain"

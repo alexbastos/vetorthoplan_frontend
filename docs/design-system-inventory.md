@@ -4,6 +4,8 @@ Este documento registra a base visual importada e orienta sua migracao para o
 Orthovet. A direcao visual adotada e a referencia Aqua Voice: superficies
 quase brancas, hierarquia tipografica leve, controles compactos e um unico azul
 saturado como sinal funcional.
+As marcações sobre radiografias têm uma paleta semântica própria, separada
+dos estados e cores da interface.
 
 As fontes pagas da referencia nao fazem parte do projeto. Geist Sans substitui
 PP Neue Montreal e Geist Mono permanece nos usos tecnicos.
@@ -41,6 +43,39 @@ somente tokens semanticos; identificadores internos de SVG e o componente de
 logo antigo permanecem ate a etapa dedicada a assets de marca.
 
 ## Componentes reutilizaveis
+
+### Marcações radiográficas
+
+A paleta fornecida para o produto fica em `globals.css`, no namespace
+`--radiograph-mark-*`. Seus valores são iguais nos temas claro e escuro;
+o tema do aplicativo não muda a cor de uma marcação sobre a mesma imagem.
+
+| Token | Cor | Uso visual |
+| --- | --- | --- |
+| `--radiograph-mark-attention` | Vermelho `#FF3B30` | Marcações de atenção. |
+| `--radiograph-mark-interest` | Amarelo suave `#D6C66B` | Círculo de calibração, áreas de interesse e contornos. |
+| `--radiograph-circle-stroke-width` | `1.25px` | Espessura dos contornos circulares, constante durante o zoom. |
+| `--radiograph-mark-anatomy` | Verde `#00E676` | Referências anatômicas e segmentações. |
+| `--radiograph-mark-measurement` | Ciano `#00D9FF` | Linhas, diâmetro, distâncias, ângulos e alinhamentos. |
+| `--radiograph-mark-accent` | Laranja `#FF9500` | Destaque complementar reservado. |
+
+O `@theme inline` expõe os aliases `radiograph-attention`, `radiograph-interest`,
+`radiograph-anatomy`, `radiograph-measurement` e `radiograph-accent` para classes
+Tailwind. SVGs podem consumir os tokens diretamente. Essas cores são convenções
+visuais do produto; não atribuem achados ou diagnósticos automaticamente.
+
+Linha de calibração, diâmetro, suas alças e Distância usam
+`--radiograph-mark-measurement` (ciano) em todas as etapas. O contorno circular
+usa `--radiograph-mark-interest` (amarelo), inclusive durante ajustes.
+Não usar tokens de seleção da interface nos desenhos da radiografia.
+Na Distância, linha, extremidades e valor não têm contorno de contraste.
+O rótulo acompanha o ângulo do segmento, com tamanho visual constante e correção
+de espelhamento para continuar legível. Seleção de botões/cards e notificações
+mantêm seus próprios tokens. Os demais usos da paleta entram nas respectivas
+ferramentas. O antigo token exclusivo de círculo permanece removido; a cor
+amarela vem da paleta compartilhada de marcações radiográficas.
+
+### Interface e componentes
 
 Na area autenticada, Sidebar e Header compartilham a superficie Neutral 50
 `#FAFAFA`, enquanto o palco principal usa Neutral 0 `#FFFFFF`. Os botoes

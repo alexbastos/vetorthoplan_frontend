@@ -15,6 +15,8 @@ const primaryNavigationItems: AppNavigationItem[] = [
   { href: "/app/cases", icon: CasesNavigationIcon, translationKey: "cases" },
 ]
 
+const communityPath = "/app/community"
+
 const settingsNavigationItem: AppNavigationItem = {
   href: "/app/settings",
   icon: SettingsNavigationIcon,
@@ -26,9 +28,13 @@ const supportNavigationItems: AppNavigationItem[] = [
   { href: "/app/ajuda", icon: HelpNavigationIcon, translationKey: "help" },
 ]
 
-function getAppRouteContext(pathname: string): "application" | AppNavigationItem["translationKey"] {
+function getAppRouteContext(pathname: string): "application" | "community" | AppNavigationItem["translationKey"] {
   if (pathname === homeNavigationItem.href) {
     return homeNavigationItem.translationKey
+  }
+
+  if (pathname === communityPath || pathname.startsWith(`${communityPath}/`)) {
+    return "community"
   }
 
   const navigationItem = [...primaryNavigationItems, ...supportNavigationItems].find(
@@ -38,4 +44,4 @@ function getAppRouteContext(pathname: string): "application" | AppNavigationItem
   return navigationItem?.translationKey ?? "application"
 }
 
-export { getAppRouteContext, homeNavigationItem, primaryNavigationItems, settingsNavigationItem, supportNavigationItems }
+export { communityPath, getAppRouteContext, homeNavigationItem, primaryNavigationItems, settingsNavigationItem, supportNavigationItems }

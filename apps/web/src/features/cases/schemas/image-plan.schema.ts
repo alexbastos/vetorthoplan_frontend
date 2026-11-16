@@ -1,10 +1,14 @@
 import type { GetImagePlanResponse } from "@vetorthoplan/api-client/clinical-contract"
 import { z } from "zod"
 
+import { angleHasValidArms } from "../lib/angle-geometry"
+import { circleHasValidRadius } from "../lib/circle-geometry"
+
 const number = z.number().finite()
 const positive = number.positive()
 const hash = z.string().regex(/^[0-9a-f]{64}$/)
-const point = z.object({ x: number.min(0).max(1), y: number.min(0).max(1) }).strict()
+const PlanPointSchema = z.object({ x: number.min(0).max(1), y: number.min(0).max(1) }).strict()
+const point = PlanPointSchema
 const samePoint = (a: z.infer<typeof point>, b: z.infer<typeof point>) => a.x === b.x && a.y === b.y
 const lineInput = z.object({ kind: z.literal("REFERENCE_LINE"), start: point, end: point,
   known_length_mm: positive.max(10000) }).strict()
@@ -22,19 +26,35 @@ const calibration = z.discriminatedUnion("kind", [
 const derived = z.object({ status: z.enum(["CALCULATED", "CALIBRATION_REQUIRED", "IMAGE_DIMENSIONS_REQUIRED"]),
   calibration_id: hash.nullable().optional(), values: z.record(z.string(), number).optional(),
   units: z.record(z.string(), z.enum(["mm", "degrees"])).optional() }).strict()
-const common = { id: z.string().uuid(), label: z.string().max(120).nullable().optional(), measurement: derived.nullable().optional() }
+// Match backend defaults for legacy responses that omit presentation flags.
+const presentation = { visible: z.boolean().default(true), locked: z.boolean().default(false) }
+const common = { id: z.string().uuid(), label: z.string().max(120).nullable().optional(), measurement: derived.nullable().optional(), ...presentation }
+const lineObject = z.object({ id: common.id, type: z.literal("LINE"), start: point, end: point, label: common.label }).strict()
+// Editable geometry has no server-owned measurement. The read shape below
+// retains the published shape; commands also enforce the backend's nonzero rule.
+const PlanLineInputSchema = lineObject.refine(value => !samePoint(value.start, value.end), {
+  message: "A distance line must have distinct endpoints", path: ["end"],
+})
+const angleObject = z.object({ id: common.id, type: z.literal("ANGLE"), start: point, vertex: point, end: point, label: common.label }).strict()
+const PlanAngleInputSchema = angleObject.refine(angleHasValidArms, {
+  message: "Both angle arms must have distinct endpoints", path: ["vertex"],
+})
+const circleObject = z.object({ id: common.id, type: z.literal("CIRCLE"), center: point, edge: point, label: common.label }).strict()
+const PlanCircleInputSchema = circleObject.refine(circleHasValidRadius, {
+  message: "A circle must have a nonzero radius", path: ["edge"],
+})
 const simulation = z.object({ status: z.enum(["SIMULATED", "CALIBRATION_REQUIRED", "IMAGE_DIMENSIONS_REQUIRED", "FRAGMENT_REQUIRED"]),
   calibration_id: hash.nullable().optional(), center_px: z.record(z.string(), number).optional(),
   radius_mm: positive.nullable().optional(), rotation_degrees: number.min(-180).max(180).nullable().optional(),
-  affine_matrix: z.array(z.array(number)).optional() }).strict()
+  affine_matrix: z.array(z.array(number)).optional(), transformed_fragment_points_px: z.array(z.record(z.string(), number)).optional() }).strict()
 const objects = z.discriminatedUnion("type", [
-  z.object({ ...common, type: z.literal("LINE"), start: point, end: point }).strict(),
-  z.object({ ...common, type: z.literal("ANGLE"), start: point, vertex: point, end: point }).strict(),
-  z.object({ ...common, type: z.literal("CIRCLE"), center: point, edge: point }).strict(),
+  lineObject.extend({ measurement: common.measurement, ...presentation }),
+  angleObject.extend({ measurement: common.measurement, ...presentation }),
+  circleObject.extend({ measurement: common.measurement, ...presentation }),
   z.object({ ...common, type: z.literal("TPLO"), center: point, edge: point, rotation_degrees: number.min(-180).max(180),
     fragment: z.object({ points: z.array(point).min(3).max(500), label: z.string().max(120).nullable().optional() }).strict().nullable().optional(),
     simulation: simulation.nullable().optional() }).strict(),
-  z.object({ id: z.string().uuid(), type: z.literal("IMPLANT"), catalog_item_id: z.string().uuid(), position: point,
+  z.object({ id: z.string().uuid(), ...presentation, type: z.literal("IMPLANT"), catalog_item_id: z.string().uuid(), position: point,
     rotation_degrees: number.min(-180).max(180).default(0), scale: positive.max(100).default(1), opacity: number.min(0).max(1).default(1),
     variant: z.string().max(120).nullable().optional(), view: z.string().max(120).nullable().optional(),
     label: z.string().max(120).nullable().optional(), transform: z.object({
@@ -44,12 +64,27 @@ const objects = z.discriminatedUnion("type", [
   }).strict(),
 ])
 const method = z.enum(["MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1", "CONVENTIONAL_FULL_MECHANICAL_AXIS_V1"])
+// TPA references are one document field, not a UUID-bearing plan object.
+// Coincident pairs remain valid input; the backend reports LANDMARKS_REQUIRED.
+const TploLandmarksInputSchema = z.object({
+  method: method.default("MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1"),
+  plateau_cranial: point, plateau_caudal: point, intercondylar_midpoint: point, talus_center: point,
+}).strict()
 const slope = number.min(0).max(90).nullable().optional()
 const note = z.string().max(2000).nullable().optional()
 const assessment = z.enum(["PASS", "FAIL", "NOT_ASSESSED"]).default("NOT_ASSESSED")
 const radiographicQuality = z.object({
   true_lateral: assessment, femoral_condyles_superimposed: assessment, stifle_and_tarsus_included: assessment,
   tibial_axis_centered: assessment, tibial_plateau_visible: assessment, notes: note,
+}).strict()
+const viewport = z.object({ zoom: number.min(0.1).max(20).default(1),
+  pan_x: number.min(-10).max(10).default(0), pan_y: number.min(-10).max(10).default(0) }).strict()
+const imageRegion = z.object({ x: number.min(0).max(1), y: number.min(0).max(1),
+  width: positive.max(1), height: positive.max(1) }).strict()
+const imageTransform = z.object({ crop: imageRegion.nullable().optional(), rotation_degrees: number.min(-180).max(180).default(0),
+  result: z.object({ status: z.enum(["CALCULATED", "IMAGE_DIMENSIONS_REQUIRED"]), crop_box_px: z.array(number.int()).optional(),
+    output_size_px: z.array(number.int()).optional(), affine_matrix: z.array(z.array(number)).optional(),
+  }).strict().nullable().optional(),
 }).strict()
 const additionalMeasurementsInput = z.object({
   landmarks: z.record(z.string(), point).refine(value => Object.keys(value).length <= 40).optional(),
@@ -75,6 +110,7 @@ const tploCorrection = z.object({
 // stripping it and overwriting the stored document during a calibration-only save.
 const PlanDocumentSchema = z.object({
   schema_version: z.literal(1), calibration: calibration.nullable(), objects: z.array(objects).max(500),
+  viewport: viewport.optional(), image_transform: imageTransform.optional(),
   tplo: z.object({ laterality: z.enum(["LEFT", "RIGHT"]),
     projection: z.enum(["MEDIOLATERAL", "CRANIOCAUDAL", "UNKNOWN"]).default("UNKNOWN"),
     image_quality: z.enum(["ACCEPTABLE", "LIMITED", "REJECTED"]).default("LIMITED"),
@@ -83,8 +119,7 @@ const PlanDocumentSchema = z.object({
     blade_diameter_mm: positive.max(100).nullable().optional(),
   }).strict().nullable().optional(),
   radiographic_quality: radiographicQuality.nullable().optional(),
-  tplo_landmarks: z.object({ method: method.default("MEDIAL_CONDYLE_CRANIAL_CRUCIATE_FULL_AXIS_V1"), plateau_cranial: point, plateau_caudal: point,
-    intercondylar_midpoint: point, talus_center: point }).strict().nullable().optional(),
+  tplo_landmarks: TploLandmarksInputSchema.nullable().optional(),
   additional_measurements_input: additionalMeasurementsInput.optional(),
   additional_measurements: additionalMeasurements.optional(),
   tplo_correction: tploCorrection.nullable().optional(),
@@ -108,7 +143,9 @@ function isEmptyPlanDocument(document: z.infer<typeof PlanDocumentSchema>): bool
   const quality = document.radiographic_quality
   const emptyQuality = !quality || quality.notes == null && [quality.true_lateral, quality.femoral_condyles_superimposed,
     quality.stifle_and_tarsus_included, quality.tibial_axis_centered, quality.tibial_plateau_visible].every(value => value === "NOT_ASSESSED")
-  return [document.calibration, document.tplo, document.tplo_landmarks, document.tplo_measurement, document.tplo_correction, document.clinical_validation].every(value => value == null)
+  const emptyPresentation = (!document.viewport || document.viewport.zoom === 1 && document.viewport.pan_x === 0 && document.viewport.pan_y === 0)
+    && (!document.image_transform || document.image_transform.crop == null && document.image_transform.rotation_degrees === 0)
+  return emptyPresentation && [document.calibration, document.tplo, document.tplo_landmarks, document.tplo_measurement, document.tplo_correction, document.clinical_validation].every(value => value == null)
     && document.objects.length === 0 && emptyQuality && (document.additional_measurements?.length ?? 0) === 0
     && Object.keys(document.additional_measurements_input?.landmarks ?? {}).length === 0
     && Object.keys(document.additional_measurements_input?.reference_values ?? {}).length === 0
@@ -119,11 +156,14 @@ const timestamp = z.iso.datetime({ offset: true }).nullable()
 const UpstreamImagePlanSchema = z.object({ image_id: z.string().uuid(), revision, document: PlanDocumentSchema, updated_at: timestamp }) satisfies z.ZodType<GetImagePlanResponse>
 const ImagePlanSchema = z.object({ imageId: z.string().uuid(), revision, document: PlanDocumentSchema, updatedAt: timestamp }).strict()
   .refine(plan => plan.revision > 0 ? plan.updatedAt !== null : plan.updatedAt === null && isEmptyPlanDocument(plan.document))
-const SaveCalibrationSchema = z.object({ baseRevision: revision.max(Number.MAX_SAFE_INTEGER - 1), calibration: CalibrationInputSchema.nullable() }).strict()
+const SaveCalibrationSchema = z.object({
+  baseRevision: revision.max(Number.MAX_SAFE_INTEGER - 1), calibration: CalibrationInputSchema.nullable(),
+}).strict()
 
 type ImagePlan = z.infer<typeof ImagePlanSchema>
 type CalibrationInput = z.infer<typeof CalibrationInputSchema>
 type SaveCalibrationInput = z.infer<typeof SaveCalibrationSchema>
+type TploLandmarksInput = z.infer<typeof TploLandmarksInputSchema>
 
 function calibrationInputOf(value: ImagePlan["document"]["calibration"]): CalibrationInput | null {
   if (value === null) return null
@@ -135,6 +175,14 @@ function calibrationMatches(value: ImagePlan["document"]["calibration"], input: 
   return JSON.stringify(calibrationInputOf(value)) === JSON.stringify(input)
 }
 
-export { CalibrationInputSchema, ImagePlanSchema, PlanDocumentSchema, SaveCalibrationSchema, UpstreamImagePlanSchema,
-  calibrationInputOf, calibrationMatches }
-export type { CalibrationInput, ImagePlan, SaveCalibrationInput }
+function landmarksMatches(value: ImagePlan["document"]["tplo_landmarks"], input: TploLandmarksInput | null): boolean {
+  if (input === null) return value == null
+  const saved = TploLandmarksInputSchema.safeParse(value)
+  return saved.success && saved.data.method === input.method
+    && (["plateau_cranial", "plateau_caudal", "intercondylar_midpoint", "talus_center"] as const)
+      .every(key => saved.data[key].x === input[key].x && saved.data[key].y === input[key].y)
+}
+
+export { CalibrationInputSchema, ImagePlanSchema, PlanDocumentSchema, PlanAngleInputSchema, PlanCircleInputSchema, PlanLineInputSchema, PlanPointSchema, SaveCalibrationSchema, TploLandmarksInputSchema, UpstreamImagePlanSchema,
+  calibrationInputOf, calibrationMatches, landmarksMatches }
+export type { CalibrationInput, ImagePlan, SaveCalibrationInput, TploLandmarksInput }

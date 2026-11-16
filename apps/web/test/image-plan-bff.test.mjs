@@ -20,6 +20,7 @@ const { getImagePlanForBff, saveImageCalibrationForBff } = await import("../src/
 const { ApiHttpClient } = await import("../../../packages/api-client/src/http-client.ts")
 const { QueryClient } = await import("@tanstack/react-query")
 const { requestCalibrationSave, requestPlanEditSave } = await import("../src/features/cases/lib/image-plan-saving.ts")
+const { applyPlanCommand, planCommandMatches } = await import("../src/features/cases/schemas/image-plan-command.schema.ts")
 const { imagePlanQueryOptions } = await import("../src/features/cases/lib/image-plan-query-options.ts")
 const { createCaseFetch } = await import("../src/features/cases/services/case-fetch.ts")
 const route = await import("../src/app/api/cases/[caseId]/images/[imageId]/plan/route.ts")
@@ -35,6 +36,176 @@ const command = { baseRevision: 0, calibration: f.line }
 const save = (input, image = f.readyImage, plan = f.initial, write = async (_path, body) => ({ status: 200, data: f.persist(body) }), signal) =>
   saveImageCalibrationForBff(caseId, imageId, input, read(image), read(plan), write, signal)
 
+const seed = { id: "00000000-0000-4000-8000-000000000af1", label: "Synthetic initial distance" }
+const seededCalibration = { ...command, initialDistance: seed }
+
+for (const kind of ["REFERENCE_LINE", "REFERENCE_CIRCLE"]) test(`recalibration ${kind} updates the same LINE in one PUT, preserves other fields and verifies both effects`, async () => {
+  const original = applyPlanCommand(f.initial.document, seededCalibration)
+  const other = { id: "00000000-0000-4000-8000-000000000af2", type: "ANGLE", start: { x: 0, y: 0 }, vertex: { x: 0.5, y: 0.5 }, end: { x: 1, y: 1 }, visible: true, locked: false }
+  original.objects.push(other)
+  original.objects[0].start = { x: 0.1, y: 0.1 }
+  original.objects[0].measurement = { status: "CALCULATED", values: { length: 50 }, units: { length: "mm" }, calibration_id: "a".repeat(64) }
+  const current = f.persist({ base_revision: 0, document: original }), before = structuredClone(current)
+  const calibration = kind === "REFERENCE_LINE" ? f.line : f.circle
+  const input = { baseRevision: 1, calibration, distanceId: seed.id }
+  const expected = kind === "REFERENCE_LINE" ? { start: calibration.start, end: calibration.end }
+    : { start: { x: 2 * calibration.center.x - calibration.edge.x, y: 2 * calibration.center.y - calibration.edge.y }, end: calibration.edge }
+  let writes = 0
+  const result = await save(input, f.readyImage, current, async (_path, payload) => {
+    writes++
+    assert.deepEqual(Object.keys(payload).sort(), ["base_revision", "document"])
+    assert.deepEqual(payload.document.calibration, calibration)
+    assert.deepEqual(payload.document.objects[0], { ...seed, type: "LINE", ...expected, visible: true, locked: false })
+    assert.deepEqual(payload.document.objects[1], other)
+    return { status: 200, data: f.persist(payload) }
+  })
+  assert.equal(result.status, 200); assert.equal(writes, 1)
+  assert.equal(result.body.document.objects.filter(object => object.type === "LINE").length, 1)
+  assert.equal(planCommandMatches(result.body, input), true)
+  const partial = structuredClone(result.body)
+  partial.document.objects[0].start.x += 0.01
+  assert.equal(planCommandMatches(partial, input), false)
+  assert.deepEqual(current, before)
+  for (const alter of [plan => { plan.document.objects[0].locked = true }, plan => { plan.document.objects[0].visible = false }, plan => { plan.document.objects = [] }]) {
+    const invalid = structuredClone(current); alter(invalid)
+    assert.equal((await save(input, f.readyImage, invalid, forbidden)).status, 400)
+  }
+})
+
+test("circle calibration initializes only its in-bounds diameter LINE and never clamps an out-of-bounds legacy circle", async () => {
+  const calibration = f.circle
+  const result = await save({ ...seededCalibration, calibration })
+  assert.equal(result.status, 200)
+  assert.deepEqual(result.body.document.objects[0].start, { x: 2 * calibration.center.x - calibration.edge.x, y: 2 * calibration.center.y - calibration.edge.y })
+  assert.deepEqual(result.body.document.objects[0].end, calibration.edge)
+  assert.equal(result.body.document.objects[0].type, "LINE")
+  const clipped = { ...calibration, center: { x: 0.1, y: 0.1 }, edge: { x: 0.9, y: 0.9 } }
+  assert.equal((await save({ ...seededCalibration, calibration: clipped }, f.readyImage, f.initial, forbidden)).status, 400)
+  // Legacy calibration remains legal without inventing an in-bounds diameter.
+  assert.deepEqual(applyPlanCommand(f.initial.document, { ...command, calibration: clipped }).calibration, clipped)
+})
+
+test("a lost recalibration response checks the captured LINE update by GET without replaying", async () => {
+  const document = applyPlanCommand(f.initial.document, seededCalibration)
+  const input = { baseRevision: 1, calibration: f.circle, distanceId: seed.id }
+  const prior = f.publicPlan(f.persist({ base_revision: 0, document }))
+  const saved = f.publicPlan(f.persist({ base_revision: 1, document: applyPlanCommand(document, input) }))
+  const queryClient = new QueryClient()
+  let writes = 0
+  try {
+    const uncertain = await requestCalibrationSave(queryClient, { caseId, imageId }, input, { fetchImpl: async (_url, init) => {
+      if (init.method === "PUT") { writes++; throw new TypeError("synthetic lost response") }
+      return Response.json(prior)
+    } })
+    assert.equal(uncertain.phase, "uncertain"); assert.equal(uncertain.draft.distanceId, seed.id)
+    const confirmed = await requestCalibrationSave(queryClient, { caseId, imageId }, uncertain.draft, { checkOnly: true, fetchImpl: async (_url, init) => {
+      assert.equal(init.method, "GET"); return Response.json(saved)
+    } })
+    assert.equal(confirmed.phase, "saved"); assert.equal(writes, 1)
+  } finally { queryClient.clear() }
+})
+
+test("line calibration and its first independent LINE use one existing full-plan PUT and one revision", async () => {
+  const source = publishedEmptyDocument(f), before = structuredClone(source)
+  let writes = 0
+  const result = await save(seededCalibration, f.readyImage, { ...f.initial, document: source }, async (_path, payload) => {
+    writes++
+    assert.deepEqual(Object.keys(payload).sort(), ["base_revision", "document"])
+    assert.equal(payload.base_revision, 0)
+    assert.equal("initialDistance" in payload.document, false)
+    assert.deepEqual(payload.document.calibration, f.line)
+    const line = payload.document.objects[0]
+    assert.deepEqual(line, { ...seed, type: "LINE", start: f.line.start, end: f.line.end, visible: true, locked: false })
+    assert.equal("measurement" in line, false)
+    for (const key of Object.keys(source).filter(key => key !== "calibration" && key !== "objects")) assert.deepEqual(payload.document[key], source[key])
+    const persisted = f.persist(payload)
+    persisted.document.objects[0].measurement = { status: "CALCULATED", calibration_id: persisted.document.calibration.result.calibration_id,
+      values: { length: 26.812345 }, units: { length: "mm" } }
+    return { status: 200, data: persisted }
+  })
+  assert.equal(result.status, 200); assert.equal(result.body.revision, 1); assert.equal(writes, 1)
+  assert.equal(result.body.document.objects[0].measurement.values.length, 26.812345)
+  assert.deepEqual(source, before)
+  assert.equal(planCommandMatches(result.body, seededCalibration), true)
+})
+
+test("calibration distance rejects forged geometry/results, invalid identity and arbitrary flags before reads", async () => {
+  for (const input of [
+    { ...seededCalibration, calibration: null }, { ...seededCalibration, distanceId: seed.id },
+    { ...command, distanceId: "invalid" }, { ...command, calibration: null, distanceId: seed.id },
+    { ...seededCalibration, initialDistance: { ...seed, id: "invalid" } },
+    { ...seededCalibration, initialDistance: { ...seed, label: "x".repeat(121) } },
+    ...["start", "measurement", "visible", "locked", "document"].map(key => ({ ...seededCalibration, initialDistance: { ...seed, [key]: {} } })),
+  ]) assert.equal((await saveImageCalibrationForBff(caseId, imageId, input, forbidden, forbidden, forbidden)).status, 400)
+})
+
+test("initial distance refuses existing lines, ID collisions, ambiguous objects and the global capacity before PUT", async () => {
+  const angle = { id: seed.id, type: "ANGLE", visible: true, locked: false, start: { x: 0, y: 0 }, vertex: { x: 0.5, y: 0.5 }, end: { x: 1, y: 1 } }
+  const documents = [
+    { ...f.initial.document, objects: [{ ...seed, type: "LINE", start: f.line.start, end: f.line.end, visible: true, locked: false }] },
+    { ...f.initial.document, objects: [angle] },
+    { ...f.initial.document, objects: [angle, { ...angle }] },
+    { ...f.initial.document, objects: Array.from({ length: 500 }, (_, i) => ({ ...angle, id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}` })) },
+  ]
+  for (const document of documents) {
+    const current = { ...f.persist({ base_revision: 0, document: { ...document, calibration: f.line } }) }
+    const result = await save({ ...seededCalibration, baseRevision: 1 }, f.readyImage, current, forbidden)
+    assert.ok(result.status === 400 || result.status === 502)
+    assert.equal(result.body.error.uncertain, false)
+  }
+})
+
+test("combined acknowledgement requires both calibration and exact LINE, but not a derived measurement", async () => {
+  const document = applyPlanCommand(f.initial.document, seededCalibration)
+  const saved = f.persist({ base_revision: 0, document })
+  const valid = await save(seededCalibration, f.readyImage, f.initial, async () => ({ status: 200, data: saved }))
+  assert.equal(valid.status, 200)
+  for (const alter of [
+    plan => { plan.document.objects = [] },
+    plan => { plan.document.objects[0].end.x += 0.001 },
+    plan => { plan.document.objects[0].label = "Other line" },
+    plan => { plan.document.objects[0].visible = false },
+    plan => { plan.document.calibration.result = null },
+  ]) {
+    const wrong = structuredClone(saved); alter(wrong)
+    assert.equal(planCommandMatches(f.publicPlan(wrong), seededCalibration), false)
+    const result = await save(seededCalibration, f.readyImage, f.initial, async () => ({ status: 200, data: wrong }))
+    assert.equal(result.status, 502); assert.equal(result.body.error.uncertain, true)
+  }
+})
+
+test("lost combined response checks the same seeded ID and never replays calibration or creates another LINE", async () => {
+  const queryClient = new QueryClient()
+  const saved = f.publicPlan(f.persist({ base_revision: 0, document: applyPlanCommand(f.initial.document, seededCalibration) }))
+  let writes = 0, reads = 0, current = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.line } }))
+  const fetchImpl = async (_url, init) => {
+    if (init.method === "PUT") { writes++; assert.deepEqual(JSON.parse(init.body), seededCalibration); throw new TypeError("synthetic lost acknowledgement") }
+    reads++; return Response.json(current)
+  }
+  try {
+    // Calibration alone at the new revision cannot acknowledge the combined intent.
+    const first = await requestCalibrationSave(queryClient, { caseId, imageId }, seededCalibration, { fetchImpl })
+    assert.equal(first.phase, "conflict"); assert.equal(first.draft.initialDistance.id, seed.id)
+    current = saved
+    // A separate original uncertain receipt is only checked, never resubmitted.
+    const secondClient = new QueryClient()
+    try {
+      let stale = true
+      const lost = await requestCalibrationSave(secondClient, { caseId, imageId }, seededCalibration, { fetchImpl: async (_url, init) => {
+        if (init.method === "PUT") { writes++; throw new TypeError("synthetic lost acknowledgement") }
+        reads++; return Response.json(stale ? f.publicPlan(f.initial) : saved)
+      } })
+      assert.equal(lost.phase, "uncertain")
+      stale = false
+      const checked = await requestCalibrationSave(secondClient, { caseId, imageId }, lost.draft, { checkOnly: true, fetchImpl: async (_url, init) => {
+        assert.equal(init.method, "GET"); reads++; return Response.json(saved)
+      } })
+      assert.equal(checked.phase, "saved"); assert.equal(checked.draft.initialDistance.id, seed.id)
+      assert.equal(writes, 2); assert.equal(reads, 3)
+    } finally { secondClient.clear() }
+  } finally { queryClient.clear() }
+})
+
 function correctionAndImplantDocument() {
   const document = publishedPopulatedDocument(f)
   document.tplo = { ...document.tplo, blade_diameter_mm: 24 }
@@ -44,7 +215,7 @@ function correctionAndImplantDocument() {
     table_entries_sha256: "d".repeat(64), acceptance: "PASS", clinically_validated: false,
   }
   document.objects = [...document.objects, {
-    id: "00000000-0000-4000-8000-000000000902", type: "IMPLANT", catalog_item_id: "00000000-0000-4000-8000-000000000903",
+    id: "00000000-0000-4000-8000-000000000902", type: "IMPLANT", visible: true, locked: false, catalog_item_id: "00000000-0000-4000-8000-000000000903",
     position: { x: 0.55, y: 0.4 }, rotation_degrees: 12, scale: 1.25, opacity: 0.8,
     variant: "standard", view: "medial", label: "Synthetic implant",
     transform: { status: "CALCULATED", coordinate_space: "IMAGE_PIXELS", affine_matrix: [[1, 0, 110], [0, 1, 220], [0, 0, 1]] },
@@ -592,6 +763,41 @@ test("browser cache to actual JWT BFF to clinical HTTP saves, reopens and reconc
       assert.deepEqual(stored.document.clinical_validation.audit, previous.clinical_validation.audit)
       const stale = await requestPlanEditSave(client, owner, { kind: "radiographic-quality", baseRevision: 0, quality }, { fetchImpl: bridge })
       assert.equal(stale.phase, "conflict"); assert.equal(writes - writesBefore, 2, "BFF rejects the stale revision before clinical PUT")
+    })
+    await t.test("browser distance commands cross the scoped JWT BFF and recover a lost response for create, update and delete", async () => {
+      const id = "00000000-0000-4000-8000-000000000abc", writesBefore = writes
+      const distanceClient = new QueryClient()
+      const commands = [
+        { kind: "distance-create", id, start: { x: 0.1, y: 0.2 }, end: { x: 0.6, y: 0.7 }, label: "Synthetic distance" },
+        { kind: "distance-update", id, start: { x: 0.2, y: 0.3 }, end: { x: 0.7, y: 0.8 } },
+        { kind: "distance-delete", id },
+      ]
+      const patch = (input, organization = orgId) => editsRoute.PATCH(new NextRequest(`${app}/api/cases/${caseId}/images/${imageId}/plan/edits`, {
+        method: "PATCH", body: JSON.stringify(input), headers: { origin: app, "content-type": "application/json", "x-clinical-organization": organization },
+      }), context)
+      const mismatch = await patch({ ...commands[0], baseRevision: stored.revision }, "other-org")
+      assert.equal(mismatch.status, 409); assert.equal((await mismatch.json()).error.code, "CLINICAL_CONTEXT_CHANGED")
+      assert.equal(writes, writesBefore)
+      const originalObjects = structuredClone(stored.document.objects)
+      try {
+        for (const command of commands) {
+          const before = structuredClone(stored), input = { ...command, baseRevision: stored.revision }
+          loseResponse = true
+          const result = await requestPlanEditSave(distanceClient, owner, input, { fetchImpl: bridge })
+          assert.equal(result.phase, "saved"); assert.equal(result.currentRevision, before.revision + 1)
+          const data = distanceClient.getQueryData(imagePlanQueryOptions(distanceClient, owner).queryKey)
+          assert.equal(data.revision, before.revision + 1)
+          const { objects: _objects, ...rest } = data.document
+          const { objects: _previous, ...preserved } = before.document
+          assert.deepEqual(rest, preserved)
+          assert.equal(JSON.stringify(data).includes("scoped-clinical-token"), false)
+          const target = data.document.objects.find(object => object.id === id)
+          if (command.kind === "distance-delete") assert.equal(target, undefined)
+          else { assert.deepEqual(target.start, command.start); assert.deepEqual(target.end, command.end) }
+        }
+        assert.equal(writes - writesBefore, 3, "each lost PATCH response is checked with GET, never replayed")
+        assert.deepEqual(stored.document.objects, originalObjects)
+      } finally { distanceClient.clear() }
     })
   } finally {
     client.clear(); reopened.clear()

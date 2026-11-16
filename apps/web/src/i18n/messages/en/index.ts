@@ -1,6 +1,7 @@
 import auth from "./auth.json"
 import cases from "./cases.json"
 import common from "./common.json"
+import community from "./community.json"
 import dashboard from "./dashboard.json"
 import errors from "./errors.json"
 import home from "./home.json"
@@ -16,6 +17,7 @@ const messages = {
   auth,
   cases,
   common,
+  community,
   dashboard,
   errors,
   home,

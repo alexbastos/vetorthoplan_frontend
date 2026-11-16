@@ -1,0 +1,222 @@
+.conversationWorkspace,
+.thread,
+.profile {
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+.conversationWorkspace {
+  position: relative;
+  flex: 1;
+}
+
+.thread {
+  flex: 1;
+  flex-direction: column;
+}
+
+.profile {
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-card);
+}
+
+@media (width < 64rem) {
+  .conversationWorkspace[data-profile-open="true"] .thread {
+    visibility: hidden;
+  }
+}
+
+.header {
+  display: flex;
+  min-width: 0;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--community-divider);
+}
+
+.action {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  place-items: center;
+  border-radius: var(--radius-token-full);
+  background: var(--color-muted);
+  color: var(--color-content-secondary);
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+.action:disabled {
+  opacity: 0.55;
+}
+
+.action:not(:disabled):hover {
+  background: var(--color-accent);
+}
+
+.action[aria-expanded="true"] {
+  background: var(--color-accent-soft);
+  color: var(--color-foreground);
+}
+
+.profileAction[aria-expanded="true"] {
+  background: var(--color-muted);
+}
+
+.profileAction[aria-expanded="true"] svg {
+  color: var(--color-link-default);
+}
+
+.historySearch {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--community-divider);
+}
+
+.historySearch:focus-within {
+  box-shadow: inset 0 -1px var(--color-ring);
+}
+
+.messageActions {
+  display: flex;
+  align-self: flex-end;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.messageAction {
+  display: grid;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--color-content-secondary);
+  cursor: pointer;
+}
+
+.messageAction:hover,
+.messageAction:focus-visible {
+  background: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+.messageAction:focus-visible {
+  outline: 1px solid var(--color-ring);
+  outline-offset: -1px;
+}
+
+.messageAction[aria-pressed="true"] {
+  background: var(--color-accent-soft);
+  color: var(--color-link-default);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .messageActions .messageAction { opacity: 0; }
+
+  .messageRow:hover .messageActions .messageAction,
+  .messageRow:focus-within .messageActions .messageAction,
+  .messageActions .messageAction[aria-pressed="true"] {
+    opacity: 1;
+  }
+}
+
+.bubble[data-highlighted="true"] {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bubble[data-highlighted="true"] {
+    animation: search-highlight 2s ease-out;
+  }
+}
+
+@keyframes search-highlight {
+  0%, 40% { outline-color: var(--color-brand-primary); }
+  100% { outline-color: transparent; }
+}
+
+.history {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 16px 20px;
+}
+
+.composer {
+  flex: none;
+  padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+}
+
+@media (width < 64rem) {
+  .composer:focus-within {
+    margin-bottom: var(--community-keyboard-inset, 0px);
+  }
+}
+
+.composerSurface {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 19px;
+  background: var(--color-card);
+  box-shadow: var(--shadow-card-layered);
+  padding: 10px 12px;
+}
+
+.composerSurface:has(.input:focus) {
+  background: color-mix(in srgb, var(--color-card) 75%, var(--color-muted));
+}
+
+.input {
+  display: block;
+  width: 100%;
+  min-height: 26px;
+  max-height: 140px;
+  overflow-y: auto;
+  resize: none;
+  background: transparent;
+  color: var(--color-foreground);
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.input::placeholder {
+  color: var(--color-content-secondary);
+}
+
+@media (width >= 40rem) {
+  .composer {
+    padding: 14px 20px max(14px, env(safe-area-inset-bottom));
+  }
+
+  .composerSurface {
+    gap: 10px;
+    padding: 14px 16px 12px;
+  }
+}
+
+@media (width >= 64rem) {
+  .header {
+    padding-inline: 20px;
+  }
+}

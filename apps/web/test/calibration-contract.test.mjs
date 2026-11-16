@@ -23,7 +23,7 @@ test("calibration evidence retains its original contract and pinned source while
   for (const name of fixture.matchingSchemas) {
     if (name === "PlanDocument") {
       const { radiographic_quality: _quality, additional_measurements_input: _input, additional_measurements: _results,
-        tplo_correction: _correction, objects, ...properties } = contract.components.schemas[name].properties
+        tplo_correction: _correction, viewport: _viewport, image_transform: _transform, objects, ...properties } = contract.components.schemas[name].properties
       const { objects: originalObjects, ...originalProperties } = capturedContract.components.schemas[name].properties
       assert.deepEqual(properties, originalProperties)
       // New object variants do not change the captured calibration geometry.

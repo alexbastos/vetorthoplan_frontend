@@ -1,6 +1,7 @@
 "use client"
 
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useEffect, useState, type ReactNode } from "react"
@@ -45,20 +46,16 @@ function ClinicalContextGate({ children }: { children: ReactNode }) {
       </div>
     </section>
   )
-  if (query.isError || changed || !value) return (
-    <section className="mx-auto max-w-md space-y-4 py-12" role="alert">
-      <h1 className="text-lg font-semibold">{t(changed ? "changed" : "unavailable")}</h1>
-      <p className="text-sm text-description">{t(changed ? "changedDescription" : errorText)}</p>
-      <Button disabled={query.isFetching} onClick={() => { selection.reset(); void query.refetch().then(result => { if (result.isSuccess) setChanged(false) }) }} size="sm" type="button">{t("retry")}</Button>
-    </section>
-  )
-  if (value.state === "no_organizations") return (
-    <section className="mx-auto max-w-md space-y-4 py-12">
-      <h1 className="text-lg font-semibold">{t("noneTitle")}</h1>
-      <p className="text-sm text-description">{t("noneDescription")}</p>
-      <Button disabled={query.isFetching} onClick={() => void query.refetch()} size="sm" type="button">{t("retry")}</Button>
-    </section>
-  )
+  if (query.isError || changed || !value) return <ClinicalContextNotice
+    title={t(changed ? "changed" : "unavailable")} description={t(changed ? "changedDescription" : errorText)}
+    retryLabel={t("retry")} retrying={query.isFetching} alert
+    onRetry={() => {
+      selection.reset()
+      void query.refetch().then(result => { if (result.isSuccess) setChanged(false) })
+    }} />
+  if (value.state === "no_organizations") return <ClinicalContextNotice
+    title={t("noneTitle")} description={t("noneDescription")} retryLabel={t("retry")}
+    retrying={query.isFetching} onRetry={() => void query.refetch()} />
   if (value.state === "selection_required" || choosing) return (
     <section aria-busy={selection.isPending} className="mx-auto w-full max-w-md space-y-4 py-12">
       <h1 className="text-lg font-semibold">{t("chooseTitle")}</h1>
@@ -76,6 +73,27 @@ function ClinicalContextGate({ children }: { children: ReactNode }) {
     </div> : null}
     <ClinicalCaseScope context={value} key={value.organization?.id ?? "local"}>{children}</ClinicalCaseScope>
   </>
+}
+
+function ClinicalContextNotice({ title, description, retryLabel, retrying, onRetry, alert = false }: {
+  title: string
+  description: string
+  retryLabel: string
+  retrying: boolean
+  onRetry: () => void
+  alert?: boolean
+}) {
+  return <section className="flex min-h-full flex-1 items-center justify-center px-6 py-8 text-center">
+    <div className="w-full max-w-sm">
+      <Image src="/images/cases/empty-animation-acess.svg" alt="" aria-hidden="true"
+        width={192} height={192} unoptimized className="mx-auto mb-4 size-40 object-contain sm:size-48 motion-reduce:hidden" />
+      <div role={alert ? "alert" : undefined}>
+        <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+        <p className="mt-2 text-sm leading-5 text-content-secondary">{description}</p>
+      </div>
+      <Button loading={retrying} onClick={onRetry} size="sm" type="button" className="mt-4">{retryLabel}</Button>
+    </div>
+  </section>
 }
 
 function ClinicalCaseScope({ context, children }: { context: Extract<ClinicalContext, { state: "ready" }>; children: ReactNode }) {

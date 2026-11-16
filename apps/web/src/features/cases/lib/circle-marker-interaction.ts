@@ -1,4 +1,5 @@
 import type { CalibrationMarker, ImagePoint } from "../types/case-workspace"
+import { moveLineMarker } from "./line-marker-interaction"
 
 type CircleMarker = Extract<CalibrationMarker, { kind: "circle" }>
 type CircleHit = "start" | "end" | "edge" | "body" | null
@@ -82,16 +83,14 @@ function moveCircleMarker(
   imageHeight: number,
   edgeInset = 1,
 ): CircleMarker {
-  const { radiusPx, center } = marker
-  if (marker.edge) {
-    const { edge } = marker
-    const dx = Math.max(-Math.min(center.x, edge.x), Math.min(imageWidth - edgeInset - Math.max(center.x, edge.x), point.x - origin.x))
-    const dy = Math.max(-Math.min(center.y, edge.y), Math.min(imageHeight - edgeInset - Math.max(center.y, edge.y), point.y - origin.y))
-    return { ...marker, center: { x: center.x + dx, y: center.y + dy }, edge: { x: edge.x + dx, y: edge.y + dy } }
-  }
-  const dx = Math.max(radiusPx - center.x, Math.min(imageWidth - edgeInset - radiusPx - center.x, point.x - origin.x))
-  const dy = Math.max(radiusPx - center.y, Math.min(imageHeight - edgeInset - radiusPx - center.y, point.y - origin.y))
-  return { ...marker, center: { x: center.x + dx, y: center.y + dy } }
+  const diameter = circleDiameter(marker)
+  // The two diameter controls must remain usable by the subsequent LINE tool.
+  // Some legacy references exceed the entire matrix: preserve those until the
+  // user explicitly adjusts their endpoints instead of silently shrinking them.
+  if (Math.abs(diameter.end.x - diameter.start.x) > imageWidth - edgeInset
+    || Math.abs(diameter.end.y - diameter.start.y) > imageHeight - edgeInset) return marker
+  const moved = moveLineMarker({ kind: "line", ...diameter }, origin, point, imageWidth, imageHeight, edgeInset)
+  return circleFromDiameter(moved.start, moved.end)
 }
 
 export { circleDiameter, circleFromDiameter, resizeCircleDiameter, hitTestCircleMarker, moveCircleMarker, resizeCircleMarker }

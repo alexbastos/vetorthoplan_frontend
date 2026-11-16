@@ -28,15 +28,23 @@ function hitTestLineMarker(
     return startDistance <= endDistance ? "start" : "end"
   }
 
+  return lineMarkerScreenDistance(pointer, marker, rect, imageWidth, imageHeight) <= 8 ? "body" : null
+}
+
+function lineMarkerScreenDistance(pointer: ImagePoint, marker: LineMarker, rect: ImageRect, imageWidth: number, imageHeight: number): number {
+  if (rect.width <= 0 || rect.height <= 0 || imageWidth <= 0 || imageHeight <= 0
+    || pointer.x < rect.left || pointer.x > rect.left + rect.width || pointer.y < rect.top || pointer.y > rect.top + rect.height) return Infinity
+  const start = { x: rect.left + marker.start.x / imageWidth * rect.width, y: rect.top + marker.start.y / imageHeight * rect.height }
+  const end = { x: rect.left + marker.end.x / imageWidth * rect.width, y: rect.top + marker.end.y / imageHeight * rect.height }
   const deltaX = end.x - start.x
   const deltaY = end.y - start.y
   const lengthSquared = deltaX * deltaX + deltaY * deltaY
-  if (lengthSquared === 0) return null
+  if (lengthSquared === 0) return Math.hypot(pointer.x - start.x, pointer.y - start.y)
   const progress = Math.max(0, Math.min(1,
     ((pointer.x - start.x) * deltaX + (pointer.y - start.y) * deltaY) / lengthSquared))
   const closestX = start.x + progress * deltaX
   const closestY = start.y + progress * deltaY
-  return Math.hypot(pointer.x - closestX, pointer.y - closestY) <= 8 ? "body" : null
+  return Math.hypot(pointer.x - closestX, pointer.y - closestY)
 }
 
 function resizeLineMarker(marker: LineMarker, endpoint: "start" | "end", point: ImagePoint): LineMarker {
@@ -64,5 +72,5 @@ function moveLineMarker(
   }
 }
 
-export { hitTestLineMarker, moveLineMarker, resizeLineMarker }
-export type { LineHit, LineMarker }
+export { hitTestLineMarker, lineMarkerScreenDistance, moveLineMarker, resizeLineMarker }
+export type { LineHit, LineMarker, ImageRect }

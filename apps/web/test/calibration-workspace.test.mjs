@@ -46,16 +46,28 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 } })
 
 const React = await import("react")
-const { render, renderHook, fireEvent, waitFor, cleanup, act } = await import("@testing-library/react")
+const { render, renderHook, fireEvent, waitFor, cleanup, act, within } = await import("@testing-library/react")
 const { QueryClient, QueryClientProvider, focusManager } = await import("@tanstack/react-query")
 const { NextIntlClientProvider } = await import("next-intl")
 const { UnsavedChangesGuard, useUnsavedChangesGuard } = await import("../src/components/shared/app-shell/unsaved-changes-guard.tsx")
 const { CaseImageWorkspace } = await import("../src/features/cases/components/case-image-workspace.tsx")
+const { CaseImageViewer } = await import("../src/features/cases/components/case-image-viewer.tsx")
+const { CaseImageToolsPanel } = await import("../src/features/cases/components/case-image-tools-panel.tsx")
+const { CaseImageDistanceValues } = await import("../src/features/cases/components/case-image-distance-values.tsx")
+const { CaseImageDistanceToolbar } = await import("../src/features/cases/components/case-image-distance-toolbar.tsx")
+const { CaseImageDistanceActions } = await import("../src/features/cases/components/case-image-distance-actions.tsx")
+const { CaseImageAngleValueControl } = await import("../src/features/cases/components/case-image-angle-value-control.tsx")
+const { DistanceOverlay } = await import("../src/features/cases/components/distance-overlay.tsx")
+const { selectSavedDistances } = await import("../src/features/cases/lib/distance-result.ts")
 const { CaseImageDeleteAction } = await import("../src/features/cases/components/case-image-delete-action.tsx")
 const { useImageCalibration } = await import("../src/features/cases/hooks/use-image-calibration.ts")
-const { qualityFields, hasImagePlanDraft } = await import("../src/features/cases/lib/image-quality-draft.ts")
+const { useImageDistance } = await import("../src/features/cases/hooks/use-image-distance.ts")
+const { distanceEditorFromCommand } = await import("../src/features/cases/lib/distance-editor.ts")
+const { applyPlanCommand } = await import("../src/features/cases/schemas/image-plan-command.schema.ts")
+const { qualityFields } = await import("../src/features/cases/lib/image-quality-draft.ts")
+const { hasImagePlanDraft } = await import("../src/features/cases/lib/image-plan-draft.ts")
 const { casesQueryKeys: keys } = await import("../src/features/cases/hooks/cases-query-keys.ts")
-const { requestCalibrationSave } = await import("../src/features/cases/lib/image-plan-saving.ts")
+const { requestCalibrationSave, requestPlanEditSave, checkImagePlanSave } = await import("../src/features/cases/lib/image-plan-saving.ts")
 const { requestImageDeletion } = await import("../src/features/cases/lib/image-deletion.ts")
 const { requestCaseDeletion } = await import("../src/features/cases/lib/case-deletion.ts")
 const { calibrationProductState } = await import("../src/features/cases/lib/calibration-product-state.ts")
@@ -86,7 +98,8 @@ function backend(dimensions = image) {
         const input = JSON.parse(init.body)
         if (input.baseRevision !== persisted.revision) return Response.json({ error: { code: "PLAN_REVISION_CONFLICT", uncertain: false, currentRevision: persisted.revision } }, { status: 409 })
         persisted = { ...persisted, revision: persisted.revision + 1, updatedAt: "2026-10-27T15:00:00Z",
-          document: { ...persisted.document, radiographic_quality: input.quality } }
+          document: input.kind === "radiographic-quality" ? { ...persisted.document, radiographic_quality: input.quality }
+            : applyPlanCommand(persisted.document, input) }
         return Response.json(persisted)
       }
       if (init.method !== "PUT") return Response.json(persisted)
@@ -94,7 +107,12 @@ function backend(dimensions = image) {
       const length = calibration.kind === "REFERENCE_LINE"
         ? Math.hypot((calibration.end.x - calibration.start.x) * dimensions.widthPx, (calibration.end.y - calibration.start.y) * dimensions.heightPx)
         : 2 * Math.hypot((calibration.edge.x - calibration.center.x) * dimensions.widthPx, (calibration.edge.y - calibration.center.y) * dimensions.heightPx)
-      persisted = { ...persisted, revision: input.baseRevision + 1, updatedAt: "2026-10-26T15:00:00Z", document: { ...persisted.document,
+      const document = applyPlanCommand(persisted.document, input)
+      if (input.initialDistance || input.distanceId) {
+        const line = document.objects.find(object => object.id === (input.initialDistance?.id ?? input.distanceId))
+        line.measurement = { status: "CALCULATED", calibration_id: "b".repeat(64), values: { length: calibration.known_length_mm ?? calibration.known_diameter_mm }, units: { length: "mm" } }
+      }
+      persisted = { ...persisted, revision: input.baseRevision + 1, updatedAt: "2026-10-26T15:00:00Z", document: { ...document,
         calibration: { ...calibration, result: { calibration_id: "b".repeat(64), reference_length_px: length, mm_per_pixel: (calibration.known_length_mm ?? calibration.known_diameter_mm) / length } } } }
       return Response.json(persisted)
     } }
@@ -156,6 +174,20 @@ async function editingWorkspace(view) {
 
 const imageCopy = messages.cases.workspace.image
 const toolsCopy = messages.cases.workspace.tools
+async function openToolsMeasurements(view) {
+  if (view.queryByRole("heading", { name: toolsCopy.measurements, exact: true })) {
+    await view.findByRole("region", { name: toolsCopy.measurements, exact: true })
+    return
+  }
+  const tools = view.getByRole("button", { name: toolsCopy.title, exact: true })
+  if (tools.getAttribute("aria-pressed") !== "true") fireEvent.click(tools)
+  if (!view.queryByRole("heading", { name: toolsCopy.measurements, exact: true })) {
+    const measurements = view.queryByRole("button", { name: toolsCopy.measurements, exact: true })
+    if (measurements) fireEvent.click(measurements)
+  }
+  await view.findByRole("heading", { name: toolsCopy.measurements, exact: true })
+  await view.findByRole("region", { name: toolsCopy.measurements, exact: true })
+}
 async function openImageOptions(view) {
   await waitFor(() => assert.ok(view.queryByRole("img")))
   // A remount can renew the signed URL; decode the resulting image, not a stale
@@ -164,6 +196,13 @@ async function openImageOptions(view) {
   fireEvent.load(view.getByRole("img"))
   fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
   await view.findByRole("slider", { name: imageCopy.brightness })
+}
+
+async function savedImageOptions(view) {
+  // Calibration saves hand off to Tools; image-adjustment tests explicitly reopen Image.
+  await waitFor(() => assert.ok(view.queryByRole("button", { name: imageCopy.recalibrate, exact: true })
+    || view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed") === "true"))
+  await openImageOptions(view)
 }
 
 test("Files lists uploads and Image opens adjustments before calibration, without starting an edit or API write", async () => {
@@ -247,7 +286,7 @@ test("calibrated Image opens its summary, hides the reference, and explicit reca
   assert.equal(server.calls.some(call => call.method === "PUT"), false)
 })
 
-test("calibration exits to Image only after acknowledgement, hides the saved line and keeps independent display adjustments", async () => {
+test("line calibration opens Tools only after acknowledgement and preserves image adjustments when returning to Image", async () => {
   const server = backend(), queryClient = client(), entered = deferred(), barrier = deferred()
   globalThis.fetch = async (url, init) => {
     if (init?.method === "PUT") { entered.resolve(); await barrier.promise }
@@ -266,12 +305,14 @@ test("calibration exits to Image only after acknowledgement, hides the saved lin
     assert.ok(view.container.querySelector("[data-calibration-viewport] svg line"))
     await waitFor(() => assert.equal(view.getByRole("button", { name: messages.cases.workspace.calibration.cancelEditing, exact: true }).disabled, true))
     await act(async () => barrier.resolve())
-    await view.findByRole("button", { name: imageCopy.recalibrate })
+    await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+    await savedImageOptions(view)
     assert.ok(view.getByRole("button", { name: toolsCopy.title, exact: true }))
     assert.ok(view.getByRole("heading", { name: imageCopy.title, exact: true }))
     assert.equal(view.queryByRole("slider", { name: "Comprimento real" }), null)
     assert.equal(view.queryByRole("button", { name: "Marcar referência" }), null)
-    assert.equal(view.container.querySelector("[data-calibration-viewport] svg line"), null)
+    assert.equal(view.container.querySelector("[data-calibration-handle]"), null)
+    assert.ok(!view.container.querySelector("[data-distance-id] text"))
     assert.equal(view.queryByRole("switch", { name: "Mostrar referência" }), null)
     assert.equal(view.getByRole("slider", { name: imageCopy.brightness }).value, "120")
     assert.ok(view.getByRole("img").style.filter.startsWith("brightness(120%)"))
@@ -337,6 +378,9 @@ for (const kind of ["line", "circle"]) test(`mirrored ${kind} gestures, handles 
   pointer("pointerMove", 1000, 600)
   pointer("pointerUp", 1000, 600)
   near(segment().getAttribute("x1"), 200); near(segment().getAttribute("x2"), 1000)
+  assert.equal(segment().parentElement.getAttribute("stroke"), "var(--radiograph-mark-measurement)")
+  for (const handle of viewport.querySelectorAll("[data-calibration-handle]")) assert.equal(handle.getAttribute("fill"), "var(--radiograph-mark-measurement)")
+  if (kind === "circle") assert.equal(viewport.querySelector("[data-calibration-circle]").getAttribute("stroke"), "var(--radiograph-mark-interest)")
   assert.ok(raster.contains(segment()))
   assert.ok(raster.style.transform.endsWith("scaleX(-1)"))
   assert.ok(view.getByRole("img").style.filter.endsWith("invert(1)"))
@@ -378,7 +422,7 @@ for (const kind of ["line", "circle"]) test(`mirrored ${kind} gestures, handles 
   fireEvent.keyDown(viewport, { key: "ArrowRight", altKey: true })
   assert.equal(server.calls.some(call => call.method === "PUT"), false)
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   const sent = server.calls.find(call => call.method === "PUT").body.calibration
   if (kind === "line") assert.deepEqual(sent, { kind: "REFERENCE_LINE", start: { x: 0.0495, y: 0.29 }, end: { x: 0.5495, y: 0.79 }, known_length_mm: 20 })
   else {
@@ -387,12 +431,14 @@ for (const kind of ["line", "circle"]) test(`mirrored ${kind} gestures, handles 
     near(sent.edge.x, 0.5495); near(sent.edge.y, 0.79)
   }
   near(server.persisted.document.calibration.result.reference_length_px, Math.hypot(1000, 500))
-  const savedGeometry = viewport.querySelector("svg").innerHTML, savedPlan = structuredClone(server.persisted)
-  assert.equal(savedGeometry, "")
+  const savedPlan = structuredClone(server.persisted)
+  assert.ok(!viewport.querySelector("[data-calibration-circle]"))
+  assert.equal(viewport.querySelectorAll("[data-distance-id]").length, 0)
+  const savedSegments = [...viewport.querySelectorAll("svg line")].map(line => ["x1", "x2", "y1", "y2"].map(key => line.getAttribute(key)))
   assert.equal(viewport.querySelector("[data-calibration-handle]"), null)
   fireEvent.click(view.getByRole("button", { name: imageCopy.mirror }))
   assert.equal(raster.dataset.imageMirrored, "false")
-  assert.equal(viewport.querySelector("svg").innerHTML, savedGeometry)
+  assert.deepEqual([...viewport.querySelectorAll("svg line")].map(line => ["x1", "x2", "y1", "y2"].map(key => line.getAttribute(key))), savedSegments)
   fireEvent.click(view.getByRole("button", { name: imageCopy.mirror }))
   await openCalibration(view)
   near(segment().getAttribute("x2"), 1099)
@@ -427,12 +473,12 @@ test("mirrored drawing clamps both source edges and a cancelled pointer gesture 
   fireEvent.pointerCancel(viewport)
   assert.equal(viewport.querySelector("svg line").outerHTML, committed)
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   const sent = server.calls.find(call => call.method === "PUT").body.calibration
   assert.deepEqual(sent.start, { x: 0, y: 0.2 }); assert.deepEqual(sent.end, { x: 1, y: 0.6 })
 })
 
-test("an unconfirmed recalibration stays in its editor across remounts and returns to Image only after a read confirms it", async () => {
+test("an unconfirmed recalibration stays in its editor across remounts and hands off its line only after a read confirms it", async () => {
   const server = backend(), queryClient = client()
   server.persisted = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.circle } }))
   const previous = structuredClone(server.persisted)
@@ -458,8 +504,9 @@ test("an unconfirmed recalibration stays in its editor across remounts and retur
   await view.findByText(messages.cases.workspace.calibration.remote.uncertain)
   showCommit = true
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.check }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
-  assert.equal(view.container.querySelector("[data-calibration-viewport] svg").children.length, 0)
+  await savedImageOptions(view)
+  assert.ok(!view.container.querySelector("[data-calibration-circle]"))
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 0)
   assert.equal(view.queryByRole("switch", { name: "Mostrar referência" }), null)
   assert.equal(queryClient.getQueryData(keys.imagePlan(image.caseId, image.id)).document.calibration.known_diameter_mm, 30)
   assert.equal(writes, 1)
@@ -506,10 +553,12 @@ test("saving calibration preserves backend quality and eligibility without askin
   const view = render(h(Workspace, { queryClient }))
   await editingWorkspace(view)
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   assert.deepEqual(server.persisted.document.radiographic_quality, internalQuality)
   assert.deepEqual(server.persisted.document.tplo, internalTplo)
-  assert.deepEqual(Object.keys(server.calls.find(call => call.method === "PUT").body), ["baseRevision", "calibration"])
+  const input = server.calls.find(call => call.method === "PUT").body
+  assert.deepEqual(Object.keys(input), ["baseRevision", "calibration", "initialDistance"])
+  assert.deepEqual(Object.keys(input.initialDistance), ["id", "label"])
   assert.equal(server.calls.some(call => call.method === "PATCH"), false)
   assert.equal(view.queryByRole("button", { name: qualityCopy.title, exact: true }), null)
 })
@@ -556,11 +605,17 @@ test("Tools stays visible before decoding and opens a focused panel after a save
   const heading = view.getByRole("heading", { name: toolsCopy.title, exact: true })
   assert.equal(document.activeElement, heading)
   assert.equal(enabledTools.getAttribute("aria-pressed"), "true")
-  assert.ok(view.getByRole("region", { name: toolsCopy.measurements }))
-  assert.ok(view.getByText(toolsCopy.description))
+  assert.ok(view.getByRole("button", { name: toolsCopy.measurements, exact: true }))
+  assert.ok(!view.queryByRole("region", { name: toolsCopy.measurements }))
+  assert.ok(!view.queryByRole("list", { name: messages.cases.workspace.distance.list }))
   assert.equal(view.queryByRole("button", { name: messages.cases.workspace.viewer.mark }), null)
   assert.equal(view.queryByRole("slider", { name: "Comprimento real" }), null)
   assert.equal(view.container.querySelector("[data-calibration-viewport] svg").children.length, 0)
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.measurements, exact: true }))
+  assert.ok(document.activeElement === view.getByRole("heading", { name: toolsCopy.measurements, exact: true }))
+  assert.ok(view.getByRole("region", { name: toolsCopy.measurements }))
+  assert.ok(view.getByRole("button", { name: messages.cases.workspace.distance.title, exact: true }))
+  assert.ok(!view.queryByRole("list", { name: messages.cases.workspace.distance.list }))
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.viewer.zoomIn }))
   assert.equal(view.getByRole("img").parentElement.dataset.imageMirrored, "true")
   assert.ok(view.getByRole("img").style.filter.startsWith("brightness(135%)"))
@@ -589,7 +644,7 @@ test("Tools and its saved scale stay available while a background plan read reso
   await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
   await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, false))
   fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
-  await view.findByRole("region", { name: toolsCopy.measurements })
+  await openToolsMeasurements(view)
 
   const stableRead = deferred()
   pendingPlan = stableRead
@@ -609,7 +664,7 @@ test("Tools and its saved scale stay available while a background plan read reso
   await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
   assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
   fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
-  await view.findByRole("region", { name: toolsCopy.measurements })
+  await openToolsMeasurements(view)
 
   const losingRead = deferred()
   server.persisted = uncalibrated
@@ -687,7 +742,7 @@ test("browser focus leaves a fresh preview and Tools alone, while near-expiry pr
     await openImageOptions(view)
     await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "idle"))
     fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
-    await view.findByRole("region", { name: toolsCopy.measurements })
+    await openToolsMeasurements(view)
     const startingCounts = { planReads, previewReads }
 
     await cycleFocus()
@@ -705,7 +760,7 @@ test("browser focus leaves a fresh preview and Tools alone, while near-expiry pr
     fireEvent.load(view.getByRole("img"))
     await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, false))
     fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
-    await view.findByRole("region", { name: toolsCopy.measurements })
+    await openToolsMeasurements(view)
   } finally { focusManager.setFocused(undefined) }
 })
 
@@ -735,12 +790,12 @@ test("Tools starts first-time calibration guidance when no scale is saved and ca
   fireEvent.pointerUp(viewport, { clientX: 600, clientY: 150 })
   assert.ok(viewport.querySelector("svg line"))
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   assert.ok(view.getByRole("heading", { name: imageCopy.title, exact: true }))
   assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "false")
   assert.equal(view.queryByRole("region", { name: toolsCopy.measurements }), null)
   fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
-  await view.findByRole("region", { name: toolsCopy.measurements })
+  await openToolsMeasurements(view)
   assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
   assert.ok(server.persisted.document.calibration.result)
   assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
@@ -891,7 +946,7 @@ test("the first calibration entry explains the workflow and confirms only an uns
   assert.equal(view.getByRole("slider", { name: "Comprimento real" }).value, "0")
   assert.equal(view.getByRole("button", { name: "Salvar calibração" }).disabled, true)
   assert.equal(queryClient.getQueryData(keys.imageCalibrationIntroduction(image.caseId, image.id)), true)
-  await waitFor(() => assert.equal(document.activeElement, viewport))
+  await waitFor(() => assert.ok(document.activeElement === viewport))
   assert.equal(server.calls.filter(call => call.method === "PUT").length, 0)
 })
 
@@ -995,7 +1050,7 @@ test("every explicit recalibration warns before editing, preserves the saved sca
   fireEvent.click(view.getByRole("button", { name: "Atualizar calibração" }))
   assert.equal(server.calls.some(call => call.method === "PUT"), false)
   fireEvent.keyDown(popup, { key: "Escape" })
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   assert.deepEqual(server.persisted, previous)
   assert.equal(queryClient.getQueryData(keys.imageCalibrationDraft(image.caseId, image.id)), null)
 
@@ -1008,11 +1063,14 @@ test("every explicit recalibration warns before editing, preserves the saved sca
   fireEvent.change(await referenceInput(view, "Diâmetro real"), { target: { value: "25" } })
   assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.states.editing), null)
   fireEvent.click(view.getByRole("button", { name: "Atualizar calibração" }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   assert.equal(server.persisted.document.calibration.known_diameter_mm, 25)
-  const { calibration: beforeCalibration, ...beforeOther } = previous.document
-  const { calibration: afterCalibration, ...afterOther } = server.persisted.document
+  const { calibration: beforeCalibration, objects: beforeObjects, ...beforeOther } = previous.document
+  const { calibration: afterCalibration, objects: afterObjects, ...afterOther } = server.persisted.document
   assert.deepEqual(afterOther, beforeOther)
+  assert.deepEqual(beforeObjects, [])
+  assert.equal(afterObjects.length, 1)
+  assert.equal(afterObjects[0].type, "LINE")
   assert.equal(view.getByRole("slider", { name: imageCopy.contrast }).value, "80")
   assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
   await openCalibration(view, { confirmRecalibration: false })
@@ -1084,7 +1142,8 @@ test("zoom, pan and viewport resizing preserve original-matrix geometry and scal
       fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.viewer.fit }))
       assert.ok(raster.style.transform.includes("translate(0px, 0px) scale(1)"))
       fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
-      await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+      await savedImageOptions(view)
+      assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
       const result = server.persisted.document.calibration.result
       const expectedPixels = kind === "line" ? matrix.widthPx * 0.2 : Math.min(matrix.widthPx, matrix.heightPx) * 0.2
       assert.ok(Math.abs(result.reference_length_px - expectedPixels) < 1e-8)
@@ -1119,7 +1178,7 @@ test("circle and diameter stay linked through hover, zoom, endpoint drag, save a
   assert.equal(Number(startHandle.getAttribute("r")), normalRadius)
   fireEvent.click(view.getByRole("button", { name: "Círculo", exact: true }))
   const circle = viewport.querySelector("[data-calibration-circle]"), diameter = viewport.querySelector("[data-calibration-diameter]")
-  assert.equal(circle.getAttribute("stroke"), "var(--case-calibration-circle)")
+  assert.equal(circle.getAttribute("stroke"), "var(--radiograph-mark-interest)")
   assert.equal(circle.getAttribute("cx"), "1000")
   assert.ok(Math.abs(Number(circle.getAttribute("r")) - 200) < 1e-9)
   assert.equal(diameter.getAttribute("x1"), "800")
@@ -1140,7 +1199,7 @@ test("circle and diameter stay linked through hover, zoom, endpoint drag, save a
   assert.equal(viewport.querySelector("[data-calibration-diameter]").getAttribute("x1"), "800")
   assert.equal(viewport.querySelector("[data-calibration-diameter]").getAttribute("x2"), "1400")
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   const sent = server.calls.find(call => call.method === "PUT").body.calibration
   assert.deepEqual(sent, { kind: "REFERENCE_CIRCLE", center: { x: 0.55, y: 0.55 }, edge: { x: 0.7, y: 0.6 }, known_diameter_mm: 25 })
   assert.ok(Math.abs(server.persisted.document.calibration.result.reference_length_px - Math.hypot(600, 100)) < 1e-9)
@@ -1166,7 +1225,7 @@ test("drawing a circle across its diameter stores half the span as radius withou
   assert.equal(viewport.querySelector("[data-calibration-diameter]").getAttribute("x1"), "400")
   fireEvent.pointerUp(viewport, { clientX: 700, clientY: 400 })
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   const sent = server.calls.find(call => call.method === "PUT").body.calibration
   assert.deepEqual(sent, { kind: "REFERENCE_CIRCLE", center: { x: 0.4, y: 0.5 }, edge: { x: 0.6, y: 0.7 }, known_diameter_mm: 20 })
   assert.ok(Math.abs(server.persisted.document.calibration.result.reference_length_px - Math.hypot(800, 400)) < 1e-9)
@@ -1194,7 +1253,7 @@ test("the first diameter handle and circle body move one linked reference, which
   assert.equal(viewport.querySelector("[data-calibration-diameter]").getAttribute("x1"), "700")
   assert.equal(viewport.querySelector("[data-calibration-diameter]").getAttribute("x2"), "1300")
   fireEvent.click(view.getByRole("button", { name: "Atualizar calibração" }))
-  await view.findByRole("button", { name: imageCopy.recalibrate })
+  await savedImageOptions(view)
   assert.equal(viewport.querySelector("[data-calibration-circle]"), null)
   assert.equal(viewport.querySelector("[data-calibration-handle]"), null)
   assert.equal(viewport.querySelector("[data-calibration-diameter]"), null)
@@ -1553,14 +1612,16 @@ test("image options wait for decoding; saving calibration hides the reference an
   fireEvent.keyDown(viewport, { key: "ArrowRight", shiftKey: true })
   assert.equal(viewport.querySelector("svg line")?.getAttribute("x1"), "810")
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await savedImageOptions(view)
+  assert.ok(view.getByLabelText(messages.cases.workspace.calibration.savedScale))
   assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
   const sent = server.calls.find(call => call.method === "PUT").body
   assert.equal(sent.calibration.known_length_mm, 25)
   assert.equal(sent.calibration.start.x, 0.405)
   assert.equal(sent.calibration.result, undefined)
   fireEvent.click(view.getByRole("button", { name: "Caso", exact: true }))
-  assert.equal(viewport.querySelector("svg line"), null, "a confirmed reference is hidden by default")
+  assert.equal(viewport.querySelector("[data-calibration-handle]"), null, "the calibration reference is hidden")
+  assert.ok(!viewport.querySelector("[data-distance-id] line"), "the saved distance stays hidden in case information")
   assert.equal(view.queryByRole("button", { name: "Marcar referência" }), null)
   view.unmount()
   queryClient.clear()
@@ -1588,7 +1649,7 @@ test("the ruler is the default control and saves centimetres as millimetres with
   assert.equal(view.queryByRole("alert"), null, "placing a marker before choosing a size is an incomplete draft, not an error")
   fireEvent.change(ruler, { target: { value: "2.5" } })
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await savedImageOptions(view)
   assert.equal(server.persisted.document.calibration.known_length_mm, 25)
   await openCalibration(view)
   fireEvent.click(view.getByRole("button", { name: "Outro valor" }))
@@ -1612,7 +1673,7 @@ test("a typed size beyond the ruler range reopens exactly and collapsing the inp
   fireEvent.click(view.getByRole("button", { name: "Posicionar referência" }))
   fireEvent.click(view.getByRole("button", { name: "Outro valor" }))
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await savedImageOptions(view)
   assert.equal(server.persisted.document.calibration.known_length_mm, 123.456)
   view.unmount(); queryClient.clear()
   const reopened = render(h(Workspace, { queryClient }))
@@ -1760,15 +1821,18 @@ test("pointer gestures map the displayed rectangle to the original image and can
   fireEvent.pointerMove(viewport, { clientX: 600, clientY: 350 })
   fireEvent.pointerUp(viewport, { clientX: 600, clientY: 350 })
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await savedImageOptions(view)
   const sent = server.calls.find(call => call.method === "PUT").body.calibration
   assert.deepEqual(sent.start, { x: 0.1, y: 0.2 })
   assert.deepEqual(sent.end, { x: 0.5, y: 0.6 })
   fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.images.title, exact: true }))
-  assert.equal(viewport.querySelector("svg line"), null)
+  assert.ok(!viewport.querySelector("[data-distance-id] line"))
+  assert.equal(viewport.querySelector("[data-distance-draft]"), null)
+  const savedGeometry = structuredClone(server.persisted.document.objects)
   fireEvent.pointerDown(viewport, { button: 0, clientX: 200, clientY: 150 })
   fireEvent.pointerUp(viewport, { clientX: 800, clientY: 400 })
-  assert.equal(viewport.querySelector("svg line"), null)
+  assert.ok(!viewport.querySelector("[data-distance-id] line"))
+  assert.deepEqual(server.persisted.document.objects, savedGeometry)
   assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
 })
 
@@ -1783,7 +1847,7 @@ test("a circle saves its center and edge using the actual diameter and reopens a
   fireEvent.change(await referenceInput(view, "Diâmetro real"), { target: { value: "20" } })
   fireEvent.click(view.getByRole("button", { name: "Posicionar referência" }))
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await savedImageOptions(view)
   assert.ok(Math.abs(server.persisted.document.calibration.result.reference_length_px - 200) < 1e-9)
   assert.ok(Math.abs(server.persisted.document.calibration.result.mm_per_pixel - 0.1) < 1e-12)
   assert.equal(server.persisted.document.calibration.known_diameter_mm, 20)
@@ -1901,7 +1965,7 @@ test("a second touch cannot replace or finish the pointer that is drawing a refe
   assert.equal(view.getByRole("button", { name: "Salvar calibração" }).disabled, true)
   pointer("pointerup", 1, true, 600, 350)
   fireEvent.click(view.getByRole("button", { name: "Salvar calibração" }))
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await savedImageOptions(view)
   const calibration = server.calls.find(call => call.method === "PUT").body.calibration
   assert.deepEqual(calibration.start, { x: 0.1, y: 0.2 })
   assert.deepEqual(calibration.end, { x: 0.5, y: 0.6 })
@@ -1932,7 +1996,9 @@ test("a partially visible saved circle can be moved, resized by keyboard and sav
   assert.ok(Math.abs(sent.edge.x - 0.0715) < 1e-12)
   assert.equal(sent.edge.y, 0.498)
   assert.equal(sent.known_diameter_mm, 20)
-  await waitFor(() => assert.ok(view.queryByLabelText(messages.cases.workspace.calibration.savedScale)))
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+  assert.equal(server.persisted.document.objects.length, 0)
+  assert.ok(!view.container.querySelector("[data-calibration-circle]"))
 })
 
 test("losing pointer capture cancels an unfinished reference instead of committing it on a late release", async () => {
@@ -1952,4 +2018,2074 @@ test("losing pointer capture cancels an unfinished reference instead of committi
   fireEvent.pointerUp(viewport, { clientX: 600, clientY: 350 })
   assert.equal(viewport.querySelector("svg line"), null)
   assert.equal(view.getByRole("button", { name: "Salvar calibração" }).disabled, true)
+})
+
+const distanceId = "00000000-0000-4000-8000-000000000abc"
+const distanceGeometry = { start: { x: 0.1, y: 0.2 }, end: { x: 0.7, y: 0.8 } }
+function distancePlan() {
+  return f.publicPlan(f.persist({ base_revision: 2, document: { ...f.initial.document, calibration: f.circle,
+    objects: [{ id: distanceId, type: "LINE", start: { x: 0.2, y: 0.3 }, end: { x: 0.8, y: 0.3 }, label: "Existing distance" }] } }))
+}
+
+test("distance selection is clean, a creation keeps its UUID through edits and cancel is entirely local", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = distancePlan(); globalThis.fetch = server.fetch
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canEdit, true))
+  act(() => assert.equal(hook.result.current.select(distanceId), true))
+  assert.equal(hook.result.current.selectedId, distanceId)
+  assert.equal(hook.result.current.editor, null)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  act(() => assert.equal(hook.result.current.beginCreate("Distância 1"), true))
+  const id = hook.result.current.editor.id
+  assert.match(id, /^[0-9a-f-]{36}$/)
+  assert.equal(hook.result.current.editor.geometry, null)
+  assert.equal(hook.result.current.canSave, false)
+  act(() => assert.equal(hook.result.current.changeGeometry(distanceGeometry), true))
+  assert.equal(hook.result.current.editor.id, id)
+  assert.equal(hook.result.current.command().id, id)
+  assert.equal(hook.result.current.canSave, true)
+  act(() => {
+    assert.equal(hook.result.current.beginCreate("Distância 2"), false)
+    assert.equal(hook.result.current.select(distanceId), false)
+    assert.equal(hook.result.current.beginDelete(distanceId), false)
+    assert.equal(hook.result.current.changeGeometry({ ...distanceGeometry, end: { x: 0.9, y: 0.8 } }), true)
+  })
+  assert.equal(hook.result.current.editor.id, id)
+  act(() => assert.equal(hook.result.current.discard(), true))
+  assert.equal(hook.result.current.editor, null)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  assert.equal(server.calls.filter(call => call.method !== "GET").length, 0)
+})
+
+test("distance drafts survive remount, remain isolated from another organization and cannot be recreated by stale callbacks after clear", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = distancePlan(); globalThis.fetch = server.fetch
+  const first = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(first.result.current.canEdit, true))
+  act(() => { first.result.current.beginCreate("Distância 1"); first.result.current.changeGeometry({ start: distanceGeometry.start, end: distanceGeometry.start }) })
+  const draft = queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id))
+  assert.equal(first.result.current.command(), null)
+  const detached = first.result.current
+  first.unmount()
+  assert.equal(detached.changeGeometry(distanceGeometry), false)
+  assert.equal(detached.discard(), false)
+  assert.deepEqual(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), draft)
+  const reopened = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(reopened.result.current.canEdit, true))
+  assert.deepEqual(reopened.result.current.editor, draft)
+  assert.equal(reopened.result.current.hasChanges, true)
+  assert.equal(reopened.result.current.canSave, false)
+  const separate = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(client()) })
+  await waitFor(() => assert.equal(separate.result.current.canEdit, true))
+  assert.equal(separate.result.current.editor, null)
+  const stale = reopened.result.current
+  reopened.unmount(); queryClient.clear()
+  assert.equal(stale.beginCreate("Stale edit"), false)
+  assert.equal(stale.changeGeometry(distanceGeometry), false)
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), undefined)
+})
+
+test("distance save acknowledges and clears only its draft while selection remains separate from unsaved state", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = distancePlan(); globalThis.fetch = server.fetch
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canEdit, true))
+  act(() => { hook.result.current.beginCreate("Distância 1"); hook.result.current.changeGeometry(distanceGeometry) })
+  const input = hook.result.current.command()
+  await act(async () => { assert.equal((await hook.result.current.save.mutateAsync({ input })).phase, "saved") })
+  await waitFor(() => assert.equal(hook.result.current.editor, null))
+  assert.equal(hook.result.current.selectedId, input.id)
+  assert.equal(hook.result.current.hasChanges, false)
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 0)
+})
+
+test("distance and calibration react to each other's drafts; a newer plan never rebases distance geometry silently", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = distancePlan(); globalThis.fetch = server.fetch
+  const hook = renderHook(() => ({ calibration: useImageCalibration(image, true, false), distance: useImageDistance(image, true, false) }), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.distance.canEdit, true))
+  act(() => { hook.result.current.distance.beginUpdate(distanceId); hook.result.current.distance.changeGeometry(distanceGeometry) })
+  await waitFor(() => assert.equal(hook.result.current.calibration.canEdit, false))
+  assert.equal(hook.result.current.calibration.measurementEligible, true)
+  act(() => hook.result.current.calibration.changeReference("100"))
+  assert.equal(queryClient.getQueryData(keys.imageCalibrationDraft(image.caseId, image.id)), null)
+  const before = structuredClone(hook.result.current.distance.editor)
+  act(() => { queryClient.setQueryData(keys.imagePlan(image.caseId, image.id), { ...server.persisted, revision: server.persisted.revision + 1 }) })
+  await waitFor(() => assert.equal(hook.result.current.distance.needsRebase, true))
+  assert.deepEqual(hook.result.current.distance.editor, before)
+  assert.equal(hook.result.current.distance.command(), null)
+  act(() => hook.result.current.distance.discard())
+  await waitFor(() => assert.equal(hook.result.current.calibration.canEdit, true))
+  act(() => hook.result.current.calibration.changeReference("25"))
+  await waitFor(() => assert.equal(hook.result.current.distance.canEdit, false))
+  act(() => assert.equal(hook.result.current.distance.beginCreate("Blocked"), false))
+  assert.equal(server.calls.filter(call => call.method !== "GET").length, 0)
+})
+
+test("distance draft blocks leaving/recalibrating; cancel preserves it and confirmed discard clears it before navigation", async () => {
+  const server = backend(), queryClient = client(); let navigated = 0
+  server.persisted = distancePlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient, navigate: () => {
+    navigated++; assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+  } }))
+  await openImageOptions(view)
+  const command = { kind: "distance-create", baseRevision: server.persisted.revision, id: "00000000-0000-4000-8000-000000000def", ...distanceGeometry, label: "Distância 1" }
+  act(() => queryClient.setQueryData(keys.imageDistanceDraft(image.caseId, image.id), distanceEditorFromCommand(command)))
+  fireEvent.click(view.getByRole("button", { name: imageCopy.recalibrate, exact: true }))
+  assert.equal(view.queryByRole("slider", { name: "Diâmetro real" }), null)
+  const leaving = new window.Event("beforeunload", { cancelable: true }); window.dispatchEvent(leaving)
+  assert.equal(leaving.defaultPrevented, true)
+  fireEvent.click(view.getByRole("button", { name: "Navigate" }))
+  const dialog = await view.findByRole("alertdialog")
+  assert.ok(dialog.textContent.includes(messages.cases.workspace.distance.title))
+  fireEvent.click(view.getAllByRole("button", { name: messages.common.unsavedChanges.continueEditing, exact: true }).at(-1))
+  await waitFor(() => assert.equal(view.queryByRole("alertdialog"), null))
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), true)
+  fireEvent.click(view.getByRole("button", { name: "Navigate" }))
+  await view.findByRole("alertdialog")
+  fireEvent.click(view.getByRole("button", { name: messages.common.unsavedChanges.discard, exact: true }))
+  await waitFor(() => assert.equal(navigated, 1))
+  const clean = new window.Event("beforeunload", { cancelable: true }); window.dispatchEvent(clean)
+  assert.equal(clean.defaultPrevented, false)
+  assert.equal(server.calls.filter(call => call.method !== "GET").length, 0)
+})
+
+test("Tools keeps its panel and owns blocked navigation during a distance save, uncertainty and successful read-only recovery", async () => {
+  const server = backend(), queryClient = client(), entered = deferred(), barrier = deferred(); let navigated = 0
+  server.persisted = distancePlan()
+  globalThis.fetch = async (url, init = {}) => {
+    if (init.method === "PATCH") { server.calls.push({ method: "PATCH" }); entered.resolve(); await barrier.promise; throw new TypeError("lost response") }
+    return server.fetch(url, init)
+  }
+  const notices = []; toast.info = (...args) => notices.push(args)
+  const view = render(h(Workspace, { queryClient, navigate: () => navigated++ }))
+  await openImageOptions(view)
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  const command = { kind: "distance-update", baseRevision: server.persisted.revision, id: distanceId, ...distanceGeometry }
+  act(() => queryClient.setQueryData(keys.imageDistanceDraft(image.caseId, image.id), distanceEditorFromCommand(command)))
+  let pending
+  act(() => { pending = requestPlanEditSave(queryClient, { caseId: image.caseId, imageId: image.id }, command) })
+  await entered.promise
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+  assert.equal(view.getByRole("button", { name: toolsCopy.back, exact: true }).disabled, true)
+  fireEvent.click(view.getByRole("button", { name: "Navigate" }))
+  assert.equal(navigated, 0); assert.equal(view.queryByRole("alertdialog"), null)
+  assert.equal(notices.at(-1)[0], messages.cases.workspace.distance.navigationBlockedTitle)
+  await act(async () => { barrier.resolve(); assert.equal((await pending).phase, "uncertain") })
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(view.getByRole("button", { name: toolsCopy.back, exact: true }).disabled, true)
+  fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
+  fireEvent.click(view.getByRole("button", { name: "Navigate" }))
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  server.persisted = { ...server.persisted, revision: server.persisted.revision + 1, document: applyPlanCommand(server.persisted.document, command) }
+  await act(async () => { assert.equal((await checkImagePlanSave(queryClient, { caseId: image.caseId, imageId: image.id }, command)).phase, "saved") })
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  fireEvent.click(view.getByRole("button", { name: "Navigate" }))
+  assert.equal(navigated, 1)
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+})
+
+
+function editorViewer(props) {
+  return h(NextIntlClientProvider, { locale: "pt-BR", timeZone: "UTC", messages }, h(CaseImageViewer, {
+    brightness: 100, contrast: 100, inverted: false, name: "Original image", coordinateSpace: "image-edges",
+    rendering: { url: "https://storage.example/preview.png", widthPx: 1000, heightPx: 500 }, ...props,
+  }))
+}
+function viewerPointer(viewport, type, x, y, { pointerId = 7, pointerType = "mouse", isPrimary = true } = {}) {
+  const event = new dom.window.MouseEvent(type, { bubbles: true, button: 0, clientX: x, clientY: y })
+  Object.defineProperties(event, { pointerId: { value: pointerId }, pointerType: { value: pointerType }, isPrimary: { value: isPrimary } })
+  fireEvent(viewport, event)
+}
+function viewerRect(view) {
+  const viewport = view.container.querySelector("[data-calibration-viewport]")
+  const image = view.container.querySelector("[data-image-mirrored]")
+  image.getBoundingClientRect = () => ({ left: 100, top: 100, right: 600, bottom: 350, width: 500, height: 250 })
+  return { viewport, image }
+}
+
+test("viewer editor seam routes local distance geometry through original pixels and mirrors keyboard movement", () => {
+  const geometry = { start: { x: 0.2, y: 0.2 }, end: { x: 0.6, y: 0.6 } }
+  const changes = [], tools = []
+  const editor = { kind: "distance", id: "line-a", editable: true, tool: "mark", geometry,
+    onGeometryChange: value => changes.push(value), onToolChange: value => tools.push(value) }
+  const overlay = h("line", { "data-saved-overlay": true, x1: 0, y1: 0, x2: 1000, y2: 500 })
+  const view = render(editorViewer({ editor, renderOverlay: () => overlay }))
+  const { viewport, image } = viewerRect(view)
+  assert.equal(image.querySelector("svg").getAttribute("viewBox"), "0 0 1000 500")
+  assert.ok(view.container.querySelector("[data-saved-overlay]"))
+  viewerPointer(viewport, "pointerdown", 150, 125)
+  viewerPointer(viewport, "pointermove", 350, 225)
+  assert.equal(changes.length, 0)
+  viewerPointer(viewport, "pointerup", 350, 225)
+  assert.deepEqual(changes, [{ start: { x: 0.1, y: 0.1 }, end: { x: 0.5, y: 0.5 } }])
+  view.rerender(editorViewer({ editor, renderOverlay: () => overlay, mirrored: true }))
+  fireEvent.keyDown(viewport, { key: "ArrowRight", shiftKey: true })
+  assert.deepEqual(changes[1], { start: { x: 0.19, y: 0.2 }, end: { x: 0.59, y: 0.6 } })
+  assert.ok(image.style.transform.includes("scaleX(-1)"))
+  assert.equal(tools.length, 0)
+})
+
+test("viewer editor seam cancels capture on target or mode changes and Escape without committing another editor", () => {
+  const changes = [], tools = [], captures = new Set()
+  const distance = { kind: "distance", id: "line-a", editable: true, tool: "mark", geometry: null,
+    onGeometryChange: value => changes.push(value), onToolChange: value => tools.push(value) }
+  const view = render(editorViewer({ editor: distance }))
+  const { viewport } = viewerRect(view)
+  viewport.setPointerCapture = id => captures.add(id)
+  viewport.hasPointerCapture = id => captures.has(id)
+  viewport.releasePointerCapture = id => captures.delete(id)
+  const begin = () => { viewerPointer(viewport, "pointerdown", 150, 125); viewerPointer(viewport, "pointermove", 350, 225); assert.equal(captures.has(7), true) }
+  begin()
+  view.rerender(editorViewer({ editor: { ...distance, id: "line-b" } }))
+  assert.equal(captures.size, 0)
+  viewerPointer(viewport, "pointerup", 350, 225)
+  assert.equal(changes.length, 0)
+  begin()
+  fireEvent.keyDown(viewport, { key: "Escape" })
+  assert.equal(captures.size, 0)
+  viewerPointer(viewport, "pointerup", 350, 225)
+  assert.deepEqual(tools, [])
+  assert.equal(changes.length, 0)
+  begin()
+  view.rerender(editorViewer({ editor: { kind: "calibration", editable: true, tool: "mark", marker: null, markerKind: "circle",
+    onMarkerChange: value => changes.push(value), onToolChange() {} } }))
+  assert.equal(captures.size, 0)
+  viewerPointer(viewport, "pointerup", 350, 225)
+  assert.equal(changes.length, 0)
+  begin()
+  view.unmount()
+  assert.equal(captures.size, 0)
+})
+
+test("viewer editor seam keeps passive overlays, pan, zoom, fit and fullscreen without an active editor", async () => {
+  const viewer = messages.cases.workspace.viewer
+  let overlayView
+  const view = render(editorViewer({ editor: { kind: "none" }, renderOverlay: value => {
+    overlayView = value
+    return h("line", { "data-saved-overlay": true, x1: 0, y1: 0, x2: 1000, y2: 500 })
+  } }))
+  const { viewport, image } = viewerRect(view)
+  assert.equal(view.queryByRole("button", { name: viewer.mark }), null)
+  fireEvent.click(view.getByRole("button", { name: viewer.zoomIn }))
+  viewerPointer(viewport, "pointerdown", 300, 200)
+  viewerPointer(viewport, "pointermove", 340, 220)
+  viewerPointer(viewport, "pointerup", 340, 220)
+  assert.ok(image.style.transform.includes("translate(40px, 20px) scale(1.25)"))
+  assert.ok(view.container.querySelector("[data-saved-overlay]"))
+  assert.deepEqual(overlayView, { widthPx: 1000, heightPx: 500, scale: 0.952 * 1.25, mirrored: false, activeGesture: false })
+  fireEvent.click(view.getByRole("button", { name: viewer.fit }))
+  assert.ok(image.style.transform.includes("translate(0px, 0px) scale(1)"))
+  const section = viewport.closest("section")
+  const descriptor = Object.getOwnPropertyDescriptor(document, "fullscreenElement")
+  const originalExit = document.exitFullscreen
+  let fullscreen = null
+  Object.defineProperty(document, "fullscreenElement", { configurable: true, get: () => fullscreen })
+  section.requestFullscreen = async () => { fullscreen = section; document.dispatchEvent(new dom.window.Event("fullscreenchange")) }
+  document.exitFullscreen = async () => { fullscreen = null; document.dispatchEvent(new dom.window.Event("fullscreenchange")) }
+  try {
+    fireEvent.click(view.getByRole("button", { name: viewer.fullscreen }))
+    assert.equal(document.fullscreenElement, section)
+    fireEvent.click(view.getByRole("button", { name: viewer.exitFullscreen }))
+    assert.equal(document.fullscreenElement, null)
+  } finally {
+    if (descriptor) Object.defineProperty(document, "fullscreenElement", descriptor)
+    else delete document.fullscreenElement
+    document.exitFullscreen = originalExit
+  }
+})
+
+
+// Synthetic distance results following the API shape. No local clinical calculation.
+function savedDistancesPlan() {
+  const saved = f.publicPlan(f.persist({ base_revision: 0, document: { ...f.initial.document, calibration: f.line } }))
+  const line = { id: "00000000-0000-4000-8000-000000000920", type: "LINE", start: { x: 0.1234, y: 0.2345 }, end: { x: 0.6789, y: 0.7891 }, label: "Saved distance",
+    measurement: { status: "CALCULATED", calibration_id: saved.document.calibration.result.calibration_id, values: { length: 123.456789 }, units: { length: "mm" } } }
+  const missing = { ...structuredClone(line), id: "00000000-0000-4000-8000-000000000921", label: null, measurement: null }
+  const other = { id: "00000000-0000-4000-8000-000000000922", type: "ANGLE", start: { x: 0.1, y: 0.1 }, vertex: { x: 0.5, y: 0.5 }, end: { x: 0.9, y: 0.9 }, label: "Not a distance" }
+  saved.document.objects = [line, other, missing]
+  return saved
+}
+async function openDistanceTool(view) {
+  await openToolsMeasurements(view)
+  const distance = view.getByRole("button", { name: messages.cases.workspace.distance.title, exact: true })
+  if (distance.getAttribute("aria-pressed") !== "true") fireEvent.click(distance)
+  return view.findByRole("list", { name: messages.cases.workspace.distance.list })
+}
+async function openSavedDistances(view) {
+  await openImageOptions(view)
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).disabled, false))
+  return openDistanceTool(view)
+}
+
+test("distance marks require Tools and an active Distance; hiding preserves saved data and a dirty edit", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const before = structuredClone(server.persisted)
+  const view = render(h(Workspace, { queryClient }))
+  await openImageOptions(view)
+  const hidden = () => {
+    assert.ok(!view.container.querySelector("[data-distance-overlay]"))
+    assert.ok(!view.container.querySelector("[data-distance-draft]"))
+    assert.ok(!view.container.querySelector("[data-distance-controls]"))
+  }
+  hidden()
+  for (const name of [messages.cases.workspace.sidebar.title, messages.cases.workspace.images.title, toolsCopy.title]) {
+    fireEvent.click(view.getByRole("button", { name, exact: true })); hidden()
+  }
+  const list = await openDistanceTool(view)
+  const tool = view.getByRole("button", { name: messages.cases.workspace.distance.title, exact: true })
+  assert.equal(tool.getAttribute("aria-pressed"), "true")
+  assert.ok(view.container.querySelector("[data-distance-controls]").contains(list))
+  const row = list.querySelector("button")
+  assert.equal(row.querySelector('[id$="-value"]').textContent, "123,46 mm")
+  assert.ok(row.querySelector('[id$="-name"]').classList.contains("sr-only"))
+  fireEvent.click(row)
+  assert.ok(view.container.querySelector("[data-distance-overlay]"))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.distance.edit, exact: true }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id)
+  const id = queryClient.getQueryData(key).id
+  fireEvent.keyDown(view.getByRole("button", { name: messages.cases.workspace.distance.targets.end, exact: true }), { key: "ArrowRight" })
+  const draft = structuredClone(queryClient.getQueryData(key))
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), true)
+  for (const name of [messages.cases.workspace.sidebar.title, messages.cases.workspace.images.title, imageCopy.title]) {
+    fireEvent.click(view.getByRole("button", { name, exact: true }))
+    hidden()
+    fireEvent.keyDown(view.container.querySelector("[data-calibration-viewport]"), { key: "ArrowRight" })
+    assert.deepEqual(queryClient.getQueryData(key), draft)
+  }
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  assert.ok(view.container.querySelector("[data-distance-draft]"))
+  assert.ok(view.container.querySelector("[data-distance-controls]"))
+  assert.deepEqual(queryClient.getQueryData(key), draft)
+  assert.equal(draft.id, id)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.distance.cancelEditing }))
+  hidden()
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.deepEqual(server.persisted, before)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("the Measurements back button hides viewer marks, preserves a dirty distance draft, and resumes it on return", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const before = structuredClone(server.persisted), view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  const key = keys.imageDistanceDraft(image.caseId, image.id)
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }), { key: "ArrowRight", shiftKey: true })
+  const draft = structuredClone(queryClient.getQueryData(key))
+  assert.ok(view.container.querySelector("[data-distance-controls]"))
+  assert.ok(view.container.querySelector("[data-distance-preview]"))
+
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.back, exact: true }))
+  await view.findByRole("heading", { name: toolsCopy.title, exact: true })
+  assert.ok(!view.container.querySelector("[data-distance-controls]"))
+  assert.ok(!view.container.querySelector("[data-distance-overlay]"))
+  assert.ok(!view.container.querySelector("[data-distance-draft]"))
+  assert.deepEqual(queryClient.getQueryData(key), draft)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), true)
+
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.measurements, exact: true }))
+  await view.findByRole("region", { name: toolsCopy.measurements, exact: true })
+  assert.ok(view.container.querySelector("[data-distance-controls]"))
+  assert.ok(view.container.querySelector("[data-distance-preview]"))
+  assert.deepEqual(queryClient.getQueryData(key), draft)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.cancelEditing, exact: true }))
+  await waitFor(() => assert.ok(!view.container.querySelector("[data-distance-controls]")))
+  assert.ok(!view.container.querySelector("[data-distance-overlay]"))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  assert.deepEqual(server.persisted, before)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("saved distances restore from the plan API, preserve unavailable lines and select accessibly without drafts or writes", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  const before = structuredClone(server.persisted)
+  globalThis.fetch = server.fetch
+  let view = render(h(Workspace, { queryClient }))
+  let list = await openSavedDistances(view)
+  assert.equal(list.children.length, 2)
+  assert.equal(list.querySelector('[id$="-value"]').textContent, "123,46 mm")
+  assert.ok(list.textContent.includes(messages.cases.workspace.distance.defaultName.replace("{index}", "2")))
+  assert.ok(list.textContent.includes(messages.cases.workspace.distance.unavailable))
+  assert.equal(view.queryByText("Not a distance"), null)
+  const buttons = list.querySelectorAll("[data-distance-row]")
+  assert.equal(buttons[0].getAttribute("aria-pressed"), "false")
+  assert.ok(view.container.querySelector("[data-distance-overlay]"))
+  assert.equal(view.container.querySelectorAll("[data-distance-selected=true]").length, 0)
+  buttons[0].focus()
+  assert.ok(document.activeElement === buttons[0])
+  fireEvent.click(buttons[0])
+  assert.equal(buttons[0].getAttribute("aria-pressed"), "true")
+  const overlay = view.container.querySelector("[data-distance-overlay]")
+  assert.equal(overlay.children.length, 2)
+  assert.equal(overlay.children[1].getAttribute("data-distance-selected"), "true")
+  assert.equal(overlay.children[1].querySelectorAll("rect").length, 2)
+  assert.equal(overlay.children[0].querySelectorAll("circle").length, 2)
+  assert.ok(!hasImagePlanDraft(queryClient, image.caseId, image.id))
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  assert.deepEqual(server.persisted, before)
+  view.unmount(); queryClient.clear()
+  const freshClient = client()
+  view = render(h(Workspace, { queryClient: freshClient }))
+  list = await openSavedDistances(view)
+  assert.match(list.textContent, /123,46 mm/)
+  assert.equal(server.calls.filter(call => call.url.endsWith("/plan")).length, 2)
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 2)
+  assert.equal(view.container.querySelectorAll("[data-distance-selected=true]").length, 0)
+  assert.deepEqual(server.persisted, before)
+})
+
+test("saved distances keep original-matrix geometry, fixed visual size and readable mirrored text through zoom, pan and resize", async () => {
+  const selected = { ...image, widthPx: 2011, heightPx: 1003, previewWidthPx: 1600, previewHeightPx: 798 }
+  const server = backend(selected), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient, selected }))
+  const list = await openSavedDistances(view)
+  fireEvent.click(list.querySelector("button"))
+  let group = view.container.querySelector("[data-distance-selected=true]")
+  let segment = group.querySelector("line")
+  const labelAngle = () => Number(group.querySelector("text").parentElement.getAttribute("transform").match(/rotate\(([^)]+)\)/)[1])
+  const originalAngle = labelAngle()
+  const line = server.persisted.document.objects[0]
+  const endpoints = ["x1", "y1", "x2", "y2"].map(name => Number(segment.getAttribute(name)))
+  assert.deepEqual(endpoints, [line.start.x * selected.widthPx, line.start.y * selected.heightPx, line.end.x * selected.widthPx, line.end.y * selected.heightPx])
+  let scale = Math.min((1000 - 48) / selected.widthPx, (700 - 48) / selected.heightPx)
+  const assertScreenSize = () => {
+    assert.ok(Math.abs(Number(group.querySelector("text").getAttribute("font-size")) * scale - 11) < 1e-10)
+    assert.ok(Math.abs(Number(group.querySelector("rect").getAttribute("width")) * scale - 8) < 1e-10)
+    const strokes = [...group.querySelectorAll("line")].map(line => Number(line.getAttribute("stroke-width")) * scale)
+    assert.equal(strokes.length, 1)
+    assert.ok(Math.abs(strokes[0] - 2) < 1e-10)
+    assert.deepEqual(["x1", "y1", "x2", "y2"].map(name => Number(segment.getAttribute(name))), endpoints)
+  }
+  assertScreenSize()
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.viewer.zoomIn }))
+  scale *= 1.25; assertScreenSize()
+  const viewport = view.container.querySelector("[data-calibration-viewport]")
+  viewerPointer(viewport, "pointerdown", 300, 200); viewerPointer(viewport, "pointermove", 350, 230); viewerPointer(viewport, "pointerup", 350, 230)
+  assertScreenSize()
+  assert.ok(view.getByRole("img").parentElement.style.transform.includes("translate(50px, 30px)"))
+  fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
+  fireEvent.click(view.getByRole("button", { name: imageCopy.mirror }))
+  assert.ok(!view.container.querySelector("[data-distance-overlay]"))
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  group = view.container.querySelector("[data-distance-selected=true]")
+  segment = group.querySelector("line")
+  assert.ok(group.querySelector("text").parentElement.getAttribute("transform").includes("scale(-1 1)"))
+  assert.ok(Math.abs(labelAngle() + originalAngle) < 1e-10)
+  assert.ok(view.getByRole("img").parentElement.style.transform.includes("scaleX(-1)"))
+  assertScreenSize()
+  act(() => { for (const observer of resizeObservers) observer.resize(800, 600) })
+  scale = Math.min((800 - 48) / selected.widthPx, (600 - 48) / selected.heightPx) * 1.25
+  assertScreenSize()
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance labels follow the line with readable mirrored angles, cyan marks and no outlines", () => {
+  const cases = [
+    { start: { x: 0.25, y: 0.5 }, end: { x: 0.75, y: 0.5 }, angle: 0 },
+    { start: { x: 0.5, y: 0.25 }, end: { x: 0.5, y: 0.75 }, angle: -90 },
+    { start: { x: 0.25, y: 0.25 }, end: { x: 0.375, y: 0.5 }, angle: 45 },
+    { start: { x: 0.25, y: 0.5 }, end: { x: 0.375, y: 0.25 }, angle: -45 },
+    { start: { x: 0.25, y: 0.25 }, end: { x: 0.5, y: 0.5 }, angle: 26.56505117707799 },
+    { start: { x: 0, y: 0.25 }, end: { x: 0, y: 0.75 }, angle: -90, offset: [18, -10] },
+    { start: { x: 1, y: 0.25 }, end: { x: 1, y: 0.75 }, angle: -90, offset: [-10, 18] },
+    { start: { x: 0.25, y: 0 }, end: { x: 0.75, y: 0 }, angle: 0, offset: [18, 18] },
+    { start: { x: 0.25, y: 1 }, end: { x: 0.75, y: 1 }, angle: 0, offset: [-10, -10] },
+  ]
+  const view = render(h("div"))
+  for (const item of cases) for (const mirrored of [false, true]) for (const reversed of [false, true]) {
+    const plan = savedDistancesPlan(), line = plan.document.objects[0]
+    line.start = reversed ? item.end : item.start; line.end = reversed ? item.start : item.end
+    const dimensions = { widthPx: 2000, heightPx: 1000, scale: 0.5, mirrored }
+    view.rerender(h(NextIntlClientProvider, { locale: "pt-BR", timeZone: "UTC", messages }, h("svg", null,
+      h(DistanceOverlay, { distances: selectSavedDistances(plan).slice(0, 1), selectedId: line.id, view: dimensions }))))
+    const group = view.container.querySelector("[data-distance-id]"), segment = group.querySelector("line"), label = group.querySelector("text")
+    const transform = label.parentElement.getAttribute("transform"), angle = Number(transform.match(/rotate\(([^)]+)\)/)[1])
+    const expected = mirrored && item.angle !== -90 ? -item.angle : item.angle
+    assert.ok(Math.abs(angle - expected) < 1e-10, `${angle} != ${expected}`)
+    assert.ok(transform.includes(`scale(${mirrored ? -1 : 1} 1)`))
+    assert.equal(group.querySelectorAll("line").length, 1)
+    assert.equal(segment.getAttribute("stroke"), "var(--radiograph-mark-measurement)")
+    assert.equal(label.getAttribute("fill"), segment.getAttribute("stroke"))
+    assert.equal(label.getAttribute("stroke"), "none")
+    assert.equal(label.hasAttribute("paint-order"), false)
+    assert.equal(label.textContent, "123,46 mm")
+    assert.deepEqual(["x1", "y1", "x2", "y2"].map(key => Number(segment.getAttribute(key))),
+      [line.start.x * 2000, line.start.y * 1000, line.end.x * 2000, line.end.y * 1000])
+    for (const handle of group.querySelectorAll("rect,circle")) {
+      assert.equal(handle.getAttribute("fill"), "var(--radiograph-mark-measurement)")
+      assert.equal(handle.hasAttribute("stroke"), false)
+    }
+    if (item.offset) assert.equal(Number(label.getAttribute("y")) * dimensions.scale, item.offset[Number(mirrored)])
+  }
+})
+
+test("saved distances hide during recalibration, return on cancel, and only show new official results after the plan refreshes", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  fireEvent.click((await openSavedDistances(view)).querySelector("button"))
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 2)
+  await openCalibration(view)
+  assert.equal(view.container.querySelector("[data-distance-overlay]"), null)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.reset, exact: true }))
+  await view.findByRole("slider", { name: imageCopy.brightness })
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 0)
+  const updated = structuredClone(server.persisted)
+  updated.revision++
+  updated.document.calibration.result.calibration_id = "d".repeat(64)
+  server.persisted = updated
+  await act(async () => { await queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  let list = await openSavedDistances(view)
+  assert.ok(list.textContent.includes(messages.cases.workspace.distance.unavailableReasons.outdated))
+  assert.equal(list.textContent.includes("123,46 mm"), false)
+  assert.equal(view.container.querySelector("[data-distance-id] text").textContent, messages.cases.workspace.distance.unavailable)
+  updated.revision++
+  updated.document.objects[0].measurement = { status: "CALCULATED", calibration_id: "d".repeat(64), values: { length: 42.987654 }, units: { length: "mm" } }
+  server.persisted = structuredClone(updated)
+  await act(async () => { await queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  list = view.getByRole("list", { name: messages.cases.workspace.distance.list })
+  await waitFor(() => assert.match(view.getByRole("list", { name: messages.cases.workspace.distance.list }).textContent, /42,99 mm/))
+  assert.equal(list.textContent.includes("123,46 mm"), false)
+  assert.equal(view.container.querySelector(`[data-distance-id="${updated.document.objects[0].id}"] text`).textContent, "42,99 mm")
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+
+test("saved distances remain selectable during a background read, withhold cached values after failure and recover from GET", async () => {
+  const server = backend(), queryClient = client(), pending = deferred()
+  server.persisted = savedDistancesPlan()
+  let nextRead = null
+  globalThis.fetch = (url, init) => {
+    if (url.endsWith("/plan") && nextRead) { const value = nextRead; nextRead = null; return value.promise }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  let list = await openSavedDistances(view)
+  nextRead = pending
+  let refresh
+  act(() => { refresh = queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  await waitFor(() => assert.equal(queryClient.getQueryState(keys.imagePlan(image.caseId, image.id)).fetchStatus, "fetching"))
+  const button = list.querySelector("button")
+  assert.equal(button.disabled, false)
+  fireEvent.click(button)
+  assert.equal(button.getAttribute("aria-pressed"), "true")
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  await act(async () => { pending.resolve(Response.json({ error: { code: "SERVICE_UNAVAILABLE", uncertain: false } }, { status: 502 })); await refresh })
+  await waitFor(() => assert.equal(view.container.querySelector("[data-distance-id] text").textContent, messages.cases.workspace.distance.unavailable))
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 2)
+  assert.equal(queryClient.getQueryData(keys.imagePlan(image.caseId, image.id)).document.objects[0].measurement.values.length, 123.456789)
+  await act(async () => { await queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  list = await openSavedDistances(view)
+  assert.match(list.textContent, /123,46 mm/)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+
+test("saved distances use the recalibration acknowledgement's official results immediately without another read or local rounding", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = async (url, init) => {
+    const response = await server.fetch(url, init)
+    if (init?.method !== "PUT") return response
+    const body = await response.json()
+    body.document.objects[0].measurement = { status: "CALCULATED", calibration_id: body.document.calibration.result.calibration_id,
+      values: { length: 77.1234567 }, units: { length: "mm" } }
+    server.persisted = body
+    return Response.json(body)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await openSavedDistances(view)
+  await openCalibration(view)
+  fireEvent.change(await referenceInput(view, "Comprimento real"), { target: { value: "35" } })
+  const readsBeforeSave = server.calls.filter(call => call.url.endsWith("/plan") && call.method === "GET").length
+  fireEvent.click(view.getByRole("button", { name: "Atualizar calibra\u00e7\u00e3o", exact: true }))
+  await savedImageOptions(view)
+  assert.ok(!view.container.querySelector("[data-distance-overlay]"))
+  const list = await openSavedDistances(view)
+  fireEvent.click(list.querySelector("button"))
+  assert.equal(view.container.querySelector(`[data-distance-id="${server.persisted.document.objects[0].id}"] text`).textContent, "77,12 mm")
+  assert.match(list.textContent, /77,12 mm/)
+  assert.equal(list.textContent.includes("123,46 mm"), false)
+  assert.equal(server.persisted.document.objects[0].measurement.values.length, 77.1234567)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
+  assert.equal(server.calls.filter(call => call.url.endsWith("/plan") && call.method === "GET").length, readsBeforeSave)
+})
+
+test("saved distances use English labels and unit formatting consistently in the list and overlay", () => {
+  const en = { cases: JSON.parse(readFileSync(new URL("../src/i18n/messages/en/cases.json", import.meta.url), "utf8")) }
+  const saved = savedDistancesPlan()
+  saved.document.objects[0].label = null
+  saved.document.objects[0].measurement.values.length = 1234.56789
+  const distances = selectSavedDistances(saved)
+  const selectedId = distances[0].line.id
+  const view = render(h(NextIntlClientProvider, { locale: "en", timeZone: "UTC", messages: en },
+    h(CaseImageToolsPanel, { measurements: true, onMeasurements() {}, openDisabled: false, onOpen() {}, readError: false,
+      canRetryRead: false, onRetryRead() {}, loading: false, distanceActive: true }),
+    h(CaseImageDistanceValues, { distances, selectedId, selectionDisabled: false, onSelect() {} }),
+    h("svg", { "aria-hidden": true }, h(DistanceOverlay, { distances, selectedId, view: { widthPx: 2000, heightPx: 1000, scale: 0.5, mirrored: false } }))))
+  const button = view.getByRole("button", { name: "Distance 1 1,234.57 mm" })
+  assert.equal(button.getAttribute("aria-pressed"), "true")
+  assert.equal(view.container.querySelector("[data-distance-selected=true] text").textContent, "1,234.57 mm")
+  assert.ok(view.getByRole("button", { name: "Distance 2 —" }))
+})
+
+
+const distanceCopy = messages.cases.workspace.distance
+// Legacy unsaved creations remain recoverable, but the catalog no longer creates them.
+async function restoreDistanceCreationDraft(view, queryClient) {
+  await openSavedDistances(view)
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canCreate, true))
+  act(() => { assert.equal(hook.result.current.beginCreate(index => distanceCopy.defaultName.replace("{index}", String(index))), true) })
+  hook.unmount()
+  fireEvent.click(await view.findByRole("button", { name: distanceCopy.draw, exact: true }))
+  await view.findByText(distanceCopy.notSaved)
+  const viewport = view.container.querySelector("[data-calibration-viewport]")
+  view.getByRole("img").parentElement.getBoundingClientRect = () => ({ left: 100, top: 100, right: 1100, bottom: 600, width: 1000, height: 500 })
+  // A restored legacy draft does not enter through the catalog's focus action.
+  act(() => viewport.focus())
+  assert.ok(document.activeElement === viewport)
+  return viewport
+}
+
+test("distance creation starts one named unsaved draft, blocks leaving and cancels locally without touching saved lines", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  server.persisted.document.objects[0].label = distanceCopy.defaultName.replace("{index}", "1")
+  const before = structuredClone(server.persisted)
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient)
+  const key = keys.imageDistanceDraft(image.caseId, image.id)
+  const draft = queryClient.getQueryData(key)
+  assert.equal(draft.kind, "distance-create")
+  assert.match(draft.id, /^[a-f0-9-]{36}$/)
+  assert.equal(draft.label, distanceCopy.defaultName.replace("{index}", "3"))
+  assert.equal(draft.geometry, null)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.title, exact: true }))
+  assert.equal(queryClient.getQueryData(key).id, draft.id)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  const event = new dom.window.Event("beforeunload", { cancelable: true })
+  window.dispatchEvent(event)
+  assert.equal(event.defaultPrevented, true)
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 2)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.cancelEditing }))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(view.queryByText(distanceCopy.notSaved), null)
+  await waitFor(() => assert.ok(document.activeElement === view.getByRole("button", { name: distanceCopy.title, exact: true })))
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  assert.deepEqual(server.persisted, before)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+for (const method of ["mouse", "touch", "keyboard"]) test(`distance creation by ${method} produces the same source geometry and retains its ID while adjusting locally`, async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  const viewport = await restoreDistanceCreationDraft(view, queryClient)
+  const key = keys.imageDistanceDraft(image.caseId, image.id)
+  const id = queryClient.getQueryData(key).id
+  const reads = server.calls.length
+  if (method === "keyboard") {
+    const place = view.getByRole("button", { name: distanceCopy.place })
+    act(() => place.focus())
+    fireEvent.click(place, { detail: 0 })
+    await waitFor(() => assert.ok(document.activeElement === viewport))
+  } else {
+    const options = { pointerType: method }
+    viewerPointer(viewport, "pointerdown", 500, 350, options)
+    viewerPointer(viewport, "pointermove", 700, 350, options)
+    assert.equal(queryClient.getQueryData(key).geometry, null)
+    if (method === "touch") {
+      viewerPointer(viewport, "pointerdown", 900, 500, { pointerType: "touch", pointerId: 8, isPrimary: false })
+      viewerPointer(viewport, "pointerup", 900, 500, { pointerType: "touch", pointerId: 8, isPrimary: false })
+      assert.equal(queryClient.getQueryData(key).geometry, null)
+    }
+    viewerPointer(viewport, "pointerup", 700, 350, options)
+  }
+  assert.deepEqual(queryClient.getQueryData(key).geometry, { start: { x: 0.4, y: 0.5 }, end: { x: 0.6, y: 0.5 } })
+  const drawn = view.container.querySelector("[data-distance-draft] line")
+  assert.equal(Number(drawn.getAttribute("x1")), 800)
+  assert.equal(Number(drawn.getAttribute("x2")), 1200)
+  assert.ok(drawn.hasAttribute("stroke-dasharray"))
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.equal(view.queryByRole("button", { name: messages.cases.workspace.viewer.mark }), null)
+  assert.equal(view.getByRole("button", { name: distanceCopy.draw }).getAttribute("aria-pressed"), "true")
+  fireEvent.keyDown(viewport, { key: "ArrowRight", shiftKey: true })
+  fireEvent.keyDown(viewport, { key: "ArrowUp", shiftKey: true, altKey: true })
+  const geometry = queryClient.getQueryData(key).geometry
+  assert.deepEqual(geometry, { start: { x: 0.405, y: 0.5 }, end: { x: 0.605, y: 0.49 } })
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.equal(view.getByText(distanceCopy.notSaved).getAttribute("role"), "status")
+  assert.equal(server.calls.length, reads)
+})
+
+test("distance creation ignores outside starts, clicks and degenerate drags, and clamps to both inclusive image edges", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  const viewport = await restoreDistanceCreationDraft(view, queryClient), key = keys.imageDistanceDraft(image.caseId, image.id)
+  viewerPointer(viewport, "pointerdown", 99, 350)
+  viewerPointer(viewport, "pointermove", 700, 350)
+  viewerPointer(viewport, "pointerup", 700, 350)
+  assert.equal(queryClient.getQueryData(key).geometry, null)
+  for (const delta of [0, 0.1, 1, 2, 3.9]) {
+    viewerPointer(viewport, "pointerdown", 400, 300)
+    viewerPointer(viewport, "pointerup", 400 + delta, 300)
+    assert.equal(queryClient.getQueryData(key).geometry, null)
+  }
+  assert.equal(view.container.querySelector("[data-distance-draft]"), null)
+  viewerPointer(viewport, "pointerdown", 400, 300)
+  viewerPointer(viewport, "pointerup", 404, 300)
+  assert.deepEqual(queryClient.getQueryData(key).geometry, { start: { x: 0.3, y: 0.4 }, end: { x: 0.304, y: 0.4 } })
+  viewerPointer(viewport, "pointerdown", 100, 100)
+  viewerPointer(viewport, "pointermove", 1200, 700)
+  viewerPointer(viewport, "pointerup", 1200, 700)
+  assert.deepEqual(queryClient.getQueryData(key).geometry, { start: { x: 0, y: 0 }, end: { x: 1, y: 1 } })
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance creation Escape, pointercancel and lost capture restore the last local geometry and keep drawing active", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  const viewport = await restoreDistanceCreationDraft(view, queryClient), key = keys.imageDistanceDraft(image.caseId, image.id)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const before = structuredClone(queryClient.getQueryData(key)), captures = new Set()
+  viewport.setPointerCapture = id => captures.add(id)
+  viewport.hasPointerCapture = id => captures.has(id)
+  viewport.releasePointerCapture = id => captures.delete(id)
+  for (const cancel of ["Escape", "pointercancel", "lostpointercapture"]) {
+    viewerPointer(viewport, "pointerdown", 250, 150)
+    viewerPointer(viewport, "pointermove", 800, 500)
+    assert.equal(captures.has(7), true)
+    fireEvent.keyDown(viewport, { key: "ArrowRight" })
+    assert.deepEqual(queryClient.getQueryData(key), before)
+    if (cancel === "Escape") fireEvent.keyDown(viewport, { key: "Escape" })
+    else viewerPointer(viewport, cancel, 800, 500)
+    viewerPointer(viewport, "pointerup", 800, 500)
+    assert.deepEqual(queryClient.getQueryData(key), before)
+    assert.equal(captures.size, 0)
+    assert.equal(view.getByRole("button", { name: distanceCopy.draw }).getAttribute("aria-pressed"), "true")
+  }
+  assert.equal(Number(view.container.querySelector("[data-distance-draft] line").getAttribute("x1")), 800)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance creation remains local across panels and remount; stale revisions freeze drawing until explicit cancel", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = server.fetch
+  let view = render(h(Workspace, { queryClient }))
+  const viewport = await restoreDistanceCreationDraft(view, queryClient), key = keys.imageDistanceDraft(image.caseId, image.id)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const before = structuredClone(queryClient.getQueryData(key))
+  fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
+  assert.equal(view.queryByRole("button", { name: distanceCopy.draw }), null)
+  fireEvent.keyDown(viewport, { key: "ArrowLeft" })
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(view.getByRole("button", { name: imageCopy.recalibrate, exact: true }).disabled, true)
+  view.unmount()
+  view = render(h(Workspace, { queryClient }))
+  await openSavedDistances(view)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.ok(view.getByText(distanceCopy.notSaved))
+  assert.ok(view.container.querySelector("[data-distance-draft]"))
+  const newer = { ...server.persisted, revision: server.persisted.revision + 1 }
+  server.persisted = newer
+  await act(async () => { await queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  await view.findByText(distanceCopy.planChanged)
+  const nextViewport = view.container.querySelector("[data-calibration-viewport]")
+  fireEvent.keyDown(nextViewport, { key: "ArrowRight" })
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(view.queryByRole("button", { name: distanceCopy.draw }), null)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.loadSaved }))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+
+test("distance creation stale actions cannot revive cancelled recovery drafts, target a newer ID or bypass a live lock", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canCreate, true))
+  const stale = hook.result.current
+  act(() => { assert.equal(stale.beginCreate("New distance"), true); assert.equal(stale.placeLine(), true) })
+  const firstId = hook.result.current.editor.id
+  act(() => { assert.equal(stale.discard(), true); assert.equal(stale.beginCreate("Other distance"), true); assert.equal(stale.placeLine(), true) })
+  const key = keys.imageDistanceDraft(image.caseId, image.id), receiptKey = keys.imagePlanSave(image.caseId, image.id)
+  const current = structuredClone(queryClient.getQueryData(key))
+  assert.notEqual(current.id, firstId)
+  assert.equal(stale.changeGeometry(distanceGeometry, firstId), false)
+  assert.deepEqual(queryClient.getQueryData(key), current)
+  const command = hook.result.current.command()
+  act(() => {
+    queryClient.setQueryData(receiptKey, { phase: "saving", edit: command })
+    assert.equal(stale.changeGeometry(distanceGeometry, current.id), false)
+    assert.equal(stale.discard(), false)
+  })
+  assert.deepEqual(queryClient.getQueryData(key), current)
+  act(() => {
+    queryClient.setQueryData(receiptKey, { phase: "error", edit: command, code: "SERVICE_UNAVAILABLE" })
+    queryClient.setQueryData(key, null)
+  })
+  await waitFor(() => assert.equal(hook.result.current.receipt.phase, "error"))
+  const recoveryCallbacks = hook.result.current
+  act(() => assert.equal(recoveryCallbacks.discard(), true))
+  assert.equal(recoveryCallbacks.changeGeometry(distanceGeometry, current.id), false)
+  assert.equal(queryClient.getQueryData(key), null)
+  act(() => {
+    queryClient.setQueryData(keys.caseDeletion(image.caseId), { phase: "uncertain" })
+    assert.equal(stale.beginCreate("Blocked distance"), false)
+  })
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance creation capacity counts all plan objects and refuses before allocating a draft", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  const angle = server.persisted.document.objects[1]
+  server.persisted.document.objects = Array.from({ length: 500 }, (_, index) => ({ ...angle, id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}` }))
+  globalThis.fetch = server.fetch
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canEdit, true))
+  assert.equal(hook.result.current.canCreate, false)
+  act(() => assert.equal(hook.result.current.beginCreate("Over capacity"), false))
+  assert.equal(hook.result.current.editor, null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance creation gesture owner prevents committing to a replacement editor or changed geometry before passive effects run", async () => {
+  const changes = [], captures = new Set()
+  function Replacement({ id, geometry = null }) {
+    React.useLayoutEffect(() => {
+      if (id === "line-b" || geometry) {
+        const event = new dom.window.MouseEvent("pointerup", { bubbles: true, button: 0, clientX: 350, clientY: 225 })
+        Object.defineProperties(event, { pointerId: { value: 7 }, isPrimary: { value: true } })
+        document.querySelector("[data-calibration-viewport]").dispatchEvent(event)
+      }
+    }, [id, geometry])
+    return editorViewer({ editor: { kind: "distance", id, editable: true, tool: "mark", geometry,
+      onGeometryChange: geometry => changes.push({ id, geometry }), onToolChange() {} } })
+  }
+  const view = render(h(Replacement, { id: "line-a" }))
+  const { viewport } = viewerRect(view)
+  viewport.setPointerCapture = id => captures.add(id)
+  viewport.hasPointerCapture = id => captures.has(id)
+  viewport.releasePointerCapture = id => captures.delete(id)
+  viewerPointer(viewport, "pointerdown", 150, 125)
+  viewerPointer(viewport, "pointermove", 350, 225)
+  await act(async () => { view.rerender(h(Replacement, { id: "line-b" })) })
+  assert.deepEqual(changes, [])
+  assert.equal(captures.size, 0)
+  viewerPointer(viewport, "pointerdown", 150, 125)
+  viewerPointer(viewport, "pointerup", 350, 225)
+  assert.deepEqual(changes, [{ id: "line-b", geometry: { start: { x: 0.1, y: 0.1 }, end: { x: 0.5, y: 0.5 } } }])
+  viewerPointer(viewport, "pointerdown", 150, 125)
+  viewerPointer(viewport, "pointermove", 350, 225)
+  await act(async () => { view.rerender(h(Replacement, { id: "line-b", geometry: { start: { x: 0.4, y: 0.5 }, end: { x: 0.6, y: 0.5 } } })) })
+  assert.equal(changes.length, 1)
+  assert.equal(captures.size, 0)
+  assert.equal(Number(view.container.querySelector("[data-distance-draft] line").getAttribute("x1")), 400)
+})
+
+
+function editableDistancesPlan() {
+  const plan = savedDistancesPlan()
+  plan.document.objects[0].start = { x: 0.2, y: 0.2 }; plan.document.objects[0].end = { x: 0.6, y: 0.6 }
+  plan.document.objects[2].start = { x: 0.8, y: 0.1 }; plan.document.objects[2].end = { x: 0.8, y: 0.9 }
+  return plan
+}
+function distanceRect(view, rect = { left: 100, top: 100, right: 1100, bottom: 600, width: 1000, height: 500 }) {
+  view.getByRole("img").parentElement.getBoundingClientRect = () => rect
+  return view.container.querySelector("[data-calibration-viewport]")
+}
+async function editFirstDistance(view) {
+  const list = await openSavedDistances(view)
+  if (!view.queryByRole("button", { name: distanceCopy.cancelEditing, exact: true })) {
+    fireEvent.click(list.querySelector("button"))
+    const edit = view.queryByRole("button", { name: distanceCopy.edit, exact: true })
+    if (edit) fireEvent.click(edit)
+  }
+  const viewport = distanceRect(view)
+  await waitFor(() => assert.ok(document.activeElement === viewport))
+  return viewport
+}
+const closePoint = (actual, expected) => { assert.ok(Math.abs(actual.x - expected.x) < 1e-12); assert.ok(Math.abs(actual.y - expected.y) < 1e-12) }
+
+test("distance editing selects from the list and adjusts both endpoints entirely by keyboard, with local cancel", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const before = structuredClone(server.persisted), view = render(h(Workspace, { queryClient }))
+  const viewport = await editFirstDistance(view), key = keys.imageDistanceDraft(image.caseId, image.id)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  assert.ok(view.getByText(distanceCopy.editingSaved))
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 2)
+  const editingOverlay = view.container.querySelector(`[data-distance-id="${before.document.objects[0].id}"]`)
+  assert.ok(!editingOverlay.querySelector("line"))
+  assert.equal(editingOverlay.querySelector("text").textContent, "123,46 mm")
+  const start = view.getByRole("button", { name: distanceCopy.targets.start, exact: true })
+  act(() => start.focus())
+  fireEvent.keyDown(start, { key: "ArrowRight", shiftKey: true })
+  const end = view.getByRole("button", { name: distanceCopy.targets.end, exact: true })
+  act(() => end.focus())
+  fireEvent.keyDown(end, { key: "ArrowUp", shiftKey: true })
+  closePoint(queryClient.getQueryData(key).geometry.start, { x: 0.205, y: 0.2 })
+  closePoint(queryClient.getQueryData(key).geometry.end, { x: 0.6, y: 0.59 })
+  assert.equal(end.getAttribute("aria-pressed"), "true")
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), true)
+  const list = view.getByRole("list", { name: distanceCopy.list })
+  assert.ok(list.textContent.includes(distanceCopy.previewValue))
+  assert.equal(list.textContent.includes("123,46 mm"), false)
+  assert.deepEqual(server.persisted, before)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.cancelEditing }))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(view.container.querySelector("[data-distance-draft]"), null)
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 0)
+  closePoint(server.persisted.document.objects[0].start, { x: 0.2, y: 0.2 })
+  fireEvent.keyDown(viewport, { key: "ArrowLeft" })
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance editing selects a canvas line on tap, retains pan for dragging, and moves the whole selected segment within bounds", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  fireEvent.click((await openSavedDistances(view)).querySelector("button"))
+  const viewport = distanceRect(view), key = keys.imageDistanceDraft(image.caseId, image.id)
+  viewerPointer(viewport, "pointerdown", 500, 300)
+  viewerPointer(viewport, "pointerup", 500, 300)
+  assert.ok(view.getByRole("button", { name: distanceCopy.edit }))
+  assert.equal(queryClient.getQueryData(key), null)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.edit }))
+  viewerPointer(viewport, "pointerdown", 500, 300)
+  viewerPointer(viewport, "pointermove", 550, 350)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  viewerPointer(viewport, "pointerup", 550, 350)
+  closePoint(queryClient.getQueryData(key).geometry.start, { x: 0.25, y: 0.3 })
+  closePoint(queryClient.getQueryData(key).geometry.end, { x: 0.65, y: 0.7 })
+  viewerPointer(viewport, "pointerdown", 550, 350)
+  viewerPointer(viewport, "pointerup", 2000, -500)
+  closePoint(queryClient.getQueryData(key).geometry.start, { x: 0.6, y: 0 })
+  closePoint(queryClient.getQueryData(key).geometry.end, { x: 1, y: 0.4 })
+  assert.equal(view.getByRole("button", { name: distanceCopy.targets.body, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance editing touch handles adjust either endpoint and keep a captured target when crossing another line", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient })), viewport = await editFirstDistance(view)
+  const key = keys.imageDistanceDraft(image.caseId, image.id), id = queryClient.getQueryData(key).id
+  viewerPointer(viewport, "pointerdown", 300, 200, { pointerType: "touch" })
+  viewerPointer(viewport, "pointerup", 350, 225, { pointerType: "touch" })
+  closePoint(queryClient.getQueryData(key).geometry.start, { x: 0.25, y: 0.25 })
+  closePoint(queryClient.getQueryData(key).geometry.end, { x: 0.6, y: 0.6 })
+  assert.equal(view.getByRole("button", { name: distanceCopy.targets.start, exact: true }).getAttribute("aria-pressed"), "true")
+  viewerPointer(viewport, "pointerdown", 700, 400, { pointerType: "touch" })
+  viewerPointer(viewport, "pointermove", 900, 350, { pointerType: "touch" })
+  viewerPointer(viewport, "pointerup", 650, 350, { pointerType: "touch" })
+  closePoint(queryClient.getQueryData(key).geometry.end, { x: 0.55, y: 0.5 })
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.equal(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }).getAttribute("aria-pressed"), "true")
+  viewerPointer(viewport, "pointerdown", 500, 287.5, { pointerType: "touch" })
+  viewerPointer(viewport, "pointerup", 510, 297.5, { pointerType: "touch" })
+  assert.equal(view.getByRole("button", { name: distanceCopy.targets.body, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance editing list resolves overlapping lines and dirty geometry blocks switching by list or canvas", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan()
+  server.persisted.document.objects[2].start = { x: 0.2, y: 0.2 }; server.persisted.document.objects[2].end = { x: 0.6, y: 0.6 }
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient })), list = await openSavedDistances(view)
+  fireEvent.click(list.querySelectorAll("[data-distance-row]")[1])
+  assert.equal(view.container.querySelector("[data-distance-overlay]").lastElementChild.dataset.distanceSelected, "true")
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.edit }))
+  const viewport = distanceRect(view), key = keys.imageDistanceDraft(image.caseId, image.id)
+  const id = queryClient.getQueryData(key).id
+  assert.equal(id, server.persisted.document.objects[2].id)
+  viewerPointer(viewport, "pointerdown", 500, 300)
+  viewerPointer(viewport, "pointerup", 550, 350)
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.equal(list.querySelectorAll("[data-distance-row]")[0].disabled, true)
+  fireEvent.click(list.querySelectorAll("[data-distance-row]")[0])
+  viewerPointer(viewport, "pointerdown", 300, 200)
+  viewerPointer(viewport, "pointerup", 300, 200)
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.ok(view.getByText(distanceCopy.finishEditing))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.cancelEditing }))
+  fireEvent.click((await openDistanceTool(view)).querySelector("button"))
+  assert.ok(view.getByRole("button", { name: distanceCopy.edit }))
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance editing ignores blank-image redraws and read-only panels, and preserves its draft on Escape", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient })), viewport = await editFirstDistance(view)
+  const key = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key))
+  viewerPointer(viewport, "pointerdown", 500, 300); viewerPointer(viewport, "pointerup", 501, 300)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  viewerPointer(viewport, "pointerdown", 100, 100); viewerPointer(viewport, "pointerup", 500, 500)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  viewerPointer(viewport, "pointerdown", 300, 200); viewerPointer(viewport, "pointermove", 350, 225)
+  fireEvent.keyDown(viewport, { key: "Escape" }); viewerPointer(viewport, "pointerup", 350, 225)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
+  fireEvent.keyDown(viewport, { key: "ArrowRight" })
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(view.container.querySelector("[data-distance-draft]"), null)
+  assert.equal(view.container.querySelectorAll("[data-distance-id]").length, 0)
+  await openCalibration(view)
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance editing uses source coordinates through mirrored zoom and pan, including keyboard and pointer endpoint adjustment", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  fireEvent.click(view.getByRole("button", { name: imageCopy.title, exact: true }))
+  fireEvent.click(view.getByRole("button", { name: imageCopy.mirror }))
+  fireEvent.click(view.getByRole("button", { name: toolsCopy.title, exact: true }))
+  const start = view.getByRole("button", { name: distanceCopy.targets.start, exact: true })
+  fireEvent.keyDown(start, { key: "ArrowRight", shiftKey: true })
+  const key = keys.imageDistanceDraft(image.caseId, image.id)
+  closePoint(queryClient.getQueryData(key).geometry.start, { x: 0.195, y: 0.2 })
+  for (let i = 0; i < 4; i++) fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.viewer.zoomIn }))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.viewer.pan }))
+  const viewport = distanceRect(view, { left: 80, top: 60, right: 2080, bottom: 1060, width: 2000, height: 1000 })
+  viewerPointer(viewport, "pointerdown", 500, 300); viewerPointer(viewport, "pointermove", 550, 320); viewerPointer(viewport, "pointerup", 550, 320)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.adjust }))
+  viewerPointer(viewport, "pointerdown", 1690, 260); viewerPointer(viewport, "pointerup", 1650, 280)
+  closePoint(queryClient.getQueryData(key).geometry.start, { x: 0.215, y: 0.22 })
+  closePoint(queryClient.getQueryData(key).geometry.end, { x: 0.6, y: 0.6 })
+  assert.ok(view.getByRole("img").parentElement.style.transform.includes("scaleX(-1)"))
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance editing preserves hidden and locked guards and freezes on a newer plan revision", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); server.persisted.document.objects[2].locked = true
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient })), list = await openSavedDistances(view)
+  fireEvent.click(list.querySelectorAll("[data-distance-row]")[1])
+  assert.equal(view.getByRole("button", { name: distanceCopy.edit }).disabled, true)
+  assert.ok(view.getAllByText(distanceCopy.locked).length > 0)
+  fireEvent.click(list.querySelector("button")); fireEvent.click(view.getByRole("button", { name: distanceCopy.edit }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key))
+  server.persisted = { ...server.persisted, revision: server.persisted.revision + 1 }
+  await act(async () => { await queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id) }) })
+  await view.findByText(distanceCopy.planChanged)
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.start, exact: true }), { key: "ArrowRight" })
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.loadSaved }))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+// Synthetic official results deliberately differ from any client-side estimate.
+function distanceResultBackend(server, length = 42.987654) {
+  return async (url, init) => {
+    const response = await server.fetch(url, init)
+    if (init?.method !== "PATCH" || !response.ok) return response
+    const body = await response.json(), input = JSON.parse(init.body)
+    const line = body.document.objects.find(object => object.id === input.id)
+    if (line) line.measurement = { status: "CALCULATED", calibration_id: body.document.calibration.result.calibration_id,
+      values: { length }, units: { length: "mm" } }
+    server.persisted = body
+    return Response.json(body)
+  }
+}
+
+function distanceNotices() {
+  const notices = []
+  toast.success = (title, options) => { notices.push({ kind: "success", title, ...options }); return 1 }
+  toast.error = (title, options) => { notices.push({ kind: "error", title, ...options }); return 1 }
+  toast.info = (title, options) => { notices.push({ kind: "info", title, ...options }); return 1 }
+  return notices
+}
+
+test("distance saving completes create, reopen, edit and update with official values and preserved objects", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = distanceResultBackend(server)
+  let view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient)
+  assert.equal(view.getByRole("button", { name: distanceCopy.save, exact: true }).disabled, true)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const draftKey = keys.imageDistanceDraft(image.caseId, image.id), draft = structuredClone(queryClient.getQueryData(draftKey))
+  const before = structuredClone(server.persisted)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.save, exact: true }))
+  await waitFor(() => assert.equal(notices.length, 1))
+  const row = view.container.querySelector(`[data-distance-row="${draft.id}"]`)
+  assert.equal(row.getAttribute("aria-pressed"), "true")
+  assert.match(row.textContent, /42,99 mm/)
+  await waitFor(() => assert.ok(document.activeElement === row))
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(view.container.querySelector("[data-calibration-viewport]").classList.contains("cursor-grab"), true)
+  assert.equal(queryClient.getQueryData(draftKey), null)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  assert.equal(notices[0].title, distanceCopy.savedTitle)
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  const created = server.persisted.document.objects.find(object => object.id === draft.id)
+  closePoint(created.start, draft.geometry.start); closePoint(created.end, draft.geometry.end)
+  assert.deepEqual(server.persisted.document.objects.slice(0, 3), before.document.objects)
+
+  view.unmount()
+  const reopenedClient = client()
+  view = render(h(Workspace, { queryClient: reopenedClient }))
+  await openSavedDistances(view)
+  fireEvent.click(view.container.querySelector(`[data-distance-row="${draft.id}"]`))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.edit }))
+  const update = view.getByRole("button", { name: distanceCopy.update, exact: true })
+  assert.equal(update.disabled, true)
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }), { key: "ArrowRight", shiftKey: true })
+  const edited = structuredClone(reopenedClient.getQueryData(draftKey)), orderedIds = server.persisted.document.objects.map(object => object.id)
+  assert.equal(view.container.querySelector(`[data-distance-row="${draft.id}"]`).textContent.includes("42,99 mm"), false)
+  fireEvent.click(update)
+  await waitFor(() => assert.equal(notices.length, 2))
+  const confirmed = server.persisted.document.objects.find(object => object.id === draft.id)
+  closePoint(confirmed.end, edited.geometry.end)
+  assert.equal(confirmed.id, created.id); assert.equal(confirmed.label, created.label)
+  assert.equal(confirmed.visible, true); assert.equal(confirmed.locked, false)
+  assert.deepEqual(server.persisted.document.objects.map(object => object.id), orderedIds)
+  assert.deepEqual(server.persisted.document.objects.slice(0, 3), before.document.objects)
+  const writes = server.calls.filter(call => call.method === "PATCH")
+  assert.deepEqual(writes.map(call => call.body.kind), ["distance-create", "distance-update"])
+  assert.equal(writes[1].body.baseRevision, before.revision + 1)
+  assert.equal(writes.some(call => "measurement" in call.body), false)
+  assert.equal(server.calls.some(call => call.method === "PUT"), false)
+  await waitFor(() => assert.ok(document.activeElement === view.container.querySelector(`[data-distance-row="${draft.id}"]`)))
+})
+
+test("distance saving double click sends one write and one notice, locks controls and waits for confirmation", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices(), barrier = deferred(), entered = deferred()
+  server.persisted = savedDistancesPlan()
+  const official = distanceResultBackend(server)
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH") { entered.resolve(); await barrier.promise }
+    return official(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  const viewport = await restoreDistanceCreationDraft(view, queryClient)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const draftKey = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(draftKey))
+  const button = view.getByRole("button", { name: distanceCopy.save, exact: true })
+  act(() => { fireEvent.click(button); fireEvent.click(button) })
+  await entered.promise
+  const busy = await view.findByRole("button", { name: distanceCopy.saving, exact: true })
+  assert.equal(busy.disabled, true)
+  assert.equal(busy.getAttribute("aria-busy"), "true")
+  assert.equal(view.getByRole("button", { name: distanceCopy.cancelEditing }).disabled, true)
+  const activeTool = view.getByRole("button", { name: distanceCopy.title, exact: true })
+  assert.equal(activeTool.disabled, false)
+  assert.equal(activeTool.getAttribute("aria-pressed"), "true")
+  fireEvent.click(activeTool)
+  fireEvent.keyDown(viewport, { key: "ArrowRight" })
+  assert.deepEqual(queryClient.getQueryData(draftKey), before)
+  assert.equal(view.container.textContent.includes("42,99 mm"), false)
+  assert.equal(notices.length, 0)
+  await act(async () => { barrier.resolve() })
+  await waitFor(() => assert.equal(notices.length, 1))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  assert.equal(notices[0].kind, "success")
+})
+
+test("distance saving definitive failure preserves the editable draft and requires an explicit retry", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = savedDistancesPlan()
+  let reject = true
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH" && reject) {
+      server.calls.push({ url, method: init.method, body: JSON.parse(init.body) })
+      return Response.json({ error: { code: "CLINICAL_VALIDATION_INVALID", uncertain: false } }, { status: 422 })
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient); fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key)), reads = server.calls.length
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.save, exact: true }))
+  await waitFor(() => assert.equal(notices.length, 1))
+  assert.equal(notices[0].title, distanceCopy.notAllowedTitle)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(view.getByRole("button", { name: distanceCopy.save, exact: true }).disabled, false)
+  assert.equal(server.calls.length, reads + 1)
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }), { key: "ArrowDown" })
+  assert.notDeepEqual(queryClient.getQueryData(key).geometry, before.geometry)
+  assert.equal(server.calls.length, reads + 1)
+  reject = false
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.save, exact: true }))
+  await waitFor(() => assert.equal(notices.length, 2))
+  assert.equal(notices[1].title, distanceCopy.savedTitle)
+  // Missing derived data is a confirmed geometry save, never a reason to replay.
+  const row = view.container.querySelector(`[data-distance-row="${before.id}"]`)
+  assert.match(row.textContent, new RegExp(distanceCopy.unavailable))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 2)
+  assert.equal(queryClient.getQueryData(key), null)
+})
+
+for (const newerConflict of [false, true]) test(`distance saving lost acknowledgement checks by GET only and resolves to ${newerConflict ? "conflict" : "saved"}`, async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = savedDistancesPlan()
+  const old = structuredClone(server.persisted), official = distanceResultBackend(server)
+  let written = false, verify = false
+  globalThis.fetch = async (url, init) => {
+    if (url.endsWith("/plan") && written && !verify) {
+      server.calls.push({ url, method: "GET" }); return Response.json(old)
+    }
+    const response = await official(url, init)
+    if (init?.method === "PATCH") { written = true; throw new TypeError("synthetic lost response") }
+    return response
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient); fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id), draft = structuredClone(queryClient.getQueryData(key))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.save, exact: true }))
+  await view.findByText(distanceCopy.uncertainDescription)
+  await waitFor(() => assert.equal(notices.length, 1))
+  assert.equal(notices[0].title, distanceCopy.uncertainTitle)
+  assert.equal(view.getByRole("button", { name: distanceCopy.cancelEditing }).disabled, true)
+  assert.deepEqual(queryClient.getQueryData(key), draft)
+  if (newerConflict) server.persisted = { ...old, revision: old.revision + 2 }
+  verify = true
+  const reads = server.calls.filter(call => call.method === "GET" && call.url.endsWith("/plan")).length
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.checkSave }))
+  await waitFor(() => assert.equal(notices.length, 2))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  assert.equal(server.calls.filter(call => call.method === "GET" && call.url.endsWith("/plan")).length, reads + 1)
+  if (newerConflict) {
+    assert.equal(notices[1].title, distanceCopy.conflictTitle)
+    assert.deepEqual(queryClient.getQueryData(key), draft)
+    assert.equal(view.getByRole("button", { name: distanceCopy.save, exact: true }).disabled, true)
+    fireEvent.click(view.getByRole("button", { name: distanceCopy.loadSaved }))
+    assert.equal(queryClient.getQueryData(key), null)
+    assert.equal(queryClient.getQueryData(keys.imagePlanSave(image.caseId, image.id)).phase, "idle")
+    assert.equal(server.persisted.document.objects.some(object => object.id === draft.id), false)
+  } else {
+    assert.equal(notices[1].title, distanceCopy.savedTitle)
+    assert.equal(queryClient.getQueryData(key), null)
+    assert.equal(view.container.querySelector(`[data-distance-row="${draft.id}"]`).getAttribute("aria-pressed"), "true")
+  }
+})
+
+for (const failRecovery of [false, true]) test(`distance saving conflict loads the current plan and preserves Tools when recovery ${failRecovery ? "fails before retry" : "succeeds"}`, async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices(), barrier = deferred()
+  server.persisted = savedDistancesPlan()
+  let failRead = false, restoring = false, recoveryRejected = failRecovery
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH") {
+      server.calls.push({ url, method: "PATCH", body: JSON.parse(init.body) })
+      server.persisted = { ...server.persisted, revision: server.persisted.revision + 1 }
+      failRead = true
+      return Response.json({ error: { code: "PLAN_REVISION_CONFLICT", uncertain: false, currentRevision: server.persisted.revision } }, { status: 409 })
+    }
+    if (url.endsWith("/plan") && failRead) {
+      server.calls.push({ url, method: "GET" })
+      return Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 })
+    }
+    if (url.endsWith("/plan") && restoring) {
+      await barrier.promise
+      if (recoveryRejected) {
+        server.calls.push({ url, method: "GET" })
+        return Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 })
+      }
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.start, exact: true }), { key: "ArrowUp" })
+  const key = keys.imageDistanceDraft(image.caseId, image.id), draft = structuredClone(queryClient.getQueryData(key))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.update, exact: true }))
+  await view.findByText(distanceCopy.planChanged)
+  assert.deepEqual(queryClient.getQueryData(key), draft)
+  assert.equal(view.getByRole("button", { name: distanceCopy.update, exact: true }).disabled, true)
+  await waitFor(() => assert.equal(notices.length, 1))
+  failRead = false; restoring = true
+  const reads = server.calls.filter(call => call.url.endsWith("/plan") && call.method === "GET").length
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.loadSaved }))
+  await view.findByText(distanceCopy.loadingSaved)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(view.queryByText(distanceCopy.empty), null)
+  await waitFor(() => assert.ok(document.activeElement === view.getByRole("button", { name: toolsCopy.title, exact: true })))
+  await act(async () => { barrier.resolve() })
+  if (failRecovery) {
+    const retry = await view.findByRole("button", { name: distanceCopy.readAgain })
+    assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+    assert.equal(view.queryByText(distanceCopy.empty), null)
+    await waitFor(() => assert.ok(document.activeElement === retry))
+    await waitFor(() => assert.equal(notices.length, 2))
+    assert.equal(notices[1].title, distanceCopy.readErrorTitle)
+    recoveryRejected = false
+    fireEvent.click(retry)
+  }
+  await waitFor(() => assert.equal(queryClient.getQueryData(keys.imagePlan(image.caseId, image.id))?.revision, server.persisted.revision))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(queryClient.getQueryData(keys.imagePlanSave(image.caseId, image.id)).phase, "idle")
+  assert.equal(server.calls.filter(call => call.url.endsWith("/plan") && call.method === "GET").length, reads + (failRecovery ? 2 : 1))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  await waitFor(() => assert.ok(document.activeElement === view.getByRole("button", { name: distanceCopy.title, exact: true })))
+})
+
+test("distance saving background read failure keeps Tools and the draft, with one Sonner and an accessible GET action", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices(), barrier = deferred()
+  server.persisted = savedDistancesPlan()
+  let background = false, failed = true
+  globalThis.fetch = async (url, init) => {
+    if (background && url.endsWith("/plan")) {
+      await barrier.promise
+      if (failed) {
+        server.calls.push({ url, method: "GET" })
+        return Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 })
+      }
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient); fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key))
+  background = true
+  let reading
+  act(() => { reading = queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id), exact: true }) })
+  assert.equal(view.queryByText(messages.cases.workspace.calibration.remote.loading), null)
+  assert.ok(view.getByText(distanceCopy.notSaved))
+  await act(async () => { barrier.resolve(); await reading })
+  const action = await view.findByRole("button", { name: distanceCopy.readAgain, exact: true })
+  assert.ok(action.classList.contains("text-[var(--color-coral-500)]"))
+  assert.ok(action.getAttribute("aria-describedby"))
+  assert.equal(view.queryByRole("button", { name: messages.cases.workspace.calibration.remote.retry }), null)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  await waitFor(() => assert.equal(notices.length, 1))
+  assert.equal(notices[0].title, distanceCopy.readErrorTitle)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  const reads = server.calls.length
+  failed = false
+  fireEvent.click(action)
+  await view.findByRole("button", { name: distanceCopy.save, exact: true })
+  assert.equal(server.calls.length, reads + 1)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(notices.length, 1)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.save, exact: true }))
+  await waitFor(() => assert.equal(notices.length, 2))
+  assert.equal(notices[1].title, distanceCopy.savedTitle)
+})
+
+test("distance saving read recovery also keeps a cached saved selection in Tools without creating an editor", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = savedDistancesPlan(); let failed = false
+  globalThis.fetch = async (url, init) => {
+    if (url.endsWith("/plan") && failed) return Response.json({ error: { code: "SERVICE_UNAVAILABLE" } }, { status: 503 })
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient })), list = await openSavedDistances(view)
+  fireEvent.click(list.querySelector("button"))
+  failed = true
+  await act(async () => { await queryClient.refetchQueries({ queryKey: keys.imagePlan(image.caseId, image.id), exact: true }) })
+  const retry = await view.findByRole("button", { name: distanceCopy.readAgain })
+  assert.ok(view.getByRole("list", { name: distanceCopy.list }))
+  assert.equal(list.querySelector("button").getAttribute("aria-pressed"), "true")
+  assert.equal(view.getByRole("button", { name: distanceCopy.edit }).disabled, true)
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+  assert.equal(notices.length, 1)
+  failed = false; fireEvent.click(retry)
+  await waitFor(() => assert.equal(view.getByRole("button", { name: distanceCopy.edit }).disabled, false))
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  assert.equal(notices.length, 1)
+})
+
+test("distance saving completion after unmount updates cache without stale UI feedback", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices(), barrier = deferred(), entered = deferred()
+  server.persisted = savedDistancesPlan()
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH") { entered.resolve(); await barrier.promise }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient); fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id), id = queryClient.getQueryData(key).id
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.save, exact: true }))
+  await entered.promise
+  view.unmount()
+  await act(async () => { barrier.resolve() })
+  await waitFor(() => assert.equal(queryClient.getQueryData(keys.imagePlanSave(image.caseId, image.id)).phase, "saved"))
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(notices.length, 0)
+  const reopened = render(h(Workspace, { queryClient }))
+  await openSavedDistances(reopened)
+  assert.ok(reopened.container.querySelector(`[data-distance-row="${id}"]`))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+})
+
+test("distance saving stale click cannot replay after a conflict is published before React renders it", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canCreate, true))
+  act(() => { hook.result.current.beginCreate("Distance 3"); hook.result.current.placeLine() })
+  const stale = hook.result.current, input = stale.command()
+  assert.ok(input)
+  let submitted
+  act(() => {
+    queryClient.setQueryData(keys.imagePlanSave(image.caseId, image.id), { phase: "conflict", edit: input, currentRevision: input.baseRevision + 1 })
+    submitted = stale.submit()
+  })
+  assert.equal(await submitted, null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  assert.equal(queryClient.getQueryData(keys.imagePlanSave(image.caseId, image.id)).phase, "conflict")
+})
+
+test("distance saving blocks discard and edits immediately before the writer publishes its lock", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const hook = renderHook(() => useImageDistance(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canCreate, true))
+  act(() => { hook.result.current.beginCreate("Distance 3"); hook.result.current.placeLine() })
+  const current = hook.result.current, key = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key))
+  await act(async () => {
+    const submitted = current.submit()
+    assert.equal(current.discard(), false)
+    assert.equal(current.changeGeometry(distanceGeometry), false)
+    assert.equal(current.select(null), false)
+    assert.deepEqual(queryClient.getQueryData(key), before)
+    assert.equal((await submitted).phase, "saved")
+  })
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+})
+
+test("distance saving toolbar uses English actions, accessible tips and restrained pending announcements", async () => {
+  const en = { cases: JSON.parse(readFileSync(new URL("../src/i18n/messages/en/cases.json", import.meta.url), "utf8")) }
+  const props = { name: "Distance 1", hasGeometry: true, editable: true, editing: true, children: null, selection: null, cancelDisabled: false, needsRebase: false,
+    onPlace() {}, onCancel() {}, intent: "update", dirty: true, target: "end", onTargetChange() {}, onNudge() {},
+    receipt: { phase: "idle" }, pending: false, canSave: true, canCheck: true, readError: false, canRetryRead: true,
+    onSave() {}, onCheck() {}, onRetryRead() {} }
+  const content = value => h(NextIntlClientProvider, { locale: "en", timeZone: "UTC", messages: en },
+    h(CaseImageDistanceToolbar, value, h(CaseImageDistanceActions, value)))
+  const view = render(content(props))
+  assert.ok(view.getByRole("button", { name: "Update", exact: true }))
+  assert.ok(view.getByRole("button", { name: "Cancel distance editing" }))
+  const updateButton = view.getByRole("button", { name: "Update", exact: true })
+  fireEvent.focus(updateButton)
+  assert.equal((await view.findByRole("tooltip")).textContent, en.cases.workspace.distance.update)
+  assert.equal(document.getElementById(updateButton.getAttribute("aria-describedby")).textContent, en.cases.workspace.distance.controlTips.update)
+  fireEvent.keyDown(document.activeElement, { key: "Escape" })
+  view.rerender(content({ ...props, receipt: { phase: "checking" }, pending: true, editable: false, cancelDisabled: true }))
+  assert.equal(view.getByRole("button", { name: "Checking…" }).disabled, true)
+  assert.equal(view.getByRole("region", { name: en.cases.workspace.distance.editActions }).getAttribute("aria-busy"), "true")
+  assert.equal(view.container.querySelectorAll('[aria-live="polite"]').length, 1)
+  view.rerender(content({ ...props, readError: true }))
+  assert.ok(view.getByRole("button", { name: "Check plan" }).getAttribute("aria-describedby"))
+})
+
+test("measurement tooltips wait on hover and open immediately on keyboard focus inside the viewer", async () => {
+  const { angle, distance } = messages.cases.workspace
+  const view = render(h(NextIntlClientProvider, { locale: "pt-BR", timeZone: "UTC", messages },
+    h("section", { "data-image-viewer": true },
+      h(CaseImageDistanceToolbar, { name: "Distância", hasGeometry: true, editable: true, editing: true, target: "body" }),
+      h(CaseImageAngleValueControl, { enabled: true, open: false, currentDegrees: 90, onOpenChange() {}, onApply: () => true }))))
+  const viewer = view.container.querySelector("[data-image-viewer]")
+  const angleButton = view.getByRole("button", { name: angle.valueControl.title, exact: true })
+  const hoverStarted = performance.now()
+  fireEvent.pointerMove(angleButton, { pointerType: "mouse" })
+  assert.equal(view.queryByRole("tooltip"), null)
+  const hoverTip = await view.findByRole("tooltip")
+  assert.ok(performance.now() - hoverStarted >= 425)
+  assert.equal(hoverTip.textContent, angle.valueControl.tip)
+  assert.ok(viewer.contains(hoverTip.closest("[data-slot=tooltip-content]")))
+  assert.equal(angleButton.getAttribute("data-state"), "delayed-open")
+  fireEvent.keyDown(angleButton, { key: "Escape" })
+  const distanceButton = view.getByRole("button", { name: distance.targets.body, exact: true })
+  act(() => distanceButton.focus())
+  assert.equal(view.getByRole("tooltip").textContent, distance.move)
+  assert.equal(distanceButton.parentElement.getAttribute("data-state"), "instant-open")
+  assert.equal(document.getElementById(distanceButton.getAttribute("aria-describedby")).textContent, distance.controlTips.body)
+})
+
+test("distance toolbar lives over the viewer outside its gesture surface; the catalog remains read-only for future tools", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await openSavedDistances(view)
+  const create = view.getByRole("button", { name: distanceCopy.title, exact: true })
+  assert.equal(create.getAttribute("data-variant"), "ghost")
+  for (const name of [toolsCopy.catalog.angle, toolsCopy.catalog.circle, toolsCopy.catalog.additional]) {
+    const option = view.getByRole("button", { name, exact: true })
+    assert.equal(option.disabled, true)
+    assert.ok(option.querySelector("svg"))
+    fireEvent.click(option)
+  }
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+  // Ambiguous legacy plans require an explicit saved selection.
+  fireEvent.click(view.container.querySelector("[data-distance-row]"))
+  fireEvent.click(create)
+  const controls = view.container.querySelector("[data-distance-controls]"), viewer = view.container.querySelector("[data-image-viewer]")
+  const viewport = view.container.querySelector("[data-calibration-viewport]")
+  assert.ok(viewer.contains(controls))
+  assert.equal(viewport.contains(controls), false)
+  assert.equal(view.container.querySelector("aside").contains(controls), false)
+  assert.equal(create.disabled, false)
+  assert.equal(create.getAttribute("aria-pressed"), "true")
+  assert.ok(create.classList.contains("bg-[var(--button-ghost-background-hover)]"))
+  assert.ok(controls.classList.contains("bg-[var(--color-obsidian)]"))
+  assert.ok(controls.parentElement.parentElement.classList.contains("left-3"))
+  assert.ok(controls.parentElement.parentElement.classList.contains("items-center"))
+  assert.ok(controls.querySelector("h3").parentElement.classList.contains("sr-only"))
+  const save = view.getByRole("button", { name: distanceCopy.update, exact: true })
+  const cancel = view.getByRole("button", { name: distanceCopy.cancelEditing })
+  assert.ok(save.classList.contains("text-[var(--color-sage-500)]")); assert.ok(cancel.classList.contains("text-[var(--color-coral-500)]"))
+  assert.equal(save.textContent, ""); assert.equal(cancel.textContent, "")
+  await waitFor(() => assert.ok(document.activeElement === viewport))
+  const before = structuredClone(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)))
+  const start = view.getByRole("button", { name: distanceCopy.targets.start, exact: true })
+  act(() => start.focus())
+  assert.equal((await view.findByRole("tooltip")).textContent, distanceCopy.targets.start)
+  assert.equal(document.getElementById(start.getAttribute("aria-describedby")).textContent, distanceCopy.controlTips.start)
+  assert.ok(viewer.contains(view.getByRole("tooltip").closest("[data-slot=tooltip-content]")))
+  fireEvent.keyDown(start, { key: "ArrowRight" })
+  const after = queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id))
+  closePoint(after.geometry.start, { x: before.geometry.start.x + 1 / image.widthPx, y: before.geometry.start.y })
+  closePoint(after.geometry.end, before.geometry.end)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance toolbar preserves cancellation and its draft when the preview fails", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await restoreDistanceCreationDraft(view, queryClient)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.place }))
+  const key = keys.imageDistanceDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key))
+  fireEvent.error(view.getByRole("img"))
+  await view.findByText(messages.cases.workspace.preview.error)
+  assert.ok(view.container.querySelector("[data-image-viewer] [data-distance-controls]"))
+  assert.equal(view.getByRole("button", { name: distanceCopy.save, exact: true }).disabled, true)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  const cancel = view.getByRole("button", { name: distanceCopy.cancelEditing })
+  assert.equal(cancel.disabled, false)
+  fireEvent.click(cancel)
+  assert.equal(queryClient.getQueryData(key), null)
+  assert.equal(view.container.querySelector("[data-distance-controls]"), null)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+})
+
+test("distance layers hide only the canvas value, keep dynamic values in the panel and survive a workspace remount", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const before = structuredClone(server.persisted)
+  let view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  const id = before.document.objects[0].id
+  const row = () => view.container.querySelector(`[data-distance-row="${id}"]`)
+  assert.equal(row().classList.contains("bg-muted"), false)
+  assert.equal(row().querySelector('[id$="-value"]').textContent, "123,46 mm")
+  const hide = view.getByRole("button", { name: distanceCopy.hideValue, exact: true })
+  assert.equal(hide.getAttribute("aria-pressed"), "true")
+  fireEvent.click(hide)
+  assert.ok(!view.container.querySelector(`[data-distance-id="${id}"] text`))
+  assert.ok(view.container.querySelector("[data-distance-draft] line"))
+  assert.equal(row().querySelector('[id$="-value"]').textContent, "123,46 mm")
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }), { key: "ArrowRight", shiftKey: true })
+  const draft = structuredClone(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)))
+  const value = row().querySelector('[id$="-value"]').textContent
+  assert.notEqual(value, "123,46 mm"); assert.notEqual(value, "—")
+  assert.ok(!view.container.querySelector(`[data-distance-id="${id}"] text`))
+  view.unmount()
+  view = render(h(Workspace, { queryClient }))
+  await openSavedDistances(view)
+  assert.ok(view.getByRole("button", { name: distanceCopy.showValue, exact: true }))
+  assert.ok(!view.container.querySelector(`[data-distance-id="${id}"] text`))
+  assert.deepEqual(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), draft)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.showValue, exact: true }))
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, value)
+  assert.equal(row().querySelector('[id$="-value"]').textContent, value)
+  assert.deepEqual(server.persisted, before)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  view.unmount()
+  view = render(h(Workspace, { queryClient: client() }))
+  fireEvent.click((await openSavedDistances(view)).querySelector("[data-distance-row]"))
+  assert.ok(view.getByRole("button", { name: distanceCopy.hideValue, exact: true }))
+  assert.ok(view.container.querySelector(`[data-distance-id="${id}"] text`))
+})
+
+async function openDistanceDeletion(view) {
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.deleteAction, exact: true }))
+  return within(await view.findByRole("alertdialog", { name: distanceCopy.deleteTitle }))
+}
+
+test("distance deletion cancels without losing edits, then removes only its saved LINE after one confirmed command", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices(), entered = deferred(), barrier = deferred()
+  server.persisted = editableDistancesPlan()
+  const before = structuredClone(server.persisted), id = before.document.objects[0].id
+  let writes = 0
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH") { writes++; entered.resolve(); await barrier.promise }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  try {
+    await editFirstDistance(view)
+    fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.start, exact: true }), { key: "ArrowRight" })
+    const key = keys.imageDistanceDraft(image.caseId, image.id), draft = structuredClone(queryClient.getQueryData(key))
+    let dialog = await openDistanceDeletion(view)
+    assert.ok(dialog.getByText(distanceCopy.deleteUnsavedDescription))
+    fireEvent.click(dialog.getByRole("button", { name: distanceCopy.cancelDeletion, exact: true }))
+    assert.ok(!view.queryByRole("alertdialog"))
+    assert.deepEqual(queryClient.getQueryData(key), draft)
+    assert.equal(writes, 0)
+    dialog = await openDistanceDeletion(view)
+    const confirm = dialog.getByRole("button", { name: distanceCopy.deleteAction, exact: true })
+    act(() => { fireEvent.click(confirm); fireEvent.click(confirm) })
+    await entered.promise
+    assert.equal(writes, 1)
+    assert.equal(queryClient.getQueryData(key).kind, "distance-delete")
+    assert.ok(view.container.querySelector(`[data-distance-id="${id}"] line`))
+    assert.equal(dialog.getByRole("button", { name: distanceCopy.cancelDeletion, exact: true }).disabled, true)
+    const unload = new dom.window.Event("beforeunload", { cancelable: true }); window.dispatchEvent(unload)
+    assert.equal(unload.defaultPrevented, true)
+    await act(async () => { barrier.resolve() })
+    await waitFor(() => assert.ok(!view.queryByRole("alertdialog")))
+    assert.deepEqual(server.persisted.document.objects, before.document.objects.filter(object => object.id !== id))
+    assert.deepEqual(server.persisted.document.calibration, before.document.calibration)
+    assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+    assert.deepEqual(server.calls.find(call => call.method === "PATCH").body, { kind: "distance-delete", baseRevision: before.revision, id })
+    assert.ok(!view.container.querySelector(`[data-distance-id="${id}"]`))
+    assert.equal(queryClient.getQueryData(key), null)
+    assert.equal(notices.filter(item => item.title === distanceCopy.deletedTitle).length, 1)
+  } finally { barrier.resolve() }
+})
+
+test("distance deletion restores an uncertain command after remount and only checks by GET", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = editableDistancesPlan()
+  const id = server.persisted.document.objects[0].id
+  let written = false, confirmRead = false
+  globalThis.fetch = async (url, init) => {
+    if (written && !confirmRead && url.endsWith("/plan") && init?.method !== "PATCH") throw new TypeError("synthetic read unavailable")
+    const response = await server.fetch(url, init)
+    if (init?.method === "PATCH") { written = true; throw new TypeError("synthetic lost response") }
+    return response
+  }
+  let view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  let dialog = await openDistanceDeletion(view)
+  fireEvent.click(dialog.getByRole("button", { name: distanceCopy.deleteAction, exact: true }))
+  await dialog.findByRole("button", { name: distanceCopy.checkDeletion, exact: true })
+  assert.equal(dialog.getByRole("button", { name: distanceCopy.cancelDeletion, exact: true }).disabled, true)
+  assert.ok(view.container.querySelector(`[data-distance-id="${id}"] line`))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  view.unmount()
+  view = render(h(Workspace, { queryClient }))
+  dialog = within(await view.findByRole("alertdialog", { name: distanceCopy.deleteTitle }))
+  await waitFor(() => assert.ok(view.container.querySelector("img")))
+  fireEvent.load(view.container.querySelector("img"))
+  assert.equal(view.container.querySelector('nav button[aria-pressed="true"]').getAttribute("aria-label"), toolsCopy.title)
+  confirmRead = true
+  fireEvent.click(dialog.getByRole("button", { name: distanceCopy.checkDeletion, exact: true }))
+  await waitFor(() => assert.ok(!view.queryByRole("alertdialog")))
+  assert.ok(!view.container.querySelector(`[data-distance-id="${id}"]`))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  assert.equal(server.calls.at(-1).method, "GET")
+  assert.ok(notices.some(item => item.kind === "info" && item.title === distanceCopy.alreadyRemovedTitle))
+  assert.equal(notices.some(item => item.title === distanceCopy.deletedTitle), false)
+})
+
+for (const removed of [false, true]) test(`distance deletion handles a revision conflict when the LINE is ${removed ? "already removed" : "still present"}`, async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = editableDistancesPlan()
+  const id = server.persisted.document.objects[0].id
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH") {
+      server.calls.push({ url, method: "PATCH", body: JSON.parse(init.body) })
+      server.persisted = { ...server.persisted, revision: server.persisted.revision + 1,
+        document: { ...server.persisted.document, objects: server.persisted.document.objects.filter(object => !removed || object.id !== id) } }
+      return Response.json({ error: { code: "PLAN_REVISION_CONFLICT", uncertain: false, currentRevision: server.persisted.revision } }, { status: 409 })
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  const dialog = await openDistanceDeletion(view)
+  fireEvent.click(dialog.getByRole("button", { name: distanceCopy.deleteAction, exact: true }))
+  if (removed) {
+    await waitFor(() => assert.ok(!view.queryByRole("alertdialog")))
+    assert.ok(notices.some(item => item.kind === "info" && item.title === distanceCopy.alreadyRemovedTitle))
+  } else {
+    fireEvent.click(await dialog.findByRole("button", { name: distanceCopy.loadSaved, exact: true }))
+    await waitFor(() => assert.ok(!view.queryByRole("alertdialog")))
+    assert.ok(server.persisted.document.objects.some(object => object.id === id))
+  }
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  assert.equal(notices.some(item => item.title === distanceCopy.deletedTitle), false)
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+})
+
+for (const retry of [false, true]) test(`distance deletion keeps a definitive failure until explicit ${retry ? "retry" : "cancellation"}`, async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = editableDistancesPlan()
+  const before = structuredClone(server.persisted), id = before.document.objects[0].id
+  let refused = true
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH" && refused) {
+      server.calls.push({ url, method: "PATCH", body: JSON.parse(init.body) })
+      return Response.json({ error: { code: "SERVICE_UNAVAILABLE", uncertain: false } }, { status: 503 })
+    }
+    return server.fetch(url, init)
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  const dialog = await openDistanceDeletion(view)
+  fireEvent.click(dialog.getByRole("button", { name: distanceCopy.deleteAction, exact: true }))
+  await dialog.findByText(distanceCopy.deleteErrorDescription)
+  await waitFor(() => assert.ok(notices.some(item => item.title === distanceCopy.deleteErrorTitle)))
+  assert.deepEqual(server.persisted, before)
+  assert.ok(view.container.querySelector(`[data-distance-id="${id}"] line`))
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  if (retry) {
+    refused = false
+    fireEvent.click(dialog.getByRole("button", { name: distanceCopy.deleteAction, exact: true }))
+    await waitFor(() => assert.ok(!view.queryByRole("alertdialog")))
+    assert.ok(!server.persisted.document.objects.some(object => object.id === id))
+    assert.equal(server.calls.filter(call => call.method === "PATCH").length, 2)
+  } else {
+    fireEvent.click(dialog.getByRole("button", { name: distanceCopy.cancelDeletion, exact: true }))
+    assert.ok(!view.queryByRole("alertdialog"))
+    assert.deepEqual(server.persisted, before)
+    assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+  }
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+})
+
+test("distance deletion observes a background removal before confirmation without issuing an empty write", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  server.persisted = editableDistancesPlan(); globalThis.fetch = server.fetch
+  const id = server.persisted.document.objects[0].id
+  const view = render(h(Workspace, { queryClient }))
+  await editFirstDistance(view)
+  const dialog = await openDistanceDeletion(view)
+  server.persisted = { ...server.persisted, revision: server.persisted.revision + 1,
+    document: { ...server.persisted.document, objects: server.persisted.document.objects.filter(object => object.id !== id) } }
+  await act(async () => { queryClient.setQueryData(keys.imagePlan(image.caseId, image.id), server.persisted) })
+  fireEvent.click(dialog.getByRole("button", { name: distanceCopy.loadSaved, exact: true }))
+  await waitFor(() => assert.ok(!view.queryByRole("alertdialog")))
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  assert.ok(notices.some(item => item.kind === "info" && item.title === distanceCopy.alreadyRemovedTitle))
+})
+
+test("distance values follow pointer previews and keyboard edits in both surfaces; cancellation restores and save uses the API result", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  const official = distanceResultBackend(server, 37.512345)
+  globalThis.fetch = (url, init) => init?.method === "PATCH" ? official(url, init) : server.fetch(url, init)
+  const view = render(h(Workspace, { queryClient }))
+  await editingWorkspace(view)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  const id = server.persisted.document.objects[0].id, key = keys.imageDistanceDraft(image.caseId, image.id)
+  const calibration = structuredClone(server.persisted.document.calibration)
+  const original = structuredClone(queryClient.getQueryData(key)), viewport = distanceRect(view)
+  const values = (expected, preview = false) => {
+    const overlay = view.container.querySelector(`[data-distance-id="${id}"]`)
+    const row = view.container.querySelector(`[data-distance-row="${id}"]`)
+    assert.equal(overlay.querySelector("text").textContent, expected)
+    assert.equal(row.querySelector('[id$="-value"]').textContent, expected)
+    assert.equal(overlay.hasAttribute("data-distance-preview"), preview)
+    assert.equal(row.hasAttribute("data-distance-preview"), preview)
+  }
+  values("25,00 mm")
+  for (const cancel of ["Escape", "pointercancel", "lostpointercapture"]) {
+    viewerPointer(viewport, "pointerdown", 700, 350)
+    viewerPointer(viewport, "pointermove", 900, 350)
+    values("50,00 mm", true)
+    assert.ok(view.container.querySelector(`[data-distance-id="${id}"] text`).parentElement.getAttribute("transform").startsWith("translate(1200 500)"))
+    assert.deepEqual(queryClient.getQueryData(key), original)
+    assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+    viewerPointer(viewport, "pointermove", 800, 350)
+    values("37,50 mm", true)
+    if (cancel === "Escape") fireEvent.keyDown(viewport, { key: "Escape" })
+    else viewerPointer(viewport, cancel, 800, 350)
+    viewerPointer(viewport, "pointerup", 900, 350)
+    values("25,00 mm")
+    assert.deepEqual(queryClient.getQueryData(key), original)
+  }
+  viewerPointer(viewport, "pointerdown", 700, 350)
+  viewerPointer(viewport, "pointermove", 900, 350)
+  values("50,00 mm", true)
+  viewerPointer(viewport, "pointerup", 900, 350)
+  await waitFor(() => values("50,00 mm", true))
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }), { key: "ArrowRight", shiftKey: true })
+  values("50,63 mm", true)
+  assert.equal(server.persisted.document.objects[0].measurement.values.length, 25)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
+  assert.equal(server.calls.some(call => call.method === "PATCH"), false)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.cancelEditing }))
+  assert.ok(!view.container.querySelector("[data-distance-overlay]"))
+  assert.ok(!view.container.querySelector(`[data-distance-row="${id}"]`))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.title, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  values("25,00 mm")
+  viewerPointer(viewport, "pointerdown", 700, 350)
+  viewerPointer(viewport, "pointermove", 900, 350)
+  viewerPointer(viewport, "pointerup", 900, 350)
+  await waitFor(() => values("50,00 mm", true))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.update, exact: true }))
+  await waitFor(() => assert.equal(notices.filter(item => item.kind === "success").length, 2))
+  values("37,51 mm")
+  const command = server.calls.find(call => call.method === "PATCH").body
+  assert.deepEqual(Object.keys(command).sort(), ["baseRevision", "end", "id", "kind", "start"])
+  assert.deepEqual(server.persisted.document.calibration, calibration)
+  assert.equal(server.persisted.document.objects.length, 1)
+  assert.equal(server.persisted.document.objects[0].id, id)
+})
+
+test("distance preview is unavailable after a newer plan revision and late pointer release cannot update its geometry", async () => {
+  const server = backend(), queryClient = client()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await editingWorkspace(view)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  const id = server.persisted.document.objects[0].id, key = keys.imageDistanceDraft(image.caseId, image.id)
+  const original = structuredClone(queryClient.getQueryData(key)), viewport = distanceRect(view)
+  viewerPointer(viewport, "pointerdown", 700, 350)
+  viewerPointer(viewport, "pointermove", 900, 350)
+  assert.equal(view.container.querySelector(`[data-distance-row="${id}"] [id$="-value"]`).textContent, "50,00 mm")
+  await act(async () => { queryClient.setQueryData(keys.imagePlan(image.caseId, image.id), current => ({ ...current, revision: current.revision + 1 })) })
+  assert.equal(view.container.querySelector(`[data-distance-row="${id}"] [id$="-value"]`).textContent, "—")
+  assert.ok(!view.container.querySelector("[data-distance-preview]"))
+  viewerPointer(viewport, "pointerup", 900, 350)
+  assert.deepEqual(queryClient.getQueryData(key), original)
+  assert.equal(server.calls.filter(call => call.method !== "GET").length, 1)
+})
+
+test("recalibration retains its explicitly selected LINE after a definitive failure and remount before retry", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = editableDistancesPlan()
+  const id = server.persisted.document.objects.filter(object => object.type === "LINE")[1].id
+  const others = structuredClone(server.persisted.document.objects.filter(object => object.id !== id))
+  let reject = true
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PUT" && reject) {
+      server.calls.push({ url, method: "PUT", body: JSON.parse(init.body) })
+      return Response.json({ error: { code: "SERVICE_UNAVAILABLE", uncertain: false, retryable: true } }, { status: 503 })
+    }
+    return server.fetch(url, init)
+  }
+  let hook = renderHook(() => useImageCalibration(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canEdit, true))
+  act(() => hook.result.current.changeReference("35"))
+  const name = index => distanceCopy.defaultName.replace("{index}", String(index))
+  const input = hook.result.current.command(name, id)
+  assert.equal(input.distanceId, id)
+  await act(async () => { assert.equal((await hook.result.current.save.mutateAsync({ input })).phase, "error") })
+  hook.unmount()
+  hook = renderHook(() => useImageCalibration(image, true, false), { wrapper: wrapper(queryClient) })
+  await waitFor(() => assert.equal(hook.result.current.canSave, true))
+  const recovered = hook.result.current.command(name)
+  assert.equal(recovered.distanceId, id)
+  reject = false
+  await act(async () => { assert.equal((await hook.result.current.save.mutateAsync({ input: recovered })).phase, "saved") })
+  assert.equal(server.persisted.document.objects.length, 3)
+  assert.deepEqual(server.persisted.document.objects.filter(object => object.id !== id), others)
+  const line = server.persisted.document.objects.find(object => object.id === id)
+  closePoint(line.start, server.persisted.document.calibration.start)
+  closePoint(line.end, server.persisted.document.calibration.end)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 2)
+})
+
+for (const kind of ["line", "circle"]) test(`calibration ${kind} and recalibration return to the same distance; reopening or dragging blank space cannot create another`, async () => {
+  const server = backend(), queryClient = client()
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await editingWorkspace(view)
+  if (kind === "circle") fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.circle, exact: true }))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  const key = keys.imageDistanceDraft(image.caseId, image.id), id = server.persisted.document.objects[0].id
+  assert.equal(queryClient.getQueryData(key).kind, "distance-update")
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.ok(!view.container.querySelector("[data-calibration-circle]"))
+  const first = structuredClone(server.persisted.document.objects[0])
+  await openCalibration(view)
+  fireEvent.change(await referenceInput(view, kind === "line" ? "Comprimento real" : "Diâmetro real"), { target: { value: "35" } })
+  const viewport = distanceRect(view)
+  // Move the existing line/diameter instead of keeping the old geometry.
+  viewerPointer(viewport, "pointerdown", 500, 350)
+  viewerPointer(viewport, "pointermove", 550, 300)
+  viewerPointer(viewport, "pointerup", 550, 300)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.update, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  const plan = server.persisted, line = plan.document.objects[0], reference = plan.document.calibration
+  assert.equal(plan.document.objects.length, 1)
+  assert.equal(line.id, id)
+  assert.notDeepEqual(line.start, first.start)
+  closePoint(line.end, kind === "line" ? reference.end : reference.edge)
+  closePoint(line.start, kind === "line" ? reference.start : { x: 2 * reference.center.x - reference.edge.x, y: 2 * reference.center.y - reference.edge.y })
+  assert.equal(server.calls.filter(call => call.method === "PUT").at(-1).body.distanceId, id)
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, "35,00 mm")
+  assert.ok(!view.container.querySelector("[data-calibration-circle]"))
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  const draft = structuredClone(queryClient.getQueryData(key))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.title, exact: true }))
+  viewerPointer(viewport, "pointerdown", 850, 150)
+  viewerPointer(viewport, "pointermove", 1000, 250)
+  viewerPointer(viewport, "pointerup", 1000, 250)
+  assert.deepEqual(queryClient.getQueryData(key), draft)
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.cancelEditing }))
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.title, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  assert.equal(queryClient.getQueryData(key).kind, "distance-update")
+  assert.equal(queryClient.getQueryData(key).id, id)
+  assert.equal(server.persisted.document.objects.length, 1)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 2)
+  assert.equal(server.calls.some(call => call.method === "PATCH"), false)
+})
+
+test("line calibration handoff saves one independent distance, opens Tools with official mm and edits without changing scale", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  const official = distanceResultBackend(server, 37.512345)
+  globalThis.fetch = (url, init) => init?.method === "PATCH" ? official(url, init) : server.fetch(url, init)
+  const view = render(h(Workspace, { queryClient }))
+  await editingWorkspace(view)
+  const saveCalibration = view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save, exact: true })
+  act(() => { fireEvent.click(saveCalibration); fireEvent.click(saveCalibration) })
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+  await view.findByText(distanceCopy.editingSaved)
+  const line = server.persisted.document.objects[0], id = line.id
+  const calibration = structuredClone(server.persisted.document.calibration)
+  const command = server.calls.find(call => call.method === "PUT").body
+  assert.equal(command.initialDistance.id, id)
+  closePoint(line.start, calibration.start); closePoint(line.end, calibration.end)
+  assert.equal(line.measurement.values.length, 25)
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, "25,00 mm")
+  assert.ok(!view.container.querySelector(`[data-distance-id="${id}"] line`))
+  assert.ok(view.container.querySelector("[data-distance-draft] line"))
+  assert.equal(view.getByRole("button", { name: distanceCopy.update, exact: true }).disabled, true)
+  assert.equal(hasImagePlanDraft(queryClient, image.caseId, image.id), false)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 0)
+  assert.equal(notices.filter(item => item.kind === "success").length, 1)
+  const viewport = distanceRect(view)
+  await waitFor(() => assert.ok(document.activeElement === viewport))
+  viewerPointer(viewport, "pointerdown", 500, 350)
+  viewerPointer(viewport, "pointermove", 520, 360)
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, "22,53 mm")
+  viewerPointer(viewport, "pointercancel", 520, 360)
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, "25,00 mm")
+  fireEvent.keyDown(view.getByRole("button", { name: distanceCopy.targets.end, exact: true }), { key: "ArrowRight", shiftKey: true })
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, "25,63 mm")
+  fireEvent.click(view.getByRole("button", { name: distanceCopy.update, exact: true }))
+  await waitFor(() => assert.equal(notices.filter(item => item.kind === "success").length, 2))
+  assert.equal(view.container.querySelector(`[data-distance-id="${id}"] text`).textContent, "37,51 mm")
+  assert.deepEqual(server.persisted.document.calibration, calibration)
+  assert.equal(server.persisted.document.objects.length, 1)
+  assert.equal(server.persisted.document.objects[0].id, id)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
+  assert.equal(server.calls.filter(call => call.method === "PATCH").length, 1)
+})
+
+test("line calibration handoff reuses the captured seed on GET confirmation and only opens Tools after both effects exist", async () => {
+  const server = backend(), queryClient = client()
+  let written = false, verify = false
+  globalThis.fetch = async (url, init) => {
+    if (written && !verify && url.endsWith("/plan") && init?.method !== "PUT") {
+      server.calls.push({ url, method: "GET" }); return Response.json(initial)
+    }
+    const response = await server.fetch(url, init)
+    if (init?.method === "PUT") { written = true; throw new TypeError("synthetic lost acknowledgement") }
+    return response
+  }
+  const view = render(h(Workspace, { queryClient }))
+  await editingWorkspace(view)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.save, exact: true }))
+  await view.findByText(messages.cases.workspace.calibration.remote.uncertain)
+  assert.equal(view.getByRole("button", { name: imageCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  const id = server.persisted.document.objects[0].id
+  verify = true
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.remote.check, exact: true }))
+  await view.findByText(distanceCopy.editingSaved)
+  assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true")
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)).id, id)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 1)
+  assert.equal(server.calls.some(call => call.method === "PATCH"), false)
+})
+
+test("calibration handoff preserves ambiguous legacy distances and circle hides its ring in Tools", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan(); globalThis.fetch = server.fetch
+  const before = structuredClone(server.persisted.document.objects)
+  const view = render(h(Workspace, { queryClient }))
+  await openCalibration(view)
+  fireEvent.change(await referenceInput(view, "Comprimento real"), { target: { value: "35" } })
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.update, exact: true }))
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+  assert.equal("initialDistance" in server.calls.find(call => call.method === "PUT").body, false)
+  assert.deepEqual(server.persisted.document.objects, before)
+  await openCalibration(view)
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.circle, exact: true }))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.update, exact: true }))
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+  assert.ok(!view.container.querySelector("[data-calibration-circle]"))
+  assert.equal(server.persisted.document.calibration.kind, "REFERENCE_CIRCLE")
+  assert.deepEqual(server.persisted.document.objects, before)
+  assert.equal(server.calls.filter(call => call.method === "PUT").length, 2)
+  assert.equal(server.calls.some(call => call.method === "PATCH"), false)
+})
+
+test("line calibration handoff rejects a full plan without a partial save and explains the limit", async () => {
+  const server = backend(), queryClient = client(), notices = distanceNotices()
+  const saved = savedDistancesPlan(), angle = saved.document.objects[1]
+  saved.document.objects = Array.from({ length: 500 }, (_, i) => ({ ...angle, id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}` }))
+  server.persisted = saved; globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await openCalibration(view)
+  fireEvent.change(await referenceInput(view, "Comprimento real"), { target: { value: "35" } })
+  const key = keys.imageCalibrationDraft(image.caseId, image.id), before = structuredClone(queryClient.getQueryData(key))
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.update, exact: true }))
+  assert.equal(notices.length, 1)
+  assert.equal(notices[0].title, messages.cases.workspace.calibration.remote.distanceLimitTitle)
+  assert.deepEqual(queryClient.getQueryData(key), before)
+  assert.equal(server.calls.some(call => call.method !== "GET"), false)
+  assert.equal(server.persisted.document.objects.length, 500)
+})
+
+test("line calibration handoff does not choose arbitrarily between matching saved distances", async () => {
+  const server = backend(), queryClient = client()
+  server.persisted = savedDistancesPlan()
+  for (const object of server.persisted.document.objects.filter(object => object.type === "LINE")) {
+    object.start = { ...server.persisted.document.calibration.start }; object.end = { ...server.persisted.document.calibration.end }
+  }
+  globalThis.fetch = server.fetch
+  const view = render(h(Workspace, { queryClient }))
+  await openCalibration(view)
+  fireEvent.change(await referenceInput(view, "Comprimento real"), { target: { value: "35" } })
+  fireEvent.click(view.getByRole("button", { name: messages.cases.workspace.calibration.update, exact: true }))
+  await waitFor(() => assert.equal(view.getByRole("button", { name: toolsCopy.title, exact: true }).getAttribute("aria-pressed"), "true"))
+  assert.ok(view.container.querySelector("[data-distance-controls]"))
+  assert.ok(!view.queryByRole("group", { name: distanceCopy.adjustTarget, exact: true }))
+  assert.equal(queryClient.getQueryData(keys.imageDistanceDraft(image.caseId, image.id)), null)
+  assert.equal(view.container.querySelectorAll("[data-distance-row][aria-pressed=true]").length, 0)
+  assert.equal(server.persisted.document.objects.length, 3)
 })

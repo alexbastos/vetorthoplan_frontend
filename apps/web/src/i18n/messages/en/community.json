@@ -1,0 +1,123 @@
+{
+  "title": "Community",
+  "messages": "Messages",
+  "directMessages": "Direct messages",
+  "searchConversations": "Search conversations",
+  "closeSearch": "Close search",
+  "searchPlaceholder": "Search by name…",
+  "noSearchResults": "No conversations found.",
+  "newConversation": {
+    "title": "New conversation",
+    "description": "Find a Community member to send a message to.",
+    "search": "Search members by name…",
+    "members": "Community members",
+    "noResults": "No members found."
+  },
+  "backToConversations": "Back to conversations",
+  "conversationOptions": "Conversation options for {name}",
+  "unreadConversation": "Unread conversation with {name}",
+  "markUnread": "Mark as unread",
+  "markUnreadDescription": "Highlight the conversation in the list to read later.",
+  "markRead": "Mark as read",
+  "emptyConversation": "No messages yet.",
+  "empty": {
+    "inbox": {
+      "title": "No conversations yet",
+      "description": "Your conversations with other Community members will appear here."
+    },
+    "conversation": {
+      "title": "No messages yet",
+      "description": "Send the first message to start the conversation."
+    }
+  },
+  "searchMessages": "Search this conversation",
+  "viewProfile": "View profile",
+  "moreOptions": "More options",
+  "messageHistory": "Message history",
+  "searchResults": "{current} of {total}",
+  "previousResult": "Previous result",
+  "nextResult": "Next result",
+  "muteConversation": "Mute conversation",
+  "muteConversationDescription": "Pause alerts for new messages.",
+  "unmuteConversation": "Unmute conversation",
+  "unmuteConversationDescription": "Resume alerts for new messages.",
+  "mutedConversation": "Muted conversation",
+  "messageActions": "Message actions",
+  "likeMessage": "Like message",
+  "replyToMessage": "Reply to message",
+  "goToQuotedMessage": "Go to the original message",
+  "replyingTo": "Replying to {name}",
+  "cancelReply": "Cancel reply",
+  "copyMessage": "Copy message",
+  "messageCopied": "Message copied",
+  "messageCopiedDescription": "The text is on your clipboard.",
+  "copyFailed": "Couldn't copy the message",
+  "copyFailedDescription": "Select the message text to copy it.",
+  "profile": {
+    "title": "Profile",
+    "profession": "Veterinary medicine",
+    "about": "About",
+    "areas": "Areas of practice",
+    "experience": "{years, plural, one {# year of experience} other {# years of experience}}",
+    "memberSince": "Member since {date}",
+    "languages": "Languages",
+    "language": {
+      "pt": "Portuguese",
+      "en": "English",
+      "es": "Spanish"
+    },
+    "focus": {
+      "camila": "Physiotherapy and recovery",
+      "andre": "Preventive care",
+      "marina": "Orthopedic planning",
+      "rafael": "Veterinary radiography",
+      "beatriz": "Surgical planning",
+      "helena": "Veterinary physiotherapy"
+    },
+    "bio": {
+      "camila": "Works in functional rehabilitation for veterinary patients.",
+      "andre": "Works in preventive care and clinical follow-up.",
+      "marina": "Works in veterinary orthopedics and enjoys sharing experiences with team-based case planning and review.",
+      "rafael": "Works in diagnostic imaging and is interested in how teams organize radiograph reviews.",
+      "beatriz": "Works in veterinary surgery and shares her experience with planning workflows.",
+      "helena": "Works in veterinary rehabilitation and supports patient recovery alongside the clinical team."
+    }
+  },
+  "safetyNotice": {
+    "title": "Chat safely",
+    "description": "For your safety, keep your conversations within the Community.",
+    "learnMore": "Learn more",
+    "dialogTitle": "We've got your back",
+    "dialogDescription": "Keep your conversations in the Community and avoid sharing passwords, login details, or information that identifies pet owners. When discussing a case, remove identifying details from images and documents before sharing.",
+    "acknowledge": "Got it"
+  },
+  "you": "You",
+  "newMessages": "New messages",
+  "writeMessage": "Write a message to {name}…",
+  "attachFiles": "Attach files",
+  "recordAudio": "Record audio",
+  "sendMessage": "Send message",
+  "specialties": {
+    "camila": "Veterinary physiotherapy",
+    "andre": "Preventive medicine",
+    "marina": "Veterinary orthopedics",
+    "rafael": "Diagnostic imaging",
+    "beatriz": "Veterinary surgery",
+    "helena": "Veterinary rehabilitation"
+  },
+  "history": {
+    "first": "I'm organizing a team discussion about how we review radiographs. Would you share how your team works?",
+    "second": "Of course. I can bring a few fictional examples so we can talk without using patient data.",
+    "third": "Great. I'd split the discussion in two: how we receive the images and how we record questions that come up during review.\n\nThat gives us time to compare how each team works.",
+    "fourth": "Good idea. I'll also write down the questions that tend to come up during shift handoffs.",
+    "fifth": "I found some time on Thursday. If that works for you, I'll send the agenda to the group afterward.",
+    "sixth": "Thursday works. I can prepare a list of the points we want to discuss and bring it to the meeting.",
+    "seventh": "Perfect. Let's leave some time at the end for the rest of the team to add anything.",
+    "eighth": "Sounds good. Thanks for organizing!"
+  },
+  "demo": {
+    "marina": "Hi! Do you usually review the TPLO plan with your team before surgery?",
+    "rafael": "Thanks for sharing your thoughts on radiograph calibration.",
+    "beatriz": "Shall we talk about how we organize planning reviews?"
+  }
+}

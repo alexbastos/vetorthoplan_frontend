@@ -4,13 +4,13 @@ import type { GetImagePath, GetImagePlanPath, SaveImagePlanPath, SaveImagePlanRe
 import { z } from "zod"
 
 import { ImagePlanSchema, SaveCalibrationSchema, UpstreamImagePlanSchema, type ImagePlan } from "../../features/cases/schemas/image-plan.schema"
-import { applyPlanCommand, planCommandMatches, SavePlanEditSchema, type PlanSaveCommand } from "../../features/cases/schemas/image-plan-command.schema"
+import { applyPlanCommand, hasUniquePlanObjectIds, planCommandMatches, planCommandOwner, SavePlanEditSchema, type PlanSaveCommand } from "../../features/cases/schemas/image-plan-command.schema"
 import { ImageSchema } from "./case-images-bff"
 
 type Reader<Path> = (path: Path, signal?: AbortSignal) => Promise<{ status: number; data: unknown }>
 type Writer = (path: SaveImagePlanPath, input: SaveImagePlanRequest, signal?: AbortSignal) => Promise<{ status: number; data: unknown }>
 type ErrorCode = "ACCESS_DENIED" | "IMAGE_NOT_FOUND" | "IMAGE_NOT_READY" | "IMAGE_DIMENSIONS_REQUIRED" |
-  "CALIBRATION_GEOMETRY_UNSUPPORTED" | "PLAN_REVISION_CONFLICT" | "PLAN_SAVE_NOT_ALLOWED" |
+  "CALIBRATION_GEOMETRY_UNSUPPORTED" | "CALIBRATION_REQUIRED" | "PLAN_REVISION_CONFLICT" | "PLAN_SAVE_NOT_ALLOWED" |
   "CLINICAL_VALIDATION_INVALID" | "VALIDATION_ERROR" | "INVALID_RESPONSE" | "SERVICE_UNAVAILABLE"
 type Failure = { status: 400 | 403 | 404 | 409 | 422 | 502 | 503; body: { error: {
   code: ErrorCode; retryable: boolean; uncertain: boolean; currentRevision?: number
@@ -75,19 +75,34 @@ async function savePlanCommand(caseId: string, imageId: string, input: PlanSaveC
     const checked = await imageForPlan(caseId, imageId, readImage, signal)
     if (checked.error) return checked.error
     const image = checked.image!
-    if (!("kind" in input) && (!image.width_px || !image.height_px)) return failure(409, "IMAGE_DIMENSIONS_REQUIRED")
-    if (!("kind" in input) && image.kind === "DICOM" && [image.pixel_spacing_mm, image.imager_pixel_spacing_mm].some(spacing =>
+    const owner = planCommandOwner(input)
+    const measurementEdit = owner === "distance" || owner === "angle" || owner === "circle"
+    // Object measures retain their existing Tools gates. TPA uses original
+    // dimensions without requiring a scale. Clearing references edits no geometry.
+    const landmarksGeometry = "kind" in input && input.kind === "landmarks-set"
+    const geometryRequired = measurementEdit || owner === "calibration" || landmarksGeometry
+    if (geometryRequired && (!image.width_px || !image.height_px)) return failure(409, "IMAGE_DIMENSIONS_REQUIRED")
+    if (geometryRequired && image.kind === "DICOM" && [image.pixel_spacing_mm, image.imager_pixel_spacing_mm].some(spacing =>
       spacing && Math.abs(spacing[0] / spacing[1] - 1) > 1e-6)) return failure(409, "CALIBRATION_GEOMETRY_UNSUPPORTED")
     const response = await readPlan({ image_id: imageId }, signal)
     if (response.status !== 200) return mapStatus(response.status, response.data)
     const current = projectPlan(response.data, imageId)
     if (!current) return failure(502, "INVALID_RESPONSE")
+    if (measurementEdit && !hasUniquePlanObjectIds(current.document)) return failure(502, "INVALID_RESPONSE")
     if (current.revision !== input.baseRevision) return failure(409, "PLAN_REVISION_CONFLICT", false, current.revision)
+    if (measurementEdit && !current.document.calibration?.result) return failure(409, "CALIBRATION_REQUIRED")
     if (signal?.aborted) return failure(503, "SERVICE_UNAVAILABLE")
     // Merge only the command's allowed field into the latest confirmed document.
     // The backend alone recomputes derived measurements and validates transitions.
-    const payload: SaveImagePlanRequest = { base_revision: current.revision,
-      document: applyPlanCommand(current.document, input) }
+    let document: ImagePlan["document"]
+    try { document = applyPlanCommand(current.document, input) }
+    catch (error) {
+      // Only a local command refusal is definitive validation. A failure after
+      // write starts must retain uncertainty, even when its exception is ZodError.
+      if (error instanceof z.ZodError) return failure(400, "VALIDATION_ERROR")
+      throw error
+    }
+    const payload: SaveImagePlanRequest = { base_revision: current.revision, document }
     attempted = true
     const saved = await write({ image_id: imageId }, payload, signal)
     if (saved.status !== 200) return mapStatus(saved.status, saved.data, true)

@@ -8,13 +8,14 @@ import { IDLE_CALIBRATION_SAVE, isCalibrationSaveLocked, type CalibrationSaveSta
 import { calibrationProductState } from "../lib/calibration-product-state"
 import { IDLE_DELETION, isImageDeletionLocked, type ImageDeletionState } from "../lib/image-deletion"
 import { imagePlanQueryOptions } from "../lib/image-plan-query-options"
-import { hasQualityDraft } from "../lib/image-quality-draft"
+import { hasOtherImagePlanDraft } from "../lib/image-plan-draft"
 import { requestCalibrationSave } from "../lib/image-plan-saving"
-import type { SaveCalibrationInput } from "../schemas/image-plan.schema"
+import type { ImagePlan, SaveCalibrationInput } from "../schemas/image-plan.schema"
 import type { CaseImage } from "../types/case-image"
 import type { CalibrationMarker } from "../types/case-workspace"
 import { casesQueryKeys as keys } from "./cases-query-keys"
 import { useCalibrationDraft } from "./use-calibration-draft"
+import { useOtherImagePlanDraft } from "./use-image-plan-drafts"
 
 function useImageCalibration(image: CaseImage, ready: boolean, caseLocked: boolean) {
   const client = useQueryClient()
@@ -39,7 +40,7 @@ function useImageCalibration(image: CaseImage, ready: boolean, caseLocked: boole
   const editor = draft ?? recovery ?? (plan ? editorFromPlan(plan) : null)
   const dimensions = image.widthPx && image.heightPx ? { widthPx: image.widthPx, heightPx: image.heightPx } : null
   const issue = calibrationGeometryIssue(image)
-  const otherIntent = hasQualityDraft(client, image.caseId, image.id)
+  const otherIntent = useOtherImagePlanDraft(image.caseId, image.id, "calibration")
   const interactionAvailable = image.status === "READY" && ready && !issue && !deleting && !locked && !otherIntent && !planQuery.isFetching
   const canEdit = interactionAvailable && Boolean(plan) && !planQuery.isError
   const canRetryRead = interactionAvailable && planQuery.isError
@@ -47,11 +48,12 @@ function useImageCalibration(image: CaseImage, ready: boolean, caseLocked: boole
   const input = editor && calibrationFromEditor(editor)
   const needsRebase = Boolean(editor && plan && editor.baseRevision !== plan.revision)
   const canSave = canEdit && hasChanges && Boolean(input) && !needsRebase
-  const product = calibrationProductState({ plan, imageId: image.id, receipt: planReceipt, dirty: hasChanges, needsRebase,
-    pending: planQuery.isPending, readError: planQuery.isError, available: image.status === "READY" && ready && !issue && !deleting && !otherIntent })
+  const product = calibrationProductState({ plan, imageId: image.id, receipt, dirty: hasChanges, needsRebase,
+    pending: planQuery.isPending, readError: planQuery.isError, available: image.status === "READY" && ready && !issue && !deleting })
 
   function update(change: (current: CalibrationEditor) => CalibrationEditor) {
-    if (canEdit && editor && !isImageDeletionLocked(client, image.caseId, image.id) && !hasQualityDraft(client, image.caseId, image.id)) {
+    if (canEdit && editor && !isImageDeletionLocked(client, image.caseId, image.id)
+      && !hasOtherImagePlanDraft(client, image.caseId, image.id, "calibration")) {
       client.setQueryData<CalibrationEditor | null>(draftKey, current => change(current ?? editor))
     }
   }
@@ -65,11 +67,15 @@ function useImageCalibration(image: CaseImage, ready: boolean, caseLocked: boole
     if (currentReceipt?.edit && currentReceipt.phase !== "saved" && currentReceipt.phase !== "idle") return false
     const mustReload = receipt.phase === "conflict" && (!receipt.currentRevision || !plan || plan.revision < receipt.currentRevision)
     client.setQueryData(draftKey, null)
-    client.setQueryData(keys.imagePlanSave(image.caseId, image.id), IDLE_CALIBRATION_SAVE)
+    if (!currentReceipt?.edit) client.setQueryData(keys.imagePlanSave(image.caseId, image.id), IDLE_CALIBRATION_SAVE)
     if (mustReload) void client.resetQueries({ queryKey: keys.imagePlan(image.caseId, image.id), exact: true })
     return true
   }
-  function command(): SaveCalibrationInput | null { return canSave && editor && input ? { baseRevision: editor.baseRevision, calibration: input } : null }
+  function command(): SaveCalibrationInput | null {
+    if (!canSave || !editor || !input) return null
+    const current = client.getQueryData<ImagePlan>(keys.imagePlan(image.caseId, image.id))
+    return current?.revision === editor.baseRevision ? { baseRevision: editor.baseRevision, calibration: input } : null
+  }
   const marker = dimensions && editor ? geometryToMarker(editor.geometry, dimensions) : null
 
   return { planQuery, plan, receipt, planReceipt, editor, issue, canEdit, canRetryRead, canSave, hasChanges, locked, deleting, needsRebase, marker, save, command, discard, otherIntent,

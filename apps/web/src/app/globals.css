@@ -75,6 +75,11 @@
   --color-link: var(--color-link-default);
   --color-intelligence: var(--color-product-intelligence);
   --color-notices: var(--color-product-notices);
+  --color-radiograph-attention: var(--radiograph-mark-attention);
+  --color-radiograph-interest: var(--radiograph-mark-interest);
+  --color-radiograph-anatomy: var(--radiograph-mark-anatomy);
+  --color-radiograph-measurement: var(--radiograph-mark-measurement);
+  --color-radiograph-accent: var(--radiograph-mark-accent);
   --ease-enter: var(--motion-ease-enter);
   --ease-exit: var(--motion-ease-exit);
   --ease-standard: var(--motion-ease-standard);
@@ -161,6 +166,16 @@
   --color-silver: #c2c3c8;
   --color-obsidian: #171719;
   --color-midnight: #1e1e20;
+
+  /* Annotation palette: stable over radiographs in either application theme.
+     Separate from UI selection, system feedback and diagnostic automation. */
+  --radiograph-mark-attention: #ff3b30;
+  --radiograph-mark-interest: #d6c66b;
+  --radiograph-circle-stroke-width: 1.25px;
+  --radiograph-mark-anatomy: #00e676;
+  --radiograph-mark-measurement: #00d9ff;
+  --radiograph-mark-accent: #ff9500;
+  --radiograph-mark-comparison: var(--color-amber-500);
 
   /* Cores funcionais reservadas para feedback de sistema. */
   --color-sage-50: #eaf6f0;
@@ -313,7 +328,6 @@
   --case-editor-input-border-focus: #d0d0d0;
   --case-editor-placeholder: #c0c0c0;
   --case-editor-radio-active: #2563eb;
-  --case-calibration-circle: #f6d86b;
   --case-progress-label: var(--color-neutral-400);
   --case-progress-label-active: var(--case-editor-radio-active);
   --case-progress-track: var(--color-neutral-200);

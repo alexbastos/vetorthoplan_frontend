@@ -652,7 +652,7 @@
   outline-offset: 3px;
 }
 
-.shortcutRiffle {
+.shortcutIllustration {
   --hairline-plate: var(--color-card);
   --hairline-hi: var(--color-foreground);
   --hairline-edge: var(--color-content-secondary);
@@ -667,7 +667,12 @@
   transform: translateY(-50%);
 }
 
-.shortcutCardWithRiffle .shortcutBody { pointer-events: none; }
+.shortcutCardWithIllustration .shortcutBody { pointer-events: none; }
+
+.shortcutIllustration .shortcutCommunityFigure {
+  width: 86%;
+  margin-inline: auto;
+}
 
 .shortcutBody {
   position: relative;

@@ -15,7 +15,8 @@ autoridade da API. O aceite clínico não é inferido pela existência de endpoi
 - Comandos limitados por campo, um recibo compartilhado por imagem e consultas
   tipadas/BFF para protocolo clínico e tabela de rotação.
 - Acesso permanente a Ferramentas. Com escala confirmada, abre o painel; sem
-  calibração, inicia seu fluxo. Há somente a seção Medidas e seu texto de apoio.
+  calibração, inicia seu fluxo. Distância já tem seleção, edição e gravação;
+  o catálogo exibe as ferramentas seguintes, desabilitadas, sem integração ativa.
 - Qualidade e elegibilidade são processos internos do backend. Não reintroduzir
   painel manual de qualidade nem aprovação local dos critérios.
 
@@ -37,6 +38,32 @@ Seus wireframes não substituem o sistema visual atual do produto.
 Dividir medidas e simulação em entregas pequenas e validar cada uma. Não ativar
 autosave nem substituir o salvamento explícito da calibração sem uma decisão
 de produto específica.
+
+A primeira ferramenta segue o [plano de implementação de Distância](./distance-tool-implementation-plan.md),
+com etapas, responsabilidades e critérios de aceite próprios. O plano está
+em execução: comandos/operações puras, preflights do BFF, serviço/writer com
+recuperação compartilhada e rascunho/proteções do workspace foram concluídos
+nas etapas 1 a 9. A interface do visualizador separa editor e overlays, com
+conversão compartilhada para a matriz original. Medidas salvas e resultados
+oficiais já aparecem na imagem e no painel, com seleção local e formatação
+pt-BR/en. Criação local por arraste ou posicionamento por teclado está conectada,
+com cancelamento e ID estável. Medidas salvas já podem ser selecionadas e
+ajustadas localmente, com controle acessível dos dois pontos e proteção do
+rascunho. Salvar/Atualizar conectam o editor ao writer compartilhado, com
+resultado oficial, foco/seleção após confirmação e Sonner. Conflitos oferecem
+Carregar salvo; resultado incerto permite somente conferência por GET, sem
+repetir a escrita. Leituras em segundo plano preservam Ferramentas e o rascunho.
+A edição usa uma barra vertical escura na lateral esquerda da imagem, centralizada
+na altura, com ícones/tooltips e ações de salvar/cancelar no padrão do menu superior.
+Distância permanece destacada no catálogo enquanto estiver ativa.
+Salvar calibração por linha também abre Ferramentas: se ainda não houver LINE,
+a mesma operação de plano grava a primeira distância com os pontos da referência.
+Essa medida permanece independente da escala e exibe somente o resultado oficial;
+recalibrar com medidas existentes preserva suas geometrias. Círculo não foi alterado.
+O catálogo lateral antecipa Ângulo, Círculo, Medidas adicionais,
+Referências anatômicas, Simulação TPLO e Implantes apenas como opções desabilitadas.
+Exclusão pela UI e aceite completo continuam nas etapas 10 e 11; a evidência
+executável da etapa 0 permanece explicitamente pendente.
 
 ## Invariantes de implementação
 

@@ -1,0 +1,103 @@
+.workspace {
+  --community-divider: color-mix(in srgb, var(--color-border) 65%, transparent);
+
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  border-start-start-radius: var(--layout-stage-radius-top-left);
+  background: var(--color-workspace);
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+.messages {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  background: var(--color-stage);
+}
+
+.inbox,
+.conversation {
+  min-height: 0;
+  min-width: 0;
+}
+
+.inbox {
+  display: flex;
+  width: 100%;
+  flex: none;
+  flex-direction: column;
+}
+
+.conversation {
+  display: none;
+}
+
+.profileSlot {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.profileSlot:empty {
+  display: none;
+}
+
+@media (width < 64rem) {
+  .messages[data-empty="true"] {
+    flex-direction: column;
+  }
+
+  .messages[data-mobile-conversation-open="true"] .inbox {
+    display: none;
+  }
+
+  .messages[data-mobile-conversation-open="true"] .conversation,
+  .messages[data-empty="true"] .conversation {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+}
+
+@media (width >= 64rem) {
+  .inbox {
+    width: 320px;
+  }
+
+  .conversation {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    border-inline-start: 1px solid var(--community-divider);
+  }
+
+  .profileSlot {
+    inset-inline-start: auto;
+    width: 300px;
+    overflow: hidden;
+    border: 1px solid var(--community-divider);
+    border-radius: var(--radius-token-2xl);
+    box-shadow: var(--shadow-card-layered);
+  }
+
+  @container (width >= 75rem) {
+    .profileSlot {
+      position: static;
+      flex: none;
+      margin-inline-start: 16px;
+    }
+
+    .messages:has(+ .profileSlot:not(:empty)) {
+      border-start-end-radius: var(--radius-token-2xl);
+    }
+  }
+}

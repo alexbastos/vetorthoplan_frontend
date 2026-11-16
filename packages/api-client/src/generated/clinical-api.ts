@@ -392,6 +392,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/images/{image_id}/plan/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exportar radiografia com ROI, rotação e próteses compostas */
+        post: operations["export_image_plan_api_v1_images__image_id__plan_export_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/images/{image_id}/plan/validate": {
         parameters: {
             query?: never;
@@ -1193,6 +1210,16 @@ export interface components {
             end: components["schemas"]["PlanPoint"];
             /** Label */
             label?: string | null;
+            /**
+             * Visible
+             * @default true
+             */
+            visible: boolean;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
             /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
             measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
         };
@@ -1230,6 +1257,16 @@ export interface components {
             edge: components["schemas"]["PlanPoint"];
             /** Label */
             label?: string | null;
+            /**
+             * Visible
+             * @default true
+             */
+            visible: boolean;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
             /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
             measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
         };
@@ -1266,6 +1303,8 @@ export interface components {
              * @constant
              */
             schema_version: 1;
+            viewport?: components["schemas"]["PlanViewport"];
+            image_transform?: components["schemas"]["PlanImageTransform"];
             /** Calibration */
             calibration?: (components["schemas"]["PlanReferenceLineCalibration"] | components["schemas"]["PlanReferenceCircleCalibration"]) | null;
             tplo?: components["schemas"]["TploPlanMetadata"] | null;
@@ -1288,6 +1327,43 @@ export interface components {
             points: components["schemas"]["PlanPoint"][];
             /** Label */
             label?: string | null;
+        };
+        /** PlanImageRegion */
+        PlanImageRegion: {
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+        };
+        /** PlanImageTransform */
+        PlanImageTransform: {
+            crop?: components["schemas"]["PlanImageRegion"] | null;
+            /**
+             * Rotation Degrees
+             * @description Rotação global anti-horária, em graus, aplicada após o recorte.
+             * @default 0
+             */
+            rotation_degrees: number;
+            /** @description Transformação da imagem recalculada pelo backend. */
+            result?: components["schemas"]["PlanImageTransformResult"] | null;
+        };
+        /** PlanImageTransformResult */
+        PlanImageTransformResult: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "CALCULATED" | "IMAGE_DIMENSIONS_REQUIRED";
+            /** Crop Box Px */
+            crop_box_px?: number[];
+            /** Output Size Px */
+            output_size_px?: number[];
+            /** Affine Matrix */
+            affine_matrix?: number[][];
         };
         /**
          * PlanImplant
@@ -1331,6 +1407,16 @@ export interface components {
             view?: string | null;
             /** Label */
             label?: string | null;
+            /**
+             * Visible
+             * @default true
+             */
+            visible: boolean;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
             /** @description Transformação afim recalculada pelo backend para a imagem original. */
             transform?: components["schemas"]["PlanImplantTransform"] | null;
         };
@@ -1367,6 +1453,16 @@ export interface components {
             end: components["schemas"]["PlanPoint"];
             /** Label */
             label?: string | null;
+            /**
+             * Visible
+             * @default true
+             */
+            visible: boolean;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
             /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
             measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
         };
@@ -1423,6 +1519,16 @@ export interface components {
             rotation_degrees: number;
             /** Label */
             label?: string | null;
+            /**
+             * Visible
+             * @default true
+             */
+            visible: boolean;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
             /** @description Resultado calculado pelo backend; valores do cliente são ignorados. */
             measurement?: components["schemas"]["PlanDerivedMeasurement"] | null;
             /** @description Contorno do fragmento proximal no sistema normalizado da imagem. */
@@ -1449,6 +1555,13 @@ export interface components {
             rotation_degrees?: number | null;
             /** Affine Matrix */
             affine_matrix?: number[][];
+            /**
+             * Transformed Fragment Points Px
+             * @description Contorno resultante após rotação, em pixels da imagem original.
+             */
+            transformed_fragment_points_px?: {
+                [key: string]: number;
+            }[];
         };
         /** PlanValidationIssueResponse */
         PlanValidationIssueResponse: {
@@ -1458,6 +1571,29 @@ export interface components {
             message: string;
             /** Field */
             field?: string | null;
+        };
+        /**
+         * PlanViewport
+         * @description Presentation state for reopening the editor; geometry remains image-relative.
+         */
+        PlanViewport: {
+            /**
+             * Zoom
+             * @default 1
+             */
+            zoom: number;
+            /**
+             * Pan X
+             * @description Deslocamento horizontal em larguras da imagem.
+             * @default 0
+             */
+            pan_x: number;
+            /**
+             * Pan Y
+             * @description Deslocamento vertical em alturas da imagem.
+             * @default 0
+             */
+            pan_y: number;
         };
         /** PresignedPostResponse */
         PresignedPostResponse: {
@@ -2923,6 +3059,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_image_plan_api_v1_images__image_id__plan_export_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Imagem PNG composta para download. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": unknown;
+                };
+            };
+            /** @description Imagem ou ativo de prótese não encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Prévia da imagem indisponível */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ativo de prótese não renderizável */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

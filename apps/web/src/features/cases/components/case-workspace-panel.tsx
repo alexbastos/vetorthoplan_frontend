@@ -54,7 +54,7 @@ function CaseWorkspacePanel({ activeSection, calibrationAvailable, calibrationEd
       </nav>
       <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto rounded-[var(--radius-token-md)] border border-border bg-card">
         <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
-          <h2 className="flex min-w-0 items-center gap-2 text-[13px] font-semibold outline-none" ref={headingRef} tabIndex={-1}>
+          <h2 className="flex min-w-0 flex-1 items-center gap-2 text-[13px] font-semibold outline-none" ref={headingRef} tabIndex={-1}>
             {activeSection === "case" ? <PatientDetailsIcon aria-hidden="true" className="size-5 shrink-0 text-icon-active" />
               : activeSection === "images" ? <FilesIcon aria-hidden="true" className="size-5 shrink-0 text-icon-active" /> : activeSection === "tools" ? <ToolsIcon aria-hidden="true" className="size-5 shrink-0 text-icon-active" /> : calibrationEditing ? <CalibrationIcon aria-hidden="true" className="size-5 shrink-0 text-icon-active" /> : <ImageLibraryIcon aria-hidden="true" className="size-5 shrink-0 text-icon-active" />}
             <span className="truncate">{title}</span>

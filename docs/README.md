@@ -16,6 +16,10 @@ ficam no histórico do Git; não manter uma nova cópia a cada rodada de trabalh
 
 - [Estado da integração](./clinical-remote-integration-status.md): entregue, pendências operacionais e débitos a revalidar.
 - [Roadmap TPLO](./tplo-frontend-implementation-study-2026-10-27.md): próximos comandos, medidas, simulação, revisão e relatórios.
+- [Plano de Distância](./distance-tool-implementation-plan.md): etapas curtas, arquitetura e critérios de aceite da primeira ferramenta de medição.
+- [Plano de Ângulo](./angle-tool-implementation-plan.md): contrato conferido, etapas de integração e roteiro de aceite manual da próxima ferramenta de medição.
+- [Plano de Círculo](./circle-tool-implementation-plan.md) com contrato, reaproveitamento e etapas da integração de raio, diâmetro e circunferência.
+- [Plano de Referências anatômicas](./anatomical-references-implementation-plan.md): conjunto de quatro pontos, TPA, arquitetura compartilhada e etapas de integração/aceite manual.
 - [Contrato da calibração](./calibration-contract-2026-10-23.md): coordenadas, escala, revisão e restrição DICOM.
 - [Aceite da calibração](./calibration-acceptance-2026-10-26.md): roteiro visual e autenticado atualizado.
 - [Checklist clínico](./clinical-api-0.9.0-manual-test-checklist.md): jornada integrada, upload, duplicidade, exclusão e isolamento.
@@ -36,7 +40,8 @@ Detalhes de implementação ficam junto das features:
 | `authentication-api.audit-2026-10-22.openapi.json` | Evidência da rota de token de organização, ainda ausente do canônico de autenticação. |
 | `clinical-api.openapi.json` | Geração dos tipos clínicos e testes de contrato. |
 | `clinical-api.snapshot.json` | Proveniência, hashes e contagens validados por `verify:clinical`. |
-| `clinical-api.published-2026-10-28.openapi.json` | Fonte original exigida pelo verificador; é intencionalmente igual ao canônico atual. |
+| `clinical-api.published-2026-10-29.openapi.json` | Fonte original exigida pelo verificador; é intencionalmente igual ao canônico atual. |
+| `clinical-api.published-2026-10-28.openapi.json` | Contrato anterior usado nos testes de evolução dos campos de apresentação do plano. |
 | `clinical-api.duplicate-2026-10-23.openapi.json` | Contrato original dos cálculos geométricos de calibração; usado nos testes e na reprodução da evidência. |
 
 A fixture `testing/calibration-contract-fixtures-2026-10-23.json` contém

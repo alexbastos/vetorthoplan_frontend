@@ -127,13 +127,10 @@ function CaseWorkspaceImage({ caseContext, caseId, image, imageList, imageAction
           brightness={100}
           contrast={100}
           inverted={false}
-          marker={marker}
-          markerKind={markerKind}
           name={image.file.name}
-          onMarkerChange={setMarker}
-          onToolChange={changeViewerTool}
+          editor={{ kind: "calibration", marker, markerKind, editable: true, tool,
+            onMarkerChange: setMarker, onToolChange: changeViewerTool }}
           rendering={image.rendering}
-          tool={tool}
         />
       ) : (
         <section className="order-2 flex min-h-[28rem] items-center justify-center overflow-hidden rounded-[var(--radius-token-md)] border border-border bg-[var(--case-viewer-shell)] px-6 text-center text-white lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:order-none">

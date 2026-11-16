@@ -1,0 +1,123 @@
+{
+  "title": "Comunidade",
+  "messages": "Mensagens",
+  "directMessages": "Mensagens diretas",
+  "searchConversations": "Buscar conversas",
+  "closeSearch": "Fechar busca",
+  "searchPlaceholder": "Buscar por nome…",
+  "noSearchResults": "Nenhuma conversa encontrada.",
+  "newConversation": {
+    "title": "Nova conversa",
+    "description": "Encontre um membro da Comunidade para enviar uma mensagem.",
+    "search": "Buscar membros por nome…",
+    "members": "Membros da Comunidade",
+    "noResults": "Nenhum membro encontrado."
+  },
+  "backToConversations": "Voltar às conversas",
+  "conversationOptions": "Opções da conversa com {name}",
+  "unreadConversation": "Conversa não lida com {name}",
+  "markUnread": "Marcar como não lida",
+  "markUnreadDescription": "Destaque a conversa na lista para ler depois.",
+  "markRead": "Marcar como lida",
+  "emptyConversation": "Nenhuma mensagem ainda.",
+  "empty": {
+    "inbox": {
+      "title": "Nenhuma conversa ainda",
+      "description": "Suas conversas com outros membros da Comunidade aparecerão aqui."
+    },
+    "conversation": {
+      "title": "Nenhuma mensagem ainda",
+      "description": "Envie a primeira mensagem para começar a conversa."
+    }
+  },
+  "searchMessages": "Buscar nesta conversa",
+  "viewProfile": "Ver perfil",
+  "moreOptions": "Mais opções",
+  "messageHistory": "Histórico de mensagens",
+  "searchResults": "{current} de {total}",
+  "previousResult": "Resultado anterior",
+  "nextResult": "Próximo resultado",
+  "muteConversation": "Silenciar conversa",
+  "muteConversationDescription": "Pause os avisos de novas mensagens.",
+  "unmuteConversation": "Reativar notificações da conversa",
+  "unmuteConversationDescription": "Volte a receber avisos de novas mensagens.",
+  "mutedConversation": "Conversa silenciada",
+  "messageActions": "Ações da mensagem",
+  "likeMessage": "Curtir mensagem",
+  "replyToMessage": "Responder à mensagem",
+  "goToQuotedMessage": "Ir para a mensagem original",
+  "replyingTo": "Respondendo a {name}",
+  "cancelReply": "Cancelar resposta",
+  "copyMessage": "Copiar mensagem",
+  "messageCopied": "Mensagem copiada",
+  "messageCopiedDescription": "O texto está na área de transferência.",
+  "copyFailed": "Não foi possível copiar",
+  "copyFailedDescription": "Selecione o texto da mensagem para copiá-lo.",
+  "profile": {
+    "title": "Perfil",
+    "profession": "Medicina veterinária",
+    "about": "Sobre",
+    "areas": "Áreas de atuação",
+    "experience": "{years, plural, one {# ano de experiência} other {# anos de experiência}}",
+    "memberSince": "Na Comunidade desde {date}",
+    "languages": "Idiomas",
+    "language": {
+      "pt": "Português",
+      "en": "Inglês",
+      "es": "Espanhol"
+    },
+    "focus": {
+      "camila": "Fisioterapia e recuperação",
+      "andre": "Cuidados preventivos",
+      "marina": "Planejamento ortopédico",
+      "rafael": "Radiografia veterinária",
+      "beatriz": "Planejamento cirúrgico",
+      "helena": "Fisioterapia veterinária"
+    },
+    "bio": {
+      "camila": "Atua na recuperação funcional de pacientes veterinários.",
+      "andre": "Trabalha com prevenção e acompanhamento clínico.",
+      "marina": "Atua em ortopedia veterinária e gosta de trocar experiências sobre planejamento e revisão de casos em equipe.",
+      "rafael": "Trabalha com diagnóstico por imagem e se interessa pela organização da revisão de radiografias.",
+      "beatriz": "Atua em cirurgia veterinária e compartilha experiências sobre rotinas de planejamento.",
+      "helena": "Trabalha com reabilitação veterinária e acompanha a recuperação de pacientes em parceria com a equipe clínica."
+    }
+  },
+  "safetyNotice": {
+    "title": "Converse com segurança",
+    "description": "Para sua segurança, mantenha suas conversas dentro da Comunidade.",
+    "learnMore": "Saiba mais",
+    "dialogTitle": "Estamos com você",
+    "dialogDescription": "Mantenha suas conversas na Comunidade e evite compartilhar senhas, dados de acesso ou informações que identifiquem tutores. Ao discutir um caso, retire os dados de identificação das imagens e dos documentos antes de compartilhar.",
+    "acknowledge": "Entendi"
+  },
+  "you": "Você",
+  "newMessages": "Novas mensagens",
+  "writeMessage": "Escreva uma mensagem para {name}…",
+  "attachFiles": "Anexar arquivos",
+  "recordAudio": "Gravar áudio",
+  "sendMessage": "Enviar mensagem",
+  "specialties": {
+    "camila": "Fisioterapia veterinária",
+    "andre": "Medicina preventiva",
+    "marina": "Ortopedia veterinária",
+    "rafael": "Diagnóstico por imagem",
+    "beatriz": "Cirurgia veterinária",
+    "helena": "Reabilitação veterinária"
+  },
+  "history": {
+    "first": "Estou organizando uma conversa com a equipe sobre como revisamos as radiografias. Você topa compartilhar como é o fluxo de vocês?",
+    "second": "Claro. Posso levar alguns exemplos fictícios para a gente conversar sem envolver dados de pacientes.",
+    "third": "Ótimo. Acho interessante separar a discussão em duas partes: como recebemos as imagens e como registramos as dúvidas que aparecem durante a revisão.\n\nAssim conseguimos comparar o fluxo de cada equipe com calma.",
+    "fourth": "Boa ideia. Vou anotar também as perguntas que costumam surgir na passagem de um turno para outro.",
+    "fifth": "Separei um horário na quinta. Se funcionar para você, mando a pauta para o grupo depois.",
+    "sixth": "Quinta funciona. Posso preparar uma lista com os pontos que queremos conversar e levar para a reunião.",
+    "seventh": "Perfeito. Vamos deixar um tempo no final para ouvir o que o restante da equipe quer acrescentar.",
+    "eighth": "Combinado. Obrigado por organizar!"
+  },
+  "demo": {
+    "marina": "Oi! Você costuma revisar o planejamento TPLO com a equipe antes da cirurgia?",
+    "rafael": "Obrigado pela troca de ideias sobre calibração das radiografias.",
+    "beatriz": "Vamos conversar sobre como organizamos a revisão dos planejamentos?"
+  }
+}

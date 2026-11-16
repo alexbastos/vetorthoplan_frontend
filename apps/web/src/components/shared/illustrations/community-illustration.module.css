@@ -1,0 +1,21 @@
+.figure {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  fill: var(--hairline-plate, var(--color-card));
+  stroke: var(--hairline-mid, var(--color-content-disabled));
+  stroke-width: var(--hairline-stroke, 0.9);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.figure path { vector-effect: non-scaling-stroke; }
+.figure :global(.nf) { fill: none; }
+.figure :global(.sil) { stroke: var(--hairline-edge, var(--color-content-secondary)); }
+.figure :global(.hi) { stroke: var(--hairline-hi, var(--color-foreground)); }
+.figure :global(.lo) { stroke: var(--hairline-lo, var(--color-border)); }
+.figure :global(.fo) { stroke: none; }
+.figure :global(.dash) { stroke-dasharray: 1 3; }
