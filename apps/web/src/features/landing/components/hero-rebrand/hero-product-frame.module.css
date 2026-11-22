@@ -1,0 +1,91 @@
+.viewport {
+  --ui-w: 861;
+  --ui-h: 568;
+  --dashboard-scale: 0.865188;
+  --sidebar-width: 181px;
+  --frame-radius: 6.443px;
+
+  position: absolute;
+  z-index: 2;
+  bottom: 2px;
+  left: calc(-0.346 * min(1px, 0.069444vw));
+  width: min(861px, 59.7917vw);
+  aspect-ratio: var(--ui-w) / var(--ui-h);
+  container-type: inline-size;
+  pointer-events: none;
+  user-select: none;
+  cursor: default;
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--ui-w) * 1px);
+  height: calc(var(--ui-h) * 1px);
+  transform: scale(tan(atan2(100cqw, var(--ui-w) * 1px)));
+  transform-origin: 0 0;
+}
+
+.root {
+  position: relative;
+  isolation: isolate;
+  width: calc(var(--ui-w) * 1px);
+  height: calc(var(--ui-h) * 1px);
+  overflow: hidden;
+}
+
+.dashboard {
+  position: absolute;
+  top: 16.9796px;
+  left: 39.0003px;
+  width: 918px;
+  height: 591px;
+  transform: scale(var(--dashboard-scale));
+  transform-origin: 0 0;
+}
+
+.frame {
+  position: absolute;
+  display: flex;
+  border-radius: var(--frame-radius);
+  background: #fff;
+  box-shadow:
+    0 -5.369px 9.665px #00000008,
+    0 8.591px 19.329px -6.443px #18274b1f,
+    0 12.886px 45.102px -4.295px #18274b1f;
+  inset: 0;
+}
+
+.sidebar {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex: 0 0 var(--sidebar-width);
+  flex-direction: column;
+  gap: 13.217px;
+  border-right: 0.537px solid #e5e5e5;
+  border-radius: var(--frame-radius) 0 0 var(--frame-radius);
+  padding: 13.217px 0;
+  background: #fafafa;
+}
+
+.workspace {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0 var(--frame-radius) var(--frame-radius) 0;
+  background: #fcfcfc;
+}
+
+@media (max-width: 991px) {
+  .viewport {
+    top: 2.6667%;
+    bottom: auto;
+    left: 2.5861%;
+    width: 139.1628%;
+  }
+}

@@ -1,0 +1,108 @@
+.frame {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  height: 447px;
+  overflow: clip;
+  border-radius: 20px;
+  padding: 25px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 2%);
+  font-family: var(--font-preview-body), sans-serif;
+}
+
+.visual { position: absolute; inset: 0 0 auto; aspect-ratio: 629 / 427; }
+.background, .veil { position: absolute; inset: 0; display: block; width: 100%; height: auto; pointer-events: none; }
+.stageFrame { position: absolute; inset: 0; overflow: clip; container-type: inline-size; }
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--stage-w) * 1px);
+  height: calc(var(--stage-h) * 1px);
+  transform: scale(min(var(--stage-max-scale), tan(atan2(100cqw, var(--stage-w) * 1px))));
+  transform-origin: 0 0;
+  color: #171719;
+}
+.veil { z-index: 4; }
+.paper { position: absolute; z-index: 1; top: var(--paper-y); left: var(--paper-x); width: var(--paper-w); min-height: var(--paper-h); }
+.paper[data-active="false"], .queueRow[data-visible="false"] { opacity: 0; visibility: hidden; }
+.paperSoft, .paperContact { position: absolute; inset: 0; background: white; pointer-events: none; }
+.paperSoft { box-shadow: 0 4px 12px #00000014; clip-path: inset(-40px 0); }
+.paperContact { box-shadow: 0 1px 3px #00000024; clip-path: inset(-12px 0); }
+.paperSurface { position: relative; min-height: var(--paper-h); background: white; border-top: 3px solid #f7f8fa; }
+.paperHeader { display: flex; justify-content: space-between; gap: 20px; align-items: center; height: 41.395px; padding: 0 23.654px; border-bottom: .739px solid #e5e5e5; }
+.paperHeader dl { display: flex; margin: 0; }
+.paperHeader .paperHeaderDetails { gap: 24px; }
+.paperHeader dt, .label { display: block; color: #969ba4; font-size: 8px; font-weight: 500; line-height: 12px; letter-spacing: -.01em; }
+.paperHeader dt { text-transform: uppercase; font-size: 7px; }
+.paperHeader dd { margin: 2px 0 0; font-size: 9px; font-weight: 500; line-height: 13px; white-space: nowrap; }
+.paperSummary { display: grid; grid-template-columns: 1fr 1fr; }
+.patient, .planSummary { padding: 14px 23.654px 16px; }
+.patient { border-right: .739px solid #e5e5e5; }
+.patient > .label, .planSummary > .label { margin-bottom: 8px; text-transform: uppercase; }
+.patientIdentity { display: flex; align-items: center; gap: 8px; }
+.avatar { display: block; flex: none; width: 33.26px; height: 33.26px; }
+.patient strong { display: block; font-size: 15.5px; font-weight: 500; line-height: 20px; letter-spacing: -.03em; }
+.patientSummary { display: block; margin-top: 2px; color: #858a93; font-size: 8px; line-height: 12px; }
+.paperPlanIdentity { display: flex; align-items: center; gap: 8px; }
+.planSummaryIcon { display: block; flex: none; width: 24px; height: 24px; }
+.paperPlanIdentity strong { display: block; font-size: 15.5px; font-weight: 500; line-height: 20px; letter-spacing: -.03em; }
+.paperPlanIdentity span { display: block; margin-top: 2px; color: #858a93; font-size: 8px; line-height: 12px; }
+.paperBody { padding: 20px 23.654px; border-top: .739px solid #e5e5e5; }
+.paperBody h3 { margin: 0; font-size: 15.5px; font-weight: 500; line-height: 21px; letter-spacing: -.02em; }
+.paperBody p { margin: 8px 0 0; color: #858a93; font-size: 10px; line-height: 16px; }
+.paperParameters { display: grid; grid-template-columns: 1fr 1fr; margin: 18px 0; gap: 16px; }
+.paperParameters dt { color: #858a93; font-size: 9px; line-height: 14px; }
+.paperParameters dd { margin: 5px 0 0; font-size: 15px; font-weight: 500; }
+.paperBody .paperNote { padding-top: 14px; border-top: .739px solid #e5e5e5; }
+.tableSurface {
+  position: absolute;
+  z-index: 3;
+  top: var(--table-y);
+  left: var(--table-x);
+  width: var(--table-w);
+  min-height: 288.215px;
+  border-radius: var(--table-radius);
+  padding: var(--table-padding);
+  background: white;
+  box-shadow: 0 0 0 1.65px #00000014, 0 39.6px 66px -19.8px #0000000f, 0 19.8px 39.6px -9.9px #0000000d, 0 6.6px 13.2px -3.3px #0000000a, 0 1.65px 4.95px -1.65px #00000008;
+}
+.planTable { width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; }
+.rowsViewport { position: relative; height: calc(var(--row-h) * 3); overflow: clip; }
+.queueRow { position: absolute; top: 0; left: 0; width: 100%; height: var(--row-h); transform: translateY(calc(var(--row-slot) * var(--row-h))); }
+.patientColumn { width: 206px; }
+.imageColumn { width: 274px; }
+.planColumn { width: 176px; }
+.valueColumn { width: 126px; }
+.planTable tr { height: var(--row-h); }
+.planTable td { vertical-align: middle; padding: 0 16px 0 0; white-space: nowrap; text-align: left; }
+.rowValue { display: block; margin-top: 3px; color: #22252b; font-size: 13.5px; font-weight: 500; line-height: 19px; letter-spacing: -.02em; }
+.planSuffix { color: #969ba4; font-size: 10px; font-weight: 400; }
+.rowFile { color: #969ba4; font-size: 13px; }
+.planIdentity { display: flex; align-items: center; gap: 10px; }
+.planIcon { flex: none; color: #a3aab6; }
+.planTable tr[data-state="editing"] .planIcon { color: var(--color-electric-iris); }
+.editingBadge, .savedBadge { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 999px; font-size: 11px; font-weight: 500; line-height: 17px; white-space: nowrap; }
+.editingBadge { min-height: 32.94px; padding: 0 12.35px; border: 1.029px solid #e5e5e5; color: #515965; }
+.savedBadge { min-height: 20.6px; padding: 1px 7px; border: .515px solid #287c211f; background: #eff9ed; color: #287c21; }
+.statusCell { display: grid; min-height: 32.94px; align-items: center; justify-items: start; }
+.statusCell > span { grid-area: 1 / 1; }
+.statusCell[data-phase="editing"] [data-simulation-saved] { opacity: 0; visibility: hidden; transform: translateY(4px); }
+.statusCell[data-phase="saved"] [data-simulation-open] { opacity: 0; visibility: hidden; transform: translateY(-4px) scale(.96); }
+.copy { position: relative; z-index: 5; }
+/* Complete the dissolve 10px before the actual caption, at every card width.
+   A white surface continues behind the entire label and description. */
+.copy::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -64px -25px -25px;
+  background: linear-gradient(to bottom, #fff0, #fff 54px);
+  pointer-events: none;
+}
+.copy h2 { margin: 0; color: #b2b2b2; font-family: var(--font-preview-display), sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -.02em; line-height: 20px; }
+.copy p { max-width: 463px; margin: 8px 0 0; color: #000; font-size: 16px; font-weight: 400; letter-spacing: -.01em; line-height: 22px; text-wrap: pretty; }

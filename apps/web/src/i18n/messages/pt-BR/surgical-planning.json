@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "title": "Planejamento cirúrgico",
+    "description": "Conheça o planejamento cirúrgico da Orthovet: eixo tibial, orientação articular, TPA e referências para o corte da TPLO sobre a radiografia."
+  },
+  "title": "Planejamento cirúrgico",
+  "tagline": "Das referências ao plano cirúrgico.",
+  "preview": {
+    "title": "Construção do plano",
+    "description": "Defina eixos, avalie o TPA e posicione o corte da osteotomia sobre a radiografia.",
+    "badge": "TPLO",
+    "message": {
+      "firstLine": "Referências do TPA revisadas.",
+      "secondLine": "Corte da TPLO planejado."
+    },
+    "reviewed": "Revisado",
+    "illustrationLabel": "Prévia de um planejamento TPLO com referências revisadas, corte planejado e foto da equipe médica."
+  },
+  "facts": {
+    "note": "Eixo tibial, orientação do platô e referências do corte reunidos na imagem.",
+    "items": {
+      "references": { "label": "Eixos", "value": "Referências na radiografia" },
+      "orientation": { "label": "Orientação articular", "value": "TPA e linha do platô" },
+      "osteotomy": { "label": "Osteotomias", "value": "Centro e raio do corte" },
+      "review": { "label": "Revisão", "value": "Marcações do planejamento" }
+    }
+  },
+  "overview": {
+    "title": "Da imagem ao plano",
+    "lead": "Defina eixos, relacione referências anatômicas e organize as marcações do planejamento sobre a própria radiografia. Na Orthovet, o eixo tibial e a orientação do platô ajudam a estruturar a avaliação do TPA e o planejamento da osteotomia.",
+    "references": "Os pontos de referência registram as posições usadas na análise. A partir deles, o eixo tibial e a linha do platô permanecem visíveis na imagem, permitindo revisar a relação entre essas marcações e o ângulo apresentado.",
+    "methods": "No planejamento da TPLO, o centro e o raio definem a referência do corte circular. Posicione essa construção sobre a radiografia e reúna as marcações que ajudam a documentar o local escolhido para a osteotomia.",
+    "review": "Pontos, linhas e referências do corte permitem retomar a construção do plano. Revise essas marcações junto das informações clínicas do paciente e mantenha o contexto do caso à mão enquanto avalia o planejamento."
+  },
+  "faq": {
+    "eyebrow": "Dúvidas",
+    "title": "Perguntas frequentes",
+    "items": {
+      "references": {
+        "question": "Quais referências posso organizar no planejamento?",
+        "answer": "Você pode marcar pontos para definir o eixo tibial e a linha do platô, além de posicionar as referências do corte circular. Essas construções ficam sobre a radiografia para acompanhar e revisar o plano."
+      },
+      "tpa": {
+        "question": "Como o TPA aparece no planejamento?",
+        "answer": "A partir dos pontos marcados, o eixo tibial e a linha do platô compõem a construção usada para apresentar o TPA. O ângulo fica junto das referências na imagem, permitindo conferir as marcações que deram origem ao valor."
+      },
+      "osteotomy": {
+        "question": "Como defino a referência do corte da osteotomia?",
+        "answer": "No planejamento da TPLO, você posiciona o centro e define o raio da referência circular do corte. A construção permanece sobre a radiografia para revisar sua posição junto das demais marcações."
+      },
+      "simulation": {
+        "question": "Qual é a diferença entre planejamento e simulação visual?",
+        "answer": "O planejamento reúne eixos, orientação articular e geometria do corte. Na simulação visual, você delimita o fragmento e informa uma rotação para observar a posição resultante na imagem. São etapas que se complementam no mesmo trabalho."
+      },
+      "review": {
+        "question": "Consigo revisar as referências usadas para construir o plano?",
+        "answer": "Sim. Os pontos, as linhas e as referências do corte permanecem visíveis na radiografia. Você pode conferir a construção do plano junto das informações clínicas do paciente e retomar as marcações usadas na análise."
+      }
+    }
+  },
+  "modules": {
+    "title": "Referências para planejar",
+    "description": "<strong>Eixos, orientação articular e referências do corte.</strong> Construa e revise cada etapa do planejamento sobre a radiografia.",
+    "items": {
+      "axes": {
+        "title": "Eixos e referências",
+        "description": "Defina o eixo tibial a partir dos pontos de referência marcados na radiografia.",
+        "sketch": { "axis": "Eixo tibial" }
+      },
+      "orientation": {
+        "title": "Orientação articular",
+        "description": "Relacione o eixo tibial e a linha do platô para visualizar o TPA sobre a imagem.",
+        "sketch": { "value": "TPA {value, number}°" }
+      },
+      "osteotomy": {
+        "title": "Planejamento de osteotomias",
+        "description": "Posicione o centro do corte, defina o raio e registre referências para o planejamento da TPLO.",
+        "sketch": { "value": "R {value, number} mm", "reference": "D1" }
+      }
+    }
+  }
+}

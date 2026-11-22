@@ -10,11 +10,12 @@ import type { CaseImagePreviewState } from "../hooks/use-case-image-preview"
 import { ImagePreviewError } from "../services/image-preview-api"
 import type { CaseImage } from "../types/case-image"
 import type { ViewerEditor, ViewerOverlayView } from "../lib/viewer-editor"
+import type { ViewerTploSimulation } from "../lib/tplo-preview"
 import { DEFAULT_IMAGE_DISPLAY, type ImageDisplaySettings } from "../hooks/use-image-display-settings"
 import { CaseImageViewer } from "./case-image-viewer"
 import { ViewerEditorControls, type ViewerContextControls } from "./viewer-toolbar"
 
-function CasePreviewPanel({ image, preview, editor, interactionContext, renderOverlay, display = DEFAULT_IMAGE_DISPLAY, interactionNotice, editorControls, contextControls }: { image: CaseImage; preview: CaseImagePreviewState; editor: ViewerEditor; interactionContext?: object; renderOverlay?: (view: ViewerOverlayView) => ReactNode; display?: ImageDisplaySettings; interactionNotice?: ReactNode; editorControls?: ReactNode; contextControls?: ViewerContextControls }) {
+function CasePreviewPanel({ image, preview, editor, interactionContext, renderOverlay, simulation, display = DEFAULT_IMAGE_DISPLAY, interactionNotice, editorControls, contextControls }: { image: CaseImage; preview: CaseImagePreviewState; editor: ViewerEditor; interactionContext?: object; renderOverlay?: (view: ViewerOverlayView) => ReactNode; simulation?: ViewerTploSimulation | null; display?: ImageDisplaySettings; interactionNotice?: ReactNode; editorControls?: ReactNode; contextControls?: ViewerContextControls }) {
   const t = useTranslations("cases.workspace.preview")
   const { eligible, query, displayFailed, refresh } = preview
 
@@ -22,7 +23,7 @@ function CasePreviewPanel({ image, preview, editor, interactionContext, renderOv
   if (query.isPending) {
     return <PreviewMessage title={t("loading")} description={t("loadingDescription")} editorControls={editorControls} contextControls={contextControls} />
   }
-  if (query.isError || displayFailed) {
+  if (query.isError && !preview.textureFallback || displayFailed) {
     const unavailable = query.error instanceof ImagePreviewError && query.error.code === "PREVIEW_UNAVAILABLE"
     return <PreviewMessage
       title={t(unavailable ? "unavailable" : "error")}
@@ -48,6 +49,7 @@ function CasePreviewPanel({ image, preview, editor, interactionContext, renderOv
       interactionContext={interactionContext}
       interactionKey={JSON.stringify([image.caseId, image.id])}
       renderOverlay={renderOverlay}
+      simulation={simulation} onTextureError={preview.onTextureError} onTextureRetry={preview.refreshTexture}
       name={image.displayName ?? image.originalFilename}
       onImageError={preview.onImageError}
       onImageLoad={preview.onImageLoad}

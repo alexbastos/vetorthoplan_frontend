@@ -12,11 +12,14 @@ import { ViewerToolAction, viewerTooltipProps } from "./viewer-tool-action"
 type MeasurementDeletion = ({ id: string; kind: "distance" | "angle" | "circle" } | { kind: "landmarks" })
   & { label: string; enabled: boolean; onRequest: () => void }
 
-function ViewerMeasurementCard({ title, name, valueLabel, values, boundary, deletion, children, ...attributes }: {
+function ViewerMeasurementCard({ title, name, valueLabel, values, valueLegendAction, headerAction, boundary, deletion, children, ...attributes }: {
   title: string; name: string; valueLabel: string; values: ReactNode; boundary: HTMLElement | null
   deletion?: MeasurementDeletion | null; children: ReactNode
+  valueLegendAction?: ReactNode; headerAction?: ReactNode
   "data-distance-controls"?: boolean; "data-angle-controls"?: boolean; "data-circle-controls"?: boolean
   "data-landmarks-controls"?: boolean
+  "data-tplo-cut-controls"?: boolean
+  "data-tplo-fragment-drawing"?: boolean
 }) {
   const id = useId()
   return <section aria-labelledby={id} className="max-h-full w-56 max-w-full overflow-y-auto overscroll-contain rounded-[var(--radius-token-md)] border border-white/10 bg-[var(--color-obsidian)] text-white shadow-sm" {...attributes}>
@@ -27,9 +30,9 @@ function ViewerMeasurementCard({ title, name, valueLabel, values, boundary, dele
         data-distance-delete={deletion.kind === "distance" ? deletion.id : undefined}
         data-angle-delete={deletion.kind === "angle" ? deletion.id : undefined}
         data-circle-delete={deletion.kind === "circle" ? deletion.id : undefined}
-        data-landmarks-delete={deletion.kind === "landmarks" ? true : undefined}><Trash2 aria-hidden="true" /></ViewerToolAction> : null}
+        data-landmarks-delete={deletion.kind === "landmarks" ? true : undefined}><Trash2 aria-hidden="true" /></ViewerToolAction> : headerAction}
     </header>
-    <ViewerMeasurementSection label={valueLabel}>{values}</ViewerMeasurementSection>
+    <ViewerMeasurementSection label={valueLabel} legendAction={valueLegendAction}>{values}</ViewerMeasurementSection>
     {children}
   </section>
 }

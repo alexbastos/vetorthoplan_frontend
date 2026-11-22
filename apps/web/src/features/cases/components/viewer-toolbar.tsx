@@ -6,7 +6,11 @@ import type { ComponentProps, ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 const VIEWER_TOOLBAR_CLASS_NAME = "flex max-w-full items-center gap-1 rounded-[var(--radius-token-md)] bg-[var(--color-obsidian)] p-1 text-white shadow-sm"
-type ViewerContextControls = { anchor: { x: number; y: number } | null; content: ReactNode }
+type ViewerContextControls = {
+  anchor: { x: number; y: number } | null
+  avoidPoints?: readonly { x: number; y: number }[]
+  content: ReactNode
+}
 
 function ViewerButton({ active, children, disabled, loading, label, className, title, ...props }: ComponentProps<"button"> & {
   active?: boolean; label: string; loading?: boolean

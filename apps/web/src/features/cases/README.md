@@ -1029,6 +1029,391 @@ limite global para criar. Etapas 0–10 implementadas, com aceite manual na etap
 As regras de prévia, DICOM, nomes e aceite manual estão
 registradas no [plano de Círculo](../../../../../docs/circle-tool-implementation-plan.md).
 
+### Osteotomia e simulação TPLO — writer e recuperação — 17/11/2026
+
+A etapa 3 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+integra os quatro comandos estritos ao writer único, com owner `tplo`.
+Geometria usa UUID; parâmetros globais usam o patch canonicalizado e a revisão,
+sem UUID artificial. Escrita incerta é conferida por GET, sem replay de PUT.
+Conflitos preservam intenção, e exclusão ausente em revisão posterior informa
+`TPLO_ALREADY_REMOVED` sem atribuir uma nova remoção à consulta.
+
+`useTploSaveRecovery` compartilha a recuperação existente. O card próprio em
+Ferramentas permite conferir ou descartar erro/conflito explicitamente e mantém
+os guards de contexto, query, navegação e exclusão. Durante a pendência TPLO,
+os outros canais de edição ficam inativos. Mensagens seguem o padrão pt-BR/en.
+
+`imageTploDraft` e `lib/tplo-draft.ts` definem somente o contrato mínimo de cache
+e correspondência necessário à limpeza segura. A confirmação exige o comando
+exato e o rascunho capturado, preservando substituições locais mais recentes.
+Geometria incompleta não forma comando. O editor e suas ações ficam na etapa 4,
+e a entrada pública continua reservada à etapa 12. Etapas 0–3 implementadas;
+somente revisão estática realizada, com aceite manual integrado na etapa 13.
+
+### Osteotomia e simulação TPLO — estado e rascunho — 17/11/2026
+
+A etapa 4 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+acrescenta `useImageTplo` e `lib/tplo-editor.ts`, reutilizando o rascunho e o writer
+da etapa 3. Geometria e parâmetros são intenções exclusivas. Abrir retoma o
+rascunho ou o TPLO selecionado; criar gera UUID estável, rotação 0° e pontos
+vazios, sem referência automática à calibração ou ao TPA e sem autosave.
+
+Centro/borda e fragmento podem ficar incompletos. O marcador local
+`fragmentComplete=false` impede envio mesmo com três ou mais pontos antes da
+conclusão explícita. O patch de parâmetros começa vazio, sem defaults clínicos;
+criar metadados exige lateralidade explícita. Schemas e BFF continuam sendo o
+contrato para formar e salvar comandos.
+
+Seleção, ponto/vértice ativo, expansão e comparação Original/Simulado ficam
+em `imageTploEditorUi`, separados dos dados clínicos. Não contam como alterações
+nem entram no payload. As duas queries são locais ao QueryClient da organização
+e participam da limpeza ao excluir imagem/caso.
+
+O hook confere geração, identidade das queries, revisão, disponibilidade,
+snapshot e bloqueios antes de cada ação. Revisão antiga preserva o rascunho e
+impede edição/envio. O workspace integra retomada, navegação, troca de ferramenta
+e descarte; calibração fecha somente editor TPLO limpo. Recuperação incerta
+continua por GET e confirmações antigas conservam rascunhos mais recentes.
+
+Etapas 0–4 implementadas e revisadas estaticamente. Entrada pública, canal do
+visualizador, controles, overlays e formulário de parâmetros permanecem nas
+etapas seguintes. O aceite funcional integrado continua manual na etapa 13.
+
+### Osteotomia e simulação TPLO — visualizador e geometria — 17/11/2026
+
+A etapa 5 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+acrescenta `tplo`/`tplo-select` ao `ViewerEditor`, com adaptadores próprios para
+centro, borda e contorno original. O marcador de calibração/LINE permanece nulo;
+TPLO também não passa pelos canais ANGLE, CIRCLE ou referências do TPA.
+
+`tplo-geometry.ts` calcula raio em pixels originais e mm, converte cada eixo
+pela dimensão original e recusa diâmetro inviável sem reduzir o pedido.
+`tplo-interaction.ts` separa conjunto, pivô, borda, fragmento e vértice.
+Translações limitam o grupo afetado com um único deslocamento, preservando sua
+forma. O pivô move a borda junto e mantém o fragmento na origem escolhida.
+
+Ponteiro e setas atualizam prévia transitória. Soltar o ponteiro ou todas as
+setas confirma somente o rascunho; Esc/perda de foco/captura/contexto cancelam.
+O gesto captura revisão, geração, geometria e apresentação. Hit testing usa
+pixels de tela, com espelhamento desfeito antes de operar na matriz original.
+Labels, rotação, conclusão e ordem do contorno são preservados pelo commit.
+
+O overlay do editor usa tokens TPLO para origem/corte e alças com tamanho de
+tela constante. Visualização oficial dos salvos, posicionamento, controles de
+fragmento/rotação, card e entrada pública continuam nas etapas seguintes.
+Nenhuma gravação remota ou autosave é disparado pelo canal de gestos.
+
+A revisão complementar da etapa 5 corrigiu o salto de alças ao iniciar o
+arraste dentro da tolerância, aplicou limites após mapear o ponteiro capturado
+fora da imagem, bloqueou geometria TPLO sem dimensões originais
+e vinculou cada tecla aceita ao gesto atual. Cancelamento/foco/contexto não
+reativam teclas anteriores por repetição. Perder o foco do quadro cancela o
+arraste; selecionar um alvo parado no limite altera somente a UI. A validação
+de raio/diâmetro também foi reforçada para valores não finitos/intermediários.
+Os critérios de regressão E5-07–09 ficaram registrados no plano.
+
+Etapas 0–5 implementadas e revisadas estaticamente. O plano contém listas
+breves de testes manuais com critérios de aceite ao final de cada etapa
+entregue, incluindo as anteriores. Todas permanecem pendentes para a etapa 13.
+
+### Osteotomia e simulação TPLO — leitura dos salvos — 17/11/2026
+
+A etapa 6 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+acrescenta `lib/tplo-result.ts`, `TploOverlay` e `CaseImageTploSaved`. A leitura
+mantém todos os TPLOs por UUID, identifica ambiguidades e valida raio/rotação
+oficiais, unidades, calibração/fingerprint e dimensões originais. Dados ausentes,
+inválidos, desatualizados e não conferidos não recebem substitutos locais.
+
+`SIMULATED` exige matriz oficial 2×3 coerente e pontos finitos correspondentes
+à origem. Respostas antigas sem pontos transformados podem usar somente a
+matriz oficial válida sobre o contorno original. Lista presente inválida ou
+matriz ausente não recebe fallback. Saídas fora da imagem não sofrem clamp.
+Medida e simulação têm elegibilidade independente.
+
+O workspace desenha guias de origem e o contorno oficial selecionado conforme
+o estado Original/Simulado. A lista é compacta e expansível, com valores brancos,
+tooltips universais e recuperação por GET que conserva ajustes. Objetos ocultos
+não aparecem nem pelo editor restaurado; bloqueados continuam sem edição.
+Durante gesto/rascunho alterado, resultados anteriores não representam o ajuste
+atual. Não há autosave ou nova escrita nessa apresentação.
+
+Etapas 0–6 implementadas e revisadas estaticamente. A entrada pública permanece
+na etapa 12; controles de comparação, rotação local e textura ficam na etapa 9.
+Os cinco critérios E6-01–05 foram registrados e permanecem pendentes, junto
+das listas anteriores, para o aceite manual integrado da etapa 13.
+
+### Osteotomia e simulação TPLO — posicionamento inicial — 17/11/2026
+
+A etapa 7 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+conecta centro → borda ao canal TPLO do visualizador. `tplo-placement.ts` adapta
+o estado parcial para pixels originais e calcula o cursor por setas/Shift.
+Mouse/toque confirmam no pointer-up; teclado exige prévia visível e Enter.
+Cancelamento, foco, captura e geração impedem confirmar gestos antigos.
+
+`ViewerTploPlacementOverlay` mostra apenas a geometria parcial. O card
+`CaseImageTploCutControls` oferece Centro/Borda, diâmetro explícito em mm,
+ajuda universal e descarte. O diâmetro mantém centro e direção, usa a escala
+salva e recusa pedido inviável sem reduzir o corte. A geometria completa pode
+formar comando com `fragment=null`; a UI conserva a pendência do fragmento.
+Não existe autosave ou sincronização automática com a lâmina da tabela.
+
+Etapas 0–7 implementadas e revisadas. Entrada pública continua na etapa 12;
+fragmento, rotação/composição e confirmação ficam nas etapas seguintes.
+Conforme nova autorização do usuário, testes locais de lógica e DOM simulado
+agora complementam as checagens estáticas: 23 testes aprovados nesta entrega,
+incluindo cinco regressões existentes. Nenhum request ou backend real foi usado.
+O plano distingue automação de aceite visual, clínico e de ponta a ponta,
+e registra os critérios manuais E7-01–03 ainda pendentes.
+
+### Osteotomia e simulação TPLO — fragmento — 18/11/2026
+
+A etapa 8 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+acrescenta `tplo-fragment-editor.ts`, `CaseImageTploFragmentControls` e prévia
+própria do próximo trecho no visualizador. Clique/toque e setas/Enter marcam
+os pontos originais em sequência. Contornos parciais ficam abertos e não
+formam comando; concluir exige 3–500 pontos e fecha só o desenho.
+
+O rascunho guarda `fragmentBeforeEdit` para cancelar/redesenhar sem perder o
+contorno anterior nem ajustes do corte. Esse campo, assim como a conclusão e
+a seleção, nunca entra no transporte. Cancelar um rascunho antigo sem cópia
+recupera o fragmento salvo da mesma revisão, quando disponível.
+
+Seleção/arraste/setas ajustam um vértice. A inserção explícita cria o ponto
+médio do trecho seguinte e seleciona o novo vértice; remoção mantém pelo menos
+três pontos. Remover contorno envia futuramente `fragment=null`, mantendo
+centro, borda e rotação. Não há simplificação, reordenação, curva automática,
+transformação acumulada ou gravação por movimento. Degeneração gera orientação
+visual sem bloquear dados que o backend aceita.
+
+As ações do hook mantêm as proteções de revisão, geração, UUID e contexto.
+Etapas 0–8 implementadas e revisadas, com 41 testes locais aprovados (18 novos),
+checagens estáticas e nenhuma requisição remota. Os critérios E8-01–03 do plano
+continuam pendentes para aceite visual/clínico e persistência integrada.
+Rotação/composição, confirmação e entrada pública seguem nas etapas próprias.
+
+A revisão complementar da etapa 8 corrigiu o arraste de vértice explicitamente
+selecionado sobre alças/circunferência do corte ou outro TPLO. Dentro da alça,
+o vértice escolhido tem prioridade; a seleção padrão mantém as prioridades do
+corte. A suíte foi ampliada para 47 testes aprovados, incluindo integração de
+workspace, card, hook e visualizador com rede bloqueada. O critério E8-04
+registra o aceite manual dessa sobreposição. A etapa 9 foi entregue em seguida.
+
+### Osteotomia e simulação TPLO — rotação e composição — 18/11/2026
+
+A etapa 9 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+acrescenta `tplo-preview.ts` e `tplo-rotation.ts`. A prévia usa pixels originais,
+escala salva e a fórmula contratada, partindo sempre da origem. Aceita 0° e
+±180°, conserva os pontos e permite saída transformada da imagem sem clamp.
+
+O card oferece rotação numérica explícita, alça própria e Original/Simulado.
+Ponteiro desespelhado e setas de 1°/Shift de 10° geram prévia transitória
+compartilhada pelo quadro e card; soltar confirma somente o rascunho local.
+Esc, foco, captura e contexto cancelam. Edição da origem ocorre em Original.
+
+`ViewerTploImageLayer` usa a mesma URL da radiografia, máscara da origem e
+recorte transformado pela mesma matriz do contorno. Filtros e apresentação
+são comuns; guias não recebem filtros. Lacunas mostram fundo neutro, sem
+anatomia sintética. Só o TPLO selecionado é composto. Falha da textura preserva
+imagem base, contorno e rascunho, com tentativa/renovação pelo GET existente.
+Não há nova imagem clínica, canvas/exportação ou escrita por movimento.
+
+Editor limpo mostra resultado oficial validado; ajustes usam estimativa `≈`,
+sem substituir resultado ausente nem indicar aprovação clínica. Etapas 0–9
+implementadas e revisadas: 61 testes locais aprovados (14 novos), TypeScript,
+lint sem erros, traduções e whitespace conferidos. O aviso existente de `<img>`
+acompanha o componente extraído. Sem chamadas remotas ou alterações no backend.
+E9-01–04 permanecem pendentes para aceite visual e integrado. Parâmetros,
+confirmação e entrada pública continuam nas etapas 10, 11 e 12.
+
+A revisão complementar da etapa 9 corrigiu erro/texto antigo no campo de
+rotação após ajuste confirmado e a perda do fallback quando a textura falha
+antes da imagem base carregar. Prontidão, falhas e callbacks ficam isolados
+por cliente/caso/imagem/URL/elegibilidade, inclusive com URL repetida e após
+desmontagem. Entrada digitada permanece durante prévia/cancelamento; confirmar
+outro ângulo reinicia o formulário. A suíte passou a 66 testes locais aprovados,
+com cinco regressões novas e checagens estáticas aprovadas. E9-05 acrescenta
+aceite manual dessa sequência; nenhuma etapa seguinte foi habilitada.
+
+### Osteotomia e simulação TPLO — parâmetros e tabela — 18/11/2026
+
+A etapa 10 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+conecta parâmetros globais restritos ao writer existente. `tplo-parameters.ts`
+preserva omissão/nulo e exige lateralidade explícita ao criar metadados.
+`parameterFields` conserva texto incompleto no rascunho, protege navegação e
+fica fora do comando; entrada inválida não permite enviar. Não há autosave,
+alvo padrão ou sincronização entre lâmina da tabela e diâmetro do corte.
+
+`CaseImageTploParameters` e `useTploParameterSaveActions` oferecem confirmação,
+descarte e mensagens universais. Writer/BFF/recuperação continuam responsáveis
+pela revisão, pelo PATCH restrito e pela conferência por GET de resposta incerta.
+Qualidade, elegibilidade, auditoria e demais objetos são preservados.
+
+`useTploTableConsultation` reutiliza tabela/protocolo por consultas explícitas.
+Usa TPA oficial e lâmina global sem arredondar os filtros. Cliente, imagem,
+revisão, parâmetros, geração e snapshots rejeitam respostas/callbacks antigos.
+`CaseImageTploReference` apresenta consulta e correção oficial salva em detalhes
+distintos, com versão/fonte/checksum disponíveis e ausência/erro identificáveis.
+`tplo-correction.ts` confere a leitura oficial e o match numérico retornado;
+não interpola, recomenda rotação ou converte `rotation_mm` em graus.
+
+Correção é única por imagem, sem TPLO primário implícito. Tabela/protocolo não
+configurados não bloqueiam simulação. Etapas 0–10 implementadas e revisadas,
+com 84 testes locais aprovados em sete arquivos, TypeScript, lint sem erros ou
+avisos nos 12 arquivos da etapa, traduções e whitespace conferidos. Não houve
+execução/escrita remota nem alteração no backend ou `.env`. E10-01–04 aguardam
+aceite manual integrado. Etapas 11–13 e entrada pública permanecem pendentes.
+
+A revisão complementar da etapa 10 passou a conferir o estado vivo do cache
+antes de iniciar tabela/protocolo, inclusive entre a alteração do cache e a
+próxima renderização. Corrigiu também a classificação de tabela não configurada
+com eco vazio e um aviso tardio de falha de gravação após mudar a edição.
+Confirmação atual continua única e restaura foco. Quatro regressões novas
+ampliaram a suíte para 88 testes locais aprovados, com checagens estáticas
+aprovadas. E10-05 registra o aceite manual adicional. O arquivo da suíte de
+interação foi recuperado do histórico após falha da ferramenta; seus 38 testes
+existentes foram preservados e novamente verificados. A etapa 11 segue pendente.
+
+### Osteotomia e simulação TPLO — confirmação e reabertura — 18/11/2026
+
+A etapa 11 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+conecta o card de propriedades e Salvar/Atualizar ao writer existente.
+`CaseImageTploValues` reúne diâmetro/rotação e mantém raio, revisão e motivo de
+simulação indisponível em detalhes recolhidos. Valores locais usam `≈`;
+editor limpo usa somente resultado oficial validado, sem aprovação clínica.
+Os controles e tooltips seguem os componentes universais do visualizador.
+
+`useTploGeometrySaveActions` permite confirmação explícita de criação/atualização
+com UUID estável. Não envia resultados/matriz nem grava por movimento.
+Contorno parcial bloqueia envio; antes de desenhar ou após remoção explícita,
+`fragment=null` continua permitido. Duplo clique não duplica gravação. Resposta
+incerta utiliza GET, sem repetir PATCH/PUT. Conflito/recusa mantém intenção até
+descarte explícito, sem limpar metadados, revisão clínica ou auditoria.
+
+Após confirmação, o workspace aguarda o desbloqueio do writer e reabre somente
+o editor correspondente, limpo e na revisão confirmada. Preserva seleção e
+comparação, confere identidades das queries e não substitui intenção mais
+recente nem outro contexto. Cancelar atualização restaura o salvo sem fechar
+TPLO; descartar criação retorna à lista/estado vazio. Objeto bloqueado permanece
+em leitura e finalização não força edição.
+
+Etapas 0–11 implementadas e revisadas, com 99 testes locais aprovados em oito
+arquivos (onze novos com transporte sintético), TypeScript, lint sem erros/avisos,
+traduções, UTF-8, links e whitespace conferidos. Os critérios E11-01–04 aguardam
+aceite manual integrado. Etapa 12 (entrada pública/exclusão) e etapa 13 permanecem
+pendentes. Não houve chamadas remotas ou alteração de backend ou `.env`.
+
+### Osteotomia e simulação TPLO — entrada pública e exclusão — 19/11/2026
+
+A etapa 12 do [plano TPLO](../../../../../docs/tplo-simulation-implementation-plan.md)
+habilita Ferramentas → Planejamento → Simulação TPLO. A entrada retoma a intenção,
+reabre salvo ou inicia centro/borda. Nova osteotomia cria outro UUID por ação
+explícita. TPA continua separado; calibração/Distância mantêm o fluxo existente.
+Criação e ajustes exigem escala/dimensões/política DICOM e contexto válidos.
+O limite de objetos, outras intenções, recibos, locks e revisão são respeitados.
+
+`useTploDeletion`, `CaseImageTploDeleteDialog`, `CaseImageTploDeleteButton` e
+`CaseImageTploNewAction` conectam
+exclusão à confirmação minimalista universal e aos tooltips do visualizador.
+O comando contém somente UUID e revisão; excluir salvo dispensa geometria/escala,
+mas revalida leitura, seleção, lock, snapshot e contexto. Cancelar o modal
+preserva a intenção anterior; confirmar avisa sobre ajustes locais descartados.
+
+O writer existente envia uma vez. Resposta incerta mantém conferência GET,
+sem repetir escrita; conflito/recusa exige descarte explícito/carregar salvo.
+O comando é normalizado antes de comparar o recibo. O estado incerto permanece
+distinto de processamento ativo, evitando carregamento permanente e permitindo
+GET. Falhas de leitura têm tentativa explícita; respostas e rascunhos antigos
+não alteram outra imagem/cliente ou uma intenção mais recente.
+
+Após excluir, a ferramenta continua aberta: seleciona um restante visível ou
+mostra estado vazio com Nova osteotomia. Landmarks, calibração, demais objetos,
+metadados globais, qualidade e auditoria ficam preservados. Um corte não é
+escolhido como primário global. Controles ficam bloqueados durante o modal;
+portal/foco seguem o fullscreen e o padrão dos demais menus.
+
+Etapas 0–12 implementadas e revisadas, com 115 testes locais aprovados em oito
+arquivos (16 novos), TypeScript, lint sem erros/avisos, traduções, UTF-8, links
+e whitespace conferidos. E12-01–05 e as listas anteriores aguardam aceite da
+etapa 13 em navegador/dispositivo e backend reais. Sem chamadas remotas,
+alterações em backend/`.env` ou habilitação de revisão clínica/relatórios/implantes.
+
+A revisão complementar da etapa 12 distingue o GET pendente de uma exclusão:
+o modal mostra verificação durante a leitura e só envia a escrita após nova
+confirmação. Quatro regressões adicionais cobrem esse estado, bloqueio no cache
+antes da renderização, finalização antes da confirmação e Esc/foco. A suíte
+passou a 119 testes locais aprovados, com checagens estáticas novamente
+aprovadas. E12-06 registra o aceite manual adicional; etapa 13 permanece pendente.
+
+O ajuste de UX do painel TPLO apresenta os controles conforme a tarefa:
+posicionamento inicial compacto, centro/borda e diâmetro agrupados, explicações
+em tooltips universais e referência clínica recolhida. Sem contorno, a rotação
+fica recolhida, mantendo a entrada numérica acessível. Nova osteotomia aparece
+no editor limpo. Erros e indicação de estimativa permanecem identificáveis.
+O diâmetro usa até duas casas na apresentação, conservando a geometria exata
+até edição explícita. Duas regressões novas ampliaram a suíte para 121 testes;
+E12-07 mantém o aceite visual em aberto. Nenhum contrato ou salvamento remoto mudou.
+
+Na padronização estrutural seguinte, o painel passou a usar o próprio
+`ViewerMeasurementCard`, como Distância/Ângulo/TPA, em vez de recriar sua
+estrutura. Os valores usam linhas alinhadas; Ajustar e Diâmetro têm seções
+distintas, com divisórias consistentes. Na marcação inicial, o ponto é uma
+ação dentro da seção do passo, com descarte no rodapé padrão.
+Salvar/cancelar passam à barra flutuante do visualizador junto ao corte e só
+aparecem quando há ajustes, revisão antiga ou falha de leitura. A suíte de
+121 testes e as checagens estáticas passaram novamente. E12-08 registra o
+aceite visual adicional; Computer Use não recebeu autorização para acessar
+o Chrome. Nenhuma gravação real ou alteração de contrato foi realizada.
+
+O descarte inicial foi movido para um X vermelho no cabeçalho, com tooltip e
+nome acessível, preservando a mesma ação local. Rotação (°) adota rótulo/padding
+compatíveis com Diâmetro, e Comparação deixa de receber padding lateral duplo.
+Referência clínica continua recolhida: agrupa dados globais/consultas do plano,
+sem ser requisito para desenho e rotação manual. E12-09 registra a conferência
+visual desses refinamentos; os 121 testes existentes e as checagens estáticas
+passaram novamente, sem alterar comandos ou executar gravações reais.
+
+O refinamento seguinte troca o X inicial pela lixeira vermelha, sem mudar o
+descarte local, e remove Referência clínica do menu de osteotomia. O workspace
+não monta mais suas consultas nem oferece a entrada por esse agrupamento;
+dados, serviços e rascunhos de parâmetros anteriores ficam preservados para
+uma localização futura. Rotação/Comparação formam um bloco sem divisória.
+Detalhes da medida sai do corpo: explicações e motivo da simulação indisponível
+ficam na ajuda universal de Medidas; falhas continuam visíveis.
+
+Durante gravação, o editor permanece visível e bloqueado com prévia local;
+o resultado oficial só reaparece após confirmação e o sucesso é notificado
+uma vez pelo Sonner. Recibos interrompidos/incertos e erros conservam recuperação
+explícita por GET/descarte, sem repetir escrita. A regressão local sob latência
+amplia a suíte para 122 testes aprovados em oito arquivos; TypeScript, lint,
+traduções, UTF-8, links e whitespace passaram. E12-10 adiciona o aceite manual;
+etapa 13 permanece pendente, sem backend, `.env` ou gravações remotas.
+
+O desenho do fragmento agora usa um `ViewerMeasurementCard` dedicado e compacto:
+contador/desfazer alinhados, marcação e ajuda universal, sem medidas do corte
+durante a tarefa. A lixeira descarta apenas o contorno em edição e restaura o
+anterior. Concluir/cancelar ficam na barra flutuante junto ao último vértice;
+concluir exige 3–500 pontos e permanece local até confirmar a osteotomia.
+Falhas de leitura/revisão antiga mantêm recuperação explícita. Os 75 testes
+locais de interação/confirmação e as checagens estáticas passaram; E12-11
+registra o aceite visual em aberto. Sem alteração no backend ou escrita remota.
+
+A barra de concluir/cancelar o contorno considera todos os vértices: fica
+fora da área desenhada com 48 px de folga na tela e muda de lado perto das
+bordas. O cálculo acompanha zoom/pan/espelhamento, mantendo o tamanho dos
+botões e da margem. Se o contorno preencher o visualizador, mantém acesso às
+ações na posição de menor sobreposição. Os demais menus preservam sua posição.
+Três regressões ampliam o conjunto para 125 testes; E12-12 registra o aceite
+manual para continuar o contorno junto de um ponto anterior. TypeScript e
+checagens estáticas conferidos, sem alteração no backend ou salvamento remoto.
+
+A lista de osteotomias salvas mostra dois blocos empilhados por padrão, com
+seta de expansão apenas quando há mais itens visíveis. Recolher mantém a
+seleção acessível. Nome, Diâmetro e Rotação seguem as linhas/padding do editor;
+origem, simulação e bloqueio ficam na ajuda universal “?”, com erros e rascunhos
+ainda visíveis. Seleção e Nova osteotomia conservam o fluxo existente, sem
+gravação ao expandir. A regressão acrescentada leva o conjunto a 126 testes;
+E12-13 registra o aceite visual/manual pendente.
+
 ### Revisão futura do workspace legado
 
 - [ ] Revisar os adapters antigos e decidir se devem ser reaproveitados ou removidos: `services/cases-repository.ts`, `services/in-memory-cases-adapter.ts` e `services/frontend-only-cases-adapter.ts`. A revisão inclui as ações em `hooks/use-case-image-actions.ts` e `components/case-image-list-item.tsx`, mais a calibração provisória em `components/case-workspace-image.tsx` e `components/case-calibration-panel.tsx`.

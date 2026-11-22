@@ -46,7 +46,7 @@ function CommunityProfile({ conversation, id, closeButton, onClose }: CommunityP
       </header>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="flex flex-col items-center gap-2 border-b border-[color:var(--community-divider)] px-5 pt-6 pb-4 text-center">
-          <AppUserAvatar avatarUrl={null} className="size-16 rounded-full text-lg" initials={conversation.initials} />
+          <AppUserAvatar avatarUrl={conversation.avatarUrl} className="size-16 rounded-full text-lg" initials={conversation.initials} />
           <div className="min-w-0">
             <p className="text-[14px] font-semibold text-foreground">{conversation.name}</p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">{specialty}</p>

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server"
 
+import { LandingSectionDivider } from "../landing-section-divider"
 import { PlatformCaseIllustration } from "./platform-case-illustration"
 import { PlatformPrecisionIllustration } from "./platform-precision-illustration"
 import { PlatformReviewIllustration } from "./platform-review-illustration"
@@ -13,6 +14,7 @@ async function PlatformSection() {
 
   return (
     <section aria-labelledby="orthovet-platform-title" className={styles.section} id="platform">
+      <LandingSectionDivider />
       <div className={styles.inner}>
         <PlatformTitle text={t("title")} />
 

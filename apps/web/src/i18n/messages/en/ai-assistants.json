@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "title": "AI Assistants",
+    "description": "Explore the future vision for AI Assistants in Orthovet: specialized agents to support reports, case organization and custom workflows."
+  },
+  "title": "AI Assistants",
+  "tagline": "Assistants for the future of your workflow.",
+  "preview": {
+    "title": "Assistants working alongside you",
+    "description": "A vision of specialized agents to help organize cases and prepare reports.",
+    "workflow": {
+      "case": { "title": "Case", "description": "{name} · {caseId}" },
+      "context": { "title": "Maia", "description": "Organize case data" },
+      "notes": { "title": "Nina", "description": "Gather case notes" },
+      "draft": { "title": "Leo", "description": "Draft the report" },
+      "review": { "title": "Review", "description": "Check the draft" },
+      "action": "Review draft"
+    }
+  },
+  "facts": {
+    "note": "A future vision for the platform. The features presented here are still being planned.",
+    "items": {
+      "assistants": { "label": "Assistants", "value": "Agents with specific roles" },
+      "context": { "label": "Context", "value": "Information linked to the case" },
+      "workflows": { "label": "Workflows", "value": "Support for recurring tasks" },
+      "review": { "label": "Review", "value": "You control the result" }
+    }
+  },
+  "overview": {
+    "title": "A team of assistants",
+    "lead": "The proposal is to let you have several agents inside Orthovet, each focused on a part of your workflow. They could help organize cases, prepare reports and support other tasks that currently require manual work.",
+    "specialists": "One assistant could help gather case information, while another could prepare a draft report. The idea is to offer specific roles with the context each task needs, rather than placing every activity in one conversation.",
+    "workflows": "We also envision custom workflows where different agents can work in sequence. You could define what you want to prepare and follow the steps, connecting case organization with document preparation.",
+    "review": "This is a vision for the platform's evolution. These features are yet to be developed, and their results should remain subject to professional review before becoming part of the case work."
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "Frequently asked questions",
+    "items": {
+      "availability": {
+        "question": "Are the agents available yet?",
+        "answer": "Not yet. AI Assistants is part of Orthovet's future vision. The features on this page are still being planned and illustrate what we want to develop for the platform."
+      },
+      "tasks": {
+        "question": "What tasks could the agents help with?",
+        "answer": "The proposal includes gathering case information, organizing notes, and preparing summaries and draft reports. We also envision custom workflows connecting these tasks inside the platform."
+      },
+      "review": {
+        "question": "Will generated content need to be reviewed?",
+        "answer": "Yes. The proposal is to help prepare content while keeping the professional responsible for reviewing it. Summaries and drafts should be checked before becoming part of the case work."
+      },
+      "multiple": {
+        "question": "Will I be able to use more than one agent?",
+        "answer": "That is the idea: agents specializing in different tasks, working in sequence within a workflow you define. How these workflows will be configured is still to be developed."
+      }
+    }
+  },
+  "modules": {
+    "title": "Possibilities for your workflow",
+    "description": "<strong>Different agents for different tasks.</strong> A vision of how assistants could support work inside the platform.",
+    "items": {
+      "reports": {
+        "title": "Report assistant",
+        "description": "Support for preparing drafts from case information, for the professional to review.",
+        "sketch": { "draft": "Draft" }
+      },
+      "cases": {
+        "title": "Case assistant",
+        "description": "Help gathering information, organizing notes and preparing a summary of each case.",
+        "sketch": { "prompt": "Summarize case", "summary": "Summary ready" }
+      },
+      "workflows": {
+        "title": "Custom workflows",
+        "description": "Different agents combined into workflows you define, according to your routine tasks.",
+        "sketch": { "organize": "Organize", "prepare": "Prepare", "review": "Review" }
+      }
+    }
+  }
+}

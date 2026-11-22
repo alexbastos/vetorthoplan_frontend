@@ -223,7 +223,7 @@ function CommunityConversation({ conversation, messages, likedMessages, replyTo,
             >
               <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.5} />
             </button>
-            <AppUserAvatar avatarUrl={null} className="size-9 rounded-full text-[11px]" initials={conversation.initials} />
+            <AppUserAvatar avatarUrl={conversation.avatarUrl} className="size-9 rounded-full text-[11px]" initials={conversation.initials} />
             <div className="min-w-0">
               <h2 className="truncate text-[14px] leading-tight font-semibold text-foreground">{conversation.name}</h2>
               <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{t(`specialties.${conversation.id}`)}</p>
@@ -323,7 +323,7 @@ function CommunityConversation({ conversation, messages, likedMessages, replyTo,
                   {day.messages.map((message) => (
                     <div className={`${styles.messageRow} flex items-end gap-2 outline-none ${message.outgoing ? "justify-end" : "justify-start"}`} data-message-id={message.id} key={message.id} tabIndex={-1}>
                       {message.outgoing ? null : (
-                        <AppUserAvatar avatarUrl={null} className="mb-8 size-[26px] rounded-full text-[9px]" initials={conversation.initials} />
+                        <AppUserAvatar avatarUrl={conversation.avatarUrl} className="mb-8 size-[26px] rounded-full text-[9px]" initials={conversation.initials} />
                       )}
                       <div className={`flex min-w-0 max-w-[75%] flex-col ${message.outgoing ? "items-end" : "items-start"}`}>
                         <p className="mb-1 px-1 text-[11px] text-muted-foreground">

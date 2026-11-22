@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "title": "Simulação visual",
+    "description": "Conheça a simulação visual da Orthovet: delimitação do fragmento, rotação e revisão do planejamento TPLO sobre a radiografia."
+  },
+  "title": "Simulação visual",
+  "tagline": "Veja o ajuste sobre a própria imagem.",
+  "preview": {
+    "title": "Seu planejamento ganha forma",
+    "description": "Reúna a prévia e os parâmetros da simulação no mesmo planejamento, com cada ajuste ligado ao caso.",
+    "illustrationLabel": "Demonstração dos planejamentos TPLO de {first}, {second} e {third}: resumo do caso, parâmetros e confirmação de salvamento.",
+    "scene": {
+      "planLabel": "Planejamento",
+      "planName": "TPLO",
+      "caseLabel": "Caso",
+      "caseId": "Caso {id}",
+      "projectionLabel": "Projeção",
+      "projection": "Mediolateral",
+      "patientLabel": "Paciente",
+      "patientSummary": "Canino · SRD · {years, number} anos",
+      "summaryLabel": "Simulação",
+      "summaries": {
+        "fragment": { "title": "TPLO", "description": "Fragmento proximal" },
+        "osteotomy": { "title": "Osteotomia", "description": "Corte circular" },
+        "rotation": { "title": "Rotação", "description": "Ajuste do fragmento" }
+      },
+      "documentTitle": "Planejamento TPLO",
+      "fragment": "Fragmento proximal delimitado na radiografia.",
+      "note": "Geometria e parâmetros vinculados ao plano da imagem.",
+      "file": "RX lateral.jpg",
+      "radiusLabel": "Raio do corte",
+      "radiusValue": "{value, number} mm",
+      "rotationLabel": "Rotação",
+      "rotationValue": "{value, number}°",
+      "editing": "Em edição",
+      "saved": "Salvo"
+    }
+  },
+  "facts": {
+    "note": "Geometria do corte, fragmento e rotação ligados ao mesmo planejamento.",
+    "items": {
+      "osteotomy": { "label": "Corte", "value": "Centro e raio da osteotomia" },
+      "fragment": { "label": "Fragmento", "value": "Contorno da região selecionada" },
+      "rotation": { "label": "Rotação", "value": "Ângulo informado no plano" },
+      "review": { "label": "Revisão", "value": "Origem e resultado na imagem" }
+    }
+  },
+  "overview": {
+    "title": "Veja o ajuste",
+    "lead": "Na simulação da TPLO, a radiografia continua como referência para visualizar o fragmento delimitado e acompanhar sua rotação. Informe o ângulo, observe a posição resultante e revise a construção do plano no contexto do caso.",
+    "fragment": "Delimite o fragmento a partir da geometria do corte. O contorno de origem permanece como referência para acompanhar a região selecionada e entender o que está sendo movimentado na imagem.",
+    "rotation": "A rotação informada é aplicada ao fragmento selecionado. Os contornos de origem e de resultado permitem observar a mudança de posição sem perder as referências usadas na construção do planejamento.",
+    "review": "Revise o resultado sobre a radiografia e salve a simulação no plano. Ao retomar o caso, o corte, o fragmento e os parâmetros registrados permanecem disponíveis para consulta."
+  },
+  "faq": {
+    "eyebrow": "Dúvidas",
+    "title": "Perguntas frequentes",
+    "items": {
+      "setup": {
+        "question": "O que preciso definir antes de simular?",
+        "answer": "Na simulação da TPLO, defina a geometria do corte, com seu centro e raio, e delimite o fragmento que será movimentado. Essas referências permitem visualizar a região selecionada sobre a radiografia."
+      },
+      "rotation": {
+        "question": "Como a rotação é aplicada ao fragmento?",
+        "answer": "Você informa o ângulo de rotação e acompanha a mudança de posição do fragmento selecionado na imagem. A prévia permite revisar o ajuste junto das referências do planejamento."
+      },
+      "reference": {
+        "question": "Consigo comparar a posição original com o resultado?",
+        "answer": "Sim. O contorno de origem permanece como referência enquanto o fragmento é movimentado. Assim, você pode observar a diferença entre as posições e revisar a simulação sobre a própria radiografia."
+      },
+      "saved": {
+        "question": "Os parâmetros ficam disponíveis depois de salvar?",
+        "answer": "Sim. Ao salvar a simulação no plano, o corte, o fragmento e os parâmetros registrados permanecem vinculados ao planejamento para consulta quando você retomar o caso."
+      }
+    }
+  },
+  "modules": {
+    "title": "Do contorno à simulação",
+    "description": "<strong>Fragmento, rotação e resultado sobre a radiografia.</strong> Acompanhe cada etapa sem perder as referências do planejamento.",
+    "items": {
+      "fragment": {
+        "title": "Delimitação do fragmento",
+        "description": "Defina o contorno da região que será movimentada a partir do corte planejado.",
+        "sketch": { "label": "Fragmento" }
+      },
+      "rotation": {
+        "title": "Rotação do fragmento",
+        "description": "Informe o ângulo e visualize a mudança de posição do fragmento na imagem.",
+        "sketch": { "value": "Rotação {value, number}°" }
+      },
+      "review": {
+        "title": "Revisão da simulação",
+        "description": "Observe a origem e o resultado, revise as referências e salve a simulação no plano.",
+        "sketch": { "original": "Origem", "result": "Resultado", "save": "Salvar", "saved": "Salvo" }
+      }
+    }
+  }
+}

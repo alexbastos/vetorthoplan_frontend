@@ -1,0 +1,93 @@
+.section { position: relative; padding-top: 10px; }
+.inner { width: min(100%, 1800px); margin-inline: auto; padding: 64px 24px 76px; }
+.heading { width: min(100%, 1272px); margin: 0 auto 40px; }
+.eyebrow { margin: 0 0 24px; color: var(--color-pewter); font-size: 16px; font-weight: 400; line-height: 24px; }
+.title { max-width: 29ch; margin: 0; color: var(--color-obsidian); font-size: 28px; font-weight: 400; letter-spacing: -.025em; line-height: 32px; text-wrap: balance; }
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .heading[data-resource-motion="pending"] { visibility: hidden; }
+}
+.scrollTrack { margin-top: 28px; }
+.stickyViewport { width: 100%; }
+.storyCard { position: relative; width: 100%; max-width: 1800px; margin-inline: auto; overflow: clip; border: 0; border-radius: 15px; padding: 18px; background: #0e7aff; box-shadow: 0 -28px 87px rgb(8 18 40 / 22%); color: #fff; isolation: isolate; }
+.timeline { display: none; }
+.stages { position: relative; z-index: 1; display: grid; gap: 12px; }
+.stage { display: grid; min-width: 0; gap: 18px; border: 1px solid rgb(255 255 255 / 20%); border-radius: 12px; padding: 16px; background: rgb(3 39 94 / 11%); }
+.stageCopy { min-width: 0; }
+.stageLabel { margin: 0 0 12px; color: rgb(255 255 255 / 75%); font-size: 11px; font-weight: 500; letter-spacing: .08em; line-height: 14px; text-transform: uppercase; }
+.stageCopy h3 { max-width: 24ch; margin: 0; color: #fff; font-size: 21px; font-weight: 600; letter-spacing: -.025em; line-height: 1.08; text-wrap: balance; }
+.stageDescription { max-width: 38ch; margin: 12px 0 0; color: rgb(255 255 255 / 78%); font-size: 14px; line-height: 20px; }
+.scene { position: relative; width: min(100%, 330px); aspect-ratio: 483 / 543; justify-self: center; container-type: inline-size; }
+.scrollHint { display: none; }
+.scrollIcon { display: grid; width: 36px; height: 36px; flex: none; place-content: center; gap: 0; border: 1px solid rgb(255 255 255 / 12%); border-radius: 10px; background: rgb(255 255 255 / 6%); }
+.scrollIcon i { display: block; width: 8px; height: 8px; border-right: 1px solid rgb(255 255 255 / 62%); border-bottom: 1px solid rgb(255 255 255 / 62%); transform: translateY(-2px) rotate(45deg); }
+.scrollIcon i + i { margin-top: -4px; opacity: .52; }
+
+@media (min-width: 640px) and (max-width: 1099px) {
+  .inner { padding-inline: 32px; }
+  .stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stage { align-content: start; }
+  .scene { width: min(100%, 280px); }
+}
+
+@media (min-width: 768px) {
+  .inner { padding: 76px 32px 88px; }
+  .heading { margin-bottom: 44px; }
+  .title { font-size: 36px; line-height: 40px; }
+}
+
+@media (min-width: 1024px) {
+  .title { font-size: 40px; line-height: 44px; }
+}
+
+@media (min-width: 1100px) {
+  .inner { padding: 76px 32px 88px; }
+  .heading { margin-bottom: 34px; }
+  .scrollTrack { position: relative; left: 50%; width: min(calc(100vw - 24px), 1824px); margin-top: 0; transform: translateX(-50%); }
+  .stickyViewport { position: sticky; top: 12px; display: flex; height: calc(100svh - 24px); justify-content: center; padding-inline: 12px; }
+  .storyCard { height: 100%; padding: 0; background: #0e7aff; }
+  .timeline { position: absolute; z-index: 1; top: 11%; bottom: 11%; left: 12.5%; display: block; width: 1px; }
+  .timelineLine { position: absolute; inset: 0; background: rgb(255 255 255 / 10%); }
+  .tick { position: absolute; left: -5px; width: 11px; height: 1px; background: rgb(255 255 255 / 13%); }
+  .traveler { position: absolute; z-index: 1; top: 0; left: -3px; width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px rgb(255 255 255 / 75%); transform: translateY(-50%); }
+  .stages { position: absolute; inset: 0; display: block; }
+  .stage { position: absolute; inset: 0; display: block; border: 0; border-radius: 0; padding: 0; background: transparent; }
+  .stageCopy { position: absolute; top: 17%; left: 17.5%; width: min(340px, 31%); }
+  .stageLabel { margin-bottom: 24px; color: #c2e5ff; font-size: 14px; font-weight: 400; letter-spacing: 0; line-height: 1.2; }
+  .stageCopy h3 { max-width: none; font-size: 30px; font-weight: 500; letter-spacing: -.05em; line-height: .95; white-space: pre-line; }
+  .stageDescription { max-width: 230px; margin-top: 24px; color: rgb(255 255 255 / 60%); font-size: 14px; line-height: 1.3; }
+  .scene { position: absolute; top: 50%; left: 53.7%; width: 407px; height: 459px; max-width: 40%; aspect-ratio: 483 / 543; transform: translateY(-50%); }
+  .scrollHint { position: absolute; bottom: 13%; left: 17.5%; z-index: 1; display: flex; align-items: center; gap: 10px; color: rgb(255 255 255 / 40%); font-size: 16px; letter-spacing: -.02em; }
+  .scrollRoot[data-story-motion="ready"] .scrollTrack { height: 340vh; }
+  .scrollRoot[data-story-motion="ready"] .storyCard { transform: scale(.81); transform-origin: top center; }
+}
+
+@media (min-width: 1100px) {
+  .inner { padding: 88px 40px 96px; }
+  .heading { margin-bottom: 34px; }
+}
+
+
+
+
+@media (max-width: 359px) {
+  .inner { padding-inline: 16px; }
+  .storyCard { padding: 12px; }
+  .stage { padding: 13px; }
+  .stageCopy h3 { font-size: 19px; }
+  .scene { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollHint { animation: none; }
+  .scrollRoot[data-story-motion="ready"] .scrollTrack { height: auto; }
+  .scrollRoot[data-story-motion="ready"] .stickyViewport { position: static; height: auto; padding: 0; }
+  .scrollRoot[data-story-motion="ready"] .storyCard { height: auto; padding: 18px; transform: none !important; }
+  .scrollRoot[data-story-motion="ready"] .timeline { display: none; }
+  .scrollRoot[data-story-motion="ready"] .stages { position: relative; display: grid; gap: 12px; }
+  .scrollRoot[data-story-motion="ready"] .stage { position: relative; display: grid; gap: 18px; border: 1px solid rgb(255 255 255 / 20%); border-radius: 12px; padding: 16px; background: rgb(3 39 94 / 11%); opacity: 1 !important; visibility: visible !important; transform: none !important; }
+  .scrollRoot[data-story-motion="ready"] .stageCopy,.scrollRoot[data-story-motion="ready"] .scene { position: relative; inset: auto; width: 100%; height: auto; max-width: 330px; transform: none; }
+  .scrollRoot[data-story-motion="ready"] .stageCopy { max-width: none; }
+  .scrollRoot[data-story-motion="ready"] .scene { aspect-ratio: 483 / 543; justify-self: center; }
+}
+
+.stage[aria-current="false"] { --play: paused; }

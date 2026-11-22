@@ -1,17 +1,17 @@
 const demoConversations = [
-  { id: "marina", name: "Marina Costa", initials: "MC", updatedAt: "2026-11-12T12:20:00Z" },
-  { id: "rafael", name: "Rafael Almeida", initials: "RA", updatedAt: "2026-11-11T17:45:00Z" },
-  { id: "beatriz", name: "Beatriz Lima", initials: "BL", updatedAt: "2026-11-10T13:15:00Z" },
-  { id: "helena", name: "Helena Albuquerque de Mendonça", initials: "HA", updatedAt: "2026-11-09T15:00:00Z" },
+  { id: "marina", name: "Marina Costa", initials: "MC", avatarUrl: "/images/community/4523365212332.avif", updatedAt: "2026-11-12T12:20:00Z" },
+  { id: "rafael", name: "Rafael Almeida", initials: "RA", avatarUrl: "/images/community/4523365212331.avif", updatedAt: "2026-11-11T17:45:00Z" },
+  { id: "beatriz", name: "Beatriz Lima", initials: "BL", avatarUrl: "/images/community/4523365212334.avif", updatedAt: "2026-11-10T13:15:00Z" },
+  { id: "helena", name: "Helena Albuquerque de Mendonça", initials: "HA", avatarUrl: "/images/community/4523365212333.avif", updatedAt: "2026-11-09T15:00:00Z" },
 ] as const
 
 const demoMembers = [
   ...demoConversations,
-  { id: "camila", name: "Camila Rocha", initials: "CR" },
-  { id: "andre", name: "André Ribeiro", initials: "AR" },
+  { id: "camila", name: "Camila Rocha", initials: "CR", avatarUrl: null },
+  { id: "andre", name: "André Ribeiro", initials: "AR", avatarUrl: null },
 ] as const
 
-type DemoMember = Pick<(typeof demoMembers)[number], "id" | "name" | "initials">
+type DemoMember = Pick<(typeof demoMembers)[number], "id" | "name" | "initials" | "avatarUrl">
 type ConversationId = DemoMember["id"]
 type DemoConversation = DemoMember & { updatedAt: string }
 type CommunityMessageQuote = { id: string; text: string; outgoing: boolean }

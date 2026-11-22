@@ -1,0 +1,119 @@
+.scene {
+  position: absolute;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  inset: 0;
+}
+
+.background {
+  position: absolute;
+  z-index: 0;
+  overflow: hidden;
+  background: #fff;
+  inset: 0;
+}
+
+.art {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+}
+
+.definitions {
+  position: absolute;
+}
+
+.streak {
+  position: absolute;
+  top: var(--streak-top);
+  left: var(--streak-left);
+  width: var(--streak-width);
+  height: var(--streak-height);
+}
+
+.drift {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.ribbon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.veil {
+  position: absolute;
+  z-index: 2;
+  height: 140px;
+  background: linear-gradient(#fff, #fff0);
+  inset: 0 0 auto;
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  height: 70%;
+  opacity: 0.85;
+  background: radial-gradient(circle at 100% 100%, rgb(255 255 255 / 95%) 0%, #fff0 70%);
+}
+
+@keyframes hero-streak-in {
+  from { translate: var(--from-x) var(--from-y); }
+  to { translate: 0; }
+}
+
+@keyframes hero-drift {
+  from { translate: 0; }
+  to { translate: var(--drift-x) var(--drift-y); }
+}
+
+@keyframes hero-corner-in {
+  from { opacity: 0; }
+  to { opacity: 0.85; }
+}
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .streak {
+    animation: 2.4s cubic-bezier(0.16, 1, 0.3, 1) backwards hero-streak-in;
+  }
+
+  .drift {
+    animation: hero-drift var(--drift-duration) ease-in-out var(--drift-delay) infinite var(--drift-direction);
+  }
+
+  :global(html.hero-js:not(.hero-in)) .streak {
+    animation-play-state: paused;
+  }
+
+  .scene[data-started="false"] .corner {
+    opacity: 0;
+  }
+
+  :global(html.hero-in) .corner {
+    animation: 0.5s ease-out 0.3s backwards hero-corner-in;
+  }
+
+  .scene[data-paused="true"] .streak,
+  .scene[data-paused="true"] .drift,
+  .scene[data-paused="true"] .corner {
+    animation-play-state: paused;
+  }
+}
+
+@media (max-width: 899px) {
+  .art { display: none; }
+  .background {
+    background:
+      linear-gradient(#fff0 0%, #ffffff12 100%),
+      linear-gradient(90deg, #6af 0%, #4c9bff 30%, #3d94ff 50%, #3590ff 70%, #348fff 100%);
+  }
+}
+

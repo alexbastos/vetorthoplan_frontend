@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "title": "AI Assistants",
+    "description": "Conheça a visão futura de AI Assistants na Orthovet: agentes especializados para apoiar relatórios, organização de casos e rotinas personalizadas."
+  },
+  "title": "AI Assistants",
+  "tagline": "Assistentes para o futuro da sua rotina.",
+  "preview": {
+    "title": "Assistentes que trabalham com você",
+    "description": "Uma visão de agentes especializados para apoiar a organização dos casos e a preparação de relatórios.",
+    "workflow": {
+      "case": { "title": "Caso", "description": "{name} · {caseId}" },
+      "context": { "title": "Maia", "description": "Organizar o caso" },
+      "notes": { "title": "Nina", "description": "Reunir anotações" },
+      "draft": { "title": "Leo", "description": "Preparar relatório" },
+      "review": { "title": "Revisão", "description": "Conferir rascunho" },
+      "action": "Revisar rascunho"
+    }
+  },
+  "facts": {
+    "note": "Visão futura da plataforma. Os recursos apresentados estão em planejamento.",
+    "items": {
+      "assistants": { "label": "Assistentes", "value": "Agentes com funções específicas" },
+      "context": { "label": "Contexto", "value": "Informações ligadas ao caso" },
+      "workflows": { "label": "Rotinas", "value": "Apoio a tarefas recorrentes" },
+      "review": { "label": "Revisão", "value": "Você no controle do resultado" }
+    }
+  },
+  "overview": {
+    "title": "Uma equipe de assistentes",
+    "lead": "A proposta é permitir que você tenha vários agentes dentro da Orthovet, cada um voltado a uma parte da rotina. Eles poderão apoiar a organização dos casos, a preparação de relatórios e outras tarefas que hoje exigem trabalho manual.",
+    "specialists": "Um assistente poderá ajudar a reunir as informações de um caso; outro, a preparar um rascunho de relatório. A ideia é oferecer funções específicas, com o contexto necessário para cada tarefa, em vez de concentrar todas as atividades em uma única conversa.",
+    "workflows": "Também pensamos em rotinas personalizadas, nas quais diferentes agentes possam trabalhar em sequência. Você poderá definir o que deseja preparar e acompanhar as etapas, conectando a organização do caso à produção dos documentos.",
+    "review": "Essa é uma visão para a evolução da plataforma. Os recursos ainda serão desenvolvidos, e os resultados deverão permanecer sujeitos à revisão do profissional antes de serem incorporados ao trabalho do caso."
+  },
+  "faq": {
+    "eyebrow": "Dúvidas",
+    "title": "Perguntas frequentes",
+    "items": {
+      "availability": {
+        "question": "Os agentes já estão disponíveis?",
+        "answer": "Ainda não. AI Assistants faz parte da visão futura da Orthovet. Os recursos desta página estão em planejamento e ilustram o que queremos desenvolver para a plataforma."
+      },
+      "tasks": {
+        "question": "Que tarefas os agentes poderão apoiar?",
+        "answer": "A proposta inclui reunir informações dos casos, organizar anotações, preparar resumos e rascunhos de relatórios. Também pensamos em rotinas personalizadas para conectar essas tarefas dentro da plataforma."
+      },
+      "review": {
+        "question": "Os conteúdos gerados precisarão de revisão?",
+        "answer": "Sim. A proposta é apoiar a preparação do conteúdo, mantendo a revisão com o profissional. Resumos e rascunhos deverão ser conferidos antes de serem incorporados ao trabalho do caso."
+      },
+      "multiple": {
+        "question": "Poderei utilizar mais de um agente?",
+        "answer": "Essa é a ideia: ter agentes especializados em diferentes tarefas, que possam trabalhar em sequência em uma rotina definida por você. A forma de configurar esses fluxos ainda será desenvolvida."
+      }
+    }
+  },
+  "modules": {
+    "title": "Possibilidades para a rotina",
+    "description": "<strong>Diferentes agentes para diferentes tarefas.</strong> Uma visão de como os assistentes poderão apoiar o trabalho dentro da plataforma.",
+    "items": {
+      "reports": {
+        "title": "Assistente de relatórios",
+        "description": "Apoio à preparação de rascunhos a partir das informações do caso, para revisão do profissional.",
+        "sketch": { "draft": "Rascunho" }
+      },
+      "cases": {
+        "title": "Assistente de casos",
+        "description": "Ajuda para reunir informações, organizar anotações e preparar resumos de cada caso.",
+        "sketch": { "prompt": "Resumir caso", "summary": "Resumo pronto" }
+      },
+      "workflows": {
+        "title": "Rotinas personalizadas",
+        "description": "Diferentes agentes combinados em fluxos definidos por você, conforme as tarefas da sua rotina.",
+        "sketch": { "organize": "Organizar", "prepare": "Preparar", "review": "Revisar" }
+      }
+    }
+  }
+}

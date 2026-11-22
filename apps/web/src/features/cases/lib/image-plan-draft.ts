@@ -6,6 +6,7 @@ import { hasDistanceDraft } from "./distance-draft"
 import { hasAngleDraft } from "./angle-draft"
 import { hasCircleDraft } from "./circle-draft"
 import { hasLandmarksDraft } from "./landmarks-draft"
+import { hasTploDraft, tploDraftHasChanges, type TploDraft } from "./tplo-draft"
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
 import type { ImagePlan } from "../schemas/image-plan.schema"
 import { angleEditorHasChanges, type AngleEditor } from "./angle-editor"
@@ -24,6 +25,7 @@ function hasPlanDraft(client: QueryClient, caseId: string, imageId?: string, exc
   if (excluding !== "angle" && hasAngleDraft(client, caseId, imageId)) return true
   if (excluding !== "circle" && hasCircleDraft(client, caseId, imageId)) return true
   if (excluding !== "landmarks" && hasLandmarksDraft(client, caseId, imageId)) return true
+  if (excluding !== "tplo" && hasTploDraft(client, caseId, imageId)) return true
   return client.getQueryCache().findAll({ queryKey: ["cases", "image-plan-save", caseId] }).some(query => {
     if (imageId && query.queryKey[3] !== imageId) return false
     const receipt = query.state.data as ImagePlanSaveState | undefined
@@ -43,7 +45,7 @@ function hasOtherImagePlanDraft(client: QueryClient, caseId: string, imageId: st
 
 // Closing a clean editor is a tool transition, not an explicit discard of user
 // changes. Selection and the confirmed plan stay untouched.
-function closeOtherCleanMeasurementEditor(client: QueryClient, caseId: string, imageId: string, owner: "distance" | "angle" | "circle" | "landmarks"): boolean {
+function closeOtherCleanMeasurementEditor(client: QueryClient, caseId: string, imageId: string, owner: "distance" | "angle" | "circle" | "landmarks" | "tplo"): boolean {
   if (hasOtherImagePlanDraft(client, caseId, imageId, owner)) return false
   const plan = client.getQueryData<ImagePlan>(keys.imagePlan(caseId, imageId))
   if (owner !== "distance") {
@@ -75,6 +77,14 @@ function closeOtherCleanMeasurementEditor(client: QueryClient, caseId: string, i
     const editor = client.getQueryData<LandmarksEditor | null>(key)
     if (editor) {
       if (landmarksEditorHasChanges(editor, plan)) return false
+      client.setQueryData(key, null)
+    }
+  }
+  if (owner !== "tplo") {
+    const key = keys.imageTploDraft(caseId, imageId)
+    const draft = client.getQueryData<TploDraft | null>(key)
+    if (draft) {
+      if (tploDraftHasChanges(draft, plan)) return false
       client.setQueryData(key, null)
     }
   }

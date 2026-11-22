@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 
 import { LegalHeader } from "./legal-header"
 import styles from "./legal-page.module.css"
+import { UniversalFooter } from "@/components/shared/universal-footer"
 
 type LegalPageLayoutProps = {
   children: ReactNode
@@ -14,6 +15,7 @@ function LegalPageLayout({ children }: LegalPageLayoutProps) {
       <main className={`${styles.frame} relative flex-1`}>
         {children}
       </main>
+      <UniversalFooter />
     </div>
   )
 }

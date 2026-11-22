@@ -69,7 +69,7 @@ async function remove(client: QueryClient, identity: ImageIngestionIdentity, opt
     // Cancel stale reads before removing data; an in-flight preview/job must not restore deleted content.
     const related = (query: { queryKey: readonly unknown[] }) => {
       const [scope, kind, owner, id] = query.queryKey
-      return scope === "cases" && owner === caseId && (kind === "images" || ((kind === "preview" || kind === "image-ingestion-job" || kind === "image-plan" || kind === "image-plan-save" || kind === "image-calibration-draft" || kind === "image-distance-draft" || kind === "image-angle-draft" || kind === "image-angle-selection" || kind === "image-circle-draft" || kind === "image-circle-selection" || kind === "image-landmarks-draft" || kind === "image-quality-draft" || kind === "image-display-settings" || kind === "image-calibration-introduction") && id === imageId)
+      return scope === "cases" && owner === caseId && (kind === "images" || ((kind === "preview" || kind === "image-ingestion-job" || kind === "image-plan" || kind === "image-plan-save" || kind === "image-calibration-draft" || kind === "image-distance-draft" || kind === "image-angle-draft" || kind === "image-angle-selection" || kind === "image-circle-draft" || kind === "image-circle-selection" || kind === "image-landmarks-draft" || kind === "image-tplo-draft" || kind === "image-tplo-editor-ui" || kind === "image-quality-draft" || kind === "image-display-settings" || kind === "image-calibration-introduction") && id === imageId)
         || ((kind === "ingestion-job" || kind === "ingestion-retry") && jobIds.has(String(id))))
     }
     await client.cancelQueries({ predicate: related })

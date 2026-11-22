@@ -1,6 +1,6 @@
 "use client"
 
-import { Circle, Crosshair, MoveHorizontal, RefreshCw, TriangleRight } from "lucide-react"
+import { Circle, Crosshair, MoveHorizontal, RefreshCw, Scissors, TriangleRight } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Tooltip } from "radix-ui"
 import { useId } from "react"
@@ -8,7 +8,7 @@ import { useId } from "react"
 import { Button } from "@/components/ui/button"
 import { CasePanelChoice } from "./case-panel-choice"
 
-function CaseImageToolsPanel({ openDisabled, onOpen, readError, canRetryRead, onRetryRead, loading, distanceActive, angleActive = false, circleActive = false, angleEntry, circleEntry, savedCircleEntry, landmarksEntry, landmarksActive = false }: {
+function CaseImageToolsPanel({ openDisabled, onOpen, readError, canRetryRead, onRetryRead, loading, distanceActive, angleActive = false, circleActive = false, angleEntry, circleEntry, savedCircleEntry, landmarksEntry, landmarksActive = false, tploActive = false, tploEntry }: {
   openDisabled: boolean; onOpen: () => void
   readError: boolean; canRetryRead: boolean; onRetryRead: () => void; loading: boolean; distanceActive: boolean; angleActive?: boolean; circleActive?: boolean
   angleEntry?: { disabled: boolean; onOpen: () => void }
@@ -16,10 +16,12 @@ function CaseImageToolsPanel({ openDisabled, onOpen, readError, canRetryRead, on
   savedCircleEntry?: { disabled: boolean; onOpen: () => void }
   landmarksEntry?: { disabled: boolean; onOpen: () => void }
   landmarksActive?: boolean
+  tploActive?: boolean; tploEntry?: { disabled: boolean; onOpen: () => void }
 }) {
   const t = useTranslations("cases.workspace.tools")
   const tDistance = useTranslations("cases.workspace.distance")
   const tLandmarks = useTranslations("cases.workspace.landmarks")
+  const tTplo = useTranslations("cases.workspace.tplo")
   const id = useId()
   return <section aria-labelledby={`${id}-measurements`} className="space-y-3">
     <h3 className="font-data text-[11px] font-medium" id={`${id}-measurements`}>{t("measurements")}</h3>
@@ -49,10 +51,13 @@ function CaseImageToolsPanel({ openDisabled, onOpen, readError, canRetryRead, on
     </div>
     <div className="space-y-2 border-t border-border pt-3">
       <h3 className="font-data text-[11px] font-medium" id={`${id}-planning`}>{t("planning")}</h3>
-      <div role="group" aria-labelledby={`${id}-planning`}>
+      <div className="space-y-2" role="group" aria-labelledby={`${id}-planning`}>
         <CasePanelChoice active={landmarksActive} disabled={landmarksEntry?.disabled ?? true} aria-disabled={landmarksEntry?.disabled ?? true}
           data-landmarks-tool label={tLandmarks("entryTitle")} className="w-full"
           onClick={() => { if (landmarksEntry && !landmarksEntry.disabled) landmarksEntry.onOpen() }}><Crosshair aria-hidden="true" /></CasePanelChoice>
+        <CasePanelChoice active={tploActive} disabled={tploEntry?.disabled ?? true} aria-disabled={tploEntry?.disabled ?? true}
+          data-tplo-tool label={tTplo("title")} className="w-full"
+          onClick={() => { if (tploEntry && !tploEntry.disabled) tploEntry.onOpen() }}><Scissors aria-hidden="true" /></CasePanelChoice>
       </div>
     </div>
     {loading ? <p aria-busy="true" className="sr-only" role="status">{tDistance("loadingSaved")}</p> : null}

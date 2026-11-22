@@ -11,9 +11,33 @@ const { imagePointToPixels, imagePointToNormalized } = await import("../src/feat
 const { viewerEditorInPixels } = await import("../src/features/cases/lib/viewer-editor.ts")
 const { geometryToMarker, markerToGeometry } = await import("../src/features/cases/lib/calibration-editor.ts")
 const { beginMarkerDrag, markerFromDrag, markerFromKeyboard } = await import("../src/features/cases/lib/viewer-marker-interaction.ts")
+const { viewerContextPlacement } = await import("../src/features/cases/lib/viewer-context-placement.ts")
 
 const dimensions = { widthPx: 1375, heightPx: 1444 }
 const controls = { editable: true, tool: "mark", onToolChange() {} }
+
+test("context actions preserve the existing point offset when no contour is protected", () => {
+  assert.deepEqual(viewerContextPlacement({ x: 100, y: 100 }, { width: 800, height: 600 }, 12), { left: 124, top: 124 })
+  assert.deepEqual(viewerContextPlacement({ x: 760, y: 570 }, { width: 800, height: 600 }, 12), { left: 656, top: 548 })
+})
+
+test("fragment actions clear the entire contour and switch sides within the viewport", () => {
+  const cases = [
+    { viewport: { width: 800, height: 600 }, points: [{ x: 100, y: 100 }, { x: 300, y: 300 }], anchor: { x: 150, y: 150 }, side: "right" },
+    { viewport: { width: 320, height: 240 }, points: [{ x: 260, y: 60 }, { x: 300, y: 120 }], anchor: { x: 280, y: 100 }, side: "left" },
+    { viewport: { width: 320, height: 360 }, points: [{ x: 40, y: 50 }, { x: 280, y: 150 }], anchor: { x: 160, y: 100 }, side: "bottom" },
+  ]
+  for (const { viewport, points, anchor, side } of cases) {
+    const result = viewerContextPlacement(anchor, viewport, 12, points)
+    assert.ok(result.left >= 12 && result.left + 80 <= viewport.width - 12)
+    assert.ok(result.top >= 12 && result.top + 40 <= viewport.height - 12)
+    if (side === "right") assert.ok(result.left >= 348)
+    if (side === "left") assert.ok(result.left + 80 <= 212)
+    if (side === "bottom") assert.ok(result.top >= 198)
+  }
+  const full = viewerContextPlacement({ x: 160, y: 120 }, { width: 320, height: 240 }, 12, [{ x: -100, y: -100 }, { x: 500, y: 500 }])
+  assert.ok(full.left >= 12 && full.left + 80 <= 308 && full.top >= 12 && full.top + 40 <= 228)
+})
 
 test("neutral point conversion uses inclusive original edges without rounding or preview dimensions", () => {
   for (const point of [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 0.1234, y: 0.8765 }]) {

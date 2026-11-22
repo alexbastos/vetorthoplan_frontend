@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "title": "Measurement tools",
+    "description": "Explore Orthovet's measurement tools: calibration, distances, angles and circles on the radiograph."
+  },
+  "title": "Measurement tools",
+  "tagline": "Every measurement starts with a reference.",
+  "preview": {
+    "title": "References on the image",
+    "description": "Calibrate the radiograph, position the points and review each measurement on the image.",
+    "illustrationLabel": "Illustrative preview of a lateral radiograph with a {value, number} mm measurement and a tools panel overlapping on the right.",
+    "file": "Lateral X-ray.jpg",
+    "panelTitle": "Measurements",
+    "tools": { "distance": "Distance", "angle": "Angle", "circle": "Circle" },
+    "measurement": "Distance 01",
+    "value": "{value, number}",
+    "unit": "mm",
+    "pointsLabel": "Reference points",
+    "points": "{count} points",
+    "scaleLabel": "Image scale",
+    "calibrated": "Calibrated",
+    "imageCalibrated": "Scale calibrated",
+    "confirm": "Confirm measurement"
+  },
+  "facts": {
+    "note": "Scale, points and annotations brought together on the image to support planning review.",
+    "items": {
+      "calibration": { "label": "Calibration", "value": "Image scale" },
+      "distance": { "label": "Distance", "value": "Measurements between points" },
+      "angle": { "label": "Angle", "value": "Relationships between lines" },
+      "circle": { "label": "Circle", "value": "Circular references" }
+    }
+  },
+  "overview": {
+    "title": "Measure in context",
+    "lead": "A radiograph brings together the visual references used in planning. Measurement tools let you position points, draw lines and review measurements directly on the image.",
+    "calibration": "Calibration establishes the relationship between the image and a known dimension. This is the starting point for working with distances at the radiograph's scale.",
+    "references": "Distances, angles and circles support different ways of reading the image. Each tool builds an annotation from the points selected during your analysis.",
+    "review": "Keep your references visible as you review the plan. Annotations help you follow what has been measured and return to the points used in the assessment."
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "Frequently asked questions",
+    "items": {
+      "calibration": {
+        "question": "Why calibrate the image before measuring?",
+        "answer": "Calibration relates a known dimension to the radiograph's scale. It provides the starting point for reading distances and dimensions on the image rather than working only with the file's pixels."
+      },
+      "distance": {
+        "question": "How do I measure a distance?",
+        "answer": "Select the distance tool and position two points on the radiograph. A line connects the points, and you can read the distance on the image using the calibrated scale."
+      },
+      "angle": {
+        "question": "How are angles represented?",
+        "answer": "The tool uses reference lines defined on the image to represent the angular relationship between them. The value appears in degrees alongside the annotation, so you can check the references used."
+      },
+      "circle": {
+        "question": "What are circle annotations used for?",
+        "answer": "Circles provide references for following the shapes and dimensions of a region on the radiograph. A circular annotation complements the distance and angle tools according to what you need to examine on the image."
+      },
+      "review": {
+        "question": "Can I check the points used in each measurement?",
+        "answer": "Yes. Annotations remain visible on the radiograph so you can identify the points, lines and shapes used in the analysis. This lets you review what was measured while keeping the image's context in view."
+      }
+    }
+  },
+  "modules": {
+    "title": "References for measuring",
+    "description": "<strong>Points, lines and shapes on the radiograph.</strong> Tools to organize the references used in planning.",
+    "items": {
+      "distance": {
+        "title": "Distances",
+        "description": "Position two points to draw a line and read the distance between them.",
+        "sketch": { "value": "{value, number} mm" }
+      },
+      "angle": {
+        "title": "Angles",
+        "description": "Use reference lines to observe the angular relationship between annotations.",
+        "sketch": { "value": "{value, number}°" }
+      },
+      "circle": {
+        "title": "Circles",
+        "description": "Create circular references to follow shapes and dimensions on the image.",
+        "sketch": { "value": "R {value, number} mm" }
+      }
+    }
+  }
+}

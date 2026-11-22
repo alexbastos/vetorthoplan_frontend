@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "title": "Comunidade",
+    "description": "Conheça a proposta da Comunidade Orthovet: conversas entre veterinários, compartilhamento de casos e troca de perspectivas sobre o planejamento."
+  },
+  "title": "Comunidade",
+  "tagline": "Novas perspectivas para cada caso.",
+  "preview": {
+    "title": "Uma conversa abre caminhos",
+    "description": "Troque referências e discuta o planejamento com outros profissionais, com o contexto do caso por perto."
+  },
+  "facts": {
+    "note": "Uma proposta para a evolução da Orthovet. Os recursos apresentados estão em planejamento.",
+    "items": {
+      "professionals": {
+        "label": "Profissionais",
+        "value": "Conexões entre veterinários"
+      },
+      "conversations": {
+        "label": "Conversas",
+        "value": "Mensagens diretas"
+      },
+      "cases": {
+        "label": "Casos",
+        "value": "Contexto para discussão"
+      },
+      "perspectives": {
+        "label": "Perspectivas",
+        "value": "Troca de análises"
+      }
+    }
+  },
+  "overview": {
+    "title": "Troque perspectivas",
+    "lead": "Um caso pode levantar perguntas que merecem uma conversa. A proposta da Comunidade é aproximar veterinários dentro da Orthovet, criando um espaço para trocar experiências, discutir referências e olhar para o planejamento por outras perspectivas.",
+    "connections": "A ideia é que você encontre outros profissionais e inicie conversas diretas, sem precisar sair do ambiente em que organiza seu trabalho. Cada troca poderá começar com uma dúvida, uma observação ou um ponto do planejamento que deseja discutir.",
+    "context": "Também queremos aproximar essas conversas dos casos. Compartilhar referências selecionadas pode ajudar a explicar o que está sendo analisado, reunindo o contexto necessário para que a discussão vá além de uma mensagem isolada.",
+    "perspectives": "Essa frente está em planejamento. O objetivo é apoiar a colaboração entre colegas, mantendo a interpretação das informações e as decisões clínicas com os profissionais envolvidos."
+  },
+  "modules": {
+    "title": "Conversas com contexto",
+    "description": "<strong>Conexões, casos e novas perspectivas.</strong> Uma proposta para aproximar profissionais e enriquecer as trocas sobre o planejamento.",
+    "items": {
+      "connections": {
+        "title": "Conexões profissionais",
+        "description": "Encontre colegas e inicie conversas diretas para trocar experiências sobre a rotina.",
+        "sketch": {
+          "label": "Conversar"
+        }
+      },
+      "cases": {
+        "title": "Discussão de casos",
+        "description": "Leve referências do caso para a conversa e dê contexto ao que deseja discutir.",
+        "sketch": {
+          "label": "Caso OV-0248"
+        }
+      },
+      "discussion": {
+        "title": "Troca de análises",
+        "description": "Compartilhe observações e reúna diferentes perspectivas sobre o planejamento.",
+        "sketch": {
+          "label": "Nova perspectiva"
+        }
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "Dúvidas",
+    "title": "Perguntas frequentes",
+    "items": {
+      "availability": {
+        "question": "A Comunidade já está disponível?",
+        "answer": "A Comunidade apresentada nesta página faz parte da evolução planejada da Orthovet. As ilustrações mostram a proposta de experiência; os recursos e sua disponibilidade ainda serão definidos."
+      },
+      "conversations": {
+        "question": "A ideia é ter um feed ou conversas diretas?",
+        "answer": "O foco inicial é a conversa direta entre profissionais. Queremos facilitar a troca de informações e experiências entre colegas, com espaço para discutir os casos e as referências do planejamento."
+      },
+      "sharing": {
+        "question": "Todos os meus casos serão compartilhados?",
+        "answer": "A proposta é que o profissional escolha o que deseja levar para cada conversa. O compartilhamento automático de todos os casos não faz parte da ideia apresentada; os detalhes de acesso e compartilhamento ainda serão definidos."
+      },
+      "decisions": {
+        "question": "Como a troca entre profissionais se relaciona com o planejamento?",
+        "answer": "As conversas poderão ajudar a reunir observações e outras perspectivas sobre um caso. A análise das informações e as decisões clínicas continuam sob responsabilidade dos profissionais envolvidos."
+      }
+    }
+  }
+}

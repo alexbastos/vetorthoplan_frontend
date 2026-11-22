@@ -1,6 +1,6 @@
 import type { ImagePlan } from "../schemas/image-plan.schema"
 
-function nextPlanObjectLabel(objects: ImagePlan["document"]["objects"], type: "LINE" | "ANGLE" | "CIRCLE", name: (index: number) => string): string | null {
+function nextPlanObjectLabel(objects: ImagePlan["document"]["objects"], type: "LINE" | "ANGLE" | "CIRCLE" | "TPLO", name: (index: number) => string): string | null {
   const labels = new Set<string>()
   let listedIndex = 0
   for (const object of objects) {

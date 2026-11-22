@@ -1,0 +1,44 @@
+.frame {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  height: 447px;
+  overflow: clip;
+  border-radius: 20px;
+  padding: 25px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 2%);
+  font-family: var(--font-preview-body), sans-serif;
+}
+
+.visual {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  container-type: inline-size;
+  aspect-ratio: 629 / 427;
+}
+
+.artwork {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.fileName { fill: #7d8592; font-size: 8px; }
+.viewerCaption { fill: #7d8592; font-size: 8px; }
+.annotationValue { fill: #2569d9; font-size: 9px; font-weight: 500; }
+.panelTitle { fill: #171719; font-size: 12px; font-weight: 600; letter-spacing: -.02em; }
+.toolLabel { font-size: 9px; font-weight: 500; }
+.fieldLabel { fill: #8b909a; font-size: 9px; }
+.fieldValue { fill: #444b57; font-size: 9px; font-weight: 500; }
+.measurementValue { fill: #171719; font-size: 29px; font-weight: 600; letter-spacing: -.04em; }
+.measurementUnit { fill: #8b909a; font-size: 12px; font-weight: 400; letter-spacing: 0; }
+.confirmLabel { fill: white; font-size: 9px; font-weight: 500; }
+.copy { position: relative; z-index: 1; }
+.copy h2 { margin: 0; color: #b2b2b2; font-family: var(--font-preview-display), sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -.02em; line-height: 20px; }
+.copy p { max-width: 463px; margin: 8px 0 0; color: #000; font-size: 16px; font-weight: 400; letter-spacing: -.01em; line-height: 22px; text-wrap: pretty; }

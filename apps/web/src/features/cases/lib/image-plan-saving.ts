@@ -2,7 +2,7 @@ import { QueryObserver, type QueryClient } from "@tanstack/react-query"
 
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
 import { SaveCalibrationSchema, type ImagePlan, type SaveCalibrationInput } from "../schemas/image-plan.schema"
-import { PlanSaveCommandSchema, SavePlanEditSchema, isAngleCommand, isCircleCommand, isDistanceCommand, isLandmarksCommand, planCommandMatches, planCommandOwner, type PlanSaveCommand, type SavePlanEditInput } from "../schemas/image-plan-command.schema"
+import { PlanSaveCommandSchema, SavePlanEditSchema, isAngleCommand, isCircleCommand, isDistanceCommand, isLandmarksCommand, isTploCommand, planCommandMatches, planCommandOwner, type PlanSaveCommand, type SavePlanEditInput } from "../schemas/image-plan-command.schema"
 import { fetchImagePlan, ImagePlanError, saveImageCalibration, saveImagePlanEdit } from "../services/image-plan-api"
 import { IDLE_CALIBRATION_SAVE, imagePlanSaveCommand, isPlanImageDeleted, type CalibrationSaveState, type PlanIdentity } from "./calibration-save-state"
 import { calibrationFromEditor, type CalibrationEditor } from "./calibration-editor"
@@ -12,6 +12,7 @@ import { distanceEditorHasChanges, distanceEditorMatchesCommand, type DistanceEd
 import { angleEditorHasChanges, angleEditorMatchesCommand, angleObject, type AngleEditor } from "./angle-editor"
 import { circleEditorHasChanges, circleEditorMatchesCommand, circleObject, type CircleEditor } from "./circle-editor"
 import { landmarksEditorHasChanges, landmarksEditorMatchesCommand, type LandmarksEditor } from "./landmarks-editor"
+import { clearMatchingTploDraft, tploDraftHasChanges, tploDraftMatchesCommand, type TploDraft } from "./tplo-draft"
 
 type Options = { fetchImpl?: typeof fetch; checkOnly?: boolean }
 type Pending = { fingerprint: string; promise: Promise<CalibrationSaveState> }
@@ -58,6 +59,9 @@ function sameCommandOwner(left: PlanSaveCommand, right: PlanSaveCommand): boolea
   if (left.kind === "radiographic-quality" || right.kind === "radiographic-quality") return left.kind === right.kind
   // References target the singleton field on this image, not an object UUID.
   if (isLandmarksCommand(left) || isLandmarksCommand(right)) return left.kind === right.kind
+  // Global parameters have no UUID. A receipt belongs to the exact submitted
+  // patch and revision, never to another patch on the same image.
+  if (left.kind === "tplo-parameters-set" || right.kind === "tplo-parameters-set") return sameCommand(left, right)
   return left.kind === right.kind && left.id.toLowerCase() === right.id.toLowerCase()
 }
 
@@ -67,6 +71,7 @@ function removedMeasurementCode(command: PlanSaveCommand) {
   if (command.kind === "angle-delete") return "ANGLE_ALREADY_REMOVED"
   if (command.kind === "circle-delete") return "CIRCLE_ALREADY_REMOVED"
   if (command.kind === "landmarks-clear") return "LANDMARKS_ALREADY_REMOVED"
+  if (command.kind === "tplo-delete") return "TPLO_ALREADY_REMOVED"
   return undefined
 }
 
@@ -105,6 +110,7 @@ async function save(client: QueryClient, identity: PlanIdentity, input: PlanSave
   const angleDraft = client.getQueryData<AngleEditor | null>(keys.imageAngleDraft(caseId, imageId))
   const circleDraft = client.getQueryData<CircleEditor | null>(keys.imageCircleDraft(caseId, imageId))
   const landmarksDraft = client.getQueryData<LandmarksEditor | null>(keys.imageLandmarksDraft(caseId, imageId))
+  const tploDraft = client.getQueryData<TploDraft | null>(keys.imageTploDraft(caseId, imageId))
   const otherDraft = hasOtherImagePlanDraft(client, caseId, imageId, owner)
     || (isDistanceCommand(input) && distanceDraft
       && distanceEditorHasChanges(distanceDraft, client.getQueryData<ImagePlan>(planKey)) && !distanceEditorMatchesCommand(distanceDraft, input))
@@ -114,6 +120,8 @@ async function save(client: QueryClient, identity: PlanIdentity, input: PlanSave
       && circleEditorHasChanges(circleDraft, client.getQueryData<ImagePlan>(planKey)) && !circleEditorMatchesCommand(circleDraft, input))
     || (isLandmarksCommand(input) && landmarksDraft
       && landmarksEditorHasChanges(landmarksDraft, client.getQueryData<ImagePlan>(planKey)) && !landmarksEditorMatchesCommand(landmarksDraft, input))
+    || (isTploCommand(input) && tploDraft
+      && tploDraftHasChanges(tploDraft, client.getQueryData<ImagePlan>(planKey)) && !tploDraftMatchesCommand(tploDraft, input))
   if (!checking && otherDraft) {
     return { phase: "error", code: "OPERATION_BLOCKED", ...intent(input) }
   }
@@ -184,6 +192,7 @@ async function save(client: QueryClient, identity: PlanIdentity, input: PlanSave
       const current = client.getQueryData<LandmarksEditor | null>(draftKey)
       if (current && landmarksEditorMatchesCommand(current, state.edit)) client.setQueryData(draftKey, null)
     }
+    if (state.phase === "saved" && isTploCommand(state.edit)) clearMatchingTploDraft(client, identity, state.edit, tploDraft)
     client.setQueryData(key, state)
     return state
   }

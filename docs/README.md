@@ -20,6 +20,7 @@ ficam no histórico do Git; não manter uma nova cópia a cada rodada de trabalh
 - [Plano de Ângulo](./angle-tool-implementation-plan.md): contrato conferido, etapas de integração e roteiro de aceite manual da próxima ferramenta de medição.
 - [Plano de Círculo](./circle-tool-implementation-plan.md) com contrato, reaproveitamento e etapas da integração de raio, diâmetro e circunferência.
 - [Plano de Referências anatômicas](./anatomical-references-implementation-plan.md): conjunto de quatro pontos, TPA, arquitetura compartilhada e etapas de integração/aceite manual.
+- [Plano de Osteotomia e simulação TPLO](./tplo-simulation-implementation-plan.md): contrato, transformação do fragmento, tabela de correção e etapas de integração/aceite manual.
 - [Contrato da calibração](./calibration-contract-2026-10-23.md): coordenadas, escala, revisão e restrição DICOM.
 - [Aceite da calibração](./calibration-acceptance-2026-10-26.md): roteiro visual e autenticado atualizado.
 - [Checklist clínico](./clinical-api-0.9.0-manual-test-checklist.md): jornada integrada, upload, duplicidade, exclusão e isolamento.

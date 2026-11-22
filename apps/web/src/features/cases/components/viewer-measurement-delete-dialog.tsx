@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 function ViewerMeasurementDeleteDialog({ kind, title, description, confirmLabel, warning, status, pending, canCancel, canConfirm, neutralConfirm = false, onCancel, onConfirm }: {
-  kind: "distance" | "angle" | "circle" | "landmarks"
+  kind: "distance" | "angle" | "circle" | "landmarks" | "tplo"
   title: string
   description: string
   confirmLabel: string

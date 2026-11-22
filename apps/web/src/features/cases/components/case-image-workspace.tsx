@@ -13,6 +13,10 @@ import { useImageDistance } from "../hooks/use-image-distance"
 import { useImageAngle } from "../hooks/use-image-angle"
 import { useImageCircle } from "../hooks/use-image-circle"
 import { useImageLandmarks } from "../hooks/use-image-landmarks"
+import { useImageTplo } from "../hooks/use-image-tplo"
+import { useTploParameterSaveActions } from "../hooks/use-tplo-parameter-save-actions"
+import { useTploGeometrySaveActions, type TploGeometryConfirmation } from "../hooks/use-tplo-geometry-save-actions"
+import { useTploDeletion } from "../hooks/use-tplo-deletion"
 import { useDistanceSaveActions } from "../hooks/use-distance-save-actions"
 import { useAngleSaveActions } from "../hooks/use-angle-save-actions"
 import { useCircleSaveActions } from "../hooks/use-circle-save-actions"
@@ -27,6 +31,11 @@ import { selectSavedDistances } from "../lib/distance-result"
 import { selectSavedAngles } from "../lib/angle-result"
 import { circleMeasureFor, selectSavedCircles } from "../lib/circle-result"
 import { selectSavedLandmarks } from "../lib/landmarks-result"
+import { selectSavedTplo } from "../lib/tplo-result"
+import { tploInPixels, tploRadiusMm, type TploGeometry } from "../lib/tplo-geometry"
+import { tploEditorPlacement } from "../lib/tplo-placement"
+import { tploValuesPreview, type ViewerTploSimulation } from "../lib/tplo-preview"
+import { tploParameterFields } from "../lib/tplo-parameters"
 import { landmarksValuesPreview, type LandmarksPreview } from "../lib/landmarks-preview"
 import type { LandmarksGeometry } from "../lib/landmarks-geometry"
 import type { LandmarksAdjustmentTarget } from "../lib/landmarks-interaction"
@@ -42,7 +51,7 @@ import { distanceIntersections } from "../lib/distance-placement"
 import type { DistanceGeometry } from "../lib/distance-editor"
 import { segmentMeasureFor, type SegmentMeasure } from "../lib/segment-measure"
 import { calibrationMatches, type ImagePlan } from "../schemas/image-plan.schema"
-import { hasUniquePlanObjectIds, isDistanceCommand, type SaveLandmarksInput } from "../schemas/image-plan-command.schema"
+import { hasUniquePlanObjectIds, isDistanceCommand, planCommandMatches, type SaveLandmarksInput } from "../schemas/image-plan-command.schema"
 import { imagePlanSaveOwner, imagePlanSaveSection, isCalibrationSaveLocked, type ImagePlanSaveState } from "../lib/calibration-save-state"
 import type { CaseImage } from "../types/case-image"
 import { CaseImageCalibrationPanel } from "./case-image-calibration-panel"
@@ -55,6 +64,18 @@ import { CaseImageDistanceDeleteDialog } from "./case-image-distance-delete-dial
 import { CaseImageAngleRecovery } from "./case-image-angle-recovery"
 import { CaseImageCircleRecovery } from "./case-image-circle-recovery"
 import { CaseImageLandmarksRecovery } from "./case-image-landmarks-recovery"
+import { CaseImageTploRecovery } from "./case-image-tplo-recovery"
+import { CaseImageTploSaved } from "./case-image-tplo-saved"
+import { CaseImageTploValues } from "./case-image-tplo-values"
+import { CaseImageTploActions } from "./case-image-tplo-actions"
+import { CaseImageTploDeleteDialog } from "./case-image-tplo-delete-dialog"
+import { CaseImageTploDeleteButton, CaseImageTploNewAction } from "./case-image-tplo-menu-actions"
+import { CaseImageTploParameters } from "./case-image-tplo-parameters"
+import { CaseImageTploCutControls } from "./case-image-tplo-cut-controls"
+import { CaseImageTploFragmentControls } from "./case-image-tplo-fragment-controls"
+import { CaseImageTploFragmentActions, CaseImageTploFragmentDrawing } from "./case-image-tplo-fragment-drawing"
+import { CaseImageTploRotationControls, CaseImageTploComparison } from "./case-image-tplo-rotation-controls"
+import { TploOverlay } from "./tplo-overlay"
 import { CaseImageLandmarksValues } from "./case-image-landmarks-values"
 import { CaseImageLandmarksCreationControls } from "./case-image-landmarks-creation-controls"
 import { CaseImageLandmarksAdjustmentControls } from "./case-image-landmarks-adjustment-controls"
@@ -78,6 +99,7 @@ import { AngleOverlay } from "./angle-overlay"
 import type { DistanceAdjustmentTarget } from "../lib/distance-line-interaction"
 import type { AngleAdjustmentTarget } from "../lib/angle-interaction"
 import type { CircleAdjustmentTarget } from "../lib/circle-interaction"
+import type { TploAdjustmentTarget } from "../lib/tplo-interaction"
 import { DistanceOverlay } from "./distance-overlay"
 import { CalibrationIntroductionDialog } from "./calibration-introduction-dialog"
 import { casesQueryKeys as keys } from "../hooks/cases-query-keys"
@@ -86,7 +108,7 @@ import { CaseWorkspacePanel, type WorkspacePanelSection } from "./case-workspace
 import type { ViewerTool } from "./case-image-viewer"
 
 type DistanceDeletionRequest = { id: string; baseRevision: number; name: string; caseId: string; imageId: string; client: ReturnType<typeof useQueryClient> }
-type MeasurementChoice = { tool: "distance" | "angle" | "circle" | "landmarks"; caseId: string; imageId: string; client: ReturnType<typeof useQueryClient> }
+type MeasurementChoice = { tool: "distance" | "angle" | "circle" | "landmarks" | "tplo"; caseId: string; imageId: string; client: ReturnType<typeof useQueryClient> }
 
 function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext, imageList, imageActions, caseLocked }: {
   image: CaseImage; activeSection: WorkspacePanelSection; onSectionChange: (section: WorkspacePanelSection) => void;
@@ -98,6 +120,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   const tAngle = useTranslations("cases.workspace.angle")
   const tCircle = useTranslations("cases.workspace.circle")
   const tLandmarks = useTranslations("cases.workspace.landmarks")
+  const tTplo = useTranslations("cases.workspace.tplo")
   const client = useQueryClient()
   const preview = useCaseImagePreview(image)
   const calibration = useImageCalibration(image, preview.ready, caseLocked)
@@ -119,6 +142,12 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   const [distanceGesture, setDistanceGesture] = useState<{ owner: string; client: typeof client; geometry: DistanceGeometry } | null>(null)
   const [angleGesture, setAngleGesture] = useState<{ owner: string; client: typeof client; geometry: AngleGeometry } | null>(null)
   const [circleGesture, setCircleGesture] = useState<{ owner: string; client: typeof client; geometry: CircleGeometry } | null>(null)
+  const [tploGesture, setTploGesture] = useState<{ owner: string; client: typeof client; geometry: TploGeometry } | null>(null)
+  const [tploRotationGesture, setTploRotationGesture] = useState<{ owner: string; client: typeof client; degrees: number } | null>(null)
+  const [tploHandoff, setTploHandoff] = useState<{
+    client: typeof client; caseId: string; imageId: string; id: string | null; selectionId?: string; revision: number; comparison: "original" | "simulated"
+    queries: readonly unknown[]; command?: TploGeometryConfirmation["command"]
+  } | null>(null)
   const [requestedDistanceDeletion, setRequestedDistanceDeletion] = useState<DistanceDeletionRequest | null>(null)
   const distanceDeletionPending = useRef(false)
   const scope = useRef({ client, caseId: image.caseId, imageId: image.id })
@@ -143,28 +172,39 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
     active: activeSection === "tools", toolActive: requestedMeasurement === "landmarks", calibrationEditing,
   })
   const landmarksRecovery = landmarks.recovery
+  const tplo = useImageTplo(image, preview.ready, caseLocked, {
+    active: activeSection === "tools", toolActive: requestedMeasurement === "tplo", calibrationEditing,
+  })
+  const tploRecovery = tplo.recovery
+  const tploIntent = Boolean(tplo.editor || tploRecovery.active)
   const landmarksIntent = Boolean(landmarks.editor || landmarksRecovery.active)
   const circleIntent = Boolean(circle.editor || circleRecovery.active)
   const angleIntent = Boolean(angle.editor || angleRecovery.active)
   const distanceIntent = Boolean(distance.editor || isDistanceCommand(distance.receipt.edit) && distance.receipt.phase !== "idle" && distance.receipt.phase !== "saved")
-  const activeMeasurement = landmarksIntent ? "landmarks" : circleIntent ? "circle" : angleIntent ? "angle" : distanceIntent ? "distance" : requestedMeasurement
+  const activeMeasurement = tploIntent ? "tplo" : landmarksIntent ? "landmarks" : circleIntent ? "circle" : angleIntent ? "angle" : distanceIntent ? "distance" : requestedMeasurement
     ?? (circle.selectedId ? "circle" : angle.selectedId ? "angle" : distance.selectedId || distanceRequested ? "distance" : null)
   const clinicalProtocol = useQuery({ ...tploClinicalProtocolQueryOptions({ enabled: activeSection === "tools" && activeMeasurement === "landmarks"
     && preview.ready && !caseLocked && !landmarks.deleting }), staleTime: Infinity, gcTime: Infinity })
-  const measurementIntent = distanceIntent || angleIntent || circleIntent || landmarksIntent
+  const measurementIntent = distanceIntent || angleIntent || circleIntent || landmarksIntent || tploIntent
   useEffect(() => {
-    if (landmarksIntent && requestedMeasurement !== "landmarks") {
+    if (tploIntent && requestedMeasurement !== "tplo") {
+      setMeasurementChoice({ tool: "tplo", client, caseId: image.caseId, imageId: image.id })
+    }
+  }, [tploIntent, requestedMeasurement, client, image.caseId, image.id])
+  useEffect(() => {
+    if (!tploIntent && landmarksIntent && requestedMeasurement !== "landmarks") {
       setMeasurementChoice({ tool: "landmarks", client, caseId: image.caseId, imageId: image.id })
     }
-  }, [landmarksIntent, requestedMeasurement, client, image.caseId, image.id])
+  }, [tploIntent, landmarksIntent, requestedMeasurement, client, image.caseId, image.id])
   // Keep a restored circle's recovery controls selected when returning to Tools.
   useEffect(() => {
-    if (!landmarksIntent && circleIntent && requestedMeasurement && requestedMeasurement !== "circle") {
+    if (!tploIntent && !landmarksIntent && circleIntent && requestedMeasurement && requestedMeasurement !== "circle") {
       setMeasurementChoice({ tool: "circle", client, caseId: image.caseId, imageId: image.id })
     }
-  }, [landmarksIntent, circleIntent, requestedMeasurement, client, image.caseId, image.id])
+  }, [tploIntent, landmarksIntent, circleIntent, requestedMeasurement, client, image.caseId, image.id])
   const cachedTools = preview.ready && !distance.deleting && distance.planQuery.isError && hasConfirmedImageScale(distance.plan, image.id)
-  const toolsAvailable = !calibrationEditing && (calibration.measurementEligible || measurementIntent || cachedTools || distance.recoveringSaved)
+  const toolsAvailable = Boolean(tploIntent || !calibrationEditing && (calibration.measurementEligible || measurementIntent || cachedTools || distance.recoveringSaved
+    || preview.ready && !caseLocked && (requestedMeasurement === "tplo" || tplo.plan?.document.objects.some(object => object.type === "TPLO" && object.visible !== false))))
   const distanceActions = useDistanceSaveActions(distance, onDistanceSaved)
   const cancelDistanceAutosave = distanceActions.cancelAutosave
   const angleActions = useAngleSaveActions(angle, { caseId: image.caseId, imageId: image.id }, onAngleSaved)
@@ -201,6 +241,98 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   // Guard the render immediately when changing image or losing a confirmed
   // scale; then synchronize the parent's selection so Tools cannot reopen itself.
   const panelSection = activeSection === "tools" && !toolsAvailable ? "calibration" : activeSection
+  const tploVisible = panelSection === "tools" && activeMeasurement === "tplo"
+  const tploDrawingAvailable = tplo.issue !== "dimensions"
+  // Normal writes keep the editor in place. Interrupted receipts still expose
+  // GET-only verification, including saving/checking restored without a request.
+  const tploRecoveryVisible = tploRecovery.active && (!tploRecovery.pending
+    || ["uncertain", "conflict", "error"].includes(tploRecovery.receipt.phase))
+  const tploReadUnverified = tplo.planQuery.isError || ["saving", "checking", "uncertain", "conflict"].includes(tplo.receipt.phase)
+  const savedTplo = useMemo(() => selectSavedTplo(tplo.plan, {
+    dimensions: landmarksDimensionsAvailable ? { widthPx: image.widthPx!, heightPx: image.heightPx! } : null,
+    expectedImageId: image.id, geometryIssue: tplo.issue,
+    readError: tploReadUnverified,
+  }), [tplo.plan, image.widthPx, image.heightPx, image.id, landmarksDimensionsAvailable, tplo.issue, tploReadUnverified])
+  const tploSelectionVisible = savedTplo.find(item => item.object.id.toLowerCase() === tplo.selectedId?.toLowerCase())?.object.visible !== false
+  const visibleTploEditor = tploVisible && !tploRecoveryVisible && tplo.editor
+    && tploSelectionVisible
+    && (tplo.editor.kind === "tplo-create" || tplo.editor.kind === "tplo-update") ? tplo.editor : null
+  const tploPreviewOwner = visibleTploEditor ? JSON.stringify([image.caseId, image.id, visibleTploEditor.id,
+    visibleTploEditor.baseRevision, tplo.contextGeneration, tplo.originGeometry]) : null
+  const onTploGeometryPreview = useCallback((geometry: TploGeometry | null) => {
+    setTploGesture(current => geometry && tploPreviewOwner
+      ? { owner: tploPreviewOwner, client, geometry }
+      : current?.owner === tploPreviewOwner && current.client === client ? null : current)
+  }, [tploPreviewOwner, client])
+  const onTploRotationPreview = useCallback((degrees: number | null) => {
+    setTploRotationGesture(current => degrees !== null && tploPreviewOwner ? { owner: tploPreviewOwner, client, degrees }
+      : current?.owner === tploPreviewOwner && current.client === client ? null : current)
+  }, [tploPreviewOwner, client])
+  const tploGestureActive = tploPreviewOwner !== null && tploGesture?.owner === tploPreviewOwner && tploGesture.client === client
+  const rotationGestureDegrees = tploPreviewOwner !== null && tploRotationGesture?.owner === tploPreviewOwner && tploRotationGesture.client === client ? tploRotationGesture.degrees : null
+  const tploPlacement = tploEditorPlacement(visibleTploEditor)
+  const tploFragmentDrawing = visibleTploEditor?.fragmentComplete === false && !tploPlacement
+  const tploCutRadius = tplo.originGeometry && landmarksDimensionsAvailable && tplo.plan?.document.calibration?.result
+    ? tploRadiusMm(tploInPixels(tplo.originGeometry, { widthPx: image.widthPx!, heightPx: image.heightPx! }), tplo.plan.document.calibration.result.mm_per_pixel) : null
+  const tploCutDiameter = tploCutRadius !== null && Number.isFinite(tploCutRadius * 2) ? tploCutRadius * 2 : null
+  const dirtyTploId = visibleTploEditor && (tplo.hasChanges || tploGestureActive || rotationGestureDegrees !== null) ? visibleTploEditor.id : null
+  const selectedSavedTplo = savedTplo.find(item => item.object.id.toLowerCase() === tplo.selectedId?.toLowerCase() && item.object.visible !== false)
+  const currentTploGeometry = tploGestureActive ? tploGesture.geometry : tplo.originGeometry ?? selectedSavedTplo?.origin ?? null
+  const currentRotationDegrees = rotationGestureDegrees ?? visibleTploEditor?.rotation_degrees ?? selectedSavedTplo?.object.rotation_degrees ?? 0
+  const tploLocal = tploValuesPreview(currentTploGeometry, currentRotationDegrees,
+    landmarksDimensionsAvailable ? { widthPx: image.widthPx!, heightPx: image.heightPx! } : null, tplo.plan?.document.calibration,
+    { issue: tplo.issue, unverified: tplo.planQuery.isError || tploRecoveryVisible || tplo.needsRebase })
+  const useTploLocal = Boolean(dirtyTploId)
+  const tploMeasure = useTploLocal ? tploLocal.measurement : selectedSavedTplo?.measurement
+  const tploSimulationResult = useTploLocal ? tploLocal.simulation : selectedSavedTplo?.simulation
+  const tploResultSource = tploMeasure?.status === "available" ? useTploLocal ? "preview" as const : "official" as const : "unavailable" as const
+  const simulationReason = tploSimulationResult?.status === "unavailable" ? tploSimulationResult.reason : null
+  const tploStatusText = tploResultSource === "preview" ? tTplo("simulation.preview") : tploResultSource === "official" ? tTplo("simulation.official") : tTplo("read.unavailable")
+  const tploSimulation: ViewerTploSimulation | null = tploVisible && tplo.ui.comparison === "simulated" && tploSimulationResult?.status === "available"
+    && currentTploGeometry?.fragment && tplo.selectedId && landmarksDimensionsAvailable ? {
+      id: tplo.selectedId, source: useTploLocal ? "preview" : "official", matrix: tploSimulationResult.matrix,
+      pointsPx: tploSimulationResult.pointsPx,
+      originPointsPx: tploInPixels(currentTploGeometry, { widthPx: image.widthPx!, heightPx: image.heightPx! }).fragment!,
+    } : null
+  const tploParameterActions = useTploParameterSaveActions(tplo, { caseId: image.caseId, imageId: image.id }, focusViewerViewport)
+  const tploGeometryActions = useTploGeometrySaveActions(tplo, { caseId: image.caseId, imageId: image.id }, onTploGeometrySaved)
+  const tploDeletion = useTploDeletion(image, tplo, tploGeometryActions, restoreTploAfterDeletion)
+  const tploDialogOpen = Boolean(tploDeletion.request)
+  const tploComparison = { value: tplo.ui.comparison, enabled: tplo.canSelect && !tploDialogOpen && !tploGestureActive && rotationGestureDegrees === null,
+    canSimulate: tploSimulationResult?.status === "available", onChange: tplo.setComparison }
+  const parameterEditor = tploVisible && !tploRecoveryVisible && tplo.editor?.kind === "tplo-parameters-set" ? tplo.editor : null
+  const tploTarget: TploAdjustmentTarget = tplo.ui.activeVertex !== null ? { vertex: tplo.ui.activeVertex }
+    : tplo.ui.activePoint ?? tplo.ui.area ?? "body"
+  const tploPicking = {
+    objects: savedTplo.filter(item => item.origin !== null && !item.ambiguous).map(({ object, origin }) => ({
+      id: object.id, center: origin!.center, edge: origin!.edge, fragment: origin!.fragment, visible: object.visible, locked: object.locked,
+    })), selectedId: tplo.selectedId, enabled: tploVisible && tploDrawingAvailable && tplo.canSelect && !tplo.hasChanges && !tploRecovery.active && !tploDialogOpen,
+    baseRevision: tplo.plan?.revision ?? 0, contextGeneration: tplo.contextGeneration,
+    onSelect: (id: string) => {
+      const editing = tplo.beginUpdate(id)
+      if (!(editing || tplo.select(id)) || !chooseMeasurement("tplo")) return
+      setTool(editing ? "mark" : "pan")
+    },
+  }
+  useEffect(() => {
+    const handoff = tploHandoff
+    if (!handoff) return
+    const current = client.getQueryData<ImagePlan>(keys.imagePlan(image.caseId, image.id))
+    const receipt = client.getQueryData<ImagePlanSaveState>(keys.imagePlanSave(image.caseId, image.id))
+    const sameQueries = tploHandoffQueries().every((query, index) => query === handoff.queries[index])
+    if (handoff.client !== client || handoff.caseId !== image.caseId || handoff.imageId !== image.id || !tploVisible || tplo.deleting
+      || !sameQueries || client.getQueryData(keys.imageTploDraft(image.caseId, image.id)) || !current || current.revision !== handoff.revision
+      || (tplo.ui.selectedId?.toLowerCase() ?? null) !== ((handoff.selectionId ?? handoff.id)?.toLowerCase() ?? null)
+      || handoff.command && (receipt?.phase !== "saved" || JSON.stringify(receipt.edit) !== JSON.stringify(handoff.command) || !planCommandMatches(current, handoff.command))) {
+      setTploHandoff(null); return
+    }
+    if (tplo.editor || !tplo.canOpen || tplo.planQuery.isFetching) return
+    // Wait for a fresh observer after the writer unlocks. A newer intent,
+    // selection or revision is never replaced by this completed operation.
+    const opened = handoff.id ? tplo.reopenSaved(handoff.id, handoff.revision, handoff.comparison) || tplo.select(handoff.id, handoff.comparison) : tplo.select(null)
+    setTploHandoff(null)
+    if (opened) { setTool("pan"); focusViewerViewport() }
+  }, [tploHandoff, tplo, tploVisible, client, image.caseId, image.id, tploHandoffQueries, focusViewerViewport])
   useEffect(() => {
     if (panelSection !== activeSection) onSectionChange(panelSection)
   }, [panelSection, activeSection, onSectionChange])
@@ -224,13 +356,14 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   }, [discardCalibrationDraft])
   const discardChanges = useCallback(() => {
     if (isCalibrationSaveLocked(client, image.caseId, image.id)) return false
+    if (!tplo.discard()) return false
     if (!landmarks.discard()) return false
     if (!circle.discard()) return false
     if (!angle.discard()) return false
     if (!distance.discard() || !discardCalibration()) return false
     cancelDistanceAutosave()
     return !hasImagePlanDraft(client, image.caseId, image.id)
-  }, [client, image.caseId, image.id, landmarks.discard, circle.discard, angle.discard, distance.discard, discardCalibration, cancelDistanceAutosave])
+  }, [client, image.caseId, image.id, tplo.discard, landmarks.discard, circle.discard, angle.discard, distance.discard, discardCalibration, cancelDistanceAutosave])
 
   useEffect(() => registerUnsavedChangesHandler({
     discardChanges,
@@ -240,7 +373,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
       const receipt = client.getQueryData<ImagePlanSaveState>(keys.imagePlanSave(image.caseId, image.id))
       const section = imagePlanSaveSection(receipt)
       const owner = imagePlanSaveOwner(receipt)
-      const measurementTranslations = owner === "landmarks" ? tLandmarks : owner === "circle" ? tCircle : owner === "angle" ? tAngle : tDistance
+      const measurementTranslations = owner === "tplo" ? tTplo : owner === "landmarks" ? tLandmarks : owner === "circle" ? tCircle : owner === "angle" ? tAngle : tDistance
       onSectionChange(section)
       toast.info(section === "tools" ? measurementTranslations("navigationBlockedTitle") : t("remote.navigationBlockedTitle"), {
         description: section === "tools" ? measurementTranslations("navigationBlockedDescription") : t("remote.navigationBlockedDescription"),
@@ -256,10 +389,12 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
       ...(circle.hasChanges || circleRecovery.active ? [{ field: "circle", label: tCircle("title"), previousValue: "",
         value: tCircle(circle.editor?.kind === "circle-delete" ? "deleteDraft" : "unsavedDraft") }] : []),
       ...(landmarks.hasChanges || landmarksRecovery.active ? [{ field: "landmarks", label: tLandmarks("title"), previousValue: "",
-        value: tLandmarks(landmarks.editor?.kind === "landmarks-clear" ? "deleteDraft" : "unsavedDraft") }] : [])],
+        value: tLandmarks(landmarks.editor?.kind === "landmarks-clear" ? "deleteDraft" : "unsavedDraft") }] : []),
+      ...(tplo.hasChanges || tploRecovery.active ? [{ field: "tplo", label: tTplo("title"), previousValue: "",
+        value: tTplo(tplo.editor?.kind === "tplo-delete" ? "deleteDraft" : "unsavedDraft") }] : [])],
   }), [discardChanges, calibration.hasChanges, calibration.plan, calibration.editor, distance.hasChanges, distance.editor,
     angle.hasChanges, angle.editor, angleRecovery.active, circle.hasChanges, circle.editor, circleRecovery.active,
-    landmarks.hasChanges, landmarks.editor, landmarksRecovery.active, client, image.caseId, image.id, onSectionChange, registerUnsavedChangesHandler, t, tDistance, tAngle, tCircle, tLandmarks])
+    landmarks.hasChanges, landmarks.editor, landmarksRecovery.active, tplo.hasChanges, tplo.editor, tploRecovery.active, client, image.caseId, image.id, onSectionChange, registerUnsavedChangesHandler, t, tDistance, tAngle, tCircle, tLandmarks, tTplo])
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
       if (!hasImagePlanDraft(client, image.caseId, image.id) && !isCalibrationSaveLocked(client, image.caseId, image.id)) return
@@ -274,7 +409,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
     if (calibration.planQuery.error && calibration.planQuery.error !== notifiedReadError.current) {
       notifiedReadError.current = calibration.planQuery.error
       const measurementRead = activeSection === "tools" || measurementIntent
-      const measurementTranslations = activeMeasurement === "landmarks" ? tLandmarks : activeMeasurement === "circle" ? tCircle : activeMeasurement === "angle" ? tAngle : tDistance
+      const measurementTranslations = activeMeasurement === "tplo" ? tTplo : activeMeasurement === "landmarks" ? tLandmarks : activeMeasurement === "circle" ? tCircle : activeMeasurement === "angle" ? tAngle : tDistance
       toast.error(measurementRead ? measurementTranslations("readErrorTitle") : t("remote.readErrorTitle"), {
         id: noticeId,
         description: measurementRead ? measurementTranslations("readErrorDescription") : t("remote.readErrorDescription"),
@@ -283,10 +418,12 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
       toast.dismiss(noticeId)
       notifiedReadError.current = null
     }
-  }, [calibration.planQuery.error, calibration.planQuery.isSuccess, calibration.planQuery.isFetching, image.caseId, image.id, activeSection, measurementIntent, activeMeasurement, t, tDistance, tAngle, tCircle, tLandmarks])
+  }, [calibration.planQuery.error, calibration.planQuery.isSuccess, calibration.planQuery.isFetching, image.caseId, image.id, activeSection, measurementIntent, activeMeasurement, t, tDistance, tAngle, tCircle, tLandmarks, tTplo])
 
   function chooseMeasurement(next: MeasurementChoice["tool"]) {
     if (scope.current.client !== client || scope.current.caseId !== image.caseId || scope.current.imageId !== image.id) return false
+    if (tploDialogOpen) return false
+    if (next !== "tplo" && client.getQueryData(keys.imageTploDraft(image.caseId, image.id)) && !tplo.closeCleanEditor()) return false
     setMeasurementChoice({ tool: next, client, caseId: image.caseId, imageId: image.id })
     return true
   }
@@ -324,6 +461,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
     else toast.error(t("saveErrorTitle"), { description: t("saveErrorDescription") })
   }
   function selectSection(section: WorkspacePanelSection) {
+    if (tploDialogOpen) return
     setCalibrationHandoff(null)
     focusAfterDistanceCancel.current = false
     if (section === "tools" && !toolsAvailable) {
@@ -342,7 +480,11 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
         || distance.editor && distance.editor.kind !== "distance-delete")) ? "mark" : "pan")
   }
   async function startCalibration() {
-    if (circleDeletion.request || landmarksDeletion.request) return
+    if (tploDialogOpen || circleDeletion.request || landmarksDeletion.request) return
+    if (!tplo.closeCleanEditor()) {
+      toast.info(tTplo("finishEditingTitle"), { description: tTplo("finishEditingDescription") })
+      return
+    }
     if (!landmarks.closeCleanEditor()) {
       toast.info(tLandmarks("finishEditingTitle"), { description: tLandmarks("finishEditingDescription") })
       return
@@ -400,6 +542,43 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
         document.querySelector<HTMLElement>("[data-calibration-viewport]")?.focus({ preventScroll: true })
       }
     })
+  }
+
+  function tploHandoffQueries() {
+    return [keys.imagePlan(image.caseId, image.id), keys.imageTploDraft(image.caseId, image.id),
+      keys.imageTploEditorUi(image.caseId, image.id), keys.imagePlanSave(image.caseId, image.id)]
+      .map(queryKey => client.getQueryCache().find({ queryKey, exact: true }))
+  }
+  function onTploGeometrySaved({ command, revision }: TploGeometryConfirmation) {
+    if (!mounted.current || scope.current.client !== client || scope.current.caseId !== image.caseId || scope.current.imageId !== image.id) return
+    if (command.kind === "tplo-delete") { restoreTploAfterDeletion(command.id, revision, true, command); return }
+    setTploHandoff({ client, caseId: image.caseId, imageId: image.id, id: command.id, revision, comparison: tplo.ui.comparison,
+      queries: tploHandoffQueries(), command })
+  }
+  function restoreTploAfterDeletion(id: string, revision: number, removed: boolean, command?: TploGeometryConfirmation["command"]) {
+    if (!mounted.current || scope.current.client !== client || scope.current.caseId !== image.caseId || scope.current.imageId !== image.id) return
+    const plan = client.getQueryData<ImagePlan>(keys.imagePlan(image.caseId, image.id))
+    const nextId = removed ? plan?.document.objects.find(object => object.type === "TPLO" && object.visible !== false && object.id.toLowerCase() !== id.toLowerCase())?.id ?? null : id
+    setTploHandoff({ client, caseId: image.caseId, imageId: image.id, id: nextId, selectionId: id, revision, comparison: "original", queries: tploHandoffQueries(), command })
+    setTool("pan")
+  }
+  function enterTplo(create = false) {
+    if (tploDialogOpen || angleDeletion.request || circleDeletion.request || landmarksDeletion.request || deleteRequest || !tplo.canOpen) return
+    const opened = create ? tplo.canCreate && tplo.beginNew(index => tTplo("entry.defaultName", { index })) ? "create" : null
+      : tplo.open(index => tTplo("entry.defaultName", { index }))
+    if (!opened || !chooseMeasurement("tplo")) return
+    setTool(opened === "create" || opened === "edit" ? "mark" : "pan")
+    focusViewerViewport()
+  }
+  function cancelTploGeometry(recovery = false) {
+    const source = recovery ? tplo.recovery.command : visibleTploEditor
+    if (!source || source.kind !== "tplo-create" && source.kind !== "tplo-update") return
+    const revision = client.getQueryData<ImagePlan>(keys.imagePlan(image.caseId, image.id))?.revision
+    if (!(recovery ? tplo.recovery.discard() : tplo.discard())) return
+    setTool("pan")
+    if (source.kind === "tplo-update" && revision !== undefined) setTploHandoff({ client, caseId: image.caseId, imageId: image.id,
+      id: source.id, revision, comparison: "original", queries: tploHandoffQueries() })
+    else focusViewerViewport()
   }
 
   function cancelLandmarksPlacement(): boolean {
@@ -813,7 +992,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   // saving or discarding. A clean editor performs no write and has no changes.
   // An explicit Pan choice remains intact while that editor is already open.
   useEffect(() => {
-    if (caseLocked || angleDeletion.request || circleDeletion.request || landmarksDeletion.request
+    if (caseLocked || tploDialogOpen || angleDeletion.request || circleDeletion.request || landmarksDeletion.request
       || requestedDistanceDeletion?.client === client && requestedDistanceDeletion.caseId === image.caseId && requestedDistanceDeletion.imageId === image.id
       || hasImagePlanDraft(client, image.caseId, image.id)) return
     const ready = distanceVisible && !distance.editor && distance.canEdit && distance.selectedId
@@ -821,7 +1000,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
       : angleVisible && !angle.editor && angle.canEdit && angle.selectedId ? angle.beginUpdate(angle.selectedId)
       : circleVisible && !circle.editor && circle.canEdit && circle.selectedId ? circle.beginUpdate(circle.selectedId) : false
     if (ready) setTool("mark")
-  }, [caseLocked, angleDeletion.request, circleDeletion.request, landmarksDeletion.request, requestedDistanceDeletion, client, image.caseId, image.id,
+  }, [caseLocked, tploDialogOpen, angleDeletion.request, circleDeletion.request, landmarksDeletion.request, requestedDistanceDeletion, client, image.caseId, image.id,
     distanceVisible, angleVisible, circleVisible, distance, angle, circle])
   const distanceEditing = distanceVisible && Boolean(distanceEditor)
   const visibleDistanceEditor = distanceEditing ? distanceEditor : null
@@ -1031,22 +1210,26 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
   const landmarksProtocol = <CaseImageLandmarksProtocol data={clinicalProtocol.data} error={clinicalProtocol.isError}
     loading={clinicalProtocol.isFetching} canRetry={!clinicalProtocol.isFetching && !landmarks.deleting && !caseLocked}
     onRetry={() => { if (!clinicalProtocol.isFetching && !landmarks.deleting && !caseLocked) void clinicalProtocol.refetch() }} />
+  const tploDeleteButton = tplo.selectedId && (tplo.editor?.kind === "tplo-update" || !tplo.editor) ? <CaseImageTploDeleteButton id={tplo.selectedId}
+    enabled={!tploDialogOpen && !tploGestureActive && rotationGestureDegrees === null && tploDeletion.canRequest(tplo.selectedId)} onRequest={() => tploDeletion.open(tplo.selectedId!)} /> : null
+  const tploNewAction = <CaseImageTploNewAction enabled={tplo.canCreate && !tploDialogOpen && !tploGestureActive && rotationGestureDegrees === null} onCreate={() => enterTplo(true)} />
   return <>
     <CaseWorkspacePanel activeSection={panelSection} calibrationAvailable={(preview.ready || measurementIntent) && !caseLocked && !calibration.deleting}
       calibrationEditing={calibrationEditing && !calibration.planQuery.isError}
       toolsDisabled={!measurementIntent && !distance.recoveringSaved && (calibration.planQuery.isPending || (calibration.planQuery.isFetching && !calibration.measurementEligible))}
       toolsContent={toolsAvailable ? <CaseImageToolsPanel
+        tploActive={tploVisible} tploEntry={{ disabled: !tplo.canOpen || tploDialogOpen || Boolean(angleDeletion.request || circleDeletion.request || landmarksDeletion.request || deleteRequest), onOpen: () => enterTplo() }}
         readError={!angleActive && !circleActive && distance.planQuery.isError && !distanceEditor} canRetryRead={distance.canRetryRead} onRetryRead={refreshDistanceRead} loading={distance.loadingSaved}
         distanceActive={distanceActive && segmentMeasure === "length"} angleActive={angleActive}
         landmarksActive={activeMeasurement === "landmarks"} landmarksEntry={{ disabled: !(landmarks.canOpen || landmarks.canSelect && Boolean(savedLandmarks))
-          || Boolean(landmarksDeletion.request || angleDeletion.request || circleDeletion.request), onOpen: enterLandmarks }}
+          || tploDialogOpen || Boolean(landmarksDeletion.request || angleDeletion.request || circleDeletion.request), onOpen: enterLandmarks }}
         circleActive={circleActive || distanceActive && segmentMeasure !== "length"}
-        angleEntry={{ disabled: !angle.canEdit || angleRecovery.active || Boolean(angleDeletion.request || circleDeletion.request || landmarksDeletion.request), onOpen: openAngle }}
+        angleEntry={{ disabled: tploDialogOpen || !angle.canEdit || angleRecovery.active || Boolean(angleDeletion.request || circleDeletion.request || landmarksDeletion.request), onOpen: openAngle }}
         circleEntry={{ disabled: circle.hasChanges || circleRecovery.active || angle.hasChanges || angleRecovery.active
-          || !distance.canSelect || !distances.length || Boolean(circleDeletion.request || angleDeletion.request || landmarksDeletion.request),
+          || tploDialogOpen || !distance.canSelect || !distances.length || Boolean(circleDeletion.request || angleDeletion.request || landmarksDeletion.request),
           onOpen: () => openDistance(segmentMeasure === "length" ? "diameter" : segmentMeasure) }}
-        savedCircleEntry={circles.length ? { disabled: !circle.canSelect || circleRecovery.active || Boolean(circleDeletion.request || angleDeletion.request || landmarksDeletion.request), onOpen: openSavedCircles } : undefined}
-        openDisabled={circle.hasChanges || circleRecovery.active || angle.hasChanges || angleRecovery.active || !distance.canSelect || Boolean(landmarksDeletion.request)} onOpen={() => openDistance()} /> : null}
+        savedCircleEntry={circles.length ? { disabled: tploDialogOpen || !circle.canSelect || circleRecovery.active || Boolean(circleDeletion.request || angleDeletion.request || landmarksDeletion.request), onOpen: openSavedCircles } : undefined}
+        openDisabled={tploDialogOpen || circle.hasChanges || circleRecovery.active || angle.hasChanges || angleRecovery.active || !distance.canSelect || Boolean(landmarksDeletion.request)} onOpen={() => openDistance()} /> : null}
       calibrationUnavailableReason={tImage("unavailable")}
       calibrationActions={<button aria-label={imageActionLabel}
         className="motion-interactive flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-token-md)] text-content-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
@@ -1060,8 +1243,64 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
         requestAnimationFrame(() => document.querySelector<HTMLElement>("[data-calibration-viewport]")?.focus({ preventScroll: true }))
       }} onCancel={discardCalibration} /> : <CaseImageOptionsPanel calibration={calibration} display={display} onCalibrate={() => void startCalibration()} />}
     </CaseWorkspacePanel>
-    <CasePreviewPanel image={image} preview={preview} display={display.settings} interactionContext={client}
-      editorControls={landmarksVisible ? <section aria-label={tLandmarks("title")} className="flex max-h-full flex-col items-start gap-2">
+    <CasePreviewPanel image={image} preview={preview} display={display.settings} interactionContext={client} simulation={tploSimulation}
+      editorControls={panelSection === "tools" && tploRecoveryVisible && !tploDeletion.committed ? <CaseImageTploRecovery recovery={tploRecovery}
+        onCheck={tploRecovery.command?.kind === "tplo-create" || tploRecovery.command?.kind === "tplo-update" ? () => void tploGeometryActions.check() : undefined}
+        onDiscard={tploRecovery.command?.kind === "tplo-create" || tploRecovery.command?.kind === "tplo-update" ? () => cancelTploGeometry(true) : undefined} />
+        : parameterEditor ? <CaseImageTploParameters fields={parameterEditor.parameterFields ?? tploParameterFields(tplo.plan?.document.tplo, parameterEditor.parameters)}
+          canEdit={tplo.canEdit} canSave={tplo.canSave} canCancel={!tplo.locked && !tplo.deleting} stale={tplo.needsRebase}
+          readFailure={tplo.planQuery.isError ? { canRetry: tplo.canRetryRead, onRetry: () => { void tplo.refreshRead() } } : undefined}
+          onChange={tplo.changeParameterFields} onSave={() => void tploParameterActions.save()} onCancel={() => { if (tplo.discard()) { setTool("pan"); focusViewerViewport() } }} />
+        : visibleTploEditor && tploFragmentDrawing ? <CaseImageTploFragmentDrawing
+          name={visibleTploEditor.kind === "tplo-create" ? visibleTploEditor.label?.trim() || tTplo("read.title") : selectedSavedTplo?.object.label?.trim() || tTplo("read.title")}
+          count={visibleTploEditor.fragment?.points.length ?? 0} canEdit={tplo.canEdit && !tploDialogOpen && !tploGestureActive} marking={tool === "mark"}
+          stale={tplo.needsRebase}
+          onMark={() => { if (tplo.canEdit) { setTool("mark"); focusViewerViewport() } }}
+          onUndo={() => { if (tplo.undoFragmentPoint(visibleTploEditor.id)) focusViewerViewport() }}
+          onCancel={() => { if (tplo.cancelFragment(visibleTploEditor.id)) focusViewerViewport() }}
+          readFailure={tplo.planQuery.isError ? { canRetry: tplo.canRetryRead, onRetry: () => { void tplo.refreshRead() } } : undefined} />
+        : visibleTploEditor ? <CaseImageTploCutControls key={JSON.stringify([image.caseId, image.id, visibleTploEditor.id,
+          visibleTploEditor.baseRevision, tplo.contextGeneration, tplo.originGeometry, tploCutDiameter])} placement={tploPlacement} target={tploTarget}
+          canEdit={tplo.canEdit && !tploDialogOpen && !tploGestureActive} canCancel={!tplo.locked && !tplo.deleting && !tploDialogOpen} marking={tool === "mark"}
+          diameterMm={tploCutDiameter} fragmentMissing={visibleTploEditor.fragment === null}
+          name={visibleTploEditor.kind === "tplo-create" ? visibleTploEditor.label?.trim() || tTplo("read.title") : selectedSavedTplo?.object.label?.trim() || tTplo("read.title")}
+          headerAction={tploDeleteButton}
+          values={!tploPlacement ? <CaseImageTploValues measurement={tploMeasure} source={tploResultSource} /> : undefined}
+          valuesDescription={simulationReason ? <p>{tTplo("read.simulationState", {
+            state: simulationReason === "incomplete" ? tTplo("simulation.incomplete") : tTplo(`read.reasons.${simulationReason}`),
+          })}</p> : undefined}
+          footerAction={!tploPlacement && !tplo.hasChanges ? tploNewAction : undefined}
+          showCancel={Boolean(tploPlacement)}
+          previewDiameterMm={tploGestureActive && tploLocal.measurement.status === "available" ? tploLocal.measurement.radiusMm * 2 : undefined}
+          stale={tplo.needsRebase} fragmentDrawing={tploFragmentDrawing}
+          onMark={() => { if (tplo.canEdit) { setTool("mark"); focusViewerViewport() } }}
+          onTargetChange={target => { if (tplo.canEdit && tplo.selectTarget(target)) { setTool("mark"); focusViewerViewport() } }}
+          onDiameterChange={value => tplo.setCutDiameter(value, visibleTploEditor.id)}
+          onCancel={() => cancelTploGeometry()}
+          readFailure={tplo.planQuery.isError ? { canRetry: tplo.canRetryRead, onRetry: () => { void tplo.refreshRead() } } : undefined}>
+          {!tploPlacement ? <CaseImageTploFragmentControls points={visibleTploEditor.fragment?.points ?? null}
+            activeVertex={tplo.ui.activeVertex} canEdit={tplo.canEdit && !tploDialogOpen && !tploGestureActive}
+            onBegin={() => { if (tplo.beginFragment(visibleTploEditor.id)) { setTool("mark"); focusViewerViewport() } }}
+            onSelect={index => { if (tplo.selectVertex(index)) { setTool("mark"); focusViewerViewport() } }}
+            onInsert={() => { if (tplo.ui.activeVertex !== null && tplo.insertFragmentVertex(tplo.ui.activeVertex, visibleTploEditor.id)) { setTool("mark"); focusViewerViewport() } }}
+            onRemoveVertex={() => { if (tplo.ui.activeVertex !== null && tplo.removeFragmentVertex(tplo.ui.activeVertex, visibleTploEditor.id)) focusViewerViewport() }}
+            onClear={() => { if (tplo.clearFragment(visibleTploEditor.id)) focusViewerViewport() }} /> : null}
+          {!tploPlacement && !tploFragmentDrawing ? <CaseImageTploRotationControls showValue={false} collapsed={visibleTploEditor.fragment === null} degrees={visibleTploEditor.rotation_degrees}
+            previewDegrees={rotationGestureDegrees} canEdit={tplo.canEdit && !tploDialogOpen && !tploGestureActive}
+            canRotate={tplo.canEdit && !tploDialogOpen && !tploGestureActive && tploLocal.simulation.status === "available"} active={Boolean(tplo.ui.rotationActive)}
+            source={tploResultSource} statusText={`${tploStatusText}${simulationReason ? ` · ${simulationReason === "incomplete" ? tTplo("simulation.incomplete") : tTplo(`read.reasons.${simulationReason}`)}` : ""}`}
+            comparison={tploComparison} onApply={degrees => tplo.changeRotation(degrees, visibleTploEditor.id)}
+            onRotate={() => { if (tplo.setRotationActive(!tplo.ui.rotationActive)) { setTool("mark"); focusViewerViewport() } }} /> : null}
+        </CaseImageTploCutControls>
+        : tploVisible ? <CaseImageTploSaved key={`${image.caseId}:${image.id}`} objects={savedTplo} selectedId={tplo.selectedId}
+          headerAction={tploDeleteButton}
+          dirtyId={dirtyTploId} selectionDisabled={!tplo.canSelect || tplo.hasChanges || tploGestureActive}
+          onSelect={tploPicking.onSelect} readError={tplo.planQuery.isError} canRetryRead={tplo.canRetryRead}
+          refreshing={tplo.planQuery.isFetching} onRetryRead={() => { void tplo.refreshRead() }}>
+          {selectedSavedTplo ? <CaseImageTploComparison {...tploComparison} /> : null}
+          {tploNewAction}
+        </CaseImageTploSaved>
+        : landmarksVisible ? <section aria-label={tLandmarks("title")} className="flex max-h-full flex-col items-start gap-2">
         {clinicalProtocol.isError && !landmarksDeletion.request && !landmarksRecovery.active ?
           <div className="w-56 max-w-full rounded-[var(--radius-token-md)] bg-[var(--color-obsidian)]">{landmarksProtocol}</div> : null}
         {!landmarksDeletion.request && (landmarks.needsRebase || landmarks.planQuery.isError || landmarks.receipt.phase === "error") ?
@@ -1146,7 +1385,20 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
           dirtyId={distanceEditor?.kind === "distance-update" && distance.hasChanges ? distanceEditor.id : null}
           selectionDisabled={!distance.canSelect || distance.hasChanges} onSelect={selectDistance} />
       </CaseImageDistanceToolbar> : undefined}
-      contextControls={showLandmarksActions && landmarksActionEditor ? { anchor: landmarksActionAnchor, content: <CaseImageLandmarksActions
+      contextControls={visibleTploEditor && tploFragmentDrawing && !tploDialogOpen && !tploRecovery.active && !tplo.needsRebase && !tplo.planQuery.isError ? {
+        anchor: visibleTploEditor.fragment?.points.at(-1) ?? currentTploGeometry?.edge ?? null,
+        avoidPoints: visibleTploEditor.fragment?.points.length ? visibleTploEditor.fragment.points
+          : currentTploGeometry ? [currentTploGeometry.edge] : undefined,
+        content: <CaseImageTploFragmentActions count={visibleTploEditor.fragment?.points.length ?? 0}
+          canEdit={tplo.canEdit && !tploGestureActive}
+          onFinish={() => { if (tplo.finishFragment(visibleTploEditor.id)) focusViewerViewport() }}
+          onCancel={() => { if (tplo.cancelFragment(visibleTploEditor.id)) focusViewerViewport() }} />,
+      } : visibleTploEditor && !tploPlacement && !tploDialogOpen && !tploRecovery.active
+        && (tplo.hasChanges || tplo.needsRebase || tplo.planQuery.isError) ? { anchor: currentTploGeometry?.edge ?? null,
+          content: <CaseImageTploActions creating={visibleTploEditor.kind === "tplo-create"} canSave={tplo.canSave && !tploGestureActive && rotationGestureDegrees === null}
+            canCancel={!tplo.locked && !tplo.deleting} stale={tplo.needsRebase} fragmentDrawing={tploFragmentDrawing}
+            onSave={() => void tploGeometryActions.save()} onCancel={() => cancelTploGeometry()} /> }
+        : showLandmarksActions && landmarksActionEditor ? { anchor: landmarksActionAnchor, content: <CaseImageLandmarksActions
         creating={!savedLandmarks} needsRebase={landmarks.needsRebase} receipt={landmarks.receipt}
         pending={landmarksRecovery.pending || landmarks.save.isPending} canSave={landmarks.canSave} canCheck={landmarksRecovery.canCheck}
         canCancel={!landmarks.locked && !landmarks.deleting && (!landmarksRecovery.active || landmarksRecovery.canDiscard)}
@@ -1170,7 +1422,9 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
         pending={distance.save.isPending || distance.receipt.phase === "saving" || distance.receipt.phase === "checking"}
         canSave={distance.canSave} canCheck={!distance.deleting && !distance.save.isPending} readError={distance.planQuery.isError} canRetryRead={distance.canRetryRead}
         onCancel={cancelDistance} onSave={() => void distanceActions.save()} onCheck={() => void distanceActions.check()} onRetryRead={refreshDistanceRead} /> } : undefined}
-      renderOverlay={landmarksVisible && landmarksDimensionsAvailable && !landmarksPlacement ? view => <LandmarksOverlay saved={savedLandmarks} view={view}
+      renderOverlay={tploVisible && tploDrawingAvailable ? view => <TploOverlay objects={savedTplo} selectedId={tplo.selectedId} view={view}
+        labelOnlyId={visibleTploEditor?.id} dirtyId={dirtyTploId} showResult={false} />
+        : landmarksVisible && landmarksDimensionsAvailable && !landmarksPlacement ? view => <LandmarksOverlay saved={savedLandmarks} view={view}
         valueVisible={!display.settings.hiddenLandmarksValue} preview={landmarksPreview} labelOnly={Boolean(visibleLandmarksEditor)} />
         : circleVisible && circleDrawingAvailable ? view => <CircleOverlay circles={circles} selectedId={circle.selectedId} view={view}
         labelOnlyId={visibleCircleEditor?.id} preview={circlePreview} measures={display.settings.circleMeasures} hiddenValueIds={display.settings.hiddenCircleValues} />
@@ -1187,11 +1441,24 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
           if (!mounted.current || scope.current.client !== client || scope.current.caseId !== image.caseId || scope.current.imageId !== image.id) return
           if (selected) focusViewerViewport()
           else if (landmarksMethodDialog.trigger?.isConnected) landmarksMethodDialog.trigger.focus({ preventScroll: true })
-        }} /> : landmarksDeletion.request ? <span className="sr-only">{tLandmarks("deleteTitle")}</span> : circleDeletion.request ? <span className="sr-only">{tCircle("deleteTitle")}</span> : introductionOpen ? <CalibrationIntroductionDialog open recalibrating={recalibrating} onConfirm={confirmIntroduction} onCancel={cancelIntroduction}
+        }} /> : tploDialogOpen ? <span className="sr-only">{tTplo("deletion.title")}</span> : landmarksDeletion.request ? <span className="sr-only">{tLandmarks("deleteTitle")}</span> : circleDeletion.request ? <span className="sr-only">{tCircle("deleteTitle")}</span> : introductionOpen ? <CalibrationIntroductionDialog open recalibrating={recalibrating} onConfirm={confirmIntroduction} onCancel={cancelIntroduction}
         onRestoreFocus={() => {
           if (introductionConfirmed.current) document.querySelector<HTMLElement>("[data-calibration-viewport]")?.focus({ preventScroll: true })
           else document.querySelector<HTMLButtonElement>("nav button[aria-pressed=true]")?.focus({ preventScroll: true })
-        }} /> : null} editor={calibrationEditing ? { kind: "calibration",
+        }} /> : null} editor={visibleTploEditor && tploDrawingAvailable && (tplo.originGeometry || tploPlacement) ? {
+      kind: "tplo", id: visibleTploEditor.id, baseRevision: visibleTploEditor.baseRevision, contextGeneration: tplo.contextGeneration,
+      geometry: tplo.originGeometry, editable: tplo.canEdit && !tploDialogOpen, originEditable: tplo.ui.comparison === "original", tool, onToolChange: setTool,
+      rotation: { degrees: visibleTploEditor.rotation_degrees, active: Boolean(tplo.ui.rotationActive),
+        enabled: tplo.canEdit && !tploFragmentDrawing && tploLocal.simulation.status === "available",
+        onPreview: onTploRotationPreview, onChange: degrees => { tplo.changeRotation(degrees, visibleTploEditor.id) } },
+      placement: tploPlacement ?? undefined, onPlacePoint: (point, step) => { tplo.placePoint(point, visibleTploEditor.id, step) },
+      fragmentDrawing: tploFragmentDrawing,
+      onFragmentPoint: (point, count) => { tplo.appendFragmentPoint(point, count, visibleTploEditor.id) },
+      picking: tploPicking, keyboardTarget: tploTarget, onKeyboardTargetChange: tplo.selectTarget,
+      onGeometryPreview: onTploGeometryPreview,
+      onGeometryChange: (geometry, target) => { tplo.changeOrigin(geometry, visibleTploEditor.id, target) },
+    } : tploVisible && !tplo.editor && !tploRecovery.active ? { kind: "tplo-select", picking: tploPicking }
+      : tploIntent ? { kind: "none" } : calibrationEditing ? { kind: "calibration",
       editable: editing, marker: activeSection === "calibration" && calibrationEditing ? calibration.marker : null,
       markerKind: calibration.editor?.kind ?? "line", tool, onMarkerChange: calibration.changeMarker, onToolChange: setTool,
     } : visibleLandmarksEditor && landmarksDimensionsAvailable ? { kind: "landmarks",
@@ -1228,6 +1495,7 @@ function CaseImageWorkspace({ image, activeSection, onSectionChange, caseContext
     <CaseImageAngleDeleteDialog deletion={angleDeletion} />
     <CaseImageCircleDeleteDialog deletion={circleDeletion} />
     <CaseImageLandmarksDeleteDialog deletion={landmarksDeletion} />
+    <CaseImageTploDeleteDialog deletion={tploDeletion} />
     {deleteRequest ? <CaseImageDistanceDeleteDialog name={deleteRequest.name} phase={deletePhase} pending={deletePending}
       conflict={deleteConflict} readError={distance.planQuery.isError} dirty={Boolean(!deleteDraft && distance.hasChanges)}
       canConfirm={!deletePending && !distance.deleting && (deletePhase === "uncertain" || (distance.planQuery.isError ? distance.canRetryRead : deleteConflict || distance.canEdit))}

@@ -1,0 +1,26 @@
+.field { position: absolute; z-index: 0; overflow: clip; pointer-events: none; inset: 0; }
+.parallax { position: absolute; top: -91.463%; width: 171.394%; height: 348.968%; }
+.parallax:nth-child(1) { left: -31.973%; }
+.parallax:nth-child(2) { left: -12.569%; }
+.parallax:nth-child(3) { left: 4.045%; }
+.parallax:nth-child(4) { left: 21.604%; }
+.streak { width: 100%; height: 100%; animation: cta-drift 26s ease-in-out infinite alternate; }
+.streakSvg { display: block; width: 100%; height: 100%; overflow: visible; }
+.parallax:nth-child(2) .streak { animation: cta-drift 33s ease-in-out infinite alternate-reverse -9s; }
+.parallax:nth-child(3) .streak { animation: cta-drift 25s ease-in-out infinite alternate -15s; }
+.parallax:nth-child(4) .streak { animation: cta-drift 36s ease-in-out infinite alternate-reverse -21s; }
+
+@supports (animation-timeline: view()) {
+  .field[data-scroll-parallax="true"] .parallax { animation: cta-parallax linear both; animation-timeline: --resource-cta-card; animation-range: contain; }
+  .field[data-scroll-parallax="true"] .parallax:nth-child(1) { --from-x: -1%; --from-y: .8%; --to-x: .6%; --to-y: -.6%; }
+  .field[data-scroll-parallax="true"] .parallax:nth-child(2) { --from-x: 1%; --from-y: -.7%; --to-x: -1.1%; --to-y: 1%; }
+  .field[data-scroll-parallax="true"] .parallax:nth-child(3) { --from-x: -3.9%; --from-y: 3.3%; --to-x: 6.6%; --to-y: -5.4%; }
+  .field[data-scroll-parallax="true"] .parallax:nth-child(4) { --from-x: 6%; --from-y: -4.8%; --to-x: -3.3%; --to-y: 3.6%; }
+}
+
+@keyframes cta-drift { from { translate: 0 0; } to { translate: 3.5% 2.2%; } }
+@keyframes cta-parallax { from { translate: var(--from-x) var(--from-y); } to { translate: var(--to-x) var(--to-y); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .streak,.parallax { animation: none !important; translate: none !important; }
+}

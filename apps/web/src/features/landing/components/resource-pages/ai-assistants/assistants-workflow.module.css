@@ -1,0 +1,29 @@
+.edge, .edgeRun { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.4; }
+.edge { stroke: #d8e4f1; }
+.edgeRun { stroke: var(--color-electric-iris); }
+.nodeViewport { overflow: visible; }
+.node { position: relative; display: flex; width: 100%; height: 100%; flex-direction: column; justify-content: flex-start; gap: 6px; border: 1px solid #e5eaf0; border-radius: 10px; padding: 8px; background: #fff; box-shadow: 0 3px 9px rgb(23 43 77 / 3%); color: var(--color-obsidian); }
+.activeOutline { position: absolute; inset: -1px; border: 1.25px solid var(--color-electric-iris); border-radius: inherit; opacity: 0; pointer-events: none; }
+.head { position: relative; display: flex; min-width: 0; min-height: 27px; flex: none; align-items: center; gap: 5px; padding-bottom: 7px; }
+.head::after { position: absolute; right: -8px; bottom: 0; left: -8px; height: 1px; background: #edf0f4; content: ""; pointer-events: none; }
+.avatar { display: block; width: 20px; height: 20px; flex: none; pointer-events: none; }
+.nodeIcon { display: block; width: 16px; height: 16px; margin: 2px; color: var(--color-electric-iris); }
+.title { min-width: 0; color: var(--color-obsidian); font-family: var(--font-preview-display), sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: -.02em; line-height: 16px; white-space: nowrap; }
+.status { position: relative; display: block; width: 10px; height: 12px; flex: none; margin-left: auto; color: var(--color-electric-iris); }
+.status > * { position: absolute; inset: 0; width: 10px; height: 12px; }
+.status .pending { inset: 4px 2px; width: 5px; height: 5px; border: 1px solid #c4cdd8; border-radius: 50%; opacity: 0; }
+.spinner { opacity: 0; }
+.done { opacity: 1; }
+.node[data-workflow-node="review"] .pending { opacity: 1; }
+.description { margin: 0; color: var(--color-pewter); font-size: 10px; font-weight: 400; letter-spacing: -.01em; line-height: 13px; }
+.reviewAction { display: flex; min-height: 23px; align-items: center; justify-content: space-between; gap: 3px; border: 1px solid #dceaff; border-radius: 100px; padding: 4px 7px; background: #f5f9ff; color: var(--color-electric-iris); font-size: 8px; font-weight: 600; line-height: 12px; white-space: nowrap; }
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .flow[data-workflow-motion="pending"] { visibility: hidden; }
+}
+.artwork { display: block; width: 100%; height: auto; }
+
+/* Keep the four-column graph horizontal on phones, at a readable scale. */
+@media (max-width: 639px) {
+  .artwork { min-width: 560px; }
+}

@@ -14,6 +14,10 @@ import type { LandmarksAdjustmentTarget } from "./landmarks-interaction"
 import { landmarksPlacementInPixels, type LandmarksPlacementState } from "./landmarks-placement"
 import type { LandmarksPointName } from "./landmarks-editor"
 import { imagePointToNormalized, imagePointToPixels, type ImageDimensions } from "./image-point-space"
+import { tploInPixels, tploInNormalized, type TploGeometry } from "./tplo-geometry"
+import type { TploAdjustmentTarget, TploPickObject } from "./tplo-interaction"
+import { tploPlacementInPixels, type TploPlacement } from "./tplo-placement"
+import type { TploPlacementStep } from "./tplo-editor"
 
 type ViewerTool = "mark" | "pan"
 type ViewerOverlayView = ImageDimensions & { scale: number; mirrored: boolean; activeGesture?: boolean }
@@ -21,11 +25,22 @@ type EditorControls = { editable: boolean; tool: ViewerTool; onToolChange: (tool
 type DistancePicking = { lines: readonly DistancePickLine[]; selectedId: string | null; enabled: boolean; onSelect: (id: string) => void }
 type AnglePicking = { angles: readonly AnglePickObject[]; selectedId: string | null; enabled: boolean; onSelect: (id: string) => void }
 type CirclePicking = { circles: readonly CirclePickObject[]; selectedId: string | null; enabled: boolean; onSelect: (id: string) => void }
+type TploPicking = { objects: readonly TploPickObject[]; selectedId: string | null; enabled: boolean;
+  baseRevision: number; contextGeneration: number; onSelect: (id: string) => void }
 type ViewerEditor =
   | { kind: "none" }
   | { kind: "distance-select"; picking: DistancePicking }
   | { kind: "angle-select"; picking: AnglePicking }
   | { kind: "circle-select"; picking: CirclePicking }
+  | { kind: "tplo-select"; picking: TploPicking }
+  | (EditorControls & { kind: "tplo"; id: string; baseRevision: number; contextGeneration: number; geometry: TploGeometry | null;
+      placement?: TploPlacement; onPlacePoint?: (point: ImagePoint, step: TploPlacementStep) => void;
+      fragmentDrawing?: boolean; onFragmentPoint?: (point: ImagePoint, expectedCount: number) => void;
+      originEditable?: boolean;
+      rotation?: { degrees: number; active: boolean; enabled: boolean; onPreview: (degrees: number | null) => void; onChange: (degrees: number) => void };
+      locked?: boolean; picking?: TploPicking; keyboardTarget?: TploAdjustmentTarget;
+      onKeyboardTargetChange?: (target: TploAdjustmentTarget) => void; onGeometryPreview?: (geometry: TploGeometry | null) => void;
+      onGeometryChange: (geometry: TploGeometry, target?: TploAdjustmentTarget) => void })
   | (EditorControls & { kind: "calibration"; marker: CalibrationMarker | null; markerKind: CalibrationMarker["kind"];
       onMarkerChange: (marker: CalibrationMarker) => void })
   | (EditorControls & { kind: "distance"; id: string; geometry: DistanceGeometry | null; intent?: "create" | "update";
@@ -54,11 +69,20 @@ type ViewerEditor =
 // A distance never becomes a calibration reference or acquires a known length.
 function viewerEditorInPixels(editor: ViewerEditor, dimensions: ImageDimensions) {
   const noMeasurements = { angleGeometry: null, anglePlacement: null, onAngleGeometryChange: (_geometry: AngleGeometry) => {},
+    tploGeometry: null, tploPlacement: null, onTploGeometryChange: (_geometry: TploGeometry, _target?: TploAdjustmentTarget) => {},
     circleGeometry: null, circlePlacement: null, onCircleGeometryChange: (_geometry: CircleGeometry) => {},
     landmarksGeometry: null, landmarksPlacement: null, onLandmarksGeometryChange: (_geometry: LandmarksGeometry) => {} }
-  if (editor.kind === "none" || editor.kind === "distance-select" || editor.kind === "angle-select" || editor.kind === "circle-select") return { marker: null, markerKind: "line" as const,
+  if (editor.kind === "none" || editor.kind === "distance-select" || editor.kind === "angle-select" || editor.kind === "circle-select" || editor.kind === "tplo-select") return { marker: null, markerKind: "line" as const,
     ...noMeasurements, readOnly: true, tool: "pan" as const, onMarkerChange: (_marker: CalibrationMarker) => {}, onToolChange: (_tool: ViewerTool) => {} }
   if (editor.kind === "calibration") return { ...noMeasurements, ...editor, readOnly: !editor.editable }
+  if (editor.kind === "tplo") return {
+    ...noMeasurements, marker: null, markerKind: "line" as const,
+    tploGeometry: editor.geometry ? tploInPixels(editor.geometry, dimensions) : null,
+    tploPlacement: tploPlacementInPixels(editor.placement, dimensions),
+    readOnly: !editor.editable || Boolean(editor.locked), tool: editor.tool, onToolChange: editor.onToolChange,
+    onMarkerChange: (_marker: CalibrationMarker) => {},
+    onTploGeometryChange: (geometry: TploGeometry, target?: TploAdjustmentTarget) => editor.onGeometryChange(tploInNormalized(geometry, dimensions, editor.geometry ?? undefined), target),
+  }
   // ANGLE has its own channel. The marker stays null, so neither its vertex
   // nor its geometry can accidentally enter calibration/LINE callbacks.
   if (editor.kind === "angle") return {

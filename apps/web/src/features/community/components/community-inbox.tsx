@@ -101,7 +101,7 @@ function CommunityInbox({ conversations, latestMessages, selectedId, unread, mut
         </h2>
         <ul aria-labelledby={headingId}>
           {results.map((conversation) => {
-            const { id, name, initials, updatedAt } = conversation
+            const { id, name, initials, avatarUrl, updatedAt } = conversation
             const latest = latestMessages[id]
             const timestamp = latest?.sentAt ?? updatedAt
             const selected = selectedId === id
@@ -116,7 +116,7 @@ function CommunityInbox({ conversations, latestMessages, selectedId, unread, mut
                   ref={selected ? returnFocusRef : undefined}
                   type="button"
                 >
-                  <AppUserAvatar avatarUrl={null} className="size-10 rounded-full text-[12px]" initials={initials} />
+                  <AppUserAvatar avatarUrl={avatarUrl} className="size-10 rounded-full text-[12px]" initials={initials} />
                   <div className="min-w-0 flex-1">
                     <div className="flex min-w-0 items-center gap-1.5 pr-8">
                       <span className={cn("truncate text-[13px]", (selected || isUnread) && "font-semibold")}>{name}</span>

@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "title": "Surgical planning",
+    "description": "Explore surgical planning in Orthovet: tibial axis, joint orientation, TPA and TPLO cut references on the radiograph."
+  },
+  "title": "Surgical planning",
+  "tagline": "From references to the surgical plan.",
+  "preview": {
+    "title": "Building the plan",
+    "description": "Define axes, assess TPA and position the osteotomy cut on the radiograph.",
+    "badge": "TPLO",
+    "message": {
+      "firstLine": "TPA references reviewed.",
+      "secondLine": "TPLO cut planned."
+    },
+    "reviewed": "Reviewed",
+    "illustrationLabel": "Preview of TPLO planning with reviewed references, a planned cut and a photo of the medical team."
+  },
+  "facts": {
+    "note": "Tibial axis, plateau orientation and cut references brought together on the image.",
+    "items": {
+      "references": { "label": "Axes", "value": "References on the radiograph" },
+      "orientation": { "label": "Joint orientation", "value": "TPA and plateau line" },
+      "osteotomy": { "label": "Osteotomies", "value": "Cut center and radius" },
+      "review": { "label": "Review", "value": "Planning annotations" }
+    }
+  },
+  "overview": {
+    "title": "From image to plan",
+    "lead": "Define axes, relate anatomical landmarks and organize planning annotations directly on the radiograph. In Orthovet, the tibial axis and plateau orientation help structure TPA assessment and osteotomy planning.",
+    "references": "Reference points record the positions used in your analysis. The tibial axis and plateau line stay visible on the image, allowing you to review how these annotations relate to the displayed angle.",
+    "methods": "In TPLO planning, the center and radius define the circular cut reference. Position this construction on the radiograph and gather the annotations that document the location selected for the osteotomy.",
+    "review": "Points, lines and cut references let you revisit the construction of the plan. Review these annotations alongside the patient's clinical information and keep the case context at hand as you assess the plan."
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "Frequently asked questions",
+    "items": {
+      "references": {
+        "question": "What references can I organize in the plan?",
+        "answer": "You can mark points to define the tibial axis and plateau line, and position the circular cut references. These constructions stay on the radiograph so you can follow and review the plan."
+      },
+      "tpa": {
+        "question": "How is TPA shown in the plan?",
+        "answer": "From the marked points, the tibial axis and plateau line form the construction used to display TPA. The angle appears alongside the references on the image, allowing you to check the annotations behind the value."
+      },
+      "osteotomy": {
+        "question": "How do I define the osteotomy cut reference?",
+        "answer": "In TPLO planning, you position the center and define the radius of the circular cut reference. The construction stays on the radiograph so you can review its position alongside the other annotations."
+      },
+      "simulation": {
+        "question": "How does planning differ from visual simulation?",
+        "answer": "Planning brings together axes, joint orientation and cut geometry. In visual simulation, you outline the fragment and enter a rotation to observe its resulting position on the image. These steps complement each other within the same work."
+      },
+      "review": {
+        "question": "Can I review the references used to build the plan?",
+        "answer": "Yes. Points, lines and cut references stay visible on the radiograph. You can check the construction of the plan alongside the patient's clinical information and revisit the annotations used in your analysis."
+      }
+    }
+  },
+  "modules": {
+    "title": "References for planning",
+    "description": "<strong>Axes, joint orientation and cut references.</strong> Build and review each planning step on the radiograph.",
+    "items": {
+      "axes": {
+        "title": "Axes and references",
+        "description": "Define the tibial axis from the reference points marked on the radiograph.",
+        "sketch": { "axis": "Tibial axis" }
+      },
+      "orientation": {
+        "title": "Joint orientation",
+        "description": "Relate the tibial axis and plateau line to visualize TPA on the image.",
+        "sketch": { "value": "TPA {value, number}°" }
+      },
+      "osteotomy": {
+        "title": "Osteotomy planning",
+        "description": "Position the cut center, define its radius and record references for TPLO planning.",
+        "sketch": { "value": "R {value, number} mm", "reference": "D1" }
+      }
+    }
+  }
+}

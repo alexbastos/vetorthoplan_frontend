@@ -1,0 +1,7 @@
+.avatar { position: relative; width: 100%; height: 100%; pointer-events: none; }
+.fallback, .host { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.fallback { overflow: visible; }
+.host { opacity: 0; }
+.avatar[data-live-ready="true"] .host { opacity: 1; }
+.avatar[data-live-ready="true"] .fallback { visibility: hidden; }
+.host > canvas, .host > svg { display: block; }

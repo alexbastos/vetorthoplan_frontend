@@ -13,7 +13,7 @@ import type { CaseImage } from "../types/case-image"
 import { casesQueryKeys as keys } from "./cases-query-keys"
 
 function useMeasurementSaveRecovery<T extends SavePlanEditInput>(image: CaseImage, caseLocked: boolean, config: {
-  family: "angle" | "circle" | "landmarks"
+  family: "angle" | "circle" | "landmarks" | "tplo"
   isCommand: (command: PlanSaveCommand | undefined) => command is T
 }) {
   const client = useQueryClient()

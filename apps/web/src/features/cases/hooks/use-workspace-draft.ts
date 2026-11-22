@@ -5,7 +5,7 @@ import { useCallback, useMemo, useSyncExternalStore } from "react"
 
 // Controlled inputs need a synchronous cache snapshot between successive events.
 // Drafts and display settings survive unmounts in this organization's QueryClient, never in storage.
-function useWorkspaceCacheValue<T>(kind: "image-calibration-draft" | "image-quality-draft" | "image-distance-draft" | "image-angle-draft" | "image-angle-selection" | "image-circle-draft" | "image-circle-selection" | "image-landmarks-draft" | "image-display-settings", caseId: string, imageId: string) {
+function useWorkspaceCacheValue<T>(kind: "image-calibration-draft" | "image-quality-draft" | "image-distance-draft" | "image-angle-draft" | "image-angle-selection" | "image-circle-draft" | "image-circle-selection" | "image-landmarks-draft" | "image-tplo-draft" | "image-tplo-editor-ui" | "image-display-settings", caseId: string, imageId: string) {
   const client = useQueryClient()
   const key = useMemo(() => ["cases", kind, caseId, imageId] as const, [kind, caseId, imageId])
   useQuery<T | null>({ queryKey: key, queryFn: async () => null, enabled: false, initialData: null, gcTime: Infinity })

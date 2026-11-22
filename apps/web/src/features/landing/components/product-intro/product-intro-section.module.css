@@ -1,6 +1,5 @@
 .section {
   position: relative;
-  border-bottom: 1px solid var(--color-linen);
 }
 
 .inner {

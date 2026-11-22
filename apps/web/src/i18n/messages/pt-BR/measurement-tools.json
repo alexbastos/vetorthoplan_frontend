@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "title": "Ferramentas de medição",
+    "description": "Conheça as ferramentas de medição da Orthovet: calibração, distâncias, ângulos e círculos sobre a radiografia."
+  },
+  "title": "Ferramentas de medição",
+  "tagline": "Cada medida começa com uma referência.",
+  "preview": {
+    "title": "Referências na imagem",
+    "description": "Calibre a radiografia, posicione os pontos e revise cada medida sobre a imagem.",
+    "illustrationLabel": "Prévia ilustrativa de uma radiografia lateral com uma medida de {value, number} mm e um painel de ferramentas sobreposto à direita.",
+    "file": "RX lateral.jpg",
+    "panelTitle": "Medições",
+    "tools": { "distance": "Distância", "angle": "Ângulo", "circle": "Círculo" },
+    "measurement": "Distância 01",
+    "value": "{value, number}",
+    "unit": "mm",
+    "pointsLabel": "Pontos de referência",
+    "points": "{count} pontos",
+    "scaleLabel": "Escala da imagem",
+    "calibrated": "Calibrada",
+    "imageCalibrated": "Escala calibrada",
+    "confirm": "Confirmar medida"
+  },
+  "facts": {
+    "note": "Escala, pontos e marcações reunidos na imagem para apoiar a revisão do planejamento.",
+    "items": {
+      "calibration": { "label": "Calibração", "value": "Escala da imagem" },
+      "distance": { "label": "Distância", "value": "Medidas entre pontos" },
+      "angle": { "label": "Ângulo", "value": "Relações entre linhas" },
+      "circle": { "label": "Círculo", "value": "Referências circulares" }
+    }
+  },
+  "overview": {
+    "title": "Meça com contexto",
+    "lead": "A radiografia reúne as referências visuais do planejamento. Com as ferramentas de medição, você posiciona pontos, traça linhas e consulta as medidas sobre a própria imagem.",
+    "calibration": "A calibração estabelece a relação entre a imagem e uma dimensão conhecida. Esse é o ponto de partida para trabalhar com distâncias na escala da radiografia.",
+    "references": "Distâncias, ângulos e círculos atendem a diferentes leituras da imagem. Cada ferramenta organiza a marcação a partir dos pontos escolhidos durante a análise.",
+    "review": "Mantenha as referências visíveis enquanto revisa o planejamento. As marcações ajudam a acompanhar o que foi medido e a retomar os pontos usados na avaliação."
+  },
+  "faq": {
+    "eyebrow": "Dúvidas",
+    "title": "Perguntas frequentes",
+    "items": {
+      "calibration": {
+        "question": "Por que calibrar a imagem antes de medir?",
+        "answer": "A calibração relaciona uma dimensão conhecida à escala da radiografia. Ela é o ponto de partida para consultar distâncias e dimensões na imagem, em vez de trabalhar apenas com os pixels do arquivo."
+      },
+      "distance": {
+        "question": "Como faço uma medida de distância?",
+        "answer": "Selecione a ferramenta de distância e posicione dois pontos na radiografia. Uma linha conecta os pontos, e o valor da distância pode ser consultado sobre a imagem, considerando a escala calibrada."
+      },
+      "angle": {
+        "question": "Como os ângulos são representados?",
+        "answer": "A ferramenta usa as linhas de referência definidas na imagem para representar a relação angular entre elas. O valor aparece em graus, junto da marcação, para você conferir as referências utilizadas."
+      },
+      "circle": {
+        "question": "Para que servem as marcações de círculo?",
+        "answer": "Os círculos permitem criar referências para acompanhar formas e dimensões de uma região da radiografia. A marcação circular complementa as ferramentas de distância e ângulo conforme a leitura que você precisa fazer da imagem."
+      },
+      "review": {
+        "question": "Posso conferir os pontos usados em cada medida?",
+        "answer": "Sim. As marcações permanecem visíveis sobre a radiografia para você identificar os pontos, linhas e formas usados na análise. Assim, é possível revisar o que foi medido sem perder o contexto da imagem."
+      }
+    }
+  },
+  "modules": {
+    "title": "Referências para medir",
+    "description": "<strong>Pontos, linhas e formas sobre a radiografia.</strong> Ferramentas para organizar as referências usadas no planejamento.",
+    "items": {
+      "distance": {
+        "title": "Distâncias",
+        "description": "Posicione dois pontos para traçar uma linha e consultar a distância entre eles.",
+        "sketch": { "value": "{value, number} mm" }
+      },
+      "angle": {
+        "title": "Ângulos",
+        "description": "Use linhas de referência para observar a relação angular entre as marcações.",
+        "sketch": { "value": "{value, number}°" }
+      },
+      "circle": {
+        "title": "Círculos",
+        "description": "Crie referências circulares para acompanhar formas e dimensões na imagem.",
+        "sketch": { "value": "R {value, number} mm" }
+      }
+    }
+  }
+}

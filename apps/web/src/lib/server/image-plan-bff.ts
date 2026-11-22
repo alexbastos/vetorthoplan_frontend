@@ -4,7 +4,8 @@ import type { GetImagePath, GetImagePlanPath, SaveImagePlanPath, SaveImagePlanRe
 import { z } from "zod"
 
 import { ImagePlanSchema, SaveCalibrationSchema, UpstreamImagePlanSchema, type ImagePlan } from "../../features/cases/schemas/image-plan.schema"
-import { applyPlanCommand, hasUniquePlanObjectIds, planCommandMatches, planCommandOwner, SavePlanEditSchema, type PlanSaveCommand } from "../../features/cases/schemas/image-plan-command.schema"
+import { applyPlanCommand, hasUniquePlanObjectIds, isTploCommand, planCommandMatches, planCommandOwner,
+  SavePlanEditTransportSchema, type PlanOperation } from "../../features/cases/schemas/image-plan-command.schema"
 import { ImageSchema } from "./case-images-bff"
 
 type Reader<Path> = (path: Path, signal?: AbortSignal) => Promise<{ status: number; data: unknown }>
@@ -62,12 +63,12 @@ async function saveImageCalibrationForBff(caseId: string, imageId: string, value
 
 async function saveImagePlanEditForBff(caseId: string, imageId: string, value: unknown,
   readImage: Reader<GetImagePath>, readPlan: Reader<GetImagePlanPath>, write: Writer, signal?: AbortSignal): Promise<Result> {
-  const input = SavePlanEditSchema.safeParse(value)
+  const input = SavePlanEditTransportSchema.safeParse(value)
   if (!uuid.safeParse(caseId).success || !uuid.safeParse(imageId).success || !input.success) return failure(400, "VALIDATION_ERROR")
   return savePlanCommand(caseId, imageId, input.data, readImage, readPlan, write, signal)
 }
 
-async function savePlanCommand(caseId: string, imageId: string, input: PlanSaveCommand,
+async function savePlanCommand(caseId: string, imageId: string, input: PlanOperation,
   readImage: Reader<GetImagePath>, readPlan: Reader<GetImagePlanPath>, write: Writer, signal?: AbortSignal): Promise<Result> {
   let attempted = false
   try {
@@ -75,12 +76,14 @@ async function savePlanCommand(caseId: string, imageId: string, input: PlanSaveC
     const checked = await imageForPlan(caseId, imageId, readImage, signal)
     if (checked.error) return checked.error
     const image = checked.image!
-    const owner = planCommandOwner(input)
+    const owner = isTploCommand(input) ? "tplo" : planCommandOwner(input)
     const measurementEdit = owner === "distance" || owner === "angle" || owner === "circle"
     // Object measures retain their existing Tools gates. TPA uses original
     // dimensions without requiring a scale. Clearing references edits no geometry.
     const landmarksGeometry = "kind" in input && input.kind === "landmarks-set"
-    const geometryRequired = measurementEdit || owner === "calibration" || landmarksGeometry
+    const tploGeometry = "kind" in input && (input.kind === "tplo-create" || input.kind === "tplo-update")
+    const tploObjectEdit = isTploCommand(input) && input.kind !== "tplo-parameters-set"
+    const geometryRequired = measurementEdit || owner === "calibration" || landmarksGeometry || tploGeometry
     if (geometryRequired && (!image.width_px || !image.height_px)) return failure(409, "IMAGE_DIMENSIONS_REQUIRED")
     if (geometryRequired && image.kind === "DICOM" && [image.pixel_spacing_mm, image.imager_pixel_spacing_mm].some(spacing =>
       spacing && Math.abs(spacing[0] / spacing[1] - 1) > 1e-6)) return failure(409, "CALIBRATION_GEOMETRY_UNSUPPORTED")
@@ -88,9 +91,9 @@ async function savePlanCommand(caseId: string, imageId: string, input: PlanSaveC
     if (response.status !== 200) return mapStatus(response.status, response.data)
     const current = projectPlan(response.data, imageId)
     if (!current) return failure(502, "INVALID_RESPONSE")
-    if (measurementEdit && !hasUniquePlanObjectIds(current.document)) return failure(502, "INVALID_RESPONSE")
+    if ((measurementEdit || tploObjectEdit) && !hasUniquePlanObjectIds(current.document)) return failure(502, "INVALID_RESPONSE")
     if (current.revision !== input.baseRevision) return failure(409, "PLAN_REVISION_CONFLICT", false, current.revision)
-    if (measurementEdit && !current.document.calibration?.result) return failure(409, "CALIBRATION_REQUIRED")
+    if ((measurementEdit || tploGeometry) && !current.document.calibration?.result) return failure(409, "CALIBRATION_REQUIRED")
     if (signal?.aborted) return failure(503, "SERVICE_UNAVAILABLE")
     // Merge only the command's allowed field into the latest confirmed document.
     // The backend alone recomputes derived measurements and validates transitions.

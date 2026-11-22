@@ -1,0 +1,36 @@
+.section { padding-block: 32px 24px; }
+.container { width: min(calc(100% - 48px), 1352px); margin-inline: auto; }
+.card { position: relative; display: flex; min-height: 300px; flex-direction: column; justify-content: space-between; overflow: clip; border-radius: 16px; padding: 24px; background: #0e7aff; color: #fff; isolation: isolate; }
+.brand,.actionRow { position: relative; z-index: 1; }
+.brand { min-height: 28px; }
+.logo { display: block; width: auto; height: 28px; filter: brightness(0) invert(1); }
+.actionRow { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-top: 40px; }
+.actionRow h2 { max-width: 25ch; margin: 0; color: #fff; font-family: var(--font-preview-display), Inter, system-ui, sans-serif; font-size: 28px; font-weight: 600; letter-spacing: -.02em; line-height: 32px; text-wrap: balance; }
+.actionRow h2 span { display: block; }
+.button { display: inline-flex; min-height: 48px; flex: none; align-items: center; justify-content: center; border-radius: 10px; padding: 0 16px; background: #fff; box-shadow: 0 2px 4px rgb(27 28 29 / 4%); color: #000; font-size: 14px; font-weight: 600; line-height: 20px; text-decoration: none; transition: background-color .2s ease, transform .16s ease; }
+.button:hover { background: #fafafa; }
+.button:active { transform: scale(.98); }
+.button:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
+.caption { margin: 24px 0 0; color: #b2b2b2; font-size: 13px; line-height: 20px; }
+
+@media (min-width: 768px) {
+  .card { min-height: 349px; padding: 40px; }
+  .actionRow { gap: 32px; }
+  .actionRow h2 { font-size: 40px; line-height: 44px; }
+}
+
+@media (max-width: 359px) {
+  .actionRow h2 { font-size: 22px; line-height: 26px; }
+}
+
+@media (max-width: 767px) {
+  .actionRow { align-items: flex-start; flex-direction: column; gap: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none; }
+}
+
+@supports (animation-timeline: view()) {
+  .card { view-timeline-name: --resource-cta-card; }
+}

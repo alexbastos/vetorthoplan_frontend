@@ -39,7 +39,7 @@ function imagePlanSaveOwner(receipt?: ImagePlanSaveState) {
 
 function imagePlanSaveSection(receipt?: ImagePlanSaveState): "tools" | "calibration" {
   const owner = imagePlanSaveOwner(receipt)
-  return owner === "distance" || owner === "angle" || owner === "circle" || owner === "landmarks" ? "tools" : "calibration"
+  return owner === "distance" || owner === "angle" || owner === "circle" || owner === "landmarks" || owner === "tplo" ? "tools" : "calibration"
 }
 
 export { IDLE_CALIBRATION_SAVE, isCalibrationSaveLocked, isPlanImageDeleted, imagePlanSaveCommand, imagePlanSaveOwner, imagePlanSaveSection }

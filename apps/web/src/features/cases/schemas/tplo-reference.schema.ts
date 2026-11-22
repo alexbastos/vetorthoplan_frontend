@@ -35,3 +35,4 @@ function parseTploRotationQuery(params: URLSearchParams) {
 export { TploClinicalProtocolSchema, TploRotationQuerySchema, TploRotationTableSchema, parseTploRotationQuery }
 export type TploRotationQuery = z.infer<typeof TploRotationQuerySchema>
 export type TploClinicalProtocol = z.infer<typeof TploClinicalProtocolSchema>
+export type TploRotationTable = z.infer<typeof TploRotationTableSchema>

@@ -1,0 +1,128 @@
+{
+  "shared": {
+    "skipToContent": "Skip to content",
+    "breadcrumbLabel": "Page navigation",
+    "resources": "Resources"
+  },
+  "cta": {
+    "logoAlt": "Orthovet",
+    "titleLine1": "Join Orthovet.",
+    "titleLine2": "Plan with precision.",
+    "button": "Sign up",
+    "caption": "Create your account and start planning with more clarity."
+  },
+  "casesPatients": {
+    "metadata": {
+      "title": "Cases and patients",
+      "description": "Explore case and patient organization in Orthovet: clinical details, images and documents brought together for planning."
+    },
+    "title": "Cases and patients",
+    "tagline": "The patient's context, always at hand.",
+    "facts": {
+      "note": "Details, files and notes linked to the case throughout planning.",
+      "items": {
+        "patient": { "label": "Patient", "value": "Name, species and breed" },
+        "files": { "label": "Files", "value": "Images and documents" },
+        "notes": { "label": "Notes", "value": "Clinical information" },
+        "progress": { "label": "Progress", "value": "Planning status" }
+      }
+    },
+    "preview": {
+      "title": "Clinical context",
+      "description": "Patient details, images and notes brought together to follow each stage of planning.",
+      "illustrationLabel": "Illustrative preview with patient details, {progress}% progress with {completed} of {total} steps completed, {uploaded} of {filesTotal} files uploaded, {reports} reports created and examination status: {examStatus}.",
+      "patient": {
+        "subtitle": "Patient details",
+        "caseId": "Case {id}",
+        "labels": {
+          "age": "Age",
+          "birth": "Date of birth",
+          "weight": "Weight",
+          "breed": "Breed",
+          "sex": "Sex",
+          "species": "Species"
+        },
+        "ageValue": "{years} years",
+        "weightValue": "{weight, number} kg",
+        "breedValue": "Mixed breed",
+        "sexValue": "Female",
+        "speciesValue": "Canine"
+      },
+      "progress": {
+        "caption": "{completed} of {total} steps"
+      },
+      "summary": {
+        "title": "Case overview",
+        "labels": {
+          "uploads": "Files uploaded",
+          "reports": "Reports created",
+          "exam": "Examination"
+        },
+        "uploadsValue": "{uploaded} of {total}",
+        "reportsValue": "{count}",
+        "complete": "Complete",
+        "pending": "Pending"
+      }
+    },
+    "overview": {
+      "title": "Every case counts",
+      "context": "A case brings together patient details, images and the clinical information used in planning. Orthovet keeps this material in one place, so you can consult your references and continue your analysis with the patient's context at hand.",
+      "organization": "Name, age, species, breed and weight help identify the patient. Alongside these details, clinical notes record what needs attention and preserve the information that guides your assessment, starting with your first review of the case.",
+      "files": "Radiographs and supporting documents stay linked to the plan. You can check the files already attached, consult an examination and return to patient details as you review an image, keeping your references together throughout your work.",
+      "continuity": "When you are ready to continue, the case list gives you a starting point. Use search to find the patient and follow the status of cases in draft, in planning, ready or archived before returning to your analysis."
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "title": "Frequently asked questions",
+      "items": {
+        "information": {
+          "question": "What information can I keep in a case?",
+          "answer": "You can bring together patient details, such as name, age, species, breed and weight, alongside clinical notes, radiographs and documents used in planning."
+        },
+        "files": {
+          "question": "Do images and documents stay linked to the case?",
+          "answer": "Yes. Radiographs and supporting files stay with the case, so you can consult them alongside patient information while working on the plan."
+        },
+        "search": {
+          "question": "How do I find a case to continue planning?",
+          "answer": "Use search in the case list to find the patient. Open the case to consult its details, files and references before continuing your analysis."
+        },
+        "progress": {
+          "question": "How do I follow the stage of each case?",
+          "answer": "The list shows each case's status, so you can follow cases in draft, in planning, ready or archived. This lets you identify the stage before opening a case."
+        }
+      }
+    },
+    "modules": {
+      "title": "What makes up a case.",
+      "description": "<strong>From patient identification to planning files,</strong> keep the context organized as you work.",
+      "items": {
+        "patient": {
+          "title": "Patient details",
+          "description": "Name, species, breed and clinical notes keep the patient's context alongside the plan.",
+          "sketch": {
+            "patientSummary": "{name} · {years} yrs",
+            "save": "Save"
+          }
+        },
+        "files": {
+          "title": "Images and documents",
+          "description": "Radiographs and supporting files gathered in the case, ready to consult during your analysis.",
+          "sketch": {
+            "caseLabel": "Case",
+            "image": "X-ray",
+            "document": "PDF",
+            "note": "Note"
+          }
+        },
+        "tracking": {
+          "title": "Search and progress",
+          "description": "Find cases with search and follow what is in draft, in planning, ready or archived.",
+          "sketch": {
+            "status": "In planning"
+          }
+        }
+      }
+    }
+  }
+}

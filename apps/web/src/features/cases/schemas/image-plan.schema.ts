@@ -43,17 +43,32 @@ const circleObject = z.object({ id: common.id, type: z.literal("CIRCLE"), center
 const PlanCircleInputSchema = circleObject.refine(circleHasValidRadius, {
   message: "A circle must have a nonzero radius", path: ["edge"],
 })
+const PlanFragmentInputSchema = z.object({
+  points: z.array(point).min(3).max(500), label: common.label,
+}).strict()
+const tploObject = z.object({
+  id: common.id, type: z.literal("TPLO"), center: point, edge: point,
+  rotation_degrees: number.min(-180).max(180), label: common.label,
+  fragment: PlanFragmentInputSchema.nullable().optional(),
+}).strict()
+const PlanTploInputSchema = tploObject.refine(circleHasValidRadius, {
+  message: "A TPLO radius must be nonzero", path: ["edge"],
+})
+const simulationPoint = z.object({ x: number, y: number }).catchall(number)
 const simulation = z.object({ status: z.enum(["SIMULATED", "CALIBRATION_REQUIRED", "IMAGE_DIMENSIONS_REQUIRED", "FRAGMENT_REQUIRED"]),
-  calibration_id: hash.nullable().optional(), center_px: z.record(z.string(), number).optional(),
+  calibration_id: hash.nullable().optional(), center_px: z.record(z.string(), number)
+    .refine(center => Object.keys(center).length === 0 || Number.isFinite(center.x) && Number.isFinite(center.y), {
+      message: "A simulation center must contain finite x/y coordinates",
+    }).optional(),
   radius_mm: positive.nullable().optional(), rotation_degrees: number.min(-180).max(180).nullable().optional(),
-  affine_matrix: z.array(z.array(number)).optional(), transformed_fragment_points_px: z.array(z.record(z.string(), number)).optional() }).strict()
+  affine_matrix: z.array(z.array(number)).refine(matrix => matrix.length === 0
+    || matrix.length === 2 && matrix.every(row => row.length === 3), { message: "A TPLO affine matrix must have two rows and three columns" }).optional(),
+  transformed_fragment_points_px: z.array(simulationPoint).max(500).optional() }).strict()
 const objects = z.discriminatedUnion("type", [
   lineObject.extend({ measurement: common.measurement, ...presentation }),
   angleObject.extend({ measurement: common.measurement, ...presentation }),
   circleObject.extend({ measurement: common.measurement, ...presentation }),
-  z.object({ ...common, type: z.literal("TPLO"), center: point, edge: point, rotation_degrees: number.min(-180).max(180),
-    fragment: z.object({ points: z.array(point).min(3).max(500), label: z.string().max(120).nullable().optional() }).strict().nullable().optional(),
-    simulation: simulation.nullable().optional() }).strict(),
+  tploObject.extend({ measurement: common.measurement, simulation: simulation.nullable().optional(), ...presentation }),
   z.object({ id: z.string().uuid(), ...presentation, type: z.literal("IMPLANT"), catalog_item_id: z.string().uuid(), position: point,
     rotation_degrees: number.min(-180).max(180).default(0), scale: positive.max(100).default(1), opacity: number.min(0).max(1).default(1),
     variant: z.string().max(120).nullable().optional(), view: z.string().max(120).nullable().optional(),
@@ -72,6 +87,19 @@ const TploLandmarksInputSchema = z.object({
 }).strict()
 const slope = number.min(0).max(90).nullable().optional()
 const note = z.string().max(2000).nullable().optional()
+// Parameter commands use these inputs without the read model's clinical defaults.
+const TploParametersInputSchema = z.object({
+  laterality: z.enum(["LEFT", "RIGHT"]),
+  projection: z.enum(["MEDIOLATERAL", "CRANIOCAUDAL", "UNKNOWN"]).optional(),
+  current_slope_degrees: slope, target_slope_degrees: slope,
+  blade_diameter_mm: positive.max(100).nullable().optional(),
+}).strict()
+const tploMetadata = TploParametersInputSchema.extend({
+  projection: TploParametersInputSchema.shape.projection.unwrap().default("UNKNOWN"),
+  image_quality: z.enum(["ACCEPTABLE", "LIMITED", "REJECTED"]).default("LIMITED"),
+  eligibility: z.enum(["PENDING", "ELIGIBLE", "INELIGIBLE"]).default("PENDING"),
+  eligibility_reasons: z.array(z.string()).max(10).optional(), notes: note,
+}).strict()
 const assessment = z.enum(["PASS", "FAIL", "NOT_ASSESSED"]).default("NOT_ASSESSED")
 const radiographicQuality = z.object({
   true_lateral: assessment, femoral_condyles_superimposed: assessment, stifle_and_tarsus_included: assessment,
@@ -111,13 +139,7 @@ const tploCorrection = z.object({
 const PlanDocumentSchema = z.object({
   schema_version: z.literal(1), calibration: calibration.nullable(), objects: z.array(objects).max(500),
   viewport: viewport.optional(), image_transform: imageTransform.optional(),
-  tplo: z.object({ laterality: z.enum(["LEFT", "RIGHT"]),
-    projection: z.enum(["MEDIOLATERAL", "CRANIOCAUDAL", "UNKNOWN"]).default("UNKNOWN"),
-    image_quality: z.enum(["ACCEPTABLE", "LIMITED", "REJECTED"]).default("LIMITED"),
-    eligibility: z.enum(["PENDING", "ELIGIBLE", "INELIGIBLE"]).default("PENDING"),
-    eligibility_reasons: z.array(z.string()).max(10).optional(), current_slope_degrees: slope, target_slope_degrees: slope, notes: note,
-    blade_diameter_mm: positive.max(100).nullable().optional(),
-  }).strict().nullable().optional(),
+  tplo: tploMetadata.nullable().optional(),
   radiographic_quality: radiographicQuality.nullable().optional(),
   tplo_landmarks: TploLandmarksInputSchema.nullable().optional(),
   additional_measurements_input: additionalMeasurementsInput.optional(),
@@ -183,6 +205,7 @@ function landmarksMatches(value: ImagePlan["document"]["tplo_landmarks"], input:
       .every(key => saved.data[key].x === input[key].x && saved.data[key].y === input[key].y)
 }
 
-export { CalibrationInputSchema, ImagePlanSchema, PlanDocumentSchema, PlanAngleInputSchema, PlanCircleInputSchema, PlanLineInputSchema, PlanPointSchema, SaveCalibrationSchema, TploLandmarksInputSchema, UpstreamImagePlanSchema,
+export { CalibrationInputSchema, ImagePlanSchema, PlanDocumentSchema, PlanAngleInputSchema, PlanCircleInputSchema, PlanLineInputSchema, PlanPointSchema,
+  PlanFragmentInputSchema, PlanTploInputSchema, TploParametersInputSchema, SaveCalibrationSchema, TploLandmarksInputSchema, UpstreamImagePlanSchema,
   calibrationInputOf, calibrationMatches, landmarksMatches }
 export type { CalibrationInput, ImagePlan, SaveCalibrationInput, TploLandmarksInput }

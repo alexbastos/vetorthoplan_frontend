@@ -1,0 +1,74 @@
+.root { width: 100%; aspect-ratio: 483 / 543; container-type: inline-size; }
+.stage { --u: calc(100cqw / 483); --dur: 4.4s; --surface: linear-gradient(155deg, rgb(40 116 220 / 86%), rgb(13 81 177 / 80%)); position: relative; width: 100%; height: 100%; color: #fff; font-family: var(--font-geist-sans), sans-serif; -webkit-font-smoothing: antialiased; }
+.stage * { animation-duration: var(--dur); animation-timing-function: cubic-bezier(.22, 1, .36, 1); animation-iteration-count: infinite; animation-play-state: var(--play, paused); }
+.caseHeader { position: absolute; left: calc(57 * var(--u)); top: calc(28 * var(--u)); display: flex; width: calc(369 * var(--u)); height: calc(48.4 * var(--u)); align-items: center; gap: calc(10 * var(--u)); border-radius: calc(16 * var(--u)); padding: 0 calc(14 * var(--u)); background: var(--surface); box-shadow: inset 0 0 0 calc(1 * var(--u)) rgb(255 255 255 / 18%); }
+.avatar { width: calc(28 * var(--u)); height: calc(28 * var(--u)); border-radius: 50%; object-fit: cover; }
+.caseIdentity { display: grid; gap: calc(4 * var(--u)); }
+.caseIdentity strong { font-size: calc(13 * var(--u)); line-height: 1; font-weight: 500; }
+.caseIdentity small { color: rgb(255 255 255 / 80%); font-size: calc(9.5 * var(--u)); line-height: 1; }
+.headerStatus { display: flex; align-items: center; gap: calc(5 * var(--u)); margin-left: auto; font-size: calc(9.5 * var(--u)); }
+.headerStatus > span { width: calc(4 * var(--u)); height: calc(4 * var(--u)); border-radius: 50%; background: #b9ffe6; }
+.imageWindow { position: absolute; left: calc(69 * var(--u)); top: calc(100 * var(--u)); width: calc(343 * var(--u)); height: calc(371 * var(--u)); overflow: hidden; border-radius: calc(14 * var(--u)); background: #000; box-shadow: 0 calc(12 * var(--u)) calc(28 * var(--u)) rgb(0 44 108 / 15%), inset 0 0 0 calc(1 * var(--u)) rgb(255 255 255 / 22%); }
+.imageHeading { display: flex; height: calc(26 * var(--u)); align-items: center; gap: calc(7 * var(--u)); padding-inline: calc(12 * var(--u)); color: rgb(255 255 255 / 84%); font-size: calc(9 * var(--u)); background: #182a40; }
+.imageHeading svg { width: calc(11 * var(--u)); height: calc(11 * var(--u)); }
+.imageHeading svg:last-child { margin-left: auto; }
+.radiograph { display: block; width: 100%; height: calc(345 * var(--u)); }
+.toolbar { position: absolute; left: calc(45 * var(--u)); top: calc(156 * var(--u)); display: grid; gap: calc(3 * var(--u)); border-radius: calc(11 * var(--u)); padding: calc(4 * var(--u)); background: var(--surface); box-shadow: inset 0 0 0 calc(1 * var(--u)) rgb(255 255 255 / 22%); }
+.toolbar > span { display: grid; width: calc(28 * var(--u)); height: calc(29 * var(--u)); place-items: center; border-radius: calc(7 * var(--u)); color: rgb(255 255 255 / 72%); }
+.toolbar svg { width: calc(15 * var(--u)); height: calc(15 * var(--u)); }
+.rulerTool { animation-name: ruler-active; }
+.axisTool { animation-name: axis-active; }
+.calibrationCard { position: absolute; left: calc(310 * var(--u)); top: calc(145 * var(--u)); display: flex; width: calc(172 * var(--u)); min-height: calc(54 * var(--u)); align-items: center; gap: calc(8 * var(--u)); border-radius: calc(12 * var(--u)); padding: calc(11 * var(--u)); background: var(--surface); box-shadow: inset 0 0 0 calc(1 * var(--u)) rgb(255 255 255 / 25%); animation-name: calibration-enter; }
+.calibrationIcon { display: grid; width: calc(26 * var(--u)); height: calc(26 * var(--u)); flex: none; place-items: center; border-radius: calc(8 * var(--u)); background: rgb(255 255 255 / 12%); }
+.calibrationIcon svg { width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
+.calibrationCard > span:nth-child(2) { display: grid; gap: calc(5 * var(--u)); }
+.calibrationCard small { color: rgb(255 255 255 / 80%); font-size: calc(9 * var(--u)); line-height: 1; }
+.calibrationCard strong { font-size: calc(10.5 * var(--u)); font-weight: 500; line-height: 1; }
+.calibrationCheck { width: calc(12 * var(--u)); height: calc(12 * var(--u)); flex: none; margin-left: auto; color: #b9ffe6; }
+.referencePanel { position: absolute; left: calc(267 * var(--u)); top: calc(326 * var(--u)); width: calc(180 * var(--u)); border-radius: calc(12 * var(--u)); padding: calc(12 * var(--u)); background: var(--surface); box-shadow: inset 0 0 0 calc(1 * var(--u)) rgb(255 255 255 / 25%); animation-name: panel-enter; }
+.panelTitle { display: flex; align-items: center; gap: calc(6 * var(--u)); padding-bottom: calc(10 * var(--u)); border-bottom: calc(1 * var(--u)) solid rgb(255 255 255 / 15%); }
+.panelTitle svg { width: calc(12 * var(--u)); height: calc(12 * var(--u)); }
+.panelTitle strong { font-size: calc(11 * var(--u)); font-weight: 500; }
+.panelTitle > span { margin-left: auto; color: rgb(255 255 255 / 70%); font-size: calc(9 * var(--u)); font-family: var(--font-data), monospace; }
+.referenceRow { display: flex; align-items: center; gap: calc(6 * var(--u)); height: calc(28 * var(--u)); font-size: calc(9 * var(--u)); }
+.referenceRow > span:first-child { width: calc(4 * var(--u)); height: calc(4 * var(--u)); border-radius: 50%; background: #bfeaff; }
+.referenceRow > svg { width: calc(11 * var(--u)); height: calc(11 * var(--u)); margin-left: auto; color: #b9ffe6; }
+.referenceRow > strong { margin-left: auto; font-family: var(--font-data), monospace; font-size: calc(9.5 * var(--u)); font-weight: 400; }
+.plateauRow { animation-name: plateau-row; }
+.axisRow { animation-name: axis-row; }
+.angleRow { animation-name: angle-enter; }
+.panelFooter { display: flex; align-items: center; gap: calc(5 * var(--u)); margin-top: calc(3 * var(--u)); padding-top: calc(9 * var(--u)); border-top: calc(1 * var(--u)) solid rgb(255 255 255 / 15%); color: #d5ffee; font-size: calc(8.5 * var(--u)); animation-name: angle-enter; }
+.panelFooter svg { width: calc(10 * var(--u)); height: calc(10 * var(--u)); }
+.completion { position: absolute; top: calc(508 * var(--u)); left: calc(125 * var(--u)); display: flex; align-items: center; gap: calc(7 * var(--u)); color: rgb(255 255 255 / 92%); font-size: calc(10 * var(--u)); animation-name: completion-enter; }
+.completion > span { display: grid; width: calc(17 * var(--u)); height: calc(17 * var(--u)); place-items: center; border-radius: 50%; background: rgb(185 255 230 / 20%); }
+.completion svg { width: calc(11 * var(--u)); height: calc(11 * var(--u)); }
+.landmarkLine { stroke-dasharray: 1; }
+.plateau { animation-name: plateau-draw; }
+.axis { animation-name: axis-draw; }
+.reference { animation-name: reference-draw; }
+.landmarkPoint { animation-name: point-one; }
+.landmarkPoint[data-point="1"] { animation-name: point-two; }
+.landmarkPoint[data-point="2"] { animation-name: point-three; }
+.landmarkPoint[data-point="3"] { animation-name: point-four; }
+.angle { animation-name: angle-enter; }
+@keyframes calibration-enter { 0%, 20% { opacity: 0; transform: translateY(calc(16 * var(--u))); } 31%, 100% { opacity: 1; transform: translateY(0); } }
+@keyframes point-one { 0%, 35% { opacity: 0; } 39%, 100% { opacity: 1; } }
+@keyframes point-two { 0%, 42% { opacity: 0; } 46%, 100% { opacity: 1; } }
+@keyframes point-three { 0%, 51% { opacity: 0; } 55%, 100% { opacity: 1; } }
+@keyframes point-four { 0%, 61% { opacity: 0; } 65%, 100% { opacity: 1; } }
+@keyframes plateau-draw { 0%, 38% { opacity: 0; stroke-dashoffset: 1; } 39% { opacity: 1; } 48%, 100% { opacity: 1; stroke-dashoffset: 0; } }
+@keyframes axis-draw { 0%, 54% { opacity: 0; stroke-dashoffset: 1; } 55% { opacity: 1; } 68%, 100% { opacity: 1; stroke-dashoffset: 0; } }
+@keyframes reference-draw { 0%, 69% { opacity: 0; stroke-dashoffset: 1; } 70% { opacity: 1; } 78%, 100% { opacity: 1; stroke-dashoffset: 0; } }
+@keyframes panel-enter { 0%, 45% { opacity: 0; transform: translateY(calc(26.6 * var(--u))); } 57%, 100% { opacity: 1; transform: translateY(0); } }
+@keyframes plateau-row { 0%, 48% { opacity: 0; transform: translateX(calc(-10 * var(--u))); } 57%, 100% { opacity: 1; transform: translateX(0); } }
+@keyframes axis-row { 0%, 61% { opacity: 0; transform: translateX(calc(-10 * var(--u))); } 71%, 100% { opacity: 1; transform: translateX(0); } }
+@keyframes angle-enter { 0%, 77% { opacity: 0; } 85%, 100% { opacity: 1; } }
+@keyframes completion-enter { 0%, 83% { opacity: 0; transform: translateY(calc(6 * var(--u))); } 91%, 100% { opacity: 1; transform: translateY(0); } }
+@keyframes ruler-active { 0%, 34% { background: rgb(255 255 255 / 20%); color: #fff; } 44%, 100% { background: transparent; color: rgb(255 255 255 / 72%); } }
+@keyframes axis-active { 0%, 34% { background: transparent; color: rgb(255 255 255 / 72%); } 44%, 100% { background: rgb(255 255 255 / 20%); color: #fff; } }
+@media (prefers-reduced-motion: reduce), (max-width: 1099px) {
+  .stage * { animation: none !important; }
+  .calibrationCard,.referencePanel,.completion { opacity: 1; transform: none; }
+  .landmarkLine { stroke-dashoffset: 0; }
+  .axisTool { background: rgb(255 255 255 / 20%); color: #fff; }
+}

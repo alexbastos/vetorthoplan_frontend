@@ -10,7 +10,7 @@ function useOtherImagePlanDraft(caseId: string, imageId: string, owner: PlanDraf
   const subscribe = useCallback((notify: () => void) => client.getQueryCache().subscribe(event => {
     const [scope, kind, queryCase, queryImage] = event.query.queryKey
     if (scope === "cases" && queryCase === caseId && queryImage === imageId
-      && ["image-calibration-draft", "image-quality-draft", "image-distance-draft", "image-angle-draft", "image-circle-draft", "image-landmarks-draft", "image-plan-save", "image-plan"].includes(String(kind))) notify()
+      && ["image-calibration-draft", "image-quality-draft", "image-distance-draft", "image-angle-draft", "image-circle-draft", "image-landmarks-draft", "image-tplo-draft", "image-plan-save", "image-plan"].includes(String(kind))) notify()
   }), [client, caseId, imageId])
   const snapshot = useCallback(() => hasOtherImagePlanDraft(client, caseId, imageId, owner), [client, caseId, imageId, owner])
   return useSyncExternalStore(subscribe, snapshot, () => false)

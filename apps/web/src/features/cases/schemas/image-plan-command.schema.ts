@@ -2,7 +2,8 @@ import { z } from "zod"
 import { angleHasValidArms } from "../lib/angle-geometry"
 import { circleHasValidRadius } from "../lib/circle-geometry"
 
-import { PlanAngleInputSchema, PlanCircleInputSchema, PlanDocumentSchema, PlanLineInputSchema, SaveCalibrationSchema, TploLandmarksInputSchema,
+import { PlanAngleInputSchema, PlanCircleInputSchema, PlanDocumentSchema, PlanFragmentInputSchema, PlanLineInputSchema, PlanTploInputSchema,
+  TploParametersInputSchema, SaveCalibrationSchema, TploLandmarksInputSchema,
   calibrationMatches, landmarksMatches, type ImagePlan } from "./image-plan.schema"
 
 // Commands grow with each feature. Never accept a full document or server-owned
@@ -53,19 +54,57 @@ const SaveCircleSchema = z.discriminatedUnion("kind", [CreateCircleSchema, Updat
 const SetLandmarksSchema = z.object({ kind: z.literal("landmarks-set"), baseRevision, landmarks: TploLandmarksInputSchema }).strict()
 const ClearLandmarksSchema = z.object({ kind: z.literal("landmarks-clear"), baseRevision }).strict()
 const SaveLandmarksSchema = z.discriminatedUnion("kind", [SetLandmarksSchema, ClearLandmarksSchema])
-// The same strict command contract validates browser transport and BFF input.
+const tploId = PlanTploInputSchema.shape.id.transform(id => id.toLowerCase())
+const tploGeometry = {
+  center: PlanTploInputSchema.shape.center, edge: PlanTploInputSchema.shape.edge,
+  rotation_degrees: PlanTploInputSchema.shape.rotation_degrees,
+}
+const tploFragment = PlanFragmentInputSchema.extend({ label: PlanFragmentInputSchema.shape.label.default(null) }).nullable()
+const nonzeroTploRadius = { message: "A TPLO radius must be nonzero", path: ["edge"] }
+const CreateTploSchema = z.object({
+  kind: z.literal("tplo-create"), baseRevision, id: tploId, ...tploGeometry,
+  fragment: tploFragment.default(null), label: PlanTploInputSchema.shape.label.default(null),
+}).strict().refine(circleHasValidRadius, nonzeroTploRadius)
+const UpdateTploSchema = z.object({
+  kind: z.literal("tplo-update"), baseRevision, id: tploId, ...tploGeometry, fragment: tploFragment,
+}).strict().refine(circleHasValidRadius, nonzeroTploRadius)
+const DeleteTploSchema = z.object({ kind: z.literal("tplo-delete"), baseRevision, id: tploId }).strict()
+const TploParametersPatchSchema = TploParametersInputSchema.partial().transform(parameters => {
+  // Undefined is omission. Preserve explicit nulls so the user can clear inputs.
+  const patch = { ...parameters }
+  for (const key of Object.keys(patch) as (keyof typeof patch)[]) {
+    if (patch[key] === undefined) delete patch[key]
+  }
+  return patch
+}).refine(parameters => Object.keys(parameters).length > 0, { message: "At least one TPLO parameter is required" })
+const SetTploParametersSchema = z.object({
+  kind: z.literal("tplo-parameters-set"), baseRevision, parameters: TploParametersPatchSchema,
+}).strict()
+const SaveTploSchema = z.discriminatedUnion("kind", [CreateTploSchema, UpdateTploSchema, DeleteTploSchema, SetTploParametersSchema])
 const SavePlanEditSchema = z.discriminatedUnion("kind", [SaveRadiographicQualitySchema,
-  ...SaveDistanceSchema.options, ...SaveAngleSchema.options, ...SaveCircleSchema.options, ...SaveLandmarksSchema.options])
+  ...SaveDistanceSchema.options, ...SaveAngleSchema.options, ...SaveCircleSchema.options, ...SaveLandmarksSchema.options, ...SaveTploSchema.options])
 const PlanSaveCommandSchema = z.union([SaveCalibrationSchema, SavePlanEditSchema])
+// Browser transport and BFF accept the same strict command families.
+const SavePlanEditTransportSchema = SavePlanEditSchema
+const MAX_PLAN_EDIT_BODY_BYTES = 64 * 1024
+
+function planEditBodyLimit(kind: unknown): number {
+  if (kind === "tplo-create" || kind === "tplo-update") return MAX_PLAN_EDIT_BODY_BYTES
+  if (kind === "radiographic-quality") return 12 * 1024
+  return 4 * 1024
+}
 
 type SaveRadiographicQualityInput = z.infer<typeof SaveRadiographicQualitySchema>
 type SaveDistanceInput = z.infer<typeof SaveDistanceSchema>
 type SaveAngleInput = z.infer<typeof SaveAngleSchema>
 type SaveCircleInput = z.infer<typeof SaveCircleSchema>
 type SaveLandmarksInput = z.infer<typeof SaveLandmarksSchema>
+type SaveTploInput = z.infer<typeof SaveTploSchema>
 type SavePlanEditInput = z.infer<typeof SavePlanEditSchema>
+type SavePlanEditTransportInput = z.infer<typeof SavePlanEditTransportSchema>
 type PlanSaveCommand = z.infer<typeof PlanSaveCommandSchema>
-type PlanCommandOwner = "calibration" | "radiographic-quality" | "distance" | "angle" | "circle" | "landmarks"
+type PlanOperation = PlanSaveCommand
+type PlanCommandOwner = "calibration" | "radiographic-quality" | "distance" | "angle" | "circle" | "landmarks" | "tplo"
 
 function isDistanceCommand(command: PlanSaveCommand | undefined): command is SaveDistanceInput {
   return Boolean(command && "kind" in command && (command.kind === "distance-create" || command.kind === "distance-update" || command.kind === "distance-delete"))
@@ -83,6 +122,11 @@ function isLandmarksCommand(command: PlanSaveCommand | undefined): command is Sa
   return Boolean(command && "kind" in command && (command.kind === "landmarks-set" || command.kind === "landmarks-clear"))
 }
 
+function isTploCommand(command: PlanOperation | undefined): command is SaveTploInput {
+  return Boolean(command && "kind" in command && (command.kind === "tplo-create" || command.kind === "tplo-update"
+    || command.kind === "tplo-delete" || command.kind === "tplo-parameters-set"))
+}
+
 function planCommandOwner(command: PlanSaveCommand): PlanCommandOwner {
   if (!("kind" in command)) return "calibration"
   switch (command.kind) {
@@ -91,6 +135,7 @@ function planCommandOwner(command: PlanSaveCommand): PlanCommandOwner {
     case "angle-create": case "angle-update": case "angle-delete": return "angle"
     case "circle-create": case "circle-update": case "circle-delete": return "circle"
     case "landmarks-set": case "landmarks-clear": return "landmarks"
+    case "tplo-create": case "tplo-update": case "tplo-delete": case "tplo-parameters-set": return "tplo"
   }
 }
 
@@ -98,7 +143,7 @@ const sameId = (left: string, right: string) => left.toLowerCase() === right.toL
 const hasUniquePlanObjectIds = (document: ImagePlan["document"]) =>
   new Set(document.objects.map(object => object.id.toLowerCase())).size === document.objects.length
 
-function planCommandMatches(plan: ImagePlan, command: PlanSaveCommand): boolean {
+function planCommandMatches(plan: ImagePlan, command: PlanOperation): boolean {
   const parsed = PlanSaveCommandSchema.safeParse(command)
   if (!parsed.success) return false
   const input = parsed.data
@@ -110,6 +155,7 @@ function planCommandMatches(plan: ImagePlan, command: PlanSaveCommand): boolean 
     const quality = SaveRadiographicQualitySchema.shape.quality.safeParse(plan.document.radiographic_quality)
     return quality.success && JSON.stringify(quality.data) === JSON.stringify(input.quality)
   }
+  if (isTploCommand(input)) return plan.revision > input.baseRevision && tploCommandMatchesDocument(plan.document, input)
   if (isLandmarksCommand(input)) {
     return plan.revision > input.baseRevision
       && landmarksMatches(plan.document.tplo_landmarks, input.kind === "landmarks-clear" ? null : input.landmarks)
@@ -139,10 +185,11 @@ function planCommandMatches(plan: ImagePlan, command: PlanSaveCommand): boolean 
     && (input.kind !== "distance-create" || (target.label ?? null) === input.label)
 }
 
-function applyPlanCommand(document: ImagePlan["document"], command: PlanSaveCommand): ImagePlan["document"] {
+function applyPlanCommand(document: ImagePlan["document"], command: PlanOperation): ImagePlan["document"] {
   const input = PlanSaveCommandSchema.parse(command)
   if (!("kind" in input)) return { ...document, calibration: input.calibration }
   if (input.kind === "radiographic-quality") return { ...document, radiographic_quality: input.quality }
+  if (isTploCommand(input)) return applyTploCommand(document, input)
   if (isLandmarksCommand(input)) {
     // Both results depend on these references. The backend recomputes them;
     // every other clinical field and object is preserved, including audit.
@@ -195,6 +242,54 @@ function applyPlanCommand(document: ImagePlan["document"], command: PlanSaveComm
     ? { ...line, start: input.start, end: input.end } : object) }
 }
 
+function tploCommandMatchesDocument(document: ImagePlan["document"], input: SaveTploInput): boolean {
+  if (input.kind === "tplo-parameters-set") {
+    const metadata = document.tplo
+    return Boolean(metadata && Object.entries(input.parameters).every(([key, value]) =>
+      (metadata[key as keyof typeof input.parameters] ?? null) === value))
+  }
+  if (!hasUniquePlanObjectIds(document)) return false
+  const target = document.objects.find(object => sameId(object.id, input.id))
+  if (input.kind === "tplo-delete") return target === undefined
+  if (target?.type !== "TPLO" || target.center.x !== input.center.x || target.center.y !== input.center.y
+    || target.edge.x !== input.edge.x || target.edge.y !== input.edge.y || target.rotation_degrees !== input.rotation_degrees) return false
+  const fragment = input.fragment, savedFragment = target.fragment
+  const fragmentMatches = fragment === null ? savedFragment == null : Boolean(savedFragment
+    && (savedFragment.label ?? null) === fragment.label && savedFragment.points.length === fragment.points.length
+    && savedFragment.points.every((point, index) => point.x === fragment.points[index].x && point.y === fragment.points[index].y))
+  return fragmentMatches && (input.kind !== "tplo-create" || (target.label ?? null) === input.label)
+}
+
+function applyTploCommand(document: ImagePlan["document"], input: SaveTploInput): ImagePlan["document"] {
+  if (input.kind === "tplo-parameters-set") {
+    // Parsing the merged metadata supplies only published creation defaults and
+    // requires laterality when no metadata has been recorded yet.
+    const metadata = PlanDocumentSchema.shape.tplo.unwrap().unwrap().parse({
+      ...(document.tplo ?? { eligibility_reasons: [] }), ...input.parameters,
+    })
+    const { tplo_correction: _correction, ...retained } = document
+    return { ...retained, tplo: metadata }
+  }
+  if (!hasUniquePlanObjectIds(document)) return invalidMutation("Plan object IDs must be unique")
+  const target = document.objects.find(object => sameId(object.id, input.id))
+  if (input.kind === "tplo-create") {
+    if (target) return invalidMutation("The TPLO ID already belongs to a plan object")
+    if (document.objects.length >= 500) return invalidMutation("The plan already contains 500 objects")
+    return { ...document, objects: [...document.objects, {
+      id: input.id, type: "TPLO", ...tploGeometryOf(input), label: input.label, visible: true, locked: false,
+    }] }
+  }
+  if (target?.type !== "TPLO") return invalidMutation("The TPLO target must be an existing TPLO")
+  if (target.locked) return invalidMutation("The TPLO target is locked")
+  if (input.kind === "tplo-delete") return { ...document, objects: document.objects.filter(object => object !== target) }
+  const { measurement: _measurement, simulation: _simulation, ...tplo } = target
+  return { ...document, objects: document.objects.map(object => object === target ? { ...tplo, ...tploGeometryOf(input) } : object) }
+}
+
+function tploGeometryOf(input: Extract<SaveTploInput, { kind: "tplo-create" | "tplo-update" }>) {
+  return { center: input.center, edge: input.edge, rotation_degrees: input.rotation_degrees, fragment: input.fragment }
+}
+
 function invalidMutation(message: string): never {
   throw new z.ZodError([{ code: "custom", path: ["objects"], message }])
 }
@@ -203,6 +298,9 @@ export { CreateDistanceSchema, UpdateDistanceSchema, DeleteDistanceSchema, SaveD
   CreateAngleSchema, UpdateAngleSchema, DeleteAngleSchema, SaveAngleSchema,
   CreateCircleSchema, UpdateCircleSchema, DeleteCircleSchema, SaveCircleSchema,
   SetLandmarksSchema, ClearLandmarksSchema, SaveLandmarksSchema,
-  PlanSaveCommandSchema, SavePlanEditSchema, SaveRadiographicQualitySchema, applyPlanCommand, planCommandMatches, hasUniquePlanObjectIds,
-  isDistanceCommand, isAngleCommand, isCircleCommand, isLandmarksCommand, planCommandOwner }
-export type { PlanSaveCommand, PlanCommandOwner, SavePlanEditInput, SaveDistanceInput, SaveAngleInput, SaveCircleInput, SaveLandmarksInput, SaveRadiographicQualityInput }
+  CreateTploSchema, UpdateTploSchema, DeleteTploSchema, SetTploParametersSchema, SaveTploSchema, TploParametersPatchSchema,
+  PlanSaveCommandSchema, SavePlanEditSchema, SavePlanEditTransportSchema, SaveRadiographicQualitySchema,
+  MAX_PLAN_EDIT_BODY_BYTES, planEditBodyLimit, applyPlanCommand, planCommandMatches, tploCommandMatchesDocument, hasUniquePlanObjectIds,
+  isDistanceCommand, isAngleCommand, isCircleCommand, isLandmarksCommand, isTploCommand, planCommandOwner }
+export type { PlanSaveCommand, PlanOperation, PlanCommandOwner, SavePlanEditInput, SavePlanEditTransportInput,
+  SaveDistanceInput, SaveAngleInput, SaveCircleInput, SaveLandmarksInput, SaveTploInput, SaveRadiographicQualityInput }

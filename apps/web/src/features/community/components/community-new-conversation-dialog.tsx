@@ -80,7 +80,7 @@ function CommunityNewConversationDialog({ open, onOpenChange, onSelect, returnFo
                         }}
                         type="button"
                       >
-                        <AppUserAvatar avatarUrl={null} className="size-9 rounded-full text-[11px]" initials={member.initials} />
+                        <AppUserAvatar avatarUrl={member.avatarUrl} className="size-9 rounded-full text-[11px]" initials={member.initials} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[13px] font-medium text-foreground">{member.name}</span>
                           <span className="block truncate text-[12px] text-muted-foreground">{t(`specialties.${member.id}`)}</span>

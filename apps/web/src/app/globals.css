@@ -176,6 +176,9 @@
   --radiograph-mark-measurement: #00d9ff;
   --radiograph-mark-accent: #ff9500;
   --radiograph-mark-comparison: var(--color-amber-500);
+  --radiograph-tplo-origin: var(--radiograph-mark-interest);
+  --radiograph-tplo-cut: var(--radiograph-mark-accent);
+  --radiograph-tplo-result: var(--radiograph-mark-comparison);
 
   /* Cores funcionais reservadas para feedback de sistema. */
   --color-sage-50: #eaf6f0;

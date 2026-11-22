@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "title": "Visual simulation",
+    "description": "Explore visual simulation in Orthovet: fragment definition, rotation and review of TPLO planning on the radiograph."
+  },
+  "title": "Visual simulation",
+  "tagline": "See the adjustment on the image itself.",
+  "preview": {
+    "title": "Your plan takes shape",
+    "description": "Keep the simulation preview and parameters in one plan, with each adjustment linked to the case.",
+    "illustrationLabel": "Demonstration of TPLO plans for {first}, {second} and {third}: case summary, parameters and save confirmation.",
+    "scene": {
+      "planLabel": "Planning",
+      "planName": "TPLO",
+      "caseLabel": "Case",
+      "caseId": "Case {id}",
+      "projectionLabel": "Projection",
+      "projection": "Mediolateral",
+      "patientLabel": "Patient",
+      "patientSummary": "Canine · Mixed breed · {years, number} years",
+      "summaryLabel": "Simulation",
+      "summaries": {
+        "fragment": { "title": "TPLO", "description": "Proximal fragment" },
+        "osteotomy": { "title": "Osteotomy", "description": "Circular cut" },
+        "rotation": { "title": "Rotation", "description": "Fragment adjustment" }
+      },
+      "documentTitle": "TPLO planning",
+      "fragment": "Proximal fragment outlined on the radiograph.",
+      "note": "Geometry and parameters linked to the image plan.",
+      "file": "Lateral X-ray.jpg",
+      "radiusLabel": "Cut radius",
+      "radiusValue": "{value, number} mm",
+      "rotationLabel": "Rotation",
+      "rotationValue": "{value, number}°",
+      "editing": "Editing",
+      "saved": "Saved"
+    }
+  },
+  "facts": {
+    "note": "Cut geometry, fragment and rotation linked to the same plan.",
+    "items": {
+      "osteotomy": { "label": "Cut", "value": "Osteotomy center and radius" },
+      "fragment": { "label": "Fragment", "value": "Outline of the selected region" },
+      "rotation": { "label": "Rotation", "value": "Angle entered in the plan" },
+      "review": { "label": "Review", "value": "Origin and result on the image" }
+    }
+  },
+  "overview": {
+    "title": "See the adjustment",
+    "lead": "In TPLO simulation, the radiograph remains the reference for visualizing the defined fragment and following its rotation. Enter the angle, observe the resulting position and review the construction of the plan in the context of the case.",
+    "fragment": "Define the fragment from the cut geometry. The original outline remains a reference for following the selected region and understanding what is being moved on the image.",
+    "rotation": "The entered rotation is applied to the selected fragment. The original and resulting outlines show the change in position while preserving the references used to construct the plan.",
+    "review": "Review the result on the radiograph and save the simulation in the plan. When you return to the case, the recorded cut, fragment and parameters remain available for reference."
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "Frequently asked questions",
+    "items": {
+      "setup": {
+        "question": "What do I need to define before simulating?",
+        "answer": "In TPLO simulation, define the cut geometry, including its center and radius, and outline the fragment that will move. These references let you visualize the selected region on the radiograph."
+      },
+      "rotation": {
+        "question": "How is rotation applied to the fragment?",
+        "answer": "You enter the rotation angle and follow the selected fragment's change in position on the image. The preview lets you review the adjustment alongside the planning references."
+      },
+      "reference": {
+        "question": "Can I compare the original position with the result?",
+        "answer": "Yes. The original outline remains a reference while the fragment moves. This lets you observe the difference between the positions and review the simulation on the radiograph itself."
+      },
+      "saved": {
+        "question": "Are the parameters available after saving?",
+        "answer": "Yes. When you save the simulation in the plan, the recorded cut, fragment and parameters remain linked to the plan for reference when you return to the case."
+      }
+    }
+  },
+  "modules": {
+    "title": "From outline to simulation",
+    "description": "<strong>Fragment, rotation and result on the radiograph.</strong> Follow each step while keeping the planning references in view.",
+    "items": {
+      "fragment": {
+        "title": "Fragment definition",
+        "description": "Define the outline of the region that will move from the planned cut.",
+        "sketch": { "label": "Fragment" }
+      },
+      "rotation": {
+        "title": "Fragment rotation",
+        "description": "Enter the angle and visualize the fragment's change in position on the image.",
+        "sketch": { "value": "Rotation {value, number}°" }
+      },
+      "review": {
+        "title": "Simulation review",
+        "description": "Observe the origin and result, review the references and save the simulation in the plan.",
+        "sketch": { "original": "Origin", "result": "Result", "save": "Save", "saved": "Saved" }
+      }
+    }
+  }
+}

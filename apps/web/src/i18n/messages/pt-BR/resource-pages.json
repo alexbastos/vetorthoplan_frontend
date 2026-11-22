@@ -1,0 +1,128 @@
+{
+  "shared": {
+    "skipToContent": "Ir para o conteúdo",
+    "breadcrumbLabel": "Navegação da página",
+    "resources": "Recursos"
+  },
+  "cta": {
+    "logoAlt": "Orthovet",
+    "titleLine1": "Junte-se à Orthovet.",
+    "titleLine2": "Planeje com precisão.",
+    "button": "Cadastre-se",
+    "caption": "Crie sua conta para começar a planejar com mais clareza."
+  },
+  "casesPatients": {
+    "metadata": {
+      "title": "Casos e pacientes",
+      "description": "Conheça a organização de casos e pacientes da Orthovet: dados clínicos, imagens e documentos reunidos para o planejamento."
+    },
+    "title": "Casos e pacientes",
+    "tagline": "O contexto do paciente, sempre à mão.",
+    "facts": {
+      "note": "Dados, arquivos e anotações vinculados ao caso durante o planejamento.",
+      "items": {
+        "patient": { "label": "Paciente", "value": "Nome, espécie e raça" },
+        "files": { "label": "Arquivos", "value": "Imagens e documentos" },
+        "notes": { "label": "Anotações", "value": "Informações clínicas" },
+        "progress": { "label": "Acompanhamento", "value": "Status do planejamento" }
+      }
+    },
+    "preview": {
+      "title": "Contexto clínico",
+      "description": "Identificação, imagens e anotações reunidas para acompanhar cada etapa do planejamento.",
+      "illustrationLabel": "Prévia ilustrativa com os dados do paciente, progresso de {progress}% com {completed} de {total} etapas concluídas, {uploaded} de {filesTotal} arquivos enviados, {reports} relatórios feitos e exame {examStatus}.",
+      "patient": {
+        "subtitle": "Dados do paciente",
+        "caseId": "Caso {id}",
+        "labels": {
+          "age": "Idade",
+          "birth": "Nascimento",
+          "weight": "Peso",
+          "breed": "Raça",
+          "sex": "Sexo",
+          "species": "Espécie"
+        },
+        "ageValue": "{years} anos",
+        "weightValue": "{weight, number} kg",
+        "breedValue": "SRD",
+        "sexValue": "Fêmea",
+        "speciesValue": "Canino"
+      },
+      "progress": {
+        "caption": "{completed} de {total} etapas"
+      },
+      "summary": {
+        "title": "Resumo do caso",
+        "labels": {
+          "uploads": "Arquivos enviados",
+          "reports": "Relatórios feitos",
+          "exam": "Exame"
+        },
+        "uploadsValue": "{uploaded} de {total}",
+        "reportsValue": "{count}",
+        "complete": "Completo",
+        "pending": "Pendente"
+      }
+    },
+    "overview": {
+      "title": "Cada caso conta",
+      "context": "Um caso reúne a identificação do paciente, as imagens e as informações clínicas usadas no planejamento. Na Orthovet, esse material fica no mesmo ambiente, para você consultar as referências e seguir a análise com o contexto à mão.",
+      "organization": "Nome, idade, espécie, raça e peso ajudam a identificar o paciente. Junto desses dados, as anotações clínicas registram o que merece atenção e ajudam a preservar as informações que orientam a avaliação, desde o primeiro contato com o caso.",
+      "files": "As radiografias e os documentos de apoio permanecem vinculados ao planejamento. Assim, você pode conferir o material já anexado, consultar um exame e voltar às informações do paciente enquanto revisa a imagem, mantendo as referências reunidas ao longo do trabalho.",
+      "continuity": "Quando for hora de continuar, a lista de casos ajuda a encontrar o ponto de partida. Use a busca para localizar o paciente e acompanhe pelos status o que está em rascunho, em planejamento, pronto ou arquivado antes de retomar a análise."
+    },
+    "faq": {
+      "eyebrow": "Dúvidas",
+      "title": "Perguntas frequentes",
+      "items": {
+        "information": {
+          "question": "Quais informações posso reunir em um caso?",
+          "answer": "Você pode reunir os dados de identificação do paciente, como nome, idade, espécie, raça e peso, junto das anotações clínicas, radiografias e documentos usados no planejamento."
+        },
+        "files": {
+          "question": "As imagens e os documentos ficam vinculados ao caso?",
+          "answer": "Sim. As radiografias e os arquivos de apoio permanecem junto do caso, para você consultar o material e as informações do paciente enquanto trabalha no planejamento."
+        },
+        "search": {
+          "question": "Como encontro um caso para continuar o planejamento?",
+          "answer": "Use a busca na lista de casos para localizar o paciente. Ao abrir o caso, você pode consultar os dados, os arquivos e as referências reunidas para retomar a análise."
+        },
+        "progress": {
+          "question": "Como acompanho a etapa de cada caso?",
+          "answer": "A lista apresenta o status de cada caso, permitindo acompanhar o que está em rascunho, em planejamento, pronto ou arquivado. Assim, você pode identificar a etapa antes de abrir o caso."
+        }
+      }
+    },
+    "modules": {
+      "title": "O que compõe cada caso.",
+      "description": "<strong>Da identificação do paciente aos arquivos do planejamento,</strong> uma organização que acompanha o seu trabalho.",
+      "items": {
+        "patient": {
+          "title": "Dados do paciente",
+          "description": "Nome, espécie, raça e anotações clínicas para manter o contexto do paciente junto ao planejamento.",
+          "sketch": {
+            "patientSummary": "{name} · {years} anos",
+            "save": "Salvar"
+          }
+        },
+        "files": {
+          "title": "Imagens e documentos",
+          "description": "Radiografias e arquivos de apoio reunidos no caso, prontos para consulta durante a análise.",
+          "sketch": {
+            "caseLabel": "Caso",
+            "image": "RX",
+            "document": "PDF",
+            "note": "Nota"
+          }
+        },
+        "tracking": {
+          "title": "Busca e acompanhamento",
+          "description": "Localize os casos pela busca e acompanhe o que está em rascunho, em planejamento, pronto ou arquivado.",
+          "sketch": {
+            "status": "Em planejamento"
+          }
+        }
+      }
+    }
+  }
+}

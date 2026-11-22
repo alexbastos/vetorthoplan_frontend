@@ -26,6 +26,20 @@ Seus wireframes não substituem o sistema visual atual do produto.
 
 ## Sequência de implementação
 
+O detalhamento de Osteotomia e simulação está no
+[plano de implementação TPLO](./tplo-simulation-implementation-plan.md), criado
+em 17/11/2026 com o contrato publicado e a fonte da revisão conferidos.
+As etapas 0 a 7 foram concluídas em 17/11/2026 e as etapas 8 a 11 em 18/11/2026.
+A etapa 12 (entrada pública e exclusão) foi concluída em 19/11/2026.
+Rotação/composição, parâmetros, tabela, confirmação, entrada e exclusão têm 126 testes
+locais aprovados junto das regressões anteriores; aceite visual e persistência
+integrada permanecem manuais. A etapa 13 continua pendente para esse aceite.
+O menu de osteotomia mantém apenas corte, fragmento e rotação/comparação;
+o agrupamento Referência clínica aguarda uma localização futura. Salvamentos
+normais mantêm o editor bloqueado e notificam a conclusão pelo Sonner.
+A demonstração inicial contempla casos TPLO, conforme alinhamento confirmado
+pelo usuário com o backend.
+
 | Etapa | Próxima entrega | Condição de aceite |
 | --- | --- | --- |
 | Medidas | Distância entre dois pontos; depois ângulo/círculo. | Calibração confirmada; desenho na matriz original; unidade/resultado persistido pelo servidor; zoom/pan/espelhamento não alteram a medida. |

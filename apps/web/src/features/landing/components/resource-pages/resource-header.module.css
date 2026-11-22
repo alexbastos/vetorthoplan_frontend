@@ -1,0 +1,29 @@
+.shell { position: relative; z-index: 20; max-width: 1440px; height: var(--header-height); margin-inline: auto; }
+.header {
+  position: absolute;
+  top: 0;
+  right: var(--shell-padding);
+  left: var(--shell-padding);
+  display: flex;
+  height: var(--header-height);
+  align-items: center;
+  gap: 48px;
+}
+.brand { display: inline-flex; flex: none; border-radius: 4px; }
+.brand img { display: block; width: auto; height: 24px; }
+.actions { display: flex; align-items: center; gap: 8px; margin-left: auto; color: #000; font-size: 14px; font-weight: 400; line-height: 20px; white-space: nowrap; }
+.createAccount { display: inline-flex; height: 32px; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 1000px; padding: 5px 15px; }
+.createAccount:hover { background: rgb(0 0 0 / 5%); }
+.header a:focus-visible { outline: 2px solid #568ba4; outline-offset: 4px; }
+
+@media (max-width: 1199px) {
+  .header { gap: 24px; }
+}
+@media (max-width: 639px) {
+  .header { flex-wrap: wrap; align-content: center; gap: 8px; }
+  .brand { margin-right: auto; }
+  .actions { flex-basis: 100%; justify-content: flex-end; margin-left: 0; }
+}
+@media (max-width: 380px) {
+  .actions { gap: 4px; }
+}

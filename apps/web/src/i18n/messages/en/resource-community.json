@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "title": "Community",
+    "description": "Explore the Orthovet Community proposal: conversations between veterinarians, case sharing and different perspectives on planning."
+  },
+  "title": "Community",
+  "tagline": "New perspectives on every case.",
+  "preview": {
+    "title": "A conversation opens possibilities",
+    "description": "Exchange references and discuss planning with other professionals, with the case context close at hand."
+  },
+  "facts": {
+    "note": "A proposal for Orthovet's evolution. The features presented here are being planned.",
+    "items": {
+      "professionals": {
+        "label": "Professionals",
+        "value": "Connections between veterinarians"
+      },
+      "conversations": {
+        "label": "Conversations",
+        "value": "Direct messages"
+      },
+      "cases": {
+        "label": "Cases",
+        "value": "Context for discussion"
+      },
+      "perspectives": {
+        "label": "Perspectives",
+        "value": "Exchange of observations"
+      }
+    }
+  },
+  "overview": {
+    "title": "Exchange perspectives",
+    "lead": "A case can raise questions worth discussing. The Community proposal brings veterinarians together within Orthovet, creating a space to share experience, discuss references and look at planning from different perspectives.",
+    "connections": "The idea is to help you find other professionals and start direct conversations within the environment where you organize your work. Each exchange might begin with a question, an observation or a planning detail you would like to discuss.",
+    "context": "We also want to bring these conversations closer to the cases. Sharing selected references can help explain what is being reviewed, providing the context needed for a discussion that goes beyond a standalone message.",
+    "perspectives": "This area is being planned. Its purpose is to support collaboration between colleagues while keeping the interpretation of information and clinical decisions with the professionals involved."
+  },
+  "modules": {
+    "title": "Conversations with context",
+    "description": "<strong>Connections, cases and new perspectives.</strong> A proposal to bring professionals together for more informed discussions about planning.",
+    "items": {
+      "connections": {
+        "title": "Professional connections",
+        "description": "Find colleagues and start direct conversations to share experience from your daily work.",
+        "sketch": {
+          "label": "Discuss"
+        }
+      },
+      "cases": {
+        "title": "Case discussions",
+        "description": "Bring case references into the conversation to give context to what you want to discuss.",
+        "sketch": {
+          "label": "Case OV-0248"
+        }
+      },
+      "discussion": {
+        "title": "Different perspectives",
+        "description": "Share observations and bring together different perspectives on planning.",
+        "sketch": {
+          "label": "New perspective"
+        }
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "Frequently asked questions",
+    "items": {
+      "availability": {
+        "question": "Is Community available yet?",
+        "answer": "The Community shown on this page is part of Orthovet's planned evolution. The illustrations show the proposed experience; the features and their availability are still to be defined."
+      },
+      "conversations": {
+        "question": "Will there be a feed or direct conversations?",
+        "answer": "The initial focus is direct conversations between professionals. We want to make it easier for colleagues to exchange information and experience, with space to discuss cases and planning references."
+      },
+      "sharing": {
+        "question": "Will all my cases be shared?",
+        "answer": "The proposal is for the professional to choose what to bring into each conversation. Automatically sharing all cases is not part of the idea presented here; access and sharing details are still to be defined."
+      },
+      "decisions": {
+        "question": "How does collaboration relate to planning?",
+        "answer": "Conversations may help bring together observations and different perspectives on a case. Reviewing the information and making clinical decisions remain the responsibility of the professionals involved."
+      }
+    }
+  }
+}

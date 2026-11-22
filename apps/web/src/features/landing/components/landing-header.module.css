@@ -1,0 +1,68 @@
+.header {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: var(--shell-padding);
+  left: var(--shell-padding);
+  display: flex;
+  height: var(--header-height);
+  align-items: center;
+  gap: 48px;
+}
+
+.brand { display: inline-flex; flex: none; border-radius: 4px; }
+.brand img { display: block; width: auto; height: 24px; }
+
+.desktopNav,
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.desktopNav a { padding-block: 6px; }
+.desktopNav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.headerActions { gap: 8px; margin-left: auto; color: #000; }
+.login,
+.register { display: inline-flex; height: 32px; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 1000px; padding: 5px 15px; }
+.register { border-color: #000; background: #000; color: #fff; }
+.login:hover { background: rgb(0 0 0 / 5%); }
+.register:hover { background: #292929; }
+.mobileMenu { display: none; }
+
+
+.header a:focus-visible,
+.header summary:focus-visible { outline: 2px solid #568ba4; outline-offset: 4px; }
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .header { gap: 24px; }
+  .desktopNav { gap: 20px; }
+}
+
+@media (max-width: 991px) {
+  .header { gap: 24px; }
+  .desktopNav { display: none; }
+  .mobileMenu { display: block; }
+  .mobileMenu summary { display: flex; width: 32px; height: 32px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 1000px; background: #000; color: #fff; cursor: pointer; list-style: none; }
+  .mobileMenu summary::-webkit-details-marker { display: none; }
+  .mobileMenu summary span { width: 16px; height: 1.5px; background: currentColor; }
+  .mobileMenu nav { position: absolute; z-index: 1; top: calc(var(--header-height) - 8px); right: 0; display: flex; min-width: 200px; flex-direction: column; padding: 8px; border: 1px solid #e8e8e8; border-radius: 8px; background: #fff; box-shadow: 0 12px 24px rgb(0 0 0 / 10%); }
+  .mobileMenu nav a { border-radius: 4px; padding: 12px; font-size: 14px; line-height: 20px; }
+  .mobileMenu nav a:hover { background: #f5f5f5; }
+}
+
+@media (max-width: 639px) {
+  .header { flex-wrap: wrap; align-content: center; gap: 8px; }
+  .brand { margin-right: auto; }
+  .headerActions { flex-basis: 100%; justify-content: flex-end; margin-left: 0; }
+  .mobileMenu summary { position: absolute; top: 16px; right: 0; }
+}
+
+@media (max-width: 380px) {
+  .headerActions { gap: 4px; }
+  .register { padding-inline: 10px; font-size: 12px; }
+}

@@ -8,9 +8,9 @@ async function ProductIntroSection() {
   const t = await getTranslations("orthovetLanding.intro")
 
   return (
-    <section aria-labelledby="orthovet-intro-title" className={styles.section} id="workflow">
+    <section aria-labelledby="orthovet-intro-title" className={styles.section} id="workflow" data-hero-intro>
       <div className={styles.inner}>
-        <h2 className={styles.label} id="orthovet-intro-title">
+        <h2 className={styles.label} id="orthovet-intro-title" data-hero-intro-item>
           <Link href="#platform">
             {t("label")}
             <ChevronRight aria-hidden="true" size={16} strokeWidth={1.75} />
@@ -18,11 +18,11 @@ async function ProductIntroSection() {
         </h2>
 
         <div className={styles.copy}>
-          <p>
+          <p data-hero-intro-item>
             <strong>{t("firstLead")}</strong>{" "}
             <span>{t("firstBody")}</span>
           </p>
-          <p>
+          <p data-hero-intro-item>
             <strong>{t("secondLead")}</strong>{" "}
             <span>{t("secondBody")}</span>
           </p>

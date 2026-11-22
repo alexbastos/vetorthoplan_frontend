@@ -23,6 +23,59 @@
       "status": "Em preparação"
     }
   },
+  "heroRebrand": {
+    "accessibleTitle": "Planeje cirurgias com precisão, do exame à decisão.",
+    "titlePrefix": "Planeje",
+    "titleLine2": "com precisão,",
+    "titleLine3": "do exame à decisão.",
+    "description": "Transforme radiografias em planos cirúrgicos. Reúna casos, calibre imagens, faça medições e planeje correções ortopédicas em um só ambiente, com referências claras para revisar cada decisão.",
+    "primaryAction": "Conhecer a plataforma",
+    "register": "Criar conta",
+    "workspace": {
+      "caseTitle": "Caso OV-0248 · Luna",
+      "back": "Voltar",
+      "forward": "Avançar",
+      "reload": "Recarregar quadro",
+      "search": "Buscar no caso",
+      "caseDetails": "Informações do caso",
+      "minimize": "Minimizar",
+      "close": "Fechar quadro"
+    },
+    "playback": {
+      "pause": "Pausar demonstração",
+      "resume": "Continuar demonstração",
+      "replay": "Repetir demonstração"
+    },
+    "caseList": {
+      "caseCode": "Caso {code}",
+      "profiles": {
+        "mixedDog": "Canino · SRD",
+        "goldenDog": "Canino · Golden Retriever",
+        "mixedCat": "Felino · SRD"
+      }
+    },
+    "saveFeedback": {
+      "title": "Marcações salvas",
+      "description": "As referências foram adicionadas ao planejamento."
+    },
+    "report": {
+      "title": "Relatório de planejamento",
+      "preview": "Prévia",
+      "image": "Imagem",
+      "measurements": "Medições",
+      "professional": "Responsável",
+      "footer": "Radiografia e marcações reunidas no relatório",
+      "ready": "Pronto para concluir",
+      "noteTitle": "Anotação clínica",
+      "note": "Radiografia lateral revisada. Referências do platô e do eixo tibial registradas no planejamento para revisão do caso.",
+      "conclude": "Concluir caso"
+    },
+    "words": {
+      "surgeries": "cirurgias",
+      "corrections": "correções",
+      "implants": "implantes"
+    }
+  },
   "marketingMockup": {
     "navigationLabel": "Etapas do planejamento",
     "profileName": "Dr. Marcos Paulo",
@@ -66,33 +119,315 @@
       "description": "Simule implantes, salve versões e prepare o relatório para revisão clínica."
     }
   },
+  "faq": {
+    "eyebrow": "Dúvidas",
+    "title": "Perguntas frequentes",
+    "items": {
+      "access": {
+        "question": "Preciso instalar algum programa para usar a Orthovet?",
+        "answer": "Não. A Orthovet é acessada pelo navegador. Você entra na sua conta para organizar os casos e trabalhar nas imagens, sem instalar um programa no computador. É necessário ter conexão com a internet."
+      },
+      "images": {
+        "question": "Quais formatos de radiografia posso utilizar?",
+        "answer": "A importação de imagens aceita arquivos DICOM (.dcm e .dicom), PNG e JPEG (.jpg e .jpeg). Depois de adicionar a radiografia ao caso, você pode abrir a imagem para calibrar e iniciar as marcações."
+      },
+      "calibration": {
+        "question": "Como funciona a calibração da imagem?",
+        "answer": "Você informa uma dimensão conhecida e posiciona seus pontos de referência na radiografia. A calibração estabelece a relação entre os pixels e essa dimensão, para que as medidas considerem a escala definida na imagem."
+      },
+      "saving": {
+        "question": "Posso salvar o planejamento e continuar depois?",
+        "answer": "Sim. Você pode salvar as marcações e retomar o planejamento ao abrir novamente o caso. Confira a confirmação de salvamento antes de sair do quadro para garantir que as alterações foram registradas."
+      },
+      "tools": {
+        "question": "Que ferramentas a plataforma oferece para o planejamento?",
+        "answer": "A Orthovet reúne ferramentas de distância, ângulo e círculo, além de recursos para definir eixos, organizar referências do planejamento cirúrgico e simular ajustes sobre a radiografia. As páginas de recursos apresentam cada uma dessas possibilidades."
+      },
+      "audience": {
+        "question": "Para quem a Orthovet foi desenvolvida?",
+        "answer": "Para médicos-veterinários que trabalham com planejamento ortopédico e querem reunir os dados do paciente, as radiografias e as referências da análise em um mesmo ambiente. A plataforma apoia a organização dos casos, a construção das marcações e a revisão do planejamento."
+      }
+    }
+  },
+  "routineBenefits": {
+    "eyebrow": "Na rotina clínica",
+    "titleLine1": "Mais clareza no planejamento.",
+    "titleLine2": "Mais fluidez na rotina.",
+    "items": {
+      "efficiency": {
+        "firstLine": "Dados e exames reunidos para",
+        "secondLine": "agilizar a organização do caso."
+      },
+      "flexibility": {
+        "firstLine": "Seus casos acessíveis na clínica",
+        "secondLine": "ou em outro computador."
+      },
+      "references": {
+        "firstLine": "Medidas calibradas para conferir",
+        "secondLine": "as referências da sua análise."
+      },
+      "planning": {
+        "firstLine": "Ajustes visíveis na radiografia",
+        "secondLine": "para revisar o plano cirúrgico."
+      },
+      "documentation": {
+        "firstLine": "Marcações e observações reunidas",
+        "secondLine": "para documentar o planejamento."
+      },
+      "collaboration": {
+        "firstLine": "Uma Comunidade em planejamento",
+        "secondLine": "para discutir casos com colegas."
+      }
+    }
+  },
+  "clinicalCaseStory": {
+    "eyebrow": "Um caso, quatro etapas",
+    "title": "Do primeiro exame ao planejamento salvo.",
+    "patientName": "Luna",
+    "scrollLabel": "Continue rolando",
+    "stepLabel": "Etapa {number}",
+    "savedPlan": {
+      "saving": "Salvando planejamento…",
+      "saved": "Planejamento salvo",
+      "subtitle": "Tudo vinculado ao caso da Luna",
+      "patient": "Luna",
+      "case": "Caso OV-0250",
+      "viewCase": "Ver caso",
+      "records": "REGISTROS VINCULADOS",
+      "responsible": "Profissional responsável",
+      "professional": "Dr. Marcos Paulo",
+      "allSaved": "Alterações salvas",
+      "items": {
+        "radiograph": { "name": "Radiografia lateral", "status": "Vinculada" },
+        "calibration": { "name": "Calibração da imagem", "status": "Salva" },
+        "landmarks": { "name": "Referências anatômicas", "status": "Registradas" },
+        "plan": { "name": "Plano ortopédico", "status": "Salvo" }
+      }
+    },
+    "planningWorkspace": {
+      "patient": "Luna",
+      "case": "Caso OV-0250 · Planejamento",
+      "planning": "Em planejamento",
+      "radiograph": "Radiografia lateral",
+      "calibration": "Calibração da imagem",
+      "scaleDefined": "Escala definida",
+      "references": "Referências",
+      "plateau": "Platô tibial",
+      "axis": "Eixo tibial",
+      "angle": "Ângulo TPA",
+      "readyForReview": "Pronto para revisar",
+      "referencesDefined": "Referências definidas sobre a imagem"
+    },
+    "patientProfile": {
+      "name": "Luna",
+      "subtitle": "Caso OV-0250 · Ficha clínica",
+      "species": "Canino",
+      "breed": "SRD",
+      "professional": "Dr. Marcos Paulo",
+      "openPlanning": "Abrir planejamento",
+      "viewExams": "Ver exames",
+      "patientDetails": "Informações da paciente",
+      "caseNotes": "Anotações do caso",
+      "examReferences": "Referências dos exames",
+      "chips": {
+        "region": "Membro pélvico",
+        "lateral": "Lateral",
+        "format": "DICOM",
+        "craniocaudal": "Crânio-caudal"
+      },
+      "stats": {
+        "age": { "label": "Idade", "value": "4 anos" },
+        "weight": { "label": "Peso", "value": "22,4 kg" },
+        "exams": { "label": "Exames vinculados", "value": "02" },
+        "status": { "label": "Situação do caso", "value": "Ativo" }
+      }
+    },
+    "stepOneCards": {
+      "items": {
+        "cases": {
+          "luna": {
+            "name": "Luna",
+            "subtitle": "Canino · 4 anos",
+            "primary": "OV-0250",
+            "unit": " · Caso ortopédico",
+            "status": "Ativo",
+            "descriptionLine1": "Dados do paciente e radiografias reunidos",
+            "descriptionLine2": "para iniciar o planejamento ortopédico.",
+            "chip1": "Canino",
+            "chip2": "4 anos",
+            "chip3": "Em análise"
+          },
+          "toti": {
+            "name": "Toti",
+            "subtitle": "Canino · 6 anos",
+            "primary": "OV-0248",
+            "unit": " · Caso ortopédico",
+            "status": "Ativo",
+            "descriptionLine1": "Exames e marcações vinculados ao caso",
+            "descriptionLine2": "para continuar a revisão do planejamento.",
+            "chip1": "Canino",
+            "chip2": "6 anos",
+            "chip3": "Em revisão"
+          }
+        },
+        "professionals": {
+          "marcos": {
+            "name": "Dr. Marcos Paulo",
+            "subtitle": "Médico-veterinário · Ortopedia",
+            "primary": "Luna",
+            "unit": " · Caso OV-0250",
+            "status": "",
+            "descriptionLine1": "",
+            "descriptionLine2": "",
+            "chip1": "Responsável",
+            "chip2": "Luna",
+            "chip3": "Ativo"
+          },
+          "marina": {
+            "name": "Dra. Marina Costa",
+            "subtitle": "Médica-veterinária · Planejamento",
+            "primary": "Toti",
+            "unit": " · Caso OV-0248",
+            "status": "",
+            "descriptionLine1": "",
+            "descriptionLine2": "",
+            "chip1": "Responsável",
+            "chip2": "Toti",
+            "chip3": "Ativo"
+          }
+        }
+      }
+    },
+    "visuals": {
+      "case": "Caso",
+      "secondPatientName": "Toti",
+      "patientMeta": "Canino · 4 anos",
+      "secondPatientMeta": "Canino · 6 anos",
+      "professionalName": "Dr. Marcos Paulo",
+      "responsible": "Profissional responsável",
+      "active": "Ativo",
+      "draft": "Rascunho",
+      "completed": "Finalizado",
+      "casesTab": "Casos",
+      "professionalsTab": "Profissionais",
+      "search": "Buscar",
+      "casePlanning": "Planejamento ortopédico",
+      "lateral": "Radiografia lateral",
+      "calibrate": "Calibrar imagem",
+      "scale": "Escala conhecida",
+      "planning": "Planejamento ortopédico",
+      "axis": "Eixo anatômico",
+      "measure": "Referência angular",
+      "simulation": "Simulação",
+      "review": "Em revisão",
+      "report": "Relatório clínico",
+      "saved": "Salvo no caso"
+    },
+    "moments": {
+      "context": {
+        "title": "Encontre o caso.\nRetome o plano.",
+        "description": "Encontre pacientes, exames e profissionais no contexto de cada caso."
+      },
+      "scale": {
+        "title": "Conheça o paciente.\nPrepare o planejamento.",
+        "description": "Confira os dados clínicos e os exames vinculados antes de iniciar a análise."
+      },
+      "planning": {
+        "title": "Defina as referências.\nVisualize o planejamento.",
+        "description": "Calibre a imagem e trace as referências anatômicas para estruturar o plano."
+      },
+      "review": {
+        "title": "Salve o planejamento.\nRetome quando precisar.",
+        "description": "Imagem, calibração e referências ficam vinculadas ao caso para consulta e revisão."
+      }
+    }
+  },
+  "capabilities": {
+    "assurance": {
+      "label": "Seu planejamento na Orthovet",
+      "action": "Conheça a plataforma",
+      "items": {
+        "review": {
+          "title": "Você no controle",
+          "description": "Revise as marcações antes de concluir o planejamento."
+        },
+        "context": {
+          "title": "Contexto preservado",
+          "description": "Imagens, medidas e anotações ligadas ao mesmo caso."
+        },
+        "continuity": {
+          "title": "Pronto para retomar",
+          "description": "Seu planejamento salvo para continuar entre atendimentos."
+        }
+      }
+    },
+    "eyebrow": "Recursos da plataforma",
+    "titleLine1": "Tudo para o seu planejamento.",
+    "titleLine2": "Em um só lugar.",
+    "description": "<strong>Organize, meça, simule e revise.</strong> Com a imagem e as referências do caso sempre no mesmo ambiente.",
+    "accordionLabel": "Explore os recursos da Orthovet",
+    "comingSoon": "Em breve",
+    "cardAction": "Ver detalhes",
+    "items": {
+      "cases": {
+        "title": "Casos e pacientes",
+        "description": "O contexto do paciente, sempre à mão.",
+        "caption": "Organização clínica"
+      },
+      "measurements": {
+        "title": "Ferramentas de medição",
+        "description": "Cada medida começa com uma referência.",
+        "caption": "Escala e referências"
+      },
+      "methods": {
+        "title": "Planejamento cirúrgico",
+        "description": "Do método às marcações na imagem.",
+        "caption": "Referências anatômicas"
+      },
+      "simulation": {
+        "title": "Simulação",
+        "description": "Visualize o plano antes de operar.",
+        "caption": "Planejamento visual"
+      },
+      "assistants": {
+        "title": "AI Assistants",
+        "description": "Mais apoio para organizar e revisar.",
+        "caption": "Inteligência artificial"
+      },
+      "community": {
+        "title": "Comunidade",
+        "description": "Uma conversa ligada a cada caso.",
+        "caption": "Troca entre médicos"
+      }
+    }
+  },
   "workflow": {
     "eyebrow": "Fluxo de planejamento",
-    "title": "Da radiografia ao plano, em um fluxo rastre\u00e1vel.",
-    "descriptionMuted": "Centralize o exame, a escala, as medi\u00e7\u00f5es, a simula\u00e7\u00e3o",
-    "descriptionEmphasis": "e a revis\u00e3o profissional antes da cirurgia.",
+    "title": "Da radiografia ao plano, em um fluxo rastreável.",
+    "descriptionMuted": "Centralize o exame, a escala, as medições, a simulação",
+    "descriptionEmphasis": "e a revisão profissional antes da cirurgia.",
     "workspace": {
-      "label": "Pr\u00e9via do fluxo de planejamento Orthovet",
-      "title": "Planejamento digital, do exame \u00e0 decis\u00e3o.",
-      "description": "A interface cl\u00ednica detalhada ser\u00e1 apresentada nesta \u00e1rea.",
-      "status": "Em prepara\u00e7\u00e3o"
+      "label": "Prévia do fluxo de planejamento Orthovet",
+      "title": "Planejamento digital, do exame à decisão.",
+      "description": "A interface clínica detalhada será apresentada nesta área.",
+      "status": "Em preparação"
     },
     "caseBuilder": {
-      "label": "Pr\u00e9via da constru\u00e7\u00e3o de um caso Orthovet",
+      "label": "Prévia da construção de um caso Orthovet",
       "title": "Construa o caso",
-      "description": "Re\u00fana paciente, contexto cl\u00ednico e arquivos de imagem antes de iniciar o planejamento.",
-      "identification": "Identifica\u00e7\u00e3o",
+      "description": "Reúna paciente, contexto clínico e arquivos de imagem antes de iniciar o planejamento.",
+      "identification": "Identificação",
       "caseName": "Nome do caso",
-      "caseValue": "THR \u00b7 Luna",
+      "caseValue": "THR · Luna",
       "patient": "Paciente",
-      "patientValue": "Luna \u00b7 Canino \u00b7 8 anos",
-      "clinicalContext": "Contexto cl\u00ednico",
-      "clinicalNote": "Avalia\u00e7\u00e3o pr\u00e9-operat\u00f3ria para planejamento de quadril esquerdo.",
+      "patientValue": "Luna · Canino · 8 anos",
+      "clinicalContext": "Contexto clínico",
+      "clinicalNote": "Avaliação pré-operatória para planejamento de quadril esquerdo.",
       "files": "Arquivos do caso",
       "fileCount": "2 arquivos associados",
       "upload": "Adicionar exames e documentos",
       "radiograph": "Radiografia lateral",
-      "documents": "Hist\u00f3rico cl\u00ednico",
+      "documents": "Histórico clínico",
       "readiness": "Completude do caso",
       "readyStatus": "Pronto para planejar",
       "saveAction": "Salvar caso",
@@ -100,14 +435,14 @@
       "stepStatus": "Etapa 01 de 04"
     },
     "calibrationScene": {
-      "label": "Pr\u00e9via da calibra\u00e7\u00e3o de escala de uma radiografia Orthovet",
+      "label": "Prévia da calibração de escala de uma radiografia Orthovet",
       "title": "Calibre a escala",
-      "description": "Defina a refer\u00eancia e ajuste a escala antes de medir.",
+      "description": "Defina a referência e ajuste a escala antes de medir.",
       "stepStatus": "Etapa 02 de 04",
       "image": "Radiografia lateral",
       "guidance": "Ajuste manual assistido",
       "mirror": "Espelhar radiografia",
-      "orientation": "Orienta\u00e7\u00e3o do paciente",
+      "orientation": "Orientação do paciente",
       "orientationLeft": "Esquerda",
       "orientationRight": "Direita",
       "scale": "Escala conhecida",
@@ -139,44 +474,69 @@
     },
     "ui": {
       "caseId": "Caso OV-0248",
-      "caseLabel": "Planejamento pr\u00e9-operat\u00f3rio",
+      "caseLabel": "Planejamento pré-operatório",
       "imageLabel": "Radiografia lateral",
       "imageSecondary": "Radiografia craniocaudal",
-      "imageTertiary": "Radiografia obl\u00edqua",
+      "imageTertiary": "Radiografia oblíqua",
       "information": "Caso",
-      "surgical": "Cir\u00fargico",
-      "professional": "M\u00f3vel",
-      "sharing": "Refer\u00eancia e compartilhamento",
-      "addSurgeon": "Adicionar cirurgi\u00e3o",
+      "surgical": "Cirúrgico",
+      "professional": "Móvel",
+      "sharing": "Referência e compartilhamento",
+      "addSurgeon": "Adicionar cirurgião",
       "images": "Imagens",
       "tools": "Ferramentas",
       "imageTab": "Imagem",
-      "calibration": "Calibra\u00e7\u00e3o v\u00e1lida",
-      "reference": "Refer\u00eancia: esfera 25 mm",
-      "measurements": "Medi\u00e7\u00f5es",
-      "measurementAxis": "Eixo anat\u00f4mico",
+      "calibration": "Calibração válida",
+      "reference": "Referência: esfera 25 mm",
+      "measurements": "Medições",
+      "measurementAxis": "Eixo anatômico",
       "measurementAngle": "Medida linear",
       "implant": "Implante planejado",
-      "implantDescription": "Item de biblioteca versionada para revis\u00e3o profissional.",
-      "version": "Plano v1 \u00b7 rascunho"
+      "implantDescription": "Item de biblioteca versionada para revisão profissional.",
+      "version": "Plano v1 · rascunho"
     },
     "steps": {
       "import": {
         "title": "Construa o caso",
-        "description": "Re\u00fana dados do paciente, radiografias e contexto cl\u00ednico em um caso organizado e rastre\u00e1vel."
+        "description": "Reúna dados do paciente, radiografias e contexto clínico em um caso organizado e rastreável."
       },
       "calibrate": {
         "title": "Calibre a escala",
-        "description": "Registre refer\u00eancia, unidade e fator de calibra\u00e7\u00e3o antes das medi\u00e7\u00f5es."
+        "description": "Registre referência, unidade e fator de calibração antes das medições."
       },
       "plan": {
-        "title": "Me\u00e7a e simule",
+        "title": "Meça e simule",
         "description": "Trace eixos, registre medidas e posicione implantes versionados sobre a imagem."
       },
       "review": {
         "title": "Revise o plano",
-        "description": "Salve vers\u00f5es, identifique o respons\u00e1vel e prepare o relat\u00f3rio cl\u00ednico."
+        "description": "Salve versões, identifique o responsável e prepare o relatório clínico."
       }
     }
+  },
+  "footer": {
+    "homeLinkLabel": "Orthovet — início",
+    "brandDescription": "Precisão no planejamento. Mais clareza para cada decisão clínica.",
+    "navigationLabel": "Navegação de produto",
+    "exploreNavigationLabel": "Explore a Orthovet",
+    "legalNavigationLabel": "Links legais",
+    "accountNavigationLabel": "Acesso à plataforma",
+    "groups": {
+      "product": "Produto",
+      "explore": "Explore",
+      "legal": "Legal"
+    },
+    "links": {
+      "workflow": "Como funciona",
+      "platform": "Plataforma",
+      "resources": "Recursos",
+      "faq": "Perguntas frequentes",
+      "cases": "Casos e pacientes",
+      "community": "Comunidade",
+      "privacy": "Política de Privacidade",
+      "terms": "Termos de Uso",
+      "login": "Entrar"
+    },
+    "copyright": "© {year} Orthovet. Todos os direitos reservados."
   }
 }

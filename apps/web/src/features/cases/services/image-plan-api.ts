@@ -1,7 +1,8 @@
 import { z } from "zod"
 
 import { ImagePlanSchema, SaveCalibrationSchema, type ImagePlan, type SaveCalibrationInput } from "../schemas/image-plan.schema"
-import { planCommandMatches, SavePlanEditSchema, type PlanSaveCommand, type SavePlanEditInput } from "../schemas/image-plan-command.schema"
+import { planCommandMatches, planEditBodyLimit, SavePlanEditTransportSchema,
+  type PlanOperation, type SavePlanEditTransportInput } from "../schemas/image-plan-command.schema"
 import { caseFetch } from "./case-fetch"
 
 const uuid = z.string().uuid()
@@ -25,15 +26,19 @@ class ImagePlanError extends Error {
   }
 }
 
-async function requestPlan(caseId: string, imageId: string, input: PlanSaveCommand | undefined, options: Options): Promise<ImagePlan> {
+async function requestPlan(caseId: string, imageId: string, input: PlanOperation | undefined, options: Options): Promise<ImagePlan> {
   if (!uuid.safeParse(caseId).success || !uuid.safeParse(imageId).success) throw new ImagePlanError("VALIDATION_ERROR")
   const writing = input !== undefined
   const editing = input !== undefined && "kind" in input
+  const requestBody = writing ? JSON.stringify(input) : undefined
+  if (editing && new TextEncoder().encode(requestBody).byteLength > planEditBodyLimit(input.kind)) {
+    throw new ImagePlanError("VALIDATION_ERROR")
+  }
   let response: Response
   try {
     response = await (options.fetchImpl ?? caseFetch)(`/api/cases/${encodeURIComponent(caseId)}/images/${encodeURIComponent(imageId)}/plan${editing ? "/edits" : ""}`, {
       method: editing ? "PATCH" : writing ? "PUT" : "GET", cache: "no-store", credentials: "same-origin", signal: options.signal,
-      ...(writing ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) } : {}),
+      ...(writing ? { headers: { "Content-Type": "application/json" }, body: requestBody } : {}),
     })
   } catch (error) {
     if (!writing && options.signal?.aborted) throw error
@@ -63,8 +68,8 @@ function saveImageCalibration(caseId: string, imageId: string, value: SaveCalibr
   return requestPlan(caseId, imageId, input.data, options)
 }
 
-function saveImagePlanEdit(caseId: string, imageId: string, value: SavePlanEditInput, options: Options = {}): Promise<ImagePlan> {
-  const input = SavePlanEditSchema.safeParse(value)
+function saveImagePlanEdit(caseId: string, imageId: string, value: SavePlanEditTransportInput, options: Options = {}): Promise<ImagePlan> {
+  const input = SavePlanEditTransportSchema.safeParse(value)
   if (!input.success) return Promise.reject(new ImagePlanError("VALIDATION_ERROR"))
   return requestPlan(caseId, imageId, input.data, options)
 }
