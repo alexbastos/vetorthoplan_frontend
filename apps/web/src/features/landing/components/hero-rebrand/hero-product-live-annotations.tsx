@@ -44,7 +44,7 @@ function HeroProductLiveAnnotations({ locale }: { locale: string }) {
     {(["plateau", "axis", "reference"] as const).map(kind => <TpaSegment construction={construction} key={kind} kind={kind} pixel={pixel} />)}
     <motion.path d={arc} data-tpa-arc fill="none" opacity={arcOpacity} stroke={heroTpaColors.angle} strokeOpacity={0.72} strokeWidth={strokeWidth} />
     <motion.text data-tpa-label dominantBaseline="middle" fill={heroTpaColors.angle} fontFamily="var(--font-data), monospace"
-      attrX={labelX} attrY={labelY} fontSize={fontSize} opacity={labelOpacity} textAnchor="middle">{label}</motion.text>
+      x={labelX} y={labelY} fontSize={fontSize} opacity={labelOpacity} textAnchor="middle">{label}</motion.text>
     {heroTpaPoints.map((point, index) => <motion.circle cx={point.x * heroRadiograph.widthPx} cy={point.y * heroRadiograph.heightPx}
       data-tpa-point={index} fill={heroTpaColors.line} key={index} opacity={state.points > index ? 1 : 0} r={pointRadius} />)}
     <motion.circle cx={previewX} cy={previewY} data-tpa-preview fill="none" opacity={previewOpacity} r={previewRadius} stroke={heroTpaColors.line} strokeWidth={strokeWidth} />
