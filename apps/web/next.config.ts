@@ -21,6 +21,13 @@ const nextConfig: NextConfig = {
   output: isStandaloneBuild ? "standalone" : undefined,
   transpilePackages: ["@vetorthoplan/api-client"],
   devIndicators: false,
+  experimental: {
+    serverActions: {
+      // The hosting proxy may forward an internal Host instead of the public domain.
+      // Trust only the deployed browser origin; all other origins stay restricted.
+      allowedOrigins: ["orthovet.com.br"],
+    },
+  },
   async headers() {
     return [
       {
