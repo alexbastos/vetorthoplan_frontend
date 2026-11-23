@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server"
 import { Button } from "@/components/ui/button"
 import { CaptaBrandLogo } from "@/components/ui/capta-brand-logo"
 import { LandingLocaleSwitcher } from "@/features/landing/components/landing-locale-switcher"
+import { LandingSectionDivider } from "@/features/landing/components/landing-section-divider"
 
 import styles from "./legal-page.module.css"
 
@@ -27,7 +28,7 @@ async function LegalHeader() {
           <CaptaBrandLogo alt="" className="h-auto w-16 sm:w-24" height={24} variant="adaptive" width={96} />
         </Link>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          <LandingLocaleSwitcher />
+          <LandingLocaleSwitcher variant="label" />
           <Button asChild className="max-sm:px-2" size="sm" variant="ghost">
             <Link href="/login">{t("login")}</Link>
           </Button>
@@ -36,6 +37,7 @@ async function LegalHeader() {
           </Button>
         </div>
       </nav>
+      <LandingSectionDivider className={styles.divider} />
     </header>
   )
 }

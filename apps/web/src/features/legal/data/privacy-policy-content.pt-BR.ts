@@ -2,16 +2,16 @@ import type { LegalDocumentContent } from "./legal-document-content"
 
 const privacyPolicyContentPtBR = {
   "language": "pt-BR",
-  "title": "POLÍTICA DE PRIVACIDADE DA CAPTA",
+  "title": "POLÍTICA DE PRIVACIDADE DA ORTHOVET",
   "lastUpdated": "Última atualização: setembro de 2026",
   "blocks": [
     {
       "type": "paragraph",
-      "text": "[RAZÃO SOCIAL DA EMPRESA], inscrita no CNPJ sob o nº [CNPJ], com sede em [ENDEREÇO COMPLETO] (“Capta”, “nós”), leva a sério a privacidade e a proteção dos dados pessoais. Esta Política de Privacidade (“Política”) explica, de forma transparente, quais dados tratamos, por quê, com quem compartilhamos, por quanto tempo guardamos e como você pode exercer seus direitos, em conformidade com a Lei nº 13.709/2018 (LGPD)."
+      "text": "[RAZÃO SOCIAL DA EMPRESA], inscrita no CNPJ sob o nº [CNPJ], com sede em [ENDEREÇO COMPLETO] (“Orthovet”, “nós”), leva a sério a privacidade e a proteção dos dados pessoais. Esta Política de Privacidade (“Política”) explica, de forma transparente, quais dados tratamos, por quê, com quem compartilhamos, por quanto tempo guardamos e como você pode exercer seus direitos, em conformidade com a Lei nº 13.709/2018 (LGPD)."
     },
     {
       "type": "paragraph",
-      "text": "Esta Política aplica-se ao site institucional da Capta, à plataforma Capta (web e aplicativos), aos canais oficiais de atendimento e comunicação, e a todos os titulares de dados: municípios e demais entes contratantes, servidores e agentes públicos autorizados, beneficiários de programas e convênios geridos na Plataforma, visitantes do site e leads comerciais."
+      "text": "Esta Política aplica-se ao site institucional da Orthovet, à plataforma Orthovet (web e aplicativos), aos canais oficiais de atendimento e comunicação, e a todos os titulares de dados: municípios e demais entes contratantes, servidores e agentes públicos autorizados, beneficiários de programas e convênios geridos na Plataforma, visitantes do site e leads comerciais."
     },
     {
       "type": "heading",
@@ -24,7 +24,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Se seus dados foram inseridos na Plataforma por um município ou órgão contratante, quem controla esses dados é esse órgão — a Capta atua como operadora, sob as instruções dele. Pedidos sobre esses dados devem ser dirigidos primeiro ao órgão contratante, e nós cooperamos."
+      "text": "Se seus dados foram inseridos na Plataforma por um município ou órgão contratante, quem controla esses dados é esse órgão — a Orthovet atua como operadora, sob as instruções dele. Pedidos sobre esses dados devem ser dirigidos primeiro ao órgão contratante, e nós cooperamos."
     },
     {
       "type": "paragraph",
@@ -45,7 +45,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "O papel da Capta muda conforme de onde o dado vem e para que ele serve. Quando servidores, agentes públicos ou beneficiários de programas têm seus dados inseridos na Plataforma pelo órgão contratante, é esse órgão quem decide o que fazer com eles — a Capta apenas segue essas instruções, na posição de operadora, nos termos do Anexo I dos Termos de Uso. Já os dados que a própria Capta coleta para funcionar como empresa — cadastro do órgão contratante, faturamento, segurança, prevenção a fraude, e também os dados de quem visita o site institucional ou vira lead comercial — esses são tratados sob decisão direta da Capta, que aí atua como controladora."
+      "text": "O papel da Orthovet muda conforme de onde o dado vem e para que ele serve. Quando servidores, agentes públicos ou beneficiários de programas têm seus dados inseridos na Plataforma pelo órgão contratante, é esse órgão quem decide o que fazer com eles — a Orthovet apenas segue essas instruções, na posição de operadora, nos termos do Anexo I dos Termos de Uso. Já os dados que a própria Orthovet coleta para funcionar como empresa — cadastro do órgão contratante, faturamento, segurança, prevenção a fraude, e também os dados de quem visita o site institucional ou vira lead comercial — esses são tratados sob decisão direta da Orthovet, que aí atua como controladora."
     },
     {
       "type": "heading",
@@ -54,7 +54,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Você é servidor, agente público ou beneficiário de um programa gerido por um órgão que usa a Capta? Então quem decide o destino dos seus dados é esse órgão, não a Capta — inclusive é a ele que você deve dirigir qualquer pedido a respeito. A Capta coopera com esse órgão sempre que necessário e, se receber um pedido diretamente de você, o encaminha para lá."
+      "text": "Você é servidor, agente público ou beneficiário de um programa gerido por um órgão que usa a Orthovet? Então quem decide o destino dos seus dados é esse órgão, não a Orthovet — inclusive é a ele que você deve dirigir qualquer pedido a respeito. A Orthovet coopera com esse órgão sempre que necessário e, se receber um pedido diretamente de você, o encaminha para lá."
     },
     {
       "type": "heading",
@@ -64,7 +64,7 @@ const privacyPolicyContentPtBR = {
     {
       "type": "heading",
       "level": 3,
-      "text": "2.1 Dados tratados pela Capta como controladora"
+      "text": "2.1 Dados tratados pela Orthovet como controladora"
     },
     {
       "type": "table",
@@ -98,7 +98,7 @@ const privacyPolicyContentPtBR = {
     {
       "type": "heading",
       "level": 3,
-      "text": "2.2 Dados tratados pela Capta como operadora (por conta dos órgãos contratantes)"
+      "text": "2.2 Dados tratados pela Orthovet como operadora (por conta dos órgãos contratantes)"
     },
     {
       "type": "table",
@@ -127,7 +127,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "A Capta não solicita nem exige, para seu próprio cadastro, dados sensíveis dos órgãos contratantes. Eventuais dados sensíveis relacionados a beneficiários de programas sociais, de saúde ou de educação são inseridos pelo órgão contratante controlador, no exercício de sua própria atividade, e tratados pela Capta estritamente sob as instruções documentadas dele."
+      "text": "A Orthovet não solicita nem exige, para seu próprio cadastro, dados sensíveis dos órgãos contratantes. Eventuais dados sensíveis relacionados a beneficiários de programas sociais, de saúde ou de educação são inseridos pelo órgão contratante controlador, no exercício de sua própria atividade, e tratados pela Orthovet estritamente sob as instruções documentadas dele."
     },
     {
       "type": "heading",
@@ -194,7 +194,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "A Troni e as demais funcionalidades de IA da Capta existem para apoiar a identificação, a triagem e a organização de Editais e Convênios. Sobre elas, quatro compromissos valem a pena deixar explícitos. Primeiro: dados pessoais identificáveis não são usados para treinar modelos de inteligência artificial de uso geral, alheios à prestação do serviço. Segundo: quando fornecedores de IA entram como suboperadores, eles assumem contratualmente as mesmas obrigações de confidencialidade e proteção de dados, e ficam proibidos de usar esses dados para treinar seus próprios modelos. Terceiro: todo Conteúdo Gerado pela Troni — resumos, classificações, sugestões — precisa ser revisado por quem vai usá-lo antes de qualquer decisão ou submissão; a IA apoia, não substitui o julgamento técnico nem a leitura do edital oficial. E, por fim: dados que tenham sido de fato anonimizados, ao ponto de não identificar ninguém, podem ser usados para segurança, medição de desempenho e melhoria do serviço."
+      "text": "A Troni e as demais funcionalidades de IA da Orthovet existem para apoiar a identificação, a triagem e a organização de Editais e Convênios. Sobre elas, quatro compromissos valem a pena deixar explícitos. Primeiro: dados pessoais identificáveis não são usados para treinar modelos de inteligência artificial de uso geral, alheios à prestação do serviço. Segundo: quando fornecedores de IA entram como suboperadores, eles assumem contratualmente as mesmas obrigações de confidencialidade e proteção de dados, e ficam proibidos de usar esses dados para treinar seus próprios modelos. Terceiro: todo Conteúdo Gerado pela Troni — resumos, classificações, sugestões — precisa ser revisado por quem vai usá-lo antes de qualquer decisão ou submissão; a IA apoia, não substitui o julgamento técnico nem a leitura do edital oficial. E, por fim: dados que tenham sido de fato anonimizados, ao ponto de não identificar ninguém, podem ser usados para segurança, medição de desempenho e melhoria do serviço."
     },
     {
       "type": "heading",
@@ -203,7 +203,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "A venda de dados pessoais está fora de cogitação para a Capta. O que existe são compartilhamentos pontuais, sempre limitados ao necessário e sob obrigação de proteção de dados. Isso inclui os fornecedores que sustentam a operação — nuvem e hospedagem, segurança da informação, suporte e atendimento, inteligência artificial —, cuja lista de categorias fica disponível caso você solicite. Inclui também autoridades e órgãos de controle — tribunais de contas, controladorias, reguladores, Poder Judiciário —, quando exigido por lei, por norma ou por ordem competente; nesses casos, avaliamos a legitimidade do pedido e limitamos o que é compartilhado ao estritamente necessário. E, numa eventual reorganização societária, fusão, aquisição ou investimento, dados podem ser compartilhados com as partes envolvidas na operação, sempre preservando confidencialidade e finalidade, com aviso aos titulares quando a lei exigir."
+      "text": "A venda de dados pessoais está fora de cogitação para a Orthovet. O que existe são compartilhamentos pontuais, sempre limitados ao necessário e sob obrigação de proteção de dados. Isso inclui os fornecedores que sustentam a operação — nuvem e hospedagem, segurança da informação, suporte e atendimento, inteligência artificial —, cuja lista de categorias fica disponível caso você solicite. Inclui também autoridades e órgãos de controle — tribunais de contas, controladorias, reguladores, Poder Judiciário —, quando exigido por lei, por norma ou por ordem competente; nesses casos, avaliamos a legitimidade do pedido e limitamos o que é compartilhado ao estritamente necessário. E, numa eventual reorganização societária, fusão, aquisição ou investimento, dados podem ser compartilhados com as partes envolvidas na operação, sempre preservando confidencialidade e finalidade, com aviso aos titulares quando a lei exigir."
     },
     {
       "type": "heading",
@@ -212,7 +212,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Alguns fornecedores e suboperadores podem estar localizados no exterior ou processar dados fora do Brasil. Nessas hipóteses, a Capta adota mecanismos válidos nos termos da LGPD e da regulamentação da ANPD, tais como cláusulas contratuais padrão, decisão de adequação ou outro instrumento admitido, assegurando nível de proteção compatível com o desta Política."
+      "text": "Alguns fornecedores e suboperadores podem estar localizados no exterior ou processar dados fora do Brasil. Nessas hipóteses, a Orthovet adota mecanismos válidos nos termos da LGPD e da regulamentação da ANPD, tais como cláusulas contratuais padrão, decisão de adequação ou outro instrumento admitido, assegurando nível de proteção compatível com o desta Política."
     },
     {
       "type": "heading",
@@ -234,7 +234,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Se um incidente de segurança relevante for confirmado, a resposta da Capta começa por conter, investigar e remediar. Em seguida vêm as comunicações cabíveis: ao órgão contratante controlador, quando a Capta estiver atuando como operadora, sem demora e, em regra, dentro de 24 (vinte e quatro) horas da confirmação; e à ANPD e aos titulares, nos prazos e na forma da regulamentação, nos casos em que essa comunicação for responsabilidade direta da própria Capta, como controladora."
+      "text": "Se um incidente de segurança relevante for confirmado, a resposta da Orthovet começa por conter, investigar e remediar. Em seguida vêm as comunicações cabíveis: ao órgão contratante controlador, quando a Orthovet estiver atuando como operadora, sem demora e, em regra, dentro de 24 (vinte e quatro) horas da confirmação; e à ANPD e aos titulares, nos prazos e na forma da regulamentação, nos casos em que essa comunicação for responsabilidade direta da própria Orthovet, como controladora."
     },
     {
       "type": "heading",
@@ -273,7 +273,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Quando a Capta estiver na posição de operadora, um pedido sobre dados de servidor ou beneficiário segue para o órgão controlador, que é quem de fato decide sobre ele — a Capta entra dando apoio técnico: localizando, corrigindo, exportando, bloqueando ou excluindo o dado, na medida em que isso for tecnicamente possível e juridicamente cabível."
+      "text": "Quando a Orthovet estiver na posição de operadora, um pedido sobre dados de servidor ou beneficiário segue para o órgão controlador, que é quem de fato decide sobre ele — a Orthovet entra dando apoio técnico: localizando, corrigindo, exportando, bloqueando ou excluindo o dado, na medida em que isso for tecnicamente possível e juridicamente cabível."
     },
     {
       "type": "heading",
@@ -371,7 +371,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Tratamento automatizado, na Capta, serve para segurança, prevenção a fraudes e para a Troni recomendar ou organizar Editais e Convênios. O que ele nunca faz é decidir se alguém será habilitado, aprovado ou receberá recursos — isso está sempre nas mãos do órgão concedente, seguindo o edital ou instrumento aplicável. Se, ainda assim, alguma decisão tomada só com base em tratamento automatizado afetar seus interesses, você pode pedir que ela seja revista, com base no art. 20 da LGPD."
+      "text": "Tratamento automatizado, na Orthovet, serve para segurança, prevenção a fraudes e para a Troni recomendar ou organizar Editais e Convênios. O que ele nunca faz é decidir se alguém será habilitado, aprovado ou receberá recursos — isso está sempre nas mãos do órgão concedente, seguindo o edital ou instrumento aplicável. Se, ainda assim, alguma decisão tomada só com base em tratamento automatizado afetar seus interesses, você pode pedir que ela seja revista, com base no art. 20 da LGPD."
     },
     {
       "type": "heading",
@@ -389,7 +389,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Um órgão público que usa a Capta continua sujeito às suas obrigações de transparência ativa e passiva sob a Lei nº 12.527/2011 (Lei de Acesso à Informação), e ao controle de órgãos de controle interno e externo. Nada nesta Política restringe esse dever — ela trata apenas do tratamento de dados pessoais, respeitados os limites de sigilo que a própria lei prevê. E vale reforçar: informações sobre Editais e Convênios exibidas na Plataforma são, por natureza, públicas — não são dado pessoal e seguem um regime jurídico diferente do desta Política."
+      "text": "Um órgão público que usa a Orthovet continua sujeito às suas obrigações de transparência ativa e passiva sob a Lei nº 12.527/2011 (Lei de Acesso à Informação), e ao controle de órgãos de controle interno e externo. Nada nesta Política restringe esse dever — ela trata apenas do tratamento de dados pessoais, respeitados os limites de sigilo que a própria lei prevê. E vale reforçar: informações sobre Editais e Convênios exibidas na Plataforma são, por natureza, públicas — não são dado pessoal e seguem um regime jurídico diferente do desta Política."
     },
     {
       "type": "heading",
@@ -398,7 +398,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Para qualquer assunto de privacidade e proteção de dados — inclusive para exercer os direitos desta Política ou falar com o Encarregado pelo Tratamento de Dados Pessoais (DPO) — a Capta mantém um canal próprio:"
+      "text": "Para qualquer assunto de privacidade e proteção de dados — inclusive para exercer os direitos desta Política ou falar com o Encarregado pelo Tratamento de Dados Pessoais (DPO) — a Orthovet mantém um canal próprio:"
     },
     {
       "type": "paragraph",
@@ -420,7 +420,7 @@ const privacyPolicyContentPtBR = {
     },
     {
       "type": "paragraph",
-      "text": "Esta Política segue as leis brasileiras. Para dirimir eventuais controvérsias, fica eleito o foro [definir: da sede do órgão contratante / da comarca prevista no contrato administrativo ou edital / da sede da Capta], sem prejuízo de competência legal diversa que se aplique ao caso — inclusive a do domicílio do titular, quando a lei assim assegurar."
+      "text": "Esta Política segue as leis brasileiras. Para dirimir eventuais controvérsias, fica eleito o foro [definir: da sede do órgão contratante / da comarca prevista no contrato administrativo ou edital / da sede da Orthovet], sem prejuízo de competência legal diversa que se aplique ao caso — inclusive a do domicílio do titular, quando a lei assim assegurar."
     },
     {
       "type": "paragraph",

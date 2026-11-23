@@ -2,16 +2,16 @@ import type { LegalDocumentContent } from "./legal-document-content"
 
 const privacyPolicyContentEn = {
   "language": "en",
-  "title": "CAPTA PRIVACY POLICY",
+  "title": "ORTHOVET PRIVACY POLICY",
   "lastUpdated": "Last updated: September 2026",
   "blocks": [
     {
       "type": "paragraph",
-      "text": "[COMPANY LEGAL NAME], registered with the CNPJ under No. [CNPJ], with registered office at [FULL ADDRESS] (“Capta”, “we”, “us”), takes privacy and personal data protection seriously. This Privacy Policy (“Policy”) explains, transparently, which data we process, why, with whom we share it, how long we keep it, and how you may exercise your rights, in compliance with Brazilian Law No. 13,709/2018 (the Brazilian General Data Protection Law, “LGPD”)."
+      "text": "[COMPANY LEGAL NAME], registered with the CNPJ under No. [CNPJ], with registered office at [FULL ADDRESS] (“Orthovet”, “we”, “us”), takes privacy and personal data protection seriously. This Privacy Policy (“Policy”) explains, transparently, which data we process, why, with whom we share it, how long we keep it, and how you may exercise your rights, in compliance with Brazilian Law No. 13,709/2018 (the Brazilian General Data Protection Law, “LGPD”)."
     },
     {
       "type": "paragraph",
-      "text": "This Policy applies to Capta’s institutional website, the Capta platform (web and applications), official service and communication channels, and all data subjects: municipalities and other contracting entities, authorized public servants and officials, beneficiaries of programs and agreements managed in the Platform, website visitors, and commercial leads."
+      "text": "This Policy applies to Orthovet’s institutional website, the Orthovet platform (web and applications), official service and communication channels, and all data subjects: municipalities and other contracting entities, authorized public servants and officials, beneficiaries of programs and agreements managed in the Platform, website visitors, and commercial leads."
     },
     {
       "type": "heading",
@@ -24,7 +24,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "If your data was entered into the Platform by a municipality or contracting public body, that body controls the data. Capta acts as processor under its instructions. Requests about that data should first be sent to the contracting body, and we will cooperate."
+      "text": "If your data was entered into the Platform by a municipality or contracting public body, that body controls the data. Orthovet acts as processor under its instructions. Requests about that data should first be sent to the contracting body, and we will cooperate."
     },
     {
       "type": "paragraph",
@@ -45,7 +45,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "Capta’s role changes depending on where the data comes from and what it is used for. When public servants, officials, or program beneficiaries have their data entered into the Platform by the contracting body, that body decides what to do with it. Capta merely follows those instructions as processor, under Annex I to the Terms of Use. Data that Capta itself collects to operate as a company—such as contracting-body registration data, billing, security, fraud prevention, and data from visitors to the institutional website or commercial leads—is processed under Capta’s own decisions, in which case Capta acts as controller."
+      "text": "Orthovet’s role changes depending on where the data comes from and what it is used for. When public servants, officials, or program beneficiaries have their data entered into the Platform by the contracting body, that body decides what to do with it. Orthovet merely follows those instructions as processor, under Annex I to the Terms of Use. Data that Orthovet itself collects to operate as a company—such as contracting-body registration data, billing, security, fraud prevention, and data from visitors to the institutional website or commercial leads—is processed under Orthovet’s own decisions, in which case Orthovet acts as controller."
     },
     {
       "type": "heading",
@@ -54,7 +54,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "Are you a public servant, public official, or beneficiary of a program managed by a body that uses Capta? Then that body, not Capta, decides how your data is handled, and it is the body to which you should direct any related request. Capta cooperates with that body whenever necessary and, if it receives a request directly from you, forwards it to the body."
+      "text": "Are you a public servant, public official, or beneficiary of a program managed by a body that uses Orthovet? Then that body, not Orthovet, decides how your data is handled, and it is the body to which you should direct any related request. Orthovet cooperates with that body whenever necessary and, if it receives a request directly from you, forwards it to the body."
     },
     {
       "type": "heading",
@@ -64,7 +64,7 @@ const privacyPolicyContentEn = {
     {
       "type": "heading",
       "level": 3,
-      "text": "2.1 Data processed by Capta as controller"
+      "text": "2.1 Data processed by Orthovet as controller"
     },
     {
       "type": "table",
@@ -98,7 +98,7 @@ const privacyPolicyContentEn = {
     {
       "type": "heading",
       "level": 3,
-      "text": "2.2 Data processed by Capta as processor (on behalf of contracting public bodies)"
+      "text": "2.2 Data processed by Orthovet as processor (on behalf of contracting public bodies)"
     },
     {
       "type": "table",
@@ -127,7 +127,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "Capta does not request or require sensitive data from contracting bodies for its own registration purposes. Any sensitive data relating to beneficiaries of social, health, or education programs is entered by the contracting body as controller in the course of its own activities and is processed by Capta strictly under that body’s documented instructions."
+      "text": "Orthovet does not request or require sensitive data from contracting bodies for its own registration purposes. Any sensitive data relating to beneficiaries of social, health, or education programs is entered by the contracting body as controller in the course of its own activities and is processed by Orthovet strictly under that body’s documented instructions."
     },
     {
       "type": "heading",
@@ -194,7 +194,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "Troni and Capta’s other AI features exist to support the identification, screening, and organization of Public Notices and Agreements. Four commitments are worth making explicit. First: identifiable personal data is not used to train general-purpose artificial intelligence models unrelated to provision of the service. Second: when AI providers act as subprocessors, they contractually assume the same confidentiality and data protection obligations and are prohibited from using this data to train their own models. Third: all Generated Content produced by Troni—including summaries, classifications, and suggestions—must be reviewed by the person who will use it before any decision or submission; AI supports but does not replace technical judgment or reading the official public notice. Finally: data that has in fact been anonymized to the point where no one can be identified may be used for security, performance measurement, and service improvement."
+      "text": "Troni and Orthovet’s other AI features exist to support the identification, screening, and organization of Public Notices and Agreements. Four commitments are worth making explicit. First: identifiable personal data is not used to train general-purpose artificial intelligence models unrelated to provision of the service. Second: when AI providers act as subprocessors, they contractually assume the same confidentiality and data protection obligations and are prohibited from using this data to train their own models. Third: all Generated Content produced by Troni—including summaries, classifications, and suggestions—must be reviewed by the person who will use it before any decision or submission; AI supports but does not replace technical judgment or reading the official public notice. Finally: data that has in fact been anonymized to the point where no one can be identified may be used for security, performance measurement, and service improvement."
     },
     {
       "type": "heading",
@@ -203,7 +203,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "Capta does not sell personal data. What may occur are limited, necessary disclosures under data protection obligations. These include providers supporting our operations—cloud and hosting, information security, support and service, and artificial intelligence—whose category list is available upon request. They also include authorities and oversight bodies—courts of accounts, comptroller offices, regulators, and the Judiciary—when required by law, regulation, or a valid order; in these cases, we assess the legitimacy of the request and limit sharing to what is strictly necessary. In the event of a corporate reorganization, merger, acquisition, or investment, data may also be shared with the parties involved in the transaction, always preserving confidentiality and purpose, with notice to data subjects where required by law."
+      "text": "Orthovet does not sell personal data. What may occur are limited, necessary disclosures under data protection obligations. These include providers supporting our operations—cloud and hosting, information security, support and service, and artificial intelligence—whose category list is available upon request. They also include authorities and oversight bodies—courts of accounts, comptroller offices, regulators, and the Judiciary—when required by law, regulation, or a valid order; in these cases, we assess the legitimacy of the request and limit sharing to what is strictly necessary. In the event of a corporate reorganization, merger, acquisition, or investment, data may also be shared with the parties involved in the transaction, always preserving confidentiality and purpose, with notice to data subjects where required by law."
     },
     {
       "type": "heading",
@@ -212,7 +212,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "Some providers and subprocessors may be located abroad or process data outside Brazil. In such cases, Capta adopts mechanisms valid under the LGPD and ANPD regulations, such as standard contractual clauses, an adequacy decision, or another permitted instrument, ensuring a level of protection compatible with this Policy."
+      "text": "Some providers and subprocessors may be located abroad or process data outside Brazil. In such cases, Orthovet adopts mechanisms valid under the LGPD and ANPD regulations, such as standard contractual clauses, an adequacy decision, or another permitted instrument, ensuring a level of protection compatible with this Policy."
     },
     {
       "type": "heading",
@@ -234,7 +234,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "If a material security incident is confirmed, Capta’s response begins with containment, investigation, and remediation. Appropriate communications follow: to the contracting body as controller when Capta is acting as processor, without undue delay and generally within 24 (twenty-four) hours of confirmation; and to the ANPD and data subjects, within the periods and in the manner set by regulations, in cases where such communication is Capta’s own direct responsibility as controller."
+      "text": "If a material security incident is confirmed, Orthovet’s response begins with containment, investigation, and remediation. Appropriate communications follow: to the contracting body as controller when Orthovet is acting as processor, without undue delay and generally within 24 (twenty-four) hours of confirmation; and to the ANPD and data subjects, within the periods and in the manner set by regulations, in cases where such communication is Orthovet’s own direct responsibility as controller."
     },
     {
       "type": "heading",
@@ -273,7 +273,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "When Capta acts as processor, a request concerning public servant or beneficiary data is directed to the controller body, which is the body that actually decides on it. Capta provides technical support by locating, correcting, exporting, blocking, or deleting the data to the extent technically possible and legally appropriate."
+      "text": "When Orthovet acts as processor, a request concerning public servant or beneficiary data is directed to the controller body, which is the body that actually decides on it. Orthovet provides technical support by locating, correcting, exporting, blocking, or deleting the data to the extent technically possible and legally appropriate."
     },
     {
       "type": "heading",
@@ -371,7 +371,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "At Capta, automated processing is used for security, fraud prevention, and for Troni to recommend or organize Public Notices and Agreements. It never decides whether someone will be qualified, approved, or receive funding; that decision always rests with the granting body under the applicable public notice or instrument. If a decision made solely on the basis of automated processing nevertheless affects your interests, you may request its review under Article 20 of the LGPD."
+      "text": "At Orthovet, automated processing is used for security, fraud prevention, and for Troni to recommend or organize Public Notices and Agreements. It never decides whether someone will be qualified, approved, or receive funding; that decision always rests with the granting body under the applicable public notice or instrument. If a decision made solely on the basis of automated processing nevertheless affects your interests, you may request its review under Article 20 of the LGPD."
     },
     {
       "type": "heading",
@@ -389,7 +389,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "A public body using Capta remains subject to its active and passive transparency obligations under Brazilian Law No. 12,527/2011 (the Access to Information Law) and to oversight by internal and external control bodies. Nothing in this Policy restricts that duty; this Policy addresses only the processing of personal data, subject to the confidentiality limits provided by law. It is also worth emphasizing that information about Public Notices and Agreements displayed in the Platform is public by nature, is not personal data, and follows a legal regime distinct from this Policy."
+      "text": "A public body using Orthovet remains subject to its active and passive transparency obligations under Brazilian Law No. 12,527/2011 (the Access to Information Law) and to oversight by internal and external control bodies. Nothing in this Policy restricts that duty; this Policy addresses only the processing of personal data, subject to the confidentiality limits provided by law. It is also worth emphasizing that information about Public Notices and Agreements displayed in the Platform is public by nature, is not personal data, and follows a legal regime distinct from this Policy."
     },
     {
       "type": "heading",
@@ -398,7 +398,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "For any privacy or data protection matter—including exercising the rights under this Policy or contacting the Data Protection Officer (DPO)—Capta maintains a dedicated channel:"
+      "text": "For any privacy or data protection matter—including exercising the rights under this Policy or contacting the Data Protection Officer (DPO)—Orthovet maintains a dedicated channel:"
     },
     {
       "type": "paragraph",
@@ -420,7 +420,7 @@ const privacyPolicyContentEn = {
     },
     {
       "type": "paragraph",
-      "text": "This Policy is governed by Brazilian law. To resolve any disputes, the courts of [define: the contracting public body’s registered office / the judicial district specified in the administrative contract or bidding notice / Capta’s registered office] are elected, without prejudice to any different jurisdiction that applies by law, including the data subject’s domicile where the law so provides."
+      "text": "This Policy is governed by Brazilian law. To resolve any disputes, the courts of [define: the contracting public body’s registered office / the judicial district specified in the administrative contract or bidding notice / Orthovet’s registered office] are elected, without prejudice to any different jurisdiction that applies by law, including the data subject’s domicile where the law so provides."
     },
     {
       "type": "paragraph",
