@@ -521,6 +521,9 @@
     "exploreNavigationLabel": "Explore Orthovet",
     "legalNavigationLabel": "Legal links",
     "accountNavigationLabel": "Platform access",
+    "socialNavigationLabel": "Orthovet social channels",
+    "socialLinkedin": "Orthovet on LinkedIn",
+    "socialInstagram": "Orthovet on Instagram",
     "groups": {
       "product": "Product",
       "explore": "Explore",

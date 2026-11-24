@@ -1,6 +1,8 @@
 import { ChevronRight, Play } from "lucide-react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { orthovetPublicLinks } from "@/lib/orthovet-public-links"
+import { SocialChannelIcon } from "@/components/ui/social-channel-icon"
 
 import { HomeCommunityBrowser } from "./home-community-browser"
 import styles from "./home-page.module.css"
@@ -69,34 +71,26 @@ function HomeSpotlightBanners() {
           <div className={styles.communityFooter} data-home-banner-content>
             <ul aria-label={t("community.socialLabel")} className={styles.communitySocials}>
               <li className={styles.communitySocial}>
-                <button aria-disabled="true" aria-label={`Instagram. ${t("community.pending")}`} className={`${styles.communitySocialTab} ${styles.communitySocialInstagram}`} type="button">
+                <a aria-label={t("community.channelLink", { channel: "Instagram" })} className={`${styles.communitySocialTab} ${styles.communitySocialInstagram}`} href={orthovetPublicLinks.instagram} target="_blank" rel="noopener noreferrer">
                   <span aria-hidden="true" className={styles.communitySocialName}>Instagram</span>
-                  <svg aria-hidden="true" className={styles.communitySocialIcon} fill="none" height="18" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" width="18">
-                    <rect height="18" rx="5" width="18" x="3" y="3" />
-                    <circle cx="12" cy="12" r="4" />
-                    <circle cx="17.5" cy="6.5" fill="currentColor" r="1" stroke="none" />
-                  </svg>
-                </button>
+                  <SocialChannelIcon channel="instagram" className={styles.communitySocialIcon} size={18} />
+                </a>
               </li>
               <li className={styles.communitySocial}>
-                <button aria-disabled="true" aria-label={`LinkedIn. ${t("community.pending")}`} className={`${styles.communitySocialTab} ${styles.communitySocialLinkedin}`} type="button">
+                <a aria-label={t("community.channelLink", { channel: "LinkedIn" })} className={`${styles.communitySocialTab} ${styles.communitySocialLinkedin}`} href={orthovetPublicLinks.linkedin} target="_blank" rel="noopener noreferrer">
                   <span aria-hidden="true" className={styles.communitySocialName}>LinkedIn</span>
-                  <svg aria-hidden="true" className={styles.communitySocialIcon} fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
-                    <circle cx="5" cy="6" r="1.4" />
-                    <rect height="11" rx=".3" width="2.3" x="4" y="9" />
-                    <path d="M10 9h2.2v1.5c.6-1.1 1.7-1.8 3.3-1.8 2.6 0 4 1.6 4 4.4V20h-2.4v-6.5c0-1.7-.6-2.5-2-2.5-1.5 0-2.3 1-2.3 2.8V20H10V9Z" />
-                  </svg>
-                </button>
+                  <SocialChannelIcon channel="linkedin" className={styles.communitySocialIcon} size={18} />
+                </a>
               </li>
               <li className={styles.communitySocial}>
-                <button aria-disabled="true" aria-label={`Website. ${t("community.pending")}`} className={`${styles.communitySocialTab} ${styles.communitySocialWebsite}`} type="button">
+                <a aria-label={t("community.websiteLink")} className={`${styles.communitySocialTab} ${styles.communitySocialWebsite}`} href={orthovetPublicLinks.website} target="_blank" rel="noopener noreferrer">
                   <span aria-hidden="true" className={styles.communitySocialName}>Website</span>
                   <svg aria-hidden="true" className={styles.communitySocialIcon} fill="none" height="18" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" width="18">
                     <circle cx="12" cy="12" r="9" />
                     <ellipse cx="12" cy="12" rx="4" ry="9" />
                     <path d="M3 12h18" />
                   </svg>
-                </button>
+                </a>
               </li>
             </ul>
           </div>

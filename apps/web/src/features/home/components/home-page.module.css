@@ -355,9 +355,10 @@
   background: var(--color-card);
   color: var(--color-neutral-0);
   box-shadow: 0 4px 6px -1px rgb(23 23 25 / 10%);
-  cursor: default;
+  cursor: pointer;
   pointer-events: auto;
   transform: translateX(-112px);
+  text-decoration: none;
   transition: transform 500ms ease-out, box-shadow 500ms ease-out;
 }
 

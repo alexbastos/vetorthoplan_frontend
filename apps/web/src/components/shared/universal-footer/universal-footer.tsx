@@ -1,6 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
+import { SocialChannelIcon } from "@/components/ui/social-channel-icon"
+
+import { orthovetPublicLinks } from "@/lib/orthovet-public-links"
 
 import { FooterEntrance } from "./footer-entrance"
 import { FooterWordmark } from "./footer-wordmark"
@@ -33,6 +36,14 @@ async function UniversalFooter({ variant = "default" }: { variant?: "default" | 
                 <Image alt="" height={24} src="/brand/logo_vet_v2_black_spaced.svg" width={120} />
               </Link>
               <p>{t("brandDescription")}</p>
+              <nav className="universal-footer__socials" aria-label={t("socialNavigationLabel")}>
+                <a aria-label={t("socialInstagram")} href={orthovetPublicLinks.instagram} target="_blank" rel="noopener noreferrer">
+                  <SocialChannelIcon channel="instagram" />
+                </a>
+                <a aria-label={t("socialLinkedin")} href={orthovetPublicLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                  <SocialChannelIcon channel="linkedin" />
+                </a>
+              </nav>
             </div>
 
             <nav aria-label={t("navigationLabel")} className="universal-footer__group" data-footer-column>
